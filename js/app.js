@@ -42,12 +42,20 @@ const App = {
     // Hamburger menu toggle (mobile)
     document.getElementById('btn-menu-toggle-main').addEventListener('click', () => {
       const panel = document.getElementById('side-panel');
+      const toggleBtn = document.getElementById('btn-menu-toggle-main');
       const isOpen = panel.classList.contains('open');
       UI.togglePanel(!isOpen);
+      toggleBtn.classList.toggle('open');
     });
     document.getElementById('btn-menu-toggle').addEventListener('click', () => UI.togglePanel(true));
-    document.getElementById('btn-close-panel').addEventListener('click', () => UI.closePanel());
-    document.getElementById('panel-overlay').addEventListener('click', () => UI.closePanel());
+    document.getElementById('btn-close-panel').addEventListener('click', () => {
+      UI.closePanel();
+      document.getElementById('btn-menu-toggle-main').classList.remove('open');
+    });
+    document.getElementById('panel-overlay').addEventListener('click', () => {
+      UI.closePanel();
+      document.getElementById('btn-menu-toggle-main').classList.remove('open');
+    });
     document.getElementById('btn-save').addEventListener('click', () => UI.openPopup('save'));
     
     // Level up screen
