@@ -354,6 +354,12 @@ const EVENTS = [
         checks: { E: 7, A: 6 },
         success: { text: 'You overpromise but find a way to deliver. It\'s stressful but you pull it off. The executives are happy. (For now.)', effects: { A: 1, E: -1 }, log: 'Overpromised and delivered.' },
         failure: { text: 'You can\'t deliver on your promise. The executives lose trust in engineering. Future requests become more demanding.', effects: { C: -2, E: -2 }, log: 'Overpromised and underdelivered. 💀' }
+      },
+      {
+        text: 'Cry',
+        checks: { L: 10 },
+        success: { text: 'You break down in tears. The room goes silent. Then a Mysterious Stranger from a consultancy company walks in, explains the situation to the executives, and sells them on a brand new way of working. The VP of Sales is consequently restructured. Nobody knows how this happened, but the bill from the consultancy is... substantial.', effects: { C: 1, L: 2 }, log: 'Cried in the boardroom. Consultancy saved the day? 🤷' },
+        failure: { text: 'You start crying. It\'s not even a dramatic cry — just a quiet, confused weeping. The VP of Sales offers you a tissue and asks if you\'re okay. The CEO assumes you\'re having a medical episode and calls HR. The meeting is adjourned for 20 minutes while someone finds you a blanket. Nobody talks about it again.', effects: { E: -1, C: -1 }, log: 'Cried in the boardroom. HR was called. 😭' }
       }
     ]
   },
