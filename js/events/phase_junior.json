@@ -1,0 +1,810 @@
+[
+  {
+    "id": "first_code_review",
+    "title": "First Code Review",
+    "phase": 1,
+    "phaseLabel": "Junior Developer",
+    "narrative": "You've written your first meaningful feature. It works on your machine. You submit the pull request and wait.\n\nTwo hours later, your senior dev comments: \"Can you explain why you chose this approach? Also, have you considered edge cases? And can we add a unit test for the happy path?\"\n\nYour heart sinks.",
+    "choices": [
+      {
+        "text": "Defend your architecture confidently",
+        "checks": {
+          "C": 6
+        },
+        "success": {
+          "text": "You explain your reasoning clearly. The senior dev is impressed and approves the PR. \"Good thinking!\" they write.",
+          "effects": {
+            "C": 1,
+            "I": 1
+          },
+          "log": "First code review — passed with flying colors!"
+        },
+        "failure": {
+          "text": "You stammer through your explanation. The PR gets sent back with 12 more comments.",
+          "effects": {
+            "E": -1
+          },
+          "log": "First code review — painful."
+        }
+      },
+      {
+        "text": "Make all the changes silently",
+        "checks": {
+          "E": 4
+        },
+        "success": {
+          "text": "You fix everything they asked for. It's tedious but you learn a lot. PR approved.",
+          "effects": {
+            "P": 1
+          },
+          "log": "Fixed all code review comments."
+        },
+        "failure": {
+          "text": "You fix the obvious ones but miss the deeper issues. Second round of reviews.",
+          "effects": {
+            "E": -1,
+            "P": -1
+          },
+          "log": "Missed some review comments."
+        }
+      },
+      {
+        "text": "Ask for a 1:1 walkthrough instead",
+        "checks": {
+          "C": 5
+        },
+        "success": {
+          "text": "Great idea! You both hop on a call. They explain their concerns and you learn tons. PR approved.",
+          "effects": {
+            "C": 2,
+            "P": 1
+          },
+          "log": "Smart move — learned a lot in 1:1."
+        },
+        "failure": {
+          "text": "They're busy and say \"just comment on the PR.\" You're back to square one.",
+          "effects": {},
+          "log": "1:1 request declined."
+        }
+      }
+    ]
+  },
+  {
+    "id": "production_incident_1",
+    "title": "3 AM Production Incident",
+    "phase": 1,
+    "phaseLabel": "Junior Developer",
+    "narrative": "The pager goes off. It's 3:17 AM.\n\nProduction database is spiking. Response times are up 500%. Your monitoring dashboard looks like a stock market crash. The CEO just pinged you on Slack: \"URGENT - CEO here, we're losing $10k/min!\"\n\nYou're on call this week. Good luck.",
+    "choices": [
+      {
+        "text": "Roll back the last deployment",
+        "checks": {
+          "A": 5
+        },
+        "success": {
+          "text": "Quick rollback. The site stabilizes within minutes. The team is relieved. \"Nice save!\" says your manager.",
+          "effects": {
+            "A": 1,
+            "E": -1
+          },
+          "log": "Solved first production incident!"
+        },
+        "failure": {
+          "text": "Rollback didn't help — the bug was in the data, not the code. Now you really need to dig in...",
+          "effects": {
+            "E": -2,
+            "A": -1
+          },
+          "log": "Rollback failed. Crisis worsens."
+        }
+      },
+      {
+        "text": "Dive into logs immediately",
+        "checks": {
+          "P": 6
+        },
+        "success": {
+          "text": "You spot the anomalous query pattern. It's an unoptimized JOIN on a massive table. You fix it and deploy. Solved!",
+          "effects": {
+            "P": 2,
+            "I": 1
+          },
+          "log": "Found the bug through careful log analysis."
+        },
+        "failure": {
+          "text": "You spend 4 hours looking. It turns out to be a DNS issue. The network team had it fixed 2 hours ago.",
+          "effects": {
+            "E": -2
+          },
+          "log": "Spent hours debugging. It was DNS."
+        }
+      },
+      {
+        "text": "Call a war room meeting",
+        "checks": {
+          "C": 4
+        },
+        "success": {
+          "text": "You rally the team. Everyone pitches in. The senior dev finds the issue within 30 minutes. You learn by osmosis.",
+          "effects": {
+            "C": 1,
+            "E": -1
+          },
+          "log": "Led the war room effort."
+        },
+        "failure": {
+          "text": "Everyone's asleep. You get 2 people online and waste an hour trying to coordinate. The senior dev finally joins and fixes it.",
+          "effects": {
+            "E": -2
+          },
+          "log": "War room was chaos."
+        }
+      },
+      {
+        "text": "Restart everything",
+        "checks": {
+          "L": 7
+        },
+        "success": {
+          "text": "Miraculously, restarting the services clears the memory leak. It's a temporary fix but buys time. You're a hero (for now).",
+          "effects": {
+            "L": 1,
+            "A": 1
+          },
+          "log": "Nuclear option worked... somehow."
+        },
+        "failure": {
+          "text": "The restart makes it worse. The database goes down completely. It's been 6 hours and things are still broken.",
+          "effects": {
+            "E": -3,
+            "L": -1
+          },
+          "log": "Restart made everything worse. 💀"
+        }
+      }
+    ]
+  },
+  {
+    "id": "sprint_planning",
+    "title": "Sprint Planning",
+    "phase": 1,
+    "phaseLabel": "Junior Developer",
+    "narrative": "Sprint planning meeting. The PM presents the backlog: 47 story points of work for a 2-week sprint. The team's velocity is about 30 points.\n\n\"Can we fit all of this in?\" the PM asks hopefully.\n\nYour team lead looks at you. \"What do you think?\"",
+    "choices": [
+      {
+        "text": "Speak up about capacity",
+        "checks": {
+          "C": 5
+        },
+        "success": {
+          "text": "You present data about your team's velocity. The PM understands and prioritizes. Realistic scope set.",
+          "effects": {
+            "C": 1,
+            "I": 1
+          },
+          "log": "Used data to set realistic expectations."
+        },
+        "failure": {
+          "text": "You stammer through your numbers. The PM says \"I'll just ask the team to work harder.\" Everyone groans.",
+          "effects": {
+            "E": -1
+          },
+          "log": "Failed to push back effectively."
+        }
+      },
+      {
+        "text": "Stay silent and take on more work",
+        "checks": {
+          "E": 5
+        },
+        "success": {
+          "text": "You swallow your pride and volunteer for extra tasks. The sprint is stressful but you deliver.",
+          "effects": {
+            "E": 1,
+            "A": 1
+          },
+          "log": "Took on extra work. Sprint completed."
+        },
+        "failure": {
+          "text": "You take on too much. You burn through your first week and have barely made progress. Overtime city.",
+          "effects": {
+            "E": -2
+          },
+          "log": "Overcommitted. Sprint struggling."
+        }
+      }
+    ]
+  },
+  {
+    "id": "learn_new_framework",
+    "title": "The New Framework Mandate",
+    "phase": 1,
+    "phaseLabel": "Junior Developer",
+    "narrative": "Your company just decided to rewrite everything in a brand new framework that's 3 weeks old. The CTO announced it at all-hands: \"This is the future. Everyone needs to learn it by end of quarter.\"\n\nThe framework has 200 GitHub stars and documentation that says \"WIP.\"\n\nYour current project uses the OLD framework.",
+    "choices": [
+      {
+        "text": "Dive deep — build a prototype over the weekend",
+        "checks": {
+          "I": 7
+        },
+        "success": {
+          "text": "You're a natural. The framework's design philosophy clicks with you. You build an impressive demo that impresses the CTO.",
+          "effects": {
+            "I": 2,
+            "C": 1
+          },
+          "log": "Learned the new framework over the weekend."
+        },
+        "failure": {
+          "text": "The framework is poorly designed. Your prototype breaks. You spend the weekend frustrated and sleep-deprived.",
+          "effects": {
+            "E": -2,
+            "I": 1
+          },
+          "log": "Weekend spent fighting a bad framework."
+        }
+      },
+      {
+        "text": "Study it methodically during work hours",
+        "checks": {
+          "A": 5
+        },
+        "success": {
+          "text": "You're patient and thorough. By week 3, you're the team's go-to person for framework questions.",
+          "effects": {
+            "I": 1,
+            "A": 1
+          },
+          "log": "Methodically learned the new framework."
+        },
+        "failure": {
+          "text": "Work piles up while you study. Your current project slips. You're learning the framework but falling behind.",
+          "effects": {
+            "E": -1
+          },
+          "log": "Learning slowed down current work."
+        }
+      },
+      {
+        "text": "Find the community Discord and ask questions",
+        "checks": {
+          "C": 5
+        },
+        "success": {
+          "text": "You network with other adopters. Someone shares a tutorial that accelerates your learning 10x.",
+          "effects": {
+            "C": 2,
+            "I": 1
+          },
+          "log": "Community knowledge accelerated learning."
+        },
+        "failure": {
+          "text": "The Discord is dead. Only 3 people are active. Nobody can help you.",
+          "effects": {
+            "L": -1
+          },
+          "log": "Community was a ghost town."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_requirements_change",
+    "title": "The Requirements Change",
+    "phase": 1,
+    "phaseLabel": "Junior Developer",
+    "narrative": "Product Manager walks in. \"Hey, small change — can we make the app work offline, support 12 languages, and add a social feed? We need it by Friday.\"\n\nYou blink. You've been working on a login form.",
+    "choices": [
+      {
+        "text": "Accept and suffer",
+        "checks": {
+          "E": 7
+        },
+        "success": {
+          "text": "You work weekends. It's painful. But you deliver. Your PM thinks you're a wizard. (They don't know you cried in the bathroom.)",
+          "effects": {
+            "E": 1
+          },
+          "log": "Delivered the impossible. Barely."
+        },
+        "failure": {
+          "text": "You can't deliver. The PM is disappointed. You're now known as \"the one who couldn't do it.\"",
+          "effects": {
+            "E": -2,
+            "C": -1
+          },
+          "log": "Failed to deliver the \"small change.\""
+        }
+      },
+      {
+        "text": "Push back with data",
+        "checks": {
+          "I": 6,
+          "C": 6
+        },
+        "success": {
+          "text": "You show the PM the effort estimates. They understand and negotiate a realistic timeline. Win-win.",
+          "effects": {
+            "I": 1,
+            "C": 1
+          },
+          "log": "Successfully pushed back on unrealistic scope."
+        },
+        "failure": {
+          "text": "The PM says \"just make it happen.\" You're not taken seriously. The deadline stays.",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "Pushback failed."
+        }
+      },
+      {
+        "text": "Scream internally",
+        "checks": {
+          "L": 5
+        },
+        "success": {
+          "text": "You channel your rage into focused energy. The requirements actually make sense if you squint. You deliver something reasonable.",
+          "effects": {
+            "L": 1,
+            "E": 1
+          },
+          "log": "Internal screaming led to unexpected clarity."
+        },
+        "failure": {
+          "text": "The requirements are genuinely insane. You deliver something that's 12 languages but doesn't work offline. Compromise fails.",
+          "effects": {
+            "E": -2
+          },
+          "log": "Delivered a mess."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_3am_email",
+    "title": "The 3 AM Email",
+    "phase": 1,
+    "phaseLabel": "Junior Developer",
+    "narrative": "You're asleep. Your phone buzzes. An email from the CTO at 3:14 AM:\n\n\"I know it's late but I had an idea. What if we added AI to everything? Let's discuss tomorrow.\"\n\nIt's not an emergency. It's a \"vision.\"",
+    "choices": [
+      {
+        "text": "Respond professionally in the morning",
+        "checks": {
+          "C": 6,
+          "E": 5
+        },
+        "success": {
+          "text": "You respond with enthusiasm and schedule a meeting. The CTO's idea is crazy but you channel it into something reasonable.",
+          "effects": {
+            "C": 1
+          },
+          "log": "Handled the 3 AM email like a pro."
+        },
+        "failure": {
+          "text": "You respond too enthusiastically. The CTO thinks you're on board with \"AI for everything.\" You're now tasked with a moonshot project.",
+          "effects": {
+            "E": -1
+          },
+          "log": "Accidentally volunteered for a moonshot."
+        }
+      },
+      {
+        "text": "Don't respond until 9 AM",
+        "checks": {
+          "E": 4
+        },
+        "success": {
+          "text": "You sleep. In the morning, you respond calmly. The CTO's energy has faded. The \"vision\" becomes a normal discussion.",
+          "effects": {
+            "E": 1
+          },
+          "log": "Sleep > 3 AM emails."
+        },
+        "failure": {
+          "text": "The CTO interprets your silence as agreement. They've already started building a prototype. You're expected to help.",
+          "effects": {
+            "E": -1,
+            "C": -1
+          },
+          "log": "Silence was interpreted as commitment."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_tech_debt_sprint",
+    "title": "The \"Quick\" Fix",
+    "phase": 1,
+    "phaseLabel": "Junior Developer",
+    "narrative": "Your senior dev says: \"This is a quick fix. Should take 30 minutes.\"\n\nThe \"quick fix\" involves modifying a file that 47 other files import. The file has no tests. The comment at the top says \"DO NOT MODIFY.\"\n\nThe senior dev is on vacation. You're alone.",
+    "choices": [
+      {
+        "text": "Do it carefully — add tests first",
+        "checks": {
+          "I": 6,
+          "P": 5
+        },
+        "success": {
+          "text": "You add tests, make the change, and verify. It takes 3 hours instead of 30 minutes but nothing breaks.",
+          "effects": {
+            "I": 1,
+            "P": 1
+          },
+          "log": "Careful approach paid off."
+        },
+        "failure": {
+          "text": "You can't add tests because the code is too tightly coupled. You make the change anyway. It works... for now.",
+          "effects": {
+            "P": -1
+          },
+          "log": "Made the change. Prayed nothing broke."
+        }
+      },
+      {
+        "text": "Find someone else to do it",
+        "checks": {
+          "C": 5
+        },
+        "success": {
+          "text": "You find a colleague who has capacity. They do it in 30 minutes. You've learned the value of delegation.",
+          "effects": {
+            "C": 1
+          },
+          "log": "Delegated successfully."
+        },
+        "failure": {
+          "text": "Everyone is busy. The \"quick fix\" becomes a \"medium fix\" becomes a \"why didn't we plan for this\" fix.",
+          "effects": {
+            "E": -1
+          },
+          "log": "Couldn't delegate. Fix dragged on."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_standup",
+    "title": "Daily Standup from Hell",
+    "phase": 1,
+    "phaseLabel": "Junior Developer",
+    "narrative": "Daily standup. Your team lead asks: \"What did you do yesterday? What will you do today? Any blockers?\"\n\nYou've been stuck on the same bug for 3 days. Your blocker is... you don't understand the code.\n\nAll eyes are on you.",
+    "choices": [
+      {
+        "text": "Be honest about the blocker",
+        "checks": {
+          "C": 5,
+          "E": 5
+        },
+        "success": {
+          "text": "You admit you need help. A senior dev volunteers to pair with you. You learn a lot in 2 hours.",
+          "effects": {
+            "C": 1,
+            "P": 1
+          },
+          "log": "Honesty paid off — learned from a senior dev!"
+        },
+        "failure": {
+          "text": "Your manager sighs. \"Figure it out.\" You go back to staring at the code.",
+          "effects": {
+            "E": -1
+          },
+          "log": "Told the truth. Got the axe."
+        }
+      },
+      {
+        "text": "Pretend you have a plan",
+        "checks": {
+          "C": 6,
+          "A": 4
+        },
+        "success": {
+          "text": "You bluff your way through. The standup moves on. You have 23 hours to fix the bug.",
+          "effects": {
+            "C": 1,
+            "A": 1
+          },
+          "log": "Bluffed successfully. Now panic."
+        },
+        "failure": {
+          "text": "Your manager asks for details. You don't have any. The meeting gets awkward.",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "Bluff failed. Cringe."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_merge_conflict",
+    "title": "The Merge Conflict",
+    "phase": 1,
+    "phaseLabel": "Junior Developer",
+    "narrative": "You've been working on a feature branch for 2 weeks. Time to merge to main.\n\nThere are 47 merge conflicts. Some are in files you don't recognize. One conflict is in a file named \"TODO.txt\" that contains only the word \"help me.\"\n\nYour coworker who wrote the conflicting code quit last week.",
+    "choices": [
+      {
+        "text": "Resolve conflicts carefully",
+        "checks": {
+          "P": 6,
+          "E": 5
+        },
+        "success": {
+          "text": "You carefully resolve each conflict. The build passes. You feel like a warrior.",
+          "effects": {
+            "P": 1,
+            "E": 1
+          },
+          "log": "Survived the merge conflict war."
+        },
+        "failure": {
+          "text": "You resolve conflicts but break something. The CI pipeline fails. You start over.",
+          "effects": {
+            "P": -1,
+            "E": -2
+          },
+          "log": "Merge conflict broke everything."
+        }
+      },
+      {
+        "text": "Delete everything and start fresh",
+        "checks": {
+          "A": 7,
+          "L": 5
+        },
+        "success": {
+          "text": "You nuke the branch and redo the feature. It takes 4 hours but works perfectly.",
+          "effects": {
+            "A": 2
+          },
+          "log": "Nuclear option — fast and clean."
+        },
+        "failure": {
+          "text": "You delete the wrong branch. Your feature is gone. You're starting from zero.",
+          "effects": {
+            "E": -3,
+            "L": -1
+          },
+          "log": "Deleted the wrong branch. 💀"
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_demos",
+    "title": "Demo Day Disaster",
+    "phase": 1,
+    "phaseLabel": "Junior Developer",
+    "narrative": "It's demo day. You've been building a feature for 3 weeks. The product team, engineering leads, and CEO are watching.\n\nYour code works on your machine. The staging environment is... questionable.\n\nYou hit play. The page loads. Then it crashes.\n\nThe CEO raises an eyebrow.",
+    "choices": [
+      {
+        "text": "Pivot and demo the testing framework instead",
+        "checks": {
+          "A": 7,
+          "C": 6
+        },
+        "success": {
+          "text": "You smoothly pivot: \"Actually, let me show you the automated testing that caught 12 bugs.\" They're impressed.",
+          "effects": {
+            "A": 1,
+            "C": 1
+          },
+          "log": "Smooth pivot — saved the demo!"
+        },
+        "failure": {
+          "text": "You pivot but the tests are broken too. The demo is a total loss.",
+          "effects": {
+            "C": -1,
+            "E": -2
+          },
+          "log": "Pivot failed. Demo ruined."
+        }
+      },
+      {
+        "text": "Own the failure and show the bug tracker",
+        "checks": {
+          "C": 6,
+          "P": 5
+        },
+        "success": {
+          "text": "You say: \"The crash is expected — it's in QA. Let me show you what we've fixed.\" They appreciate the honesty.",
+          "effects": {
+            "C": 1,
+            "P": 1
+          },
+          "log": "Owned the failure. Honest demo."
+        },
+        "failure": {
+          "text": "They don't buy it. The CEO asks why you demoed untested code. You're embarrassed.",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "Didn't buy it. Embarrassed."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_innovation_day",
+    "title": "Innovation Day",
+    "phase": 1,
+    "phaseLabel": "Junior Developer",
+    "narrative": "It's company Innovation Day. Everyone is supposed to work on a passion project for 24 hours.\n\nYour manager says: \"You can work on anything! Just make sure it adds value to the company.\"\n\nYou have 24 hours. You have an idea. But you've never built anything from scratch before.\n\nYour coworker is building an AI-powered chatbot. Another is building a blockchain-based todo app.",
+    "choices": [
+      {
+        "text": "Build a small but useful tool",
+        "checks": {
+          "A": 7,
+          "I": 6
+        },
+        "success": {
+          "text": "You build a CLI tool that saves your team 2 hours per week. It's small but everyone loves it.",
+          "effects": {
+            "A": 1,
+            "I": 1
+          },
+          "log": "Built a useful tool. Team loves it!"
+        },
+        "failure": {
+          "text": "You build something that doesn't work. The demo is painful.",
+          "effects": {
+            "E": -1
+          },
+          "log": "Demo was painful."
+        }
+      },
+      {
+        "text": "Build something ambitious",
+        "checks": {
+          "I": 7,
+          "E": 6
+        },
+        "success": {
+          "text": "You build a microservice that becomes the foundation for future features. Your manager is impressed.",
+          "effects": {
+            "I": 2
+          },
+          "log": "Ambitious project paid off!"
+        },
+        "failure": {
+          "text": "You build something ambitious but unfinished. The demo shows a half-working prototype.",
+          "effects": {
+            "E": -2,
+            "A": -1
+          },
+          "log": "Ambitious but unfinished."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_sprint_retro",
+    "title": "The Sprint Retrospective",
+    "phase": 1,
+    "phaseLabel": "Junior Developer",
+    "narrative": "Sprint retrospective. Your team missed every deadline this sprint.\n\nThe team lead asks: \"What went wrong? What can we improve?\"\n\nYou know the truth: the requirements changed 5 times. The senior dev was out for 2 weeks. The database was down for 3 days.\n\nBut if you say that, it sounds like you're making excuses.",
+    "choices": [
+      {
+        "text": "Give honest but diplomatic feedback",
+        "checks": {
+          "C": 6,
+          "I": 5
+        },
+        "success": {
+          "text": "You share the real issues diplomatically. The team agrees on process improvements. Next sprint is better.",
+          "effects": {
+            "C": 1,
+            "P": 1
+          },
+          "log": "Honest feedback led to improvements!"
+        },
+        "failure": {
+          "text": "Your feedback is taken as complaining. The team lead says \"we need more accountability.\"",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "Feedback taken as complaining."
+        }
+      },
+      {
+        "text": "Say nothing",
+        "checks": {
+          "E": 4
+        },
+        "success": {
+          "text": "You stay quiet. The retro moves on. Nothing changes. You're back to square one next sprint.",
+          "effects": {
+            "E": 1
+          },
+          "log": "Stayed quiet. Nothing changes."
+        },
+        "failure": {
+          "text": "The team lead calls on you. \"What do you think?\" You're caught off guard.",
+          "effects": {
+            "E": -1,
+            "C": -1
+          },
+          "log": "Caught off guard."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_legacy_monolith",
+    "title": "BOSS: The Legacy Monolith",
+    "phase": 1,
+    "phaseLabel": "Junior Developer — Boss Battle",
+    "narrative": "Your first BOSS fight. You've been assigned to the \"legacy codebase\" — a 15-year-old application with no tests, no documentation, and 47 different developers who all touched the same file.\n\nThe codebase is written in 3 different languages. The build script requires a specific version of Node that was released in 2014.\n\nYour mission: Add a simple \"export to CSV\" feature without breaking anything.\n\nThe monolith stirs.",
+    "choices": [
+      {
+        "text": "Brute force it — read the code and hack it in",
+        "checks": {
+          "S": 7,
+          "P": 6
+        },
+        "success": {
+          "text": "You power through the spaghetti code. It's painful but you find a way. The feature works. The monolith groans in submission.",
+          "effects": {
+            "S": 2,
+            "P": 1
+          },
+          "log": "Defeated the Legacy Monolith! 🏆"
+        },
+        "failure": {
+          "text": "You break 3 unrelated features. The monolith fights back. Your manager assigns a senior dev to fix your mess.",
+          "effects": {
+            "S": -1,
+            "E": -2
+          },
+          "log": "The monolith won. 💀"
+        }
+      },
+      {
+        "text": "Write tests first, then refactor incrementally",
+        "checks": {
+          "I": 8
+        },
+        "success": {
+          "text": "You're patient. You write tests, understand the code, and add the feature safely. It takes 3 weeks but it's clean.",
+          "effects": {
+            "I": 2,
+            "P": 1
+          },
+          "log": "Systematically conquered the monolith."
+        },
+        "failure": {
+          "text": "The code is too tangled to test reliably. Your tests are all flaky. You're stuck.",
+          "effects": {
+            "E": -2
+          },
+          "log": "Tests couldn't tame the monolith."
+        }
+      },
+      {
+        "text": "Ask the senior dev who wrote this thing",
+        "checks": {
+          "C": 6
+        },
+        "success": {
+          "text": "The senior dev remembers! They draw a diagram on a whiteboard. Everything clicks. You implement it in 2 days.",
+          "effects": {
+            "C": 2,
+            "I": 1
+          },
+          "log": "Knowledge transfer saved the day!"
+        },
+        "failure": {
+          "text": "The senior dev quit 2 years ago. Nobody knows how this works. You're truly on your own.",
+          "effects": {
+            "L": -1
+          },
+          "log": "Nobody knows the legacy code."
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,708 @@
+[
+  {
+    "id": "executive_presentation",
+    "title": "Executive Presentation",
+    "phase": 4,
+    "phaseLabel": "Staff/Principal",
+    "narrative": "You're presenting to the executive team. The board wants to know why engineering is \"behind schedule\" and \"over budget.\"\n\nThey have a spreadsheet with 47 columns. None of them understand technical debt, context switching, or the difference between a bug fix and a feature.\n\nThe VP of Sales just asked: \"Why can't you just ship faster?\"",
+    "choices": [
+      {
+        "text": "Tell the truth with data and analogies",
+        "checks": {
+          "C": 9,
+          "I": 7
+        },
+        "success": {
+          "text": "You explain the situation with clear analogies and data. The executives finally understand. They adjust expectations and give you more resources.",
+          "effects": {
+            "C": 2,
+            "I": 1
+          },
+          "log": "Executives finally understand engineering!"
+        },
+        "failure": {
+          "text": "You get technical and lose them. The VP of Sales looks confused. The CEO says \"I'll just ask the other departments to speed up.\"",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "Lost the executives in technical detail."
+        }
+      },
+      {
+        "text": "Promise more and hope you can deliver",
+        "checks": {
+          "E": 7,
+          "A": 6
+        },
+        "success": {
+          "text": "You overpromise but find a way to deliver. It's stressful but you pull it off. The executives are happy. (For now.)",
+          "effects": {
+            "A": 1,
+            "E": -1
+          },
+          "log": "Overpromised and delivered."
+        },
+        "failure": {
+          "text": "You can't deliver on your promise. The executives lose trust in engineering. Future requests become more demanding.",
+          "effects": {
+            "C": -2,
+            "E": -2
+          },
+          "log": "Overpromised and underdelivered. 💀"
+        }
+      },
+      {
+        "text": "Cry",
+        "checks": {
+          "L": 10
+        },
+        "success": {
+          "text": "You break down in tears. The room goes silent. Then a Mysterious Stranger from a consultancy company walks in, explains the situation to the executives, and sells them on a brand new way of working. The VP of Sales is consequently restructured. Nobody knows how this happened, but the bill from the consultancy is... substantial.",
+          "effects": {
+            "C": 1,
+            "L": 2
+          },
+          "log": "Cried in the boardroom. Consultancy saved the day? 🤷"
+        },
+        "failure": {
+          "text": "You start crying. It's not even a dramatic cry — just a quiet, confused weeping. The VP of Sales offers you a tissue and asks if you're okay. The CEO assumes you're having a medical episode and calls HR. The meeting is adjourned for 20 minutes while someone finds you a blanket. Nobody talks about it again.",
+          "effects": {
+            "E": -1,
+            "C": -1
+          },
+          "log": "Cried in the boardroom. HR was called. 😭"
+        }
+      }
+    ]
+  },
+  {
+    "id": "open_source_controversy",
+    "title": "Open Source Controversy",
+    "phase": 4,
+    "phaseLabel": "Staff/Principal",
+    "narrative": "Your company uses an open-source library that just had a major security vulnerability. The maintainer is one person who built it in their spare time over 5 years.\n\nThe board wants to: A) Replace the library entirely (risky, expensive) or B) Fork it and maintain it internally (legal minefield).\n\nThe maintainer just tweeted: \"I can't maintain this anymore. I'm burned out.\"\n\nYou need to make a recommendation.",
+    "choices": [
+      {
+        "text": "Fund the maintainer to keep building it",
+        "checks": {
+          "C": 9,
+          "I": 7
+        },
+        "success": {
+          "text": "You propose sponsoring the maintainer. The company agrees. The library gets a proper governance model. Everyone wins — including the entire open-source community.",
+          "effects": {
+            "C": 2,
+            "I": 2,
+            "L": 1
+          },
+          "log": "Saved the open-source project!"
+        },
+        "failure": {
+          "text": "Legal blocks the sponsorship. \"Liability concerns.\" The maintainer leaves. You're now responsible for a critical dependency.",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "Couldn't save the maintainer."
+        }
+      },
+      {
+        "text": "Start the migration to a replacement",
+        "checks": {
+          "I": 8,
+          "A": 7
+        },
+        "success": {
+          "text": "You identify a viable alternative and create a migration plan. It's a year-long effort but the dependency risk is eliminated.",
+          "effects": {
+            "I": 1,
+            "A": 1
+          },
+          "log": "Migration plan created successfully."
+        },
+        "failure": {
+          "text": "No viable alternative exists. You've spent 3 months researching and there's nothing that matches the functionality. You're back to square one.",
+          "effects": {
+            "I": -1,
+            "E": -2
+          },
+          "log": "No good alternative found."
+        }
+      }
+    ]
+  },
+  {
+    "id": "hiring_freeze",
+    "title": "The Great Hiring Freeze",
+    "phase": 4,
+    "phaseLabel": "Staff/Principal",
+    "narrative": "The company is \"right-sizing.\" There's a hiring freeze. But your team's workload just doubled.\n\nYou have 5 people doing the work of 10. Deadlines are unrealistic. Morale is at an all-time low.\n\nYour team lead asks: \"How are we going to handle this?\"\n\nYou're the senior person. They're looking to you.",
+    "choices": [
+      {
+        "text": "Prioritize ruthlessly and say no to everything else",
+        "checks": {
+          "C": 8,
+          "I": 7
+        },
+        "success": {
+          "text": "You work with product to cut the scope in half. You protect your team from distraction. They deliver on the priorities. It's hard but sustainable.",
+          "effects": {
+            "C": 2,
+            "I": 1
+          },
+          "log": "Protected the team through the freeze!"
+        },
+        "failure": {
+          "text": "You try to do everything and so does your team. Everyone works weekends. Productivity drops because everyone is exhausted.",
+          "effects": {
+            "E": -3
+          },
+          "log": "Tried to do everything. Failed."
+        }
+      },
+      {
+        "text": "Automate the boring stuff",
+        "checks": {
+          "I": 9,
+          "A": 7
+        },
+        "success": {
+          "text": "You identify automation opportunities. CI/CD improvements, automated testing, better tooling. The team becomes 2x more efficient.",
+          "effects": {
+            "I": 2,
+            "A": 2
+          },
+          "log": "Automation saved the team!"
+        },
+        "failure": {
+          "text": "Automation projects take time to build. In the short term, productivity drops. The team is frustrated.",
+          "effects": {
+            "E": -2,
+            "A": -1
+          },
+          "log": "Automation backfired (short term)."
+        }
+      }
+    ]
+  },
+  {
+    "id": "boardroom_strategy",
+    "title": "Boardroom Strategy Session",
+    "phase": 4,
+    "phaseLabel": "Staff/Principal",
+    "narrative": "For the first time, you're invited to the executive strategy meeting. The board wants engineering's input on a major business decision: acquire a competitor or build the features in-house.\n\nThe competitor has 50 engineers and a mature product. Building in-house would take 18 months and cost $5M.\n\nThe CEO asks: \"What would you recommend?\"",
+    "choices": [
+      {
+        "text": "Recommend acquisition — the tech is superior",
+        "checks": {
+          "I": 8,
+          "C": 8
+        },
+        "success": {
+          "text": "You present a technical analysis. The board agrees. The acquisition goes through. You integrate the acquired product successfully.",
+          "effects": {
+            "I": 1,
+            "C": 2
+          },
+          "log": "Strategic acquisition succeeded!"
+        },
+        "failure": {
+          "text": "The acquired product has hidden technical issues. It's worse than expected. The integration costs 3x the budget.",
+          "effects": {
+            "I": -1,
+            "C": -1
+          },
+          "log": "Acquisition had hidden issues."
+        }
+      },
+      {
+        "text": "Recommend building in-house — full control",
+        "checks": {
+          "I": 9,
+          "A": 7
+        },
+        "success": {
+          "text": "You build it. It takes 18 months but the result is perfect for your needs. You have full IP ownership. The competitor is now irrelevant.",
+          "effects": {
+            "I": 2,
+            "A": 1
+          },
+          "log": "Built it and dominated the market!"
+        },
+        "failure": {
+          "text": "18 months later, the market has moved on. The competitor launched 3 new features. Your \"perfect\" solution is already behind.",
+          "effects": {
+            "A": -2,
+            "P": -1
+          },
+          "log": "Built it but lost the timing."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_data_breach",
+    "title": "The Data Breach",
+    "phase": 4,
+    "phaseLabel": "Staff/Principal",
+    "narrative": "It's 2 AM. Your phone buzzes.\n\n\"We've been breached. User data is exposed. The press is calling. The board wants answers.\"\n\nYou're the most senior engineer on call. This is your moment.\n\nThe breach was caused by an unpatched vulnerability in a library you recommended last month.",
+    "choices": [
+      {
+        "text": "Lead the incident response",
+        "checks": {
+          "E": 9,
+          "C": 8
+        },
+        "success": {
+          "text": "You lead the team through the night. You contain the breach, notify users, and work with legal. It's the hardest 12 hours of your career.",
+          "effects": {
+            "E": 1,
+            "C": 2
+          },
+          "log": "Led through the darkest hour."
+        },
+        "failure": {
+          "text": "You make a wrong call. The breach gets worse. The board is not happy.",
+          "effects": {
+            "E": -3,
+            "C": -2
+          },
+          "log": "Wrong call. Breach got worse."
+        }
+      },
+      {
+        "text": "Delegate and let the security team handle it",
+        "checks": {
+          "C": 7,
+          "I": 6
+        },
+        "success": {
+          "text": "You trust your security team. They handle it professionally. You focus on the technical response.",
+          "effects": {
+            "C": 1,
+            "I": 1
+          },
+          "log": "Trusted the team. Handled well."
+        },
+        "failure": {
+          "text": "The security team is overwhelmed. You should have stepped in. The breach spreads.",
+          "effects": {
+            "C": -2,
+            "E": -2
+          },
+          "log": "Should have stepped in."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_board_meeting",
+    "title": "The Board Presentation",
+    "phase": 4,
+    "phaseLabel": "Staff/Principal",
+    "narrative": "You're presenting to the board. They want to know the 5-year tech strategy.\n\nYou have a 30-minute slot. The board has 12 people. 8 of them don't know what a API is.\n\nThe CEO says: \"Keep it simple. We want to know why we're spending $50M on engineering.\"\n\nYour slides have architecture diagrams.",
+    "choices": [
+      {
+        "text": "Use analogies and simple language",
+        "checks": {
+          "C": 9,
+          "I": 7
+        },
+        "success": {
+          "text": "You explain tech strategy using restaurant analogies. The board understands. They approve the budget.",
+          "effects": {
+            "C": 2,
+            "I": 1
+          },
+          "log": "Board understood the analogies!"
+        },
+        "failure": {
+          "text": "The board is confused. The CEO asks \"Why can't you just use NoSQL?\" You don't know how to answer.",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "Board was confused. Ouch."
+        }
+      },
+      {
+        "text": "Show the architecture diagrams",
+        "checks": {
+          "I": 8,
+          "P": 6
+        },
+        "success": {
+          "text": "The CTO on the board loves it. They champion your proposal. Budget approved.",
+          "effects": {
+            "I": 1,
+            "C": 1
+          },
+          "log": "CTO on board loved the diagrams!"
+        },
+        "failure": {
+          "text": "The board falls asleep. The CEO asks if you can make it \"easier to understand.\"",
+          "effects": {
+            "C": -2,
+            "E": -2
+          },
+          "log": "Board fell asleep. 💀"
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_open_source_crisis",
+    "title": "The Open Source Crisis",
+    "phase": 4,
+    "phaseLabel": "Staff/Principal",
+    "narrative": "Your company's flagship product uses an open-source library that just announced it's shutting down.\n\nThe maintainer is retiring. No successor. No fork.\n\nYour product will break in 90 days. You have 3 options: rewrite, replace, or pray.\n\nThe board wants to know what's happening.",
+    "choices": [
+      {
+        "text": "Start the rewrite immediately",
+        "checks": {
+          "I": 9,
+          "E": 7
+        },
+        "success": {
+          "text": "You lead a team to rewrite the dependency. It takes 6 months but you're self-sufficient now.",
+          "effects": {
+            "I": 2,
+            "E": 1
+          },
+          "log": "Rewrote the dependency. Self-sufficient!"
+        },
+        "failure": {
+          "text": "The rewrite takes too long. The library shuts down. Your product breaks. Chaos ensues.",
+          "effects": {
+            "E": -3,
+            "I": -1
+          },
+          "log": "Rewrite too slow. Product broken."
+        }
+      },
+      {
+        "text": "Find a replacement library",
+        "checks": {
+          "I": 7,
+          "A": 7
+        },
+        "success": {
+          "text": "You find a better alternative. Migration takes 3 months. Your product is more stable now.",
+          "effects": {
+            "I": 1,
+            "A": 1
+          },
+          "log": "Found a better alternative!"
+        },
+        "failure": {
+          "text": "No good replacement exists. You're stuck maintaining the old code.",
+          "effects": {
+            "I": -1,
+            "E": -1
+          },
+          "log": "No replacement found. Stuck."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_merger",
+    "title": "The Company Merger",
+    "phase": 4,
+    "phaseLabel": "Staff/Principal",
+    "narrative": "Your company is merging with a competitor. Both have engineering teams. Both have different tech stacks.\n\nThe new CEO says: \"We're keeping one stack. Figure out which one.\"\n\nYour stack is newer but less battle-tested. Their stack is older but proven.\n\nBoth teams are nervous. Both want their stack to win.",
+    "choices": [
+      {
+        "text": "Propose a hybrid approach",
+        "checks": {
+          "C": 9,
+          "I": 8
+        },
+        "success": {
+          "text": "You propose migrating gradually. Both teams contribute. The new system is better than either original.",
+          "effects": {
+            "C": 2,
+            "I": 2
+          },
+          "log": "Hybrid approach won the merger!"
+        },
+        "failure": {
+          "text": "The CEO wants a clear winner. Your hybrid proposal is rejected. You're stuck in limbo.",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "Hybrid rejected. Limbo."
+        }
+      },
+      {
+        "text": "Fight for your stack",
+        "checks": {
+          "C": 7,
+          "I": 7
+        },
+        "success": {
+          "text": "You make a compelling case. Your stack wins. Your team is thrilled.",
+          "effects": {
+            "C": 1,
+            "I": 1
+          },
+          "log": "Your stack won the merger!"
+        },
+        "failure": {
+          "text": "Your stack loses. Your team is devastated. You're now maintaining their code.",
+          "effects": {
+            "C": -2,
+            "E": -2
+          },
+          "log": "Stack lost. Team devastated."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_api_change",
+    "title": "The Breaking API Change",
+    "phase": 4,
+    "phaseLabel": "Staff/Principal",
+    "narrative": "Your team's API just broke a major client's integration. You changed a response format without a deprecation period.\n\nThe client is furious. They're threatening to leave. Their CTO is calling your CEO.\n\nYour team says: \"It was just a small change! How bad could it be?\"\n\nYou know how bad it could be.",
+    "choices": [
+      {
+        "text": "Roll back immediately and apologize",
+        "checks": {
+          "C": 9,
+          "A": 7
+        },
+        "success": {
+          "text": "You roll back, apologize sincerely, and offer a migration plan. The client stays. They respect your professionalism.",
+          "effects": {
+            "C": 2,
+            "A": 1
+          },
+          "log": "Rollback saved the client!"
+        },
+        "failure": {
+          "text": "The client has already moved on. They're switching to a competitor.",
+          "effects": {
+            "C": -2,
+            "E": -2
+          },
+          "log": "Lost the client. 💀"
+        }
+      },
+      {
+        "text": "Offer a compatibility layer",
+        "checks": {
+          "I": 8,
+          "A": 7
+        },
+        "success": {
+          "text": "You build a compatibility layer in 48 hours. The client migrates at their pace. Everyone's happy.",
+          "effects": {
+            "I": 1,
+            "A": 1
+          },
+          "log": "Compatibility layer saved the day!"
+        },
+        "failure": {
+          "text": "The compatibility layer has bugs. The client is even more frustrated.",
+          "effects": {
+            "I": -1,
+            "C": -1
+          },
+          "log": "Compatibility layer broke."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_performance_crisis_2",
+    "title": "The Performance Crisis II",
+    "phase": 4,
+    "phaseLabel": "Staff/Principal",
+    "narrative": "Your platform is slow. Really slow. Average page load: 8 seconds. Users are complaining. Churn is up 15%.\n\nYou've been asked to \"make it fast.\" No specifics. The CEO wants it \"fixed by next sprint.\"\n\nYou open the profiler. The app makes 47 API calls per page load. Forty. Seven.\n\nThis is your final boss-level challenge.",
+    "choices": [
+      {
+        "text": "Implement aggressive caching",
+        "checks": {
+          "I": 8,
+          "A": 7
+        },
+        "success": {
+          "text": "You add Redis caching and reduce API calls from 47 to 3. Page load drops to 800ms. The CEO is thrilled.",
+          "effects": {
+            "I": 2,
+            "A": 1
+          },
+          "log": "Caching solved the crisis!"
+        },
+        "failure": {
+          "text": "You cache aggressively but introduce stale data bugs. Now you have TWO problems.",
+          "effects": {
+            "I": -1,
+            "E": -2
+          },
+          "log": "Cache caused new bugs."
+        }
+      },
+      {
+        "text": "Rewrite the frontend",
+        "checks": {
+          "S": 7,
+          "A": 8
+        },
+        "success": {
+          "text": "You identify the rendering bottleneck and optimize it. Performance improves 5x.",
+          "effects": {
+            "S": 1,
+            "A": 2
+          },
+          "log": "Frontend optimization succeeded!"
+        },
+        "failure": {
+          "text": "The bottleneck wasn't the frontend — it was the backend. You've optimized nothing.",
+          "effects": {
+            "E": -2,
+            "P": -1
+          },
+          "log": "Wrong bottleneck identified."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_hiring_freeze_2",
+    "title": "The Hiring Freeze II",
+    "phase": 4,
+    "phaseLabel": "Staff/Principal",
+    "narrative": "The company is \"right-sizing.\" There's a hiring freeze. But your team's workload just doubled.\n\nYou have 5 people doing the work of 10. Deadlines are unrealistic. Morale is at an all-time low.\n\nYour team lead asks: \"How are we going to handle this?\"\n\nYou're the senior person. They're looking to you.",
+    "choices": [
+      {
+        "text": "Prioritize ruthlessly and say no to everything else",
+        "checks": {
+          "C": 8,
+          "I": 7
+        },
+        "success": {
+          "text": "You work with product to cut the scope in half. You protect your team from distraction. They deliver on the priorities.",
+          "effects": {
+            "C": 2,
+            "I": 1
+          },
+          "log": "Protected the team through the freeze!"
+        },
+        "failure": {
+          "text": "You try to do everything and so does your team. Everyone works weekends. Productivity drops.",
+          "effects": {
+            "E": -3
+          },
+          "log": "Tried to do everything. Failed."
+        }
+      },
+      {
+        "text": "Automate the boring stuff",
+        "checks": {
+          "I": 9,
+          "A": 7
+        },
+        "success": {
+          "text": "You identify automation opportunities. CI/CD improvements, automated testing, better tooling. The team becomes 2x more efficient.",
+          "effects": {
+            "I": 2,
+            "A": 2
+          },
+          "log": "Automation saved the team!"
+        },
+        "failure": {
+          "text": "Automation projects take time to build. In the short term, productivity drops.",
+          "effects": {
+            "E": -2,
+            "A": -1
+          },
+          "log": "Automation backfired (short term)."
+        }
+      }
+    ]
+  },
+  {
+    "id": "restructure",
+    "title": "BOSS: The Company-Wide Restructure",
+    "phase": 4,
+    "phaseLabel": "Staff/Principal — Final Boss",
+    "narrative": "Your FINAL BOSS. The company is restructuring. Teams are being merged. Reports are changing. The org chart is being redrawn.\n\nYou've spent 6 years building relationships, shipping products, and growing your career. Now everything is up in the air.\n\nThe new structure could make you a VP... or it could lay you off. Nobody knows yet.\n\nThis is it. Your career has led to this moment.",
+    "choices": [
+      {
+        "text": "Lead with transparency — share everything you know",
+        "checks": {
+          "C": 10,
+          "I": 7
+        },
+        "success": {
+          "text": "Your transparency earns trust. You're offered a VP role leading the new engineering organization. You've reached the pinnacle of your career. Retirement? Or a new challenge?",
+          "effects": {
+            "C": 3,
+            "I": 1,
+            "L": 1
+          },
+          "log": "Reached the pinnacle! 🏆👑"
+        },
+        "failure": {
+          "text": "You share too much. Some information gets leaked. Management is unhappy. The restructuring is chaotic and you're left in limbo.",
+          "effects": {
+            "C": -2,
+            "E": -2
+          },
+          "log": "Transparency backfired. 💀"
+        }
+      },
+      {
+        "text": "Play it safe — say nothing and observe",
+        "checks": {
+          "P": 8,
+          "E": 7
+        },
+        "success": {
+          "text": "You observe carefully, position yourself well, and land on your feet. You get a solid promotion. Not the top, but a great outcome.",
+          "effects": {
+            "P": 1,
+            "E": 1
+          },
+          "log": "Navigated the restructure safely."
+        },
+        "failure": {
+          "text": "You play it too safe. You're left out of key decisions. When the new structure is announced, your role is eliminated.",
+          "effects": {
+            "E": -3,
+            "C": -1
+          },
+          "log": "Played too safe. Role eliminated. 💀"
+        }
+      },
+      {
+        "text": "Start interviewing at the same time",
+        "checks": {
+          "C": 7,
+          "A": 8
+        },
+        "success": {
+          "text": "Your network is strong. You have 3 offers on the table before the restructuring is even announced. You choose the best one.",
+          "effects": {
+            "C": 1,
+            "A": 2,
+            "L": 1
+          },
+          "log": "Had backup plans ready!"
+        },
+        "failure": {
+          "text": "Interviews go poorly. The market is tough. You're still employed but unhappy. The restructuring leaves you in a worse position.",
+          "effects": {
+            "E": -2,
+            "L": -1
+          },
+          "log": "Backup plan didn't pan out."
+        }
+      }
+    ]
+  }
+]

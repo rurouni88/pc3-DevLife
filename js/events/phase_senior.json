@@ -1,0 +1,916 @@
+[
+  {
+    "id": "tech_debt_crisis",
+    "title": "Tech Debt Crisis",
+    "phase": 3,
+    "phaseLabel": "Senior Developer",
+    "narrative": "You're senior now. And the tech debt is real.\n\nThe codebase has accumulated 3 years of \"quick fixes.\" Half the tests are flaky. The deployment pipeline takes 45 minutes. New hires quit after a week.\n\nYour manager says: \"We need to ship features, not fix old code.\" But you know: without paying down tech debt, shipping features will get slower and slower.\n\nYou need to make the case.",
+    "choices": [
+      {
+        "text": "Propose a dedicated tech debt sprint",
+        "checks": {
+          "C": 8,
+          "I": 7
+        },
+        "success": {
+          "text": "You present data: tech debt is causing 40% of all bugs. Management agrees to a 2-week cleanup sprint. The team morale improves dramatically.",
+          "effects": {
+            "C": 2,
+            "I": 2
+          },
+          "log": "Convinced leadership to fund tech debt cleanup!"
+        },
+        "failure": {
+          "text": "Management says \"we'll get to it next quarter.\" They always say that. You sigh and go back to feature work.",
+          "effects": {
+            "E": -1
+          },
+          "log": "Tech debt proposal rejected again."
+        }
+      },
+      {
+        "text": "Fix it quietly while shipping features",
+        "checks": {
+          "E": 8,
+          "A": 7
+        },
+        "success": {
+          "text": "You refactor small pieces as you go. It's exhausting but the codebase slowly improves. Your team notices.",
+          "effects": {
+            "E": 1,
+            "I": 1
+          },
+          "log": "Quietly paid down tech debt."
+        },
+        "failure": {
+          "text": "You try to fix things but feature work always takes priority. You're burned out and the codebase is worse than ever.",
+          "effects": {
+            "E": -3,
+            "S": -1
+          },
+          "log": "Burned out trying to fix everything."
+        }
+      }
+    ]
+  },
+  {
+    "id": "interview_panel",
+    "title": "The Interview Panel",
+    "phase": 3,
+    "phaseLabel": "Senior Developer",
+    "narrative": "You're on the engineering interview panel. A candidate is about to come in for a technical interview.\n\nYou've been given a coding problem to administer. The problem is... you know it's a terrible problem. It tests trivia, not engineering ability.\n\nThe company standard says \"use this exact problem.\" But you know good engineers when you see them.",
+    "choices": [
+      {
+        "text": "Use the standard problem but adapt it",
+        "checks": {
+          "C": 7,
+          "I": 6
+        },
+        "success": {
+          "text": "You follow the letter of the policy but add real-world context. The candidate shines. You hire them. They become a great teammate.",
+          "effects": {
+            "C": 1,
+            "I": 1
+          },
+          "log": "Hired a great candidate!"
+        },
+        "failure": {
+          "text": "The candidate is good but the problem doesn't showcase their strengths. They perform poorly. You reject them. Two months later, a competitor hires them as a senior.",
+          "effects": {
+            "E": -1,
+            "P": -1
+          },
+          "log": "Rejected a good candidate. Bad hire decision."
+        }
+      },
+      {
+        "text": "Reject the standard problem and design your own",
+        "checks": {
+          "C": 6,
+          "I": 8
+        },
+        "success": {
+          "text": "You design a realistic system design exercise. The candidate loves it. They show their true abilities. You hire them.",
+          "effects": {
+            "C": 1,
+            "I": 2
+          },
+          "log": "Better interview process led to great hire!"
+        },
+        "failure": {
+          "text": "Your manager says you broke protocol. The candidate is confused by your unstructured format. Nobody's happy.",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "Interview process was chaotic."
+        }
+      }
+    ]
+  },
+  {
+    "id": "burnout_warning",
+    "title": "Burnout Warning Signs",
+    "phase": 3,
+    "phaseLabel": "Senior Developer",
+    "narrative": "You've been working 60+ hour weeks for 3 months. Your code quality is slipping. You're irritable in meetings. You check Slack in your dreams.\n\nYour doctor says: \"You need to reduce stress.\" Your partner says: \"You need to be present.\" Your team lead says: \"We're worried about you.\"\n\nBut there's a major release next week.",
+    "choices": [
+      {
+        "text": "Take a week off. Unplug completely.",
+        "checks": {
+          "C": 7
+        },
+        "success": {
+          "text": "You hand off your responsibilities. The team manages fine. You come back refreshed and your code quality doubles. Your team respects you for prioritizing health.",
+          "effects": {
+            "E": 3,
+            "C": 1
+          },
+          "log": "Took time off. Came back stronger!"
+        },
+        "failure": {
+          "text": "You try to disconnect but the release needs you. You spend the week \"off\" answering Slack messages. It's the worst of both worlds.",
+          "effects": {
+            "E": -2
+          },
+          "log": "Couldn't truly disconnect."
+        }
+      },
+      {
+        "text": "Delegate more and set boundaries",
+        "checks": {
+          "C": 8,
+          "E": 6
+        },
+        "success": {
+          "text": "You delegate effectively and say \"no\" to non-essential work. Your team steps up. You maintain work-life balance and the release ships.",
+          "effects": {
+            "C": 2,
+            "E": 1
+          },
+          "log": "Found better work-life balance!"
+        },
+        "failure": {
+          "text": "You try to delegate but nobody else knows the system. You end up doing more work teaching others. The release is stressful.",
+          "effects": {
+            "E": -2
+          },
+          "log": "Delegation was harder than expected."
+        }
+      },
+      {
+        "text": "Push through. It's just one more release.",
+        "checks": {
+          "E": 9,
+          "S": 7
+        },
+        "success": {
+          "text": "Against all odds, you power through. The release ships. But you're running on fumes. The victory feels hollow.",
+          "effects": {
+            "E": -2,
+            "L": 1
+          },
+          "log": "Survived the release but at a cost."
+        },
+        "failure": {
+          "text": "You collapse. Not dramatically — just a bad week of illness. The release is delayed. Your team covers for you but trust is damaged.",
+          "effects": {
+            "E": -4,
+            "C": -1
+          },
+          "log": "Burnout hit hard. 💀"
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_performance_review",
+    "title": "Performance Review",
+    "phase": 3,
+    "phaseLabel": "Senior Developer",
+    "narrative": "It's performance review season. Your manager calls you into a meeting (or Zoom call). They have a document.\n\n\"Let's talk about your year. You've delivered well on most projects. Your code quality has improved. However...\"\n\nThe \"however\" is coming.",
+    "choices": [
+      {
+        "text": "Prepare your accomplishments in advance",
+        "checks": {
+          "I": 7,
+          "C": 6
+        },
+        "success": {
+          "text": "You present a well-documented list of achievements. Your manager is impressed. You get a strong rating and a raise.",
+          "effects": {
+            "C": 1,
+            "I": 1,
+            "L": 1
+          },
+          "log": "Aced the performance review!"
+        },
+        "failure": {
+          "text": "You wing it. Your manager has a different view of your year. The rating is lower than expected.",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "Performance review didn't go well."
+        }
+      },
+      {
+        "text": "Ask for honest feedback",
+        "checks": {
+          "E": 7,
+          "C": 6
+        },
+        "success": {
+          "text": "You get candid, useful feedback. You create a growth plan. Your manager respects your maturity.",
+          "effects": {
+            "E": 1,
+            "I": 1
+          },
+          "log": "Got valuable feedback."
+        },
+        "failure": {
+          "text": "The feedback is harsh and unconstructive. \"You need more visibility.\" Translation: \"You need to be more political.\"",
+          "effects": {
+            "E": -2,
+            "C": -1
+          },
+          "log": "Feedback was demoralizing."
+        }
+      }
+    ]
+  },
+  {
+    "id": "conference_talk",
+    "title": "Conference Talk Opportunity",
+    "phase": 3,
+    "phaseLabel": "Senior Developer",
+    "narrative": "Your company is sending 3 people to a major tech conference. Your manager asks who wants to go and present.\n\nPublic speaking terrifies you. But it's a career opportunity. The conference has 5,000 attendees and industry leaders.\n\nYour coworker who loves attention is also interested.",
+    "choices": [
+      {
+        "text": "Say yes and prepare rigorously",
+        "checks": {
+          "C": 7,
+          "E": 6
+        },
+        "success": {
+          "text": "You practice for weeks. Your talk is excellent. You meet industry leaders. Your career gets a huge boost.",
+          "effects": {
+            "C": 2,
+            "I": 1
+          },
+          "log": "Killed the conference talk!"
+        },
+        "failure": {
+          "text": "You freeze on stage. It's awkward. But... people were kind. You learn and come back stronger next year.",
+          "effects": {
+            "E": -1,
+            "C": 1
+          },
+          "log": "Conference talk was rough but you learned."
+        }
+      },
+      {
+        "text": "Nominate your extroverted coworker",
+        "checks": {
+          "C": 5
+        },
+        "success": {
+          "text": "Your coworker absolutely crushes it. They thank you for the opportunity. You look like a team player.",
+          "effects": {
+            "C": 1
+          },
+          "log": "Team player move."
+        },
+        "failure": {
+          "text": "Your coworker steals your thunder. They mention your work in their talk and get all the credit. You're not mad. (You're a little mad.)",
+          "effects": {
+            "C": -1
+          },
+          "log": "Coworker took the spotlight."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_performance_review_2",
+    "title": "The Promotion Review",
+    "phase": 3,
+    "phaseLabel": "Senior Developer",
+    "narrative": "It's promotion review season. You're up for Senior → Staff.\n\nYour manager says: \"You need more visibility. You need to influence at a higher level. You need to...\"\n\nYou look at your coworker who just gave a talk at a major conference. They're already getting their promotion packet.\n\nYou've spent 6 months deep in the code. Nobody knows what you've built.",
+    "choices": [
+      {
+        "text": "Write a detailed impact report",
+        "checks": {
+          "I": 7,
+          "C": 6
+        },
+        "success": {
+          "text": "You write a compelling report showing your impact. Your manager is impressed. You get the promotion.",
+          "effects": {
+            "I": 1,
+            "C": 1
+          },
+          "log": "Impact report nailed the promotion!"
+        },
+        "failure": {
+          "text": "Your report is too technical. Your manager doesn't understand it. You wait another quarter.",
+          "effects": {
+            "C": -1
+          },
+          "log": "Report was too technical."
+        }
+      },
+      {
+        "text": "Start giving talks and writing blog posts",
+        "checks": {
+          "C": 8,
+          "A": 6
+        },
+        "success": {
+          "text": "You give a talk at an internal tech day. People are impressed. You get invited to speak externally.",
+          "effects": {
+            "C": 2,
+            "A": 1
+          },
+          "log": "Talk went viral — promotion secured!"
+        },
+        "failure": {
+          "text": "Nobody shows up to your talk. 3 people attend. One is your manager.",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "Talk had 3 attendees. Ouch."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_security_audit",
+    "title": "The Security Audit",
+    "phase": 3,
+    "phaseLabel": "Senior Developer",
+    "narrative": "The security team just finished their audit. Your service has 237 vulnerabilities. 12 are critical.\n\nThe worst one: your API keys are hardcoded in the source code. They've been public on GitHub for 6 months.\n\nThe CISO wants a meeting. Tomorrow.",
+    "choices": [
+      {
+        "text": "Own it and fix everything",
+        "checks": {
+          "C": 8,
+          "E": 7
+        },
+        "success": {
+          "text": "You admit the mistakes and present a remediation plan. The CISO respects your honesty. You fix everything in 2 weeks.",
+          "effects": {
+            "C": 2,
+            "P": 1
+          },
+          "log": "Owned the mistakes. Fixed everything."
+        },
+        "failure": {
+          "text": "The CISO is furious. They want your head. You're assigned to security work for the next 6 months.",
+          "effects": {
+            "E": -2,
+            "C": -1
+          },
+          "log": "CISO wants blood. Security prison."
+        }
+      },
+      {
+        "text": "Blame the legacy code",
+        "checks": {
+          "C": 6,
+          "I": 5
+        },
+        "success": {
+          "text": "You blame the legacy codebase. The CISO buys it. You get a pass. (You're a little ashamed.)",
+          "effects": {
+            "C": 1
+          },
+          "log": "Blamed legacy. Got off easy."
+        },
+        "failure": {
+          "text": "The CISO knows you wrote the code. They don't buy the excuse. You're in trouble.",
+          "effects": {
+            "C": -2,
+            "E": -2
+          },
+          "log": "Excuse didn't work. In trouble."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_keynote",
+    "title": "The Keynote Invitation",
+    "phase": 3,
+    "phaseLabel": "Senior Developer",
+    "narrative": "You've been invited to give a keynote at a major tech conference. 3,000 attendees. Industry leaders in the audience.\n\nYour topic: \"How we scaled our platform to 10 million users.\"\n\nYou've never given a keynote. You've barely given a talk.\n\nYour hands are shaking.",
+    "choices": [
+      {
+        "text": "Practice like your life depends on it",
+        "checks": {
+          "E": 7,
+          "C": 7
+        },
+        "success": {
+          "text": "You practice for weeks. The keynote is a hit. People approach you after with job offers.",
+          "effects": {
+            "C": 2,
+            "I": 1
+          },
+          "log": "Keynote was a massive success!"
+        },
+        "failure": {
+          "text": "You freeze on stage. It's painful. But people were kind. You learn and come back stronger.",
+          "effects": {
+            "E": -1,
+            "C": 1
+          },
+          "log": "Freeze on stage. But you learned."
+        }
+      },
+      {
+        "text": "Hire a professional speaker coach",
+        "checks": {
+          "C": 6,
+          "I": 5
+        },
+        "success": {
+          "text": "The coach helps you find your voice. The keynote is great. You're a natural.",
+          "effects": {
+            "C": 2
+          },
+          "log": "Speaker coach made you a pro!"
+        },
+        "failure": {
+          "text": "The coach is a scam. You waste $5,000 and still freeze on stage.",
+          "effects": {
+            "E": -2,
+            "C": -1
+          },
+          "log": "Speaker coach was a scam. 💀"
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_kpi",
+    "title": "The KPI Trap",
+    "phase": 3,
+    "phaseLabel": "Senior Developer",
+    "narrative": "Your manager introduces new KPIs: lines of code committed, PRs merged per week, tickets closed.\n\nYou've been writing careful, well-tested code. This will make you look bad.\n\nYour coworker who writes spaghetti code is now the top performer.\n\nThe CEO loves the dashboard.",
+    "choices": [
+      {
+        "text": "Push back on the KPIs",
+        "checks": {
+          "C": 8,
+          "I": 7
+        },
+        "success": {
+          "text": "You present data showing KPIs don't correlate with quality. Your manager listens. KPIs are changed.",
+          "effects": {
+            "C": 2,
+            "I": 1
+          },
+          "log": "KPIs changed after your pushback!"
+        },
+        "failure": {
+          "text": "Your manager says \"the CEO loves the dashboard.\" You're told to adapt.",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "KPIs stay. Coworker wins."
+        }
+      },
+      {
+        "text": "Game the KPIs",
+        "checks": {
+          "A": 7,
+          "E": 6
+        },
+        "success": {
+          "text": "You break features into tiny PRs. Your KPIs look great. You feel dirty but you're #1.",
+          "effects": {
+            "A": 1,
+            "E": 1
+          },
+          "log": "Gamed the KPIs. Feel dirty."
+        },
+        "failure": {
+          "text": "Your manager notices the tiny PRs. They ask why you're not shipping features.",
+          "effects": {
+            "C": -1,
+            "E": -2
+          },
+          "log": "Caught gaming KPIs."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_oncall_nightmare",
+    "title": "The On-Call Nightmare",
+    "phase": 3,
+    "phaseLabel": "Senior Developer",
+    "narrative": "It's your on-call week. Your phone buzzes at 3 AM.\n\n\"Database is down. Users can't log in. The CEO is calling.\"\n\nYou've been on-call for 3 weeks straight. You're exhausted.\n\nThe database cluster has 47 nodes. You don't know which one is failing.",
+    "choices": [
+      {
+        "text": "Diagnose systematically",
+        "checks": {
+          "P": 8,
+          "E": 7
+        },
+        "success": {
+          "text": "You methodically check each node. You find the failing one. You restart it. Database recovers.",
+          "effects": {
+            "P": 2,
+            "E": 1
+          },
+          "log": "Systematic approach saved the day!"
+        },
+        "failure": {
+          "text": "You check nodes randomly. You waste 2 hours. The CEO calls again.",
+          "effects": {
+            "E": -3,
+            "P": -1
+          },
+          "log": "Random checks wasted time."
+        }
+      },
+      {
+        "text": "Call the DBA team",
+        "checks": {
+          "C": 6,
+          "E": 5
+        },
+        "success": {
+          "text": "The DBA team fixes it in 15 minutes. You learn the root cause. You're on-call again next week.",
+          "effects": {
+            "C": 1
+          },
+          "log": "DBA team handled it."
+        },
+        "failure": {
+          "text": "The DBA team is asleep. You wait 45 minutes. The CEO is furious.",
+          "effects": {
+            "E": -2,
+            "C": -1
+          },
+          "log": "DBA team asleep. CEO furious."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_retrospective",
+    "title": "The Blameless Retrospective",
+    "phase": 3,
+    "phaseLabel": "Senior Developer",
+    "narrative": "A production incident just happened. Your team is in a retrospective.\n\nThe manager says: \"This is a blameless retrospective. Let's focus on process, not people.\"\n\nBut everyone is looking at you. You deployed the bad code. You missed the test. You should have caught it.\n\nThe silence is deafening.",
+    "choices": [
+      {
+        "text": "Own your mistake publicly",
+        "checks": {
+          "C": 8,
+          "E": 7
+        },
+        "success": {
+          "text": "You admit your mistake and propose process improvements. Your team respects your honesty.",
+          "effects": {
+            "C": 2,
+            "P": 1
+          },
+          "log": "Owned the mistake. Team respected you!"
+        },
+        "failure": {
+          "text": "You admit your mistake but your manager takes it too far. They make it about you, not process.",
+          "effects": {
+            "C": -1,
+            "E": -2
+          },
+          "log": "Manager made it about you."
+        }
+      },
+      {
+        "text": "Stay quiet and let it pass",
+        "checks": {
+          "E": 5,
+          "L": 5
+        },
+        "success": {
+          "text": "Nobody mentions you. The retrospective moves on. You learn privately.",
+          "effects": {
+            "E": 1
+          },
+          "log": "Stayed quiet. Learned privately."
+        },
+        "failure": {
+          "text": "Your coworker mentions you. \"John deployed the bad code.\" The room turns to you.",
+          "effects": {
+            "C": -2,
+            "E": -1
+          },
+          "log": "Coworker called you out."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_presentation",
+    "title": "The Architecture Presentation",
+    "phase": 3,
+    "phaseLabel": "Senior Developer",
+    "narrative": "You've designed a new architecture. It's elegant, scalable, and perfect.\n\nYou're presenting it to the engineering team. They have questions.\n\n\"What about latency?\" \"What about cost?\" \"What about our existing infrastructure?\"\n\nYou didn't think about those.",
+    "choices": [
+      {
+        "text": "Admit you didn't consider those factors",
+        "checks": {
+          "C": 7,
+          "I": 6
+        },
+        "success": {
+          "text": "You admit the gaps. The team helps you fill them. The architecture gets better.",
+          "effects": {
+            "C": 1,
+            "I": 1
+          },
+          "log": "Admitted gaps. Architecture improved!"
+        },
+        "failure": {
+          "text": "You deflect. The team doesn't buy it. Your credibility takes a hit.",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "Deflected. Credibility hit."
+        }
+      },
+      {
+        "text": "Push back on the concerns",
+        "checks": {
+          "C": 8,
+          "I": 7
+        },
+        "success": {
+          "text": "You address each concern with data. The team is convinced. The architecture ships.",
+          "effects": {
+            "C": 1,
+            "I": 1
+          },
+          "log": "Data convinced the team!"
+        },
+        "failure": {
+          "text": "Your data is weak. The team pushes back harder. The architecture is delayed.",
+          "effects": {
+            "C": -1,
+            "E": -2
+          },
+          "log": "Data was weak. Delayed."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_svpg_model",
+    "title": "The SVPG Product Model",
+    "phase": 3,
+    "phaseLabel": "Senior Developer",
+    "narrative": "Your company is adopting the Silicon Valley Product Group (SVPG) model. The VP of Product just sent a 47-page deck.\n\nIt talks about \"product-market fit,\" \"the product lifecycle,\" and \"the three horizons.\"\n\nYou don't know what any of this means. Your team lead says it means \"product wants more features.\"\n\nThe new process: every feature needs a \"Product Requirements Document\" AND a \"Success Metrics Framework\" AND a \"Go-to-Market Alignment.\"\n\nYour simple bug fix now needs a 10-page doc.",
+    "choices": [
+      {
+        "text": "Learn the framework",
+        "checks": {
+          "I": 8,
+          "E": 7
+        },
+        "success": {
+          "text": "You read the deck. You understand the SVPG model. You write a PRD that actually helps. Product respects you.",
+          "effects": {
+            "I": 2,
+            "C": 1
+          },
+          "log": "Mastered the SVPG model!"
+        },
+        "failure": {
+          "text": "You read the deck. You don't understand it. You write a 10-page PRD that nobody reads.",
+          "effects": {
+            "E": -2,
+            "I": -1
+          },
+          "log": "Wrote a PRD nobody reads."
+        }
+      },
+      {
+        "text": "Do the minimum required",
+        "checks": {
+          "A": 7,
+          "C": 5
+        },
+        "success": {
+          "text": "You write a 2-page PRD. Product complains but approves it. You ship faster than everyone else.",
+          "effects": {
+            "A": 1,
+            "C": 1
+          },
+          "log": "Minimum viable PRD. Ship it."
+        },
+        "failure": {
+          "text": "Product rejects your 2-page PRD. They want 10 pages. You're stuck in review for 2 weeks.",
+          "effects": {
+            "A": -1,
+            "E": -2
+          },
+          "log": "PRD rejected. Stuck in review."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_product_triangle",
+    "title": "The Product Triangle",
+    "phase": 3,
+    "phaseLabel": "Senior Developer",
+    "narrative": "Your VP of Product introduces the \"Product Triangle\": Fast, Good, Cheap. Pick two.\n\nThey say: \"We want Fast AND Good. We're sorry, it's going to be expensive.\"\n\nYour budget is cut 30%.\n\nYour team lead says: \"Just make it work.\"\n\nThe product team says: \"We need it in 2 weeks.\"\n\nThe CEO says: \"Make it great.\"\n\nThe Product Triangle is... a lie.",
+    "choices": [
+      {
+        "text": "Show them the triangle",
+        "checks": {
+          "C": 8,
+          "I": 7
+        },
+        "success": {
+          "text": "You draw the triangle on a whiteboard. Everyone understands. They pick \"Good and Cheap\" and give you more time.",
+          "effects": {
+            "C": 2,
+            "I": 1
+          },
+          "log": "Triangle explained. Time given."
+        },
+        "failure": {
+          "text": "The VP says \"we're special. We can break the triangle.\" Nobody believes them.",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "Triangle ignored. Impossible."
+        }
+      },
+      {
+        "text": "Just build what they ask",
+        "checks": {
+          "E": 7,
+          "A": 6
+        },
+        "success": {
+          "text": "You build it. It's fast, it's good, and it's expensive. Your team burns out but ships.",
+          "effects": {
+            "E": 1,
+            "A": 1
+          },
+          "log": "Built it. Team is exhausted."
+        },
+        "failure": {
+          "text": "You can't make it work. The feature ships late, it's buggy, and it costs more than expected.",
+          "effects": {
+            "E": -2,
+            "C": -1
+          },
+          "log": "Late, buggy, expensive."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_code_of_conduct",
+    "title": "The Code of Conduct Incident",
+    "phase": 3,
+    "phaseLabel": "Senior Developer",
+    "narrative": "A team member makes an inappropriate comment in a public channel. It's not terrible, but it's not okay.\n\nThe team is divided. Some think it's no big deal. Others are offended.\n\nYour manager says: \"Handle this. You're a senior engineer.\"\n\nIt's your call.",
+    "choices": [
+      {
+        "text": "Address it directly and privately",
+        "checks": {
+          "C": 8,
+          "E": 7
+        },
+        "success": {
+          "text": "You talk to them privately. They apologize. The team moves on. Everyone respects your handling.",
+          "effects": {
+            "C": 2,
+            "E": 1
+          },
+          "log": "Handled it privately. Team respected you!"
+        },
+        "failure": {
+          "text": "You address it publicly. They get defensive. The situation gets worse.",
+          "effects": {
+            "C": -1,
+            "E": -2
+          },
+          "log": "Public confrontation backfired."
+        }
+      },
+      {
+        "text": "Let HR handle it",
+        "checks": {
+          "E": 5,
+          "C": 4
+        },
+        "success": {
+          "text": "HR handles it professionally. You're not involved. The team moves on.",
+          "effects": {
+            "E": 1
+          },
+          "log": "HR handled it."
+        },
+        "failure": {
+          "text": "HR takes 2 weeks. The team is simmering. Your manager asks why you didn't step in.",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "HR was too slow."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_platform_rewrite",
+    "title": "BOSS: The Platform Rewrite",
+    "phase": 3,
+    "phaseLabel": "Senior Developer — Boss Battle",
+    "narrative": "Your BOSS. The CTO has declared the entire platform \"architecturally unsound\" and wants a complete rewrite in a new stack.\n\n\"The old system was built by amateurs,\" they say. (It was built by you and your team over 3 years.)\n\nYou're tasked with building the new platform. The old system has 2 million users. Downtime is NOT an option.\n\nThe rewrite challenge awaits.",
+    "choices": [
+      {
+        "text": "Build it right — proper architecture, proper testing",
+        "checks": {
+          "I": 9,
+          "E": 7
+        },
+        "success": {
+          "text": "You design a beautiful, scalable architecture. The new platform is 10x faster, 10x more reliable. It takes 6 months but it's worth it. You've proven the old system's worth by building something even better.",
+          "effects": {
+            "I": 3,
+            "E": 1
+          },
+          "log": "Built a platform that outshines the old one!"
+        },
+        "failure": {
+          "text": "Perfection takes too long. The old system is still breaking while you're building the perfect new one. Leadership gets impatient.",
+          "effects": {
+            "I": -1,
+            "E": -2
+          },
+          "log": "Over-engineered the rewrite."
+        }
+      },
+      {
+        "text": "Ship a minimal viable platform and iterate",
+        "checks": {
+          "A": 8,
+          "C": 6
+        },
+        "success": {
+          "text": "You ship the basics in 2 months. It's not perfect but it works. You iterate based on real usage. Leadership is impressed by the speed.",
+          "effects": {
+            "A": 2,
+            "C": 1
+          },
+          "log": "MVP approach won leadership over!"
+        },
+        "failure": {
+          "text": "The MVP is too minimal. It can't handle production load. You have to rebuild significant portions. Now you have TWO platforms.",
+          "effects": {
+            "A": -1,
+            "E": -2
+          },
+          "log": "MVP was too minimal."
+        }
+      },
+      {
+        "text": "Push back — the old system works fine",
+        "checks": {
+          "C": 9,
+          "I": 7
+        },
+        "success": {
+          "text": "You present data showing the old system is stable. You propose incremental improvements instead of a rewrite. The CTO backs down. Crisis averted.",
+          "effects": {
+            "C": 3,
+            "I": 1
+          },
+          "log": "Successfully prevented an unnecessary rewrite!"
+        },
+        "failure": {
+          "text": "The CTO is unmoved. \"I've made my decision.\" You're stuck leading a rewrite you think is unnecessary. Morale plummets.",
+          "effects": {
+            "C": -2,
+            "E": -2
+          },
+          "log": "Couldn't stop the rewrite."
+        }
+      }
+    ]
+  }
+]

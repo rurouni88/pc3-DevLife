@@ -85,58 +85,84 @@ Events are the core gameplay unit. Each event presents a scenario with:
 
 ### 2.4 Items & Equipment
 
-Items represent tools, certifications, and resources. **Max 1 equipped at a time.**
+Passive items that give permanent stat bonuses. **Max 1 equipped at a time.**
 
-| Item | Effect | Rarity |
-|------|--------|--------|
-| Mechanical Keyboard | +1 Strength | Common |
-| Noise-Canceling Headphones | +1 Endurance | Common |
-| Stack Overflow Premium | +1 Luck | Uncommon |
-| LeetCode Subscription | +1 Intelligence | Uncommon |
-| PMP Certification | +2 Charisma | Rare |
-| AWS Certification | +1 Intelligence, +1 Strength | Rare |
-| Custom Ergonomic Chair | +3 Endurance | Epic |
-| Rubber Duck | +1 Perception | Common |
-| Reference Architecture Book | +2 Intelligence | Uncommon |
+#### Common
+| Item | Emoji | Effect | Description |
+|------|-------|--------|-------------|
+| Mechanical Keyboard | ⌨️ | +1 Strength | Clickety-clack. Your fingers never miss. |
+| Noise-Canceling Headphones | 🎧 | +1 Endurance | The world fades away. Focus achieved. |
+| Rubber Duck | 🦆 | +1 Perception | Debugging companion. It always knows. |
+| Ultrawide Monitor | 🖥️ | +1 Perception, +1 Agility | Three screens. Zero distractions. |
+
+#### Uncommon
+| Item | Emoji | Effect | Description |
+|------|-------|--------|-------------|
+| Stack Overflow Premium | 🌟 | +1 Luck | Answers before you finish typing. |
+| LeetCode Subscription | 📚 | +1 Intelligence | Grind never stops. |
+| Reference Architecture Book | 📖 | +2 Intelligence | The one book everyone pretends to read. |
+
+#### Rare
+| Item | Emoji | Effect | Description |
+|------|-------|--------|-------------|
+| PMP Certification | 📜 | +2 Charisma | Project Management Professional. Now manage your own projects. |
+| AWS Certification | ☁️ | +1 Intelligence, +1 Strength | Cloud-native. Lift heavy things into the sky. |
+| Standing Desk | 🪑 | +2 Endurance | Your legs thank you. Your back agrees. |
+
+#### Epic
+| Item | Emoji | Effect | Description |
+|------|-------|--------|-------------|
+| Custom Ergonomic Chair | 💺 | +3 Endurance | Your spine's sanctuary. Worth every penny. |
+| Home Office Setup | 🏠 | +1 Perception, +1 Endurance, +1 Agility | The complete package. WFH dreams. |
 
 ### 2.5 Consumables
 
 One-time stat boosts for a single event check. **Max 2 in inventory.** Earned on level up — choose from 3 options.
 
 #### Common
-| Consumable | Effect | Description |
-|------------|--------|-------------|
-| Coffee | +2 Endurance | The developer's blood |
-| Energy Drink | +2 Agility | Squeeze, swallow, ship |
-| Instant Noodles | +2 Endurance | 3 minutes to survival |
-| Cold Pizza | +2 Charisma | Universal developer currency |
+| Consumable | Emoji | Effect | Description |
+|------------|-------|--------|-------------|
+| Vitamin Pill | 💊 | +1 Endurance | Tastes like regret |
+| Coffee | ☕ | +2 Endurance | The developer's blood |
+| Energy Drink | 🥤 | +2 Agility | Squeeze, swallow, ship |
+| Red Bull | 🐂 | +3 Endurance | Gives you wings (and jitters) |
+| Instant Noodles | 🍜 | +2 Endurance | 3 minutes to survival. 3 hours to regret. |
+| Energy Gel | 🧴 | +2 Agility | Sprint fuel of champions |
+| Protein Bar | 🍫 | +1 Endurance | Tastes like cardboard. Works like magic. |
+| Cold Pizza | 🍕 | +2 Charisma | The universal developer currency. |
 
 #### Uncommon
-| Consumable | Effect | Description |
-|------------|--------|-------------|
-| Espresso Shot | +3 Perception | One shot. Pure clarity. |
-| Matcha Latte | +3 Intelligence | Zen focus |
-| Dark Chocolate | +2 Charisma | Share with the team |
-| AI Copilot | 1.5× stat (risky) | 70% chance it works |
+| Consumable | Emoji | Effect | Description |
+|------------|-------|--------|-------------|
+| Focus Session | 🧘 | +3 Perception | See the bugs before they see you |
+| Whiteboard Session | 📋 | +3 Intelligence | Architecture clarity |
+| Pair Programming | 👥 | +3 Charisma | Two brains, one PR |
+| Espresso Shot | ☕ | +3 Perception | One shot. Pure clarity. |
+| Matcha Latte | 🍵 | +3 Intelligence | Zen focus for when you need to architect the impossible. |
+| Dark Chocolate | 🍫 | +2 Charisma | Share with the team. They'll forgive you for the merge conflict. |
+| Pre-Workout | 💪 | +3 Agility, +1 Endurance | Jitters guaranteed. Shipping accelerated. |
+| AI Copilot | 🤖 | 1.5× stat (risky!) | 70% chance it works |
+| Red Bull + Espresso | ⚡ | 1.5× stat (risky!) | The double shot of doom. Heart rate: 180. Code quality: TBD. |
 
 #### Rare
-| Consumable | Effect | Description |
-|------------|--------|-------------|
-| Deep Work Block | +4 Strength | Brute force the codebase |
-| Caffeine IV Drip | +4 Strength, +3 Endurance | Talking to the server |
-| Ghost Pepper Hot Sauce | +4 Agility, -1 Endurance | Fire in your veins |
-| AI Code Generator | 2× stat (very risky) | Green screen of death |
+| Consumable | Emoji | Effect | Description |
+|------------|-------|--------|-------------|
+| Deep Work Block | 🎯 | +4 Strength | Brute force the codebase |
+| Lucky Socks | 🧦 | +4 Luck | First-deploy success |
+| Caffeine IV Drip | 💉 | +4 Strength, +3 Endurance | For when coffee just isn't cutting it anymore. |
+| Ghost Pepper Hot Sauce | 🌶️ | +4 Agility, -1 Endurance | Fire in your veins. Fire in your gut. Code so fast it burns. |
+| Truffle Pasta | 🍝 | +3 Charisma, +2 Luck | The PM actually enjoyed it. Miracles happen. |
+| AI Code Generator | 🧠 | 2× stat (very risky!) | Green screen of death |
+| Monster Energy | 👹 | 2× stat (very risky!) | Green liquid. Green screen of death. Either you ship or you don't wake up. |
 
 #### Epic
-| Consumable | Effect | Description |
-|------------|--------|-------------|
-| Flow State | +5 ANY stat | Everything clicks |
-| The Perfect Meal | +5 ANY stat | Made by someone who cares |
-| Survival Rations | +3 ALL stats (3 events) | MREs from 1998 |
+| Consumable | Emoji | Effect | Description |
+|------------|-------|--------|-------------|
+| Flow State | ⚡ | +5 to ANY stat | Everything clicks |
+| The Perfect Meal | 🍱 | +5 to ANY stat | Home-cooked. Made by someone who cares. Everything clicks. |
+| Survival Rations | 🎒 | +3 ALL stats (3 events) | MREs from 1998. They taste like betrayal. |
 
 ### 2.6 Career Milestones & Achievements
-
-### 2.5 Career Milestones & Achievements
 
 Trackable achievements for replayability:
 - 🏆 **Ship It:** Complete 100 deployments
@@ -262,8 +288,11 @@ pc3-DevLife/
 │   ├── archetypes.js   # Starting builds
 │   ├── ui.js           # UI rendering
 │   └── save.js         # Save/load system
-└── assets/
-    └── (icons, sounds)
+└── events/
+    ├── phase_junior.json   # 13 events
+    ├── phase_mid.json      # 16 events
+    ├── phase_senior.json   # 16 events
+    └── phase_staff.json    # 12 events
 ```
 
 ---
@@ -301,26 +330,26 @@ pc3-DevLife/
 
 ## 8. Event System Design
 
-Events are defined as JSON objects:
+Events are defined as JSON objects (stored in `js/events/phase_*.json`):
 
-```javascript
+```json
 {
-  id: "incident_001",
-  title: "3 AM Production Incident",
-  phase: 1, // Career phase 1 = Junior
-  narrative: "The pager goes off...",
-  choices: [
+  "id": "incident_001",
+  "title": "3 AM Production Incident",
+  "phase": 1,
+  "narrative": "The pager goes off...",
+  "choices": [
     {
-      text: "Roll back the deployment",
-      checks: { Agility: 5 },
-      success: { text: "Quick rollback. Team is impressed.", effects: { Agility: 1, Endurance: -1 } },
-      failure: { text: "Rollback failed. Situation worsens.", effects: { Endurance: -2, Luck: -1 } }
+      "text": "Roll back the deployment",
+      "checks": { "A": 5 },
+      "success": { "text": "Quick rollback. Team is impressed.", "effects": { "A": 1, "E": -1 } },
+      "failure": { "text": "Rollback failed. Situation worsens.", "effects": { "E": -2, "L": -1 } }
     },
     {
-      text: "Dive into logs",
-      checks: { Perception: 6 },
-      success: { text: "Found the bug. Clean fix deployed.", effects: { Perception: 1, Intelligence: 1 } },
-      failure: { text: "Spent 4 hours looking. It was a DNS issue.", effects: { Endurance: -2 } }
+      "text": "Dive into logs",
+      "checks": { "P": 6 },
+      "success": { "text": "Found the bug. Clean fix deployed.", "effects": { "P": 1, "I": 1 } },
+      "failure": { "text": "Spent 4 hours looking. It was a DNS issue.", "effects": { "E": -2 } }
     }
   ]
 }
@@ -332,14 +361,13 @@ Events are defined as JSON objects:
 
 ```
 1. Calculate effective stat = base_stat + equipment_bonus + temporary_bonus
-2. Roll d100 (or d20 for simpler version)
-3. Compare against threshold
-4. Success if: roll <= (effective_stat * 10) for d100
-             or roll <= effective_stat for d20
-5. Apply consequences
+2. Compare effective stat against the check threshold
+3. Success if: effective_stat >= threshold
+4. Apply consequences
 ```
 
-Example: Strength 7 → threshold of 70 on d100 or 7 on d20
+Example: Strength 7 vs threshold 6 → success (7 >= 6)
+         Strength 7 vs threshold 8 → failure (7 < 8)
 
 ---
 

@@ -378,7 +378,7 @@ const UI = {
     log.forEach((entry, i) => {
       const el = document.createElement('div');
       el.className = `log-entry ${i === 0 ? 'recent' : ''}`;
-      const careerYear = Math.ceil(entry.day / 6);
+      const careerYear = Math.ceil(entry.day / 12);
       el.textContent = `Year ${careerYear}: ${entry.message}`;
       container.appendChild(el);
     });
@@ -398,7 +398,7 @@ const UI = {
     recentEntries.forEach((entry, i) => {
       const el = document.createElement('div');
       el.className = `recent-log-entry ${i === 0 ? 'recent' : ''}`;
-      const careerYear = Math.ceil(entry.day / 6);
+      const careerYear = Math.ceil(entry.day / 12);
       el.textContent = `Year ${careerYear}: ${entry.message}`;
       container.appendChild(el);
     });
@@ -408,11 +408,16 @@ const UI = {
   renderTopBar() {
     const phaseNames = ['', 'Junior Developer', 'Mid-Level Developer', 'Senior Developer', 'Staff/Principal'];
     document.getElementById('career-phase').textContent = phaseNames[Game.state.phase];
-    // Career spans ~8-10 years across 20 events, so each event is ~0.5 years
-    const careerYear = Math.ceil(Game.state.day / 6);
+    // Career spans ~8-10 years across ~24 events, each event ~0.4 years
+    const careerYear = Math.ceil(Game.state.day / 12);
     document.getElementById('career-day').textContent = `Year ${careerYear}`;
     document.getElementById('player-level').textContent = Game.state.level;
-    document.getElementById('level-up-points').textContent = Game.state.levelUpPoints;
+    
+    // Progress toward next boss
+    const eventsInCycle = Game.state.eventsCompleted % EVENTS_PER_BOSS;
+    const progressText = Game.state.levelUpPoints > 0 ? 'LEVEL UP!' : `${eventsInCycle}/${EVENTS_PER_BOSS}`;
+    document.getElementById('level-progress').textContent = progressText;
+    document.getElementById('level-progress-top').textContent = `Level ${Game.state.level} · ${progressText}`;
   },
   
   // Render an event
@@ -622,6 +627,7 @@ const UI = {
     else if (result.victory) continueText = 'View Retirement →';
     else if (result.leveledUp) continueText = 'Level Up →';
     else if (result.phaseComplete) continueText = 'Continue →';
+    else if (result.bossDefeated) continueText = 'Boss Defeated — Continue →';
     
     resultHTML += `<button class="btn btn-primary btn-continue" id="btn-continue-event">${continueText}</button>`;
     
@@ -659,17 +665,34 @@ const UI = {
     }
     
     const excludeIds = Game.state.eventHistory || [];
-    const event = getRandomEvent(Game.state.phase, excludeIds);
+    let event;
     
-    if (!event) {
-      console.log('[DevLife] No event found for phase', Game.state.phase, 'excluded:', excludeIds);
+    // If boss already defeated, advance to next phase
+    if (Game.state.bossCompleted) {
       Game.advancePhase();
       this.renderTopBar();
       this.nextEvent();
       return;
     }
     
-    console.log('[DevLife] Rendering event:', event.title);
+    // Boss every N events (eventsCompleted is incremented AFTER this call)
+    if ((Game.state.eventsCompleted + 1) % EVENTS_PER_BOSS === 0) {
+      event = getBossEvent(Game.state.phase);
+    } else {
+      event = getRandomNonBossEvent(Game.state.phase, excludeIds);
+      // Fallback to boss if we've seen all non-boss events
+      if (!event) {
+        event = getBossEvent(Game.state.phase);
+      }
+    }
+    
+    if (!event) {
+      Game.advancePhase();
+      this.renderTopBar();
+      this.nextEvent();
+      return;
+    }
+    
     this.renderEvent(event);
   },
   
@@ -799,11 +822,14 @@ const UI = {
       if (!consumable) return;
       
       // Handle the consumable selection
-      if (hasFullInventory && selectedIndex >= 0) {
-        // Swap: replace selected consumable with new one
-        Game.state.consumables[selectedIndex] = { ...consumable };
+      if (hasFullInventory) {
+        // Inventory full — must replace a selected consumable
+        if (selectedIndex >= 0) {
+          Game.state.consumables[selectedIndex] = { ...consumable };
+        }
+        // If selectedIndex is -1, don't add anything (user didn't pick what to replace)
       } else {
-        // Add to inventory (should only happen if inventory < 2)
+        // Add to inventory
         Game.state.consumables.push({ ...consumable });
       }
       
@@ -951,7 +977,7 @@ const UI = {
       <div class="summary-row"><span class="label">Run #</span><span class="value">${summary.runNumber}</span></div>
       <div class="summary-row"><span class="label">Level Reached</span><span class="value">${summary.level}</span></div>
       <div class="summary-row"><span class="label">Career Phase</span><span class="value">${summary.phase}/4</span></div>
-      <div class="summary-row"><span class="label">Days Survived</span><span class="value">${summary.day}</span></div>
+      <div class="summary-row"><span class="label">Career Length</span><span class="value">${(summary.day / 12).toFixed(1)} years</span></div>
       <div class="summary-row"><span class="label">Events Completed</span><span class="value">${summary.eventsCompleted}</span></div>
       <div class="summary-row"><span class="label">Equipment</span><span class="value">${summary.equipment.length}</span></div>
       <div class="summary-row"><span class="label">Stats</span><span class="value">${STAT_KEYS.map(k => `${k}:${SpecialSystem.stats[k]}`).join(' ')}</span></div>
@@ -984,7 +1010,7 @@ const UI = {
       <div class="summary-row"><span class="label">Run #</span><span class="value">${summary.runNumber}</span></div>
       <div class="summary-row"><span class="label">Final Level</span><span class="value">${summary.level}</span></div>
       <div class="summary-row"><span class="label">Career Phase</span><span class="value">${summary.phase}/4 🏆</span></div>
-      <div class="summary-row"><span class="label">Days in Career</span><span class="value">${summary.day}</span></div>
+      <div class="summary-row"><span class="label">Career Length</span><span class="value">${(summary.day / 12).toFixed(1)} years</span></div>
       <div class="summary-row"><span class="label">Events Completed</span><span class="value">${summary.eventsCompleted}</span></div>
       <div class="summary-row"><span class="label">Equipment Collected</span><span class="value">${summary.equipment.length}</span></div>
       <div class="summary-row"><span class="label">Final Stats</span><span class="value">${STAT_KEYS.map(k => `${k}:${SpecialSystem.stats[k]}`).join(' ')}</span></div>
@@ -1021,7 +1047,7 @@ const UI = {
     const newContainer = document.getElementById('consumable-choice-new');
     const currentContainer = document.getElementById('consumable-choice-current');
     const keepBtn = document.getElementById('btn-keep-consumable');
-    const declineBtn = document.getElementById('btn-decline-consumable');
+    const skipBtn = document.getElementById('btn-skip-consumable');
     
     // Show new consumable
     newContainer.innerHTML = '';
@@ -1066,8 +1092,8 @@ const UI = {
     keepBtn.disabled = true;
     selectedIndex = -1;
     
-    // Keep current (decline new)
-    declineBtn.onclick = () => {
+    // Skip (keep current)
+    skipBtn.onclick = () => {
       UI.showScreen('game');
       UI.nextEvent();
     };
@@ -1089,7 +1115,7 @@ const UI = {
     const newContainer = document.getElementById('equipment-choice-new');
     const currentContainer = document.getElementById('equipment-choice-current');
     const keepBtn = document.getElementById('btn-keep-equipment');
-    const declineBtn = document.getElementById('btn-decline-equipment');
+    const skipBtn = document.getElementById('btn-skip-equipment');
     
     // Show new equipment
     newContainer.innerHTML = '';
@@ -1138,8 +1164,8 @@ const UI = {
     keepBtn.disabled = true;
     selectedIndex = -1;
     
-    // Keep current (decline new)
-    declineBtn.onclick = () => {
+    // Skip (keep current)
+    skipBtn.onclick = () => {
       Game.state.pendingEquipmentDrop = null;
       UI.showScreen('game');
       UI.nextEvent();

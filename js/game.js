@@ -14,9 +14,9 @@ const Game = {
       day: 1,
       phase: 1,
       eventsCompleted: 0,
-      eventsPerPhase: 5, // fixed events per career phase
       currentEventId: null,
       eventHistory: [],
+      bossCompleted: false, // tracks if phase boss has been defeated
       careerLog: [{ message: 'Career started.', day: 1, timestamp: now }],
       alive: true,
       won: false,
@@ -57,9 +57,9 @@ const Game = {
     localStorage.setItem('devlife_meta', JSON.stringify(meta));
   },
   
-  // Check if character can level up
+  // Check if character can level up (every N events = 1 level)
   checkLevelUp() {
-    const eventsNeeded = this.state.level * this.state.eventsPerPhase;
+    const eventsNeeded = this.state.level * EVENTS_PER_BOSS;
     if (this.state.eventsCompleted >= eventsNeeded && this.state.levelUpPoints === 0) {
       this.state.level++;
       this.state.levelUpPoints = 1;
@@ -99,6 +99,12 @@ const Game = {
     this.state.eventHistory.push(gameEvent.id);
     this.addLog(log);
     
+    // Track boss defeat
+    const isBoss = eventDef.title.startsWith(BOSS_PREFIX);
+    if (isBoss) {
+      this.state.bossCompleted = true;
+    }
+    
     // Check progression milestones
     const phaseComplete = this.checkPhaseCompletion();
     const leveledUp = this.checkLevelUp();
@@ -115,7 +121,8 @@ const Game = {
       leveledUp,
       gameOver,
       phaseComplete,
-      victory
+      victory,
+      bossDefeated: isBoss
     };
   },
   
@@ -178,14 +185,12 @@ const Game = {
   
   // Check if career phase is complete
   checkPhaseCompletion() {
-    return this.state.phase < 4 && 
-           this.state.eventsCompleted > 0 && 
-           this.state.eventsCompleted % this.state.eventsPerPhase === 0;
+    return this.state.phase < 4 && this.state.bossCompleted;
   },
   
   // Check if player has reached victory condition
   checkVictory() {
-    return this.state.eventsCompleted >= 20;
+    return this.state.phase === 4 && this.state.bossCompleted;
   },
   
   // Check game over conditions
@@ -224,6 +229,7 @@ const Game = {
   // Advance to next phase
   advancePhase() {
     this.state.phase++;
+    this.state.bossCompleted = false;
     const phaseNames = ['', 'Junior Developer', 'Mid-Level Developer', 'Senior Developer', 'Staff/Principal'];
     this.addLog(`Promoted to ${phaseNames[this.state.phase]}! 🎉`);
   },

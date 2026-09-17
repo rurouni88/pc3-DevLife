@@ -536,6 +536,12 @@ body {
   color: var(--text-secondary);
 }
 
+#level-progress-top {
+  color: var(--accent-green);
+  font-weight: bold;
+  font-size: 0.75rem;
+}
+
 #career-phase {
   font-size: 0.8rem;
   color: var(--accent-green);

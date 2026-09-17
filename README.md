@@ -46,7 +46,7 @@ Will you reach retirement, or will your career end in burnout?
 
 - **Archetype Presets** — Start as a Principal Architect, Startup Rockstar, SRE Specialist, and more
 
-- **Procedural Events** — Hundreds of satirical tech scenarios: production incidents, code reviews, sprint planning, architecture debates, and more
+- **Procedural Events** — 57+ satirical tech scenarios: production incidents, code reviews, sprint planning, architecture debates, and more
 
 - **Items & Equipment** — Collect passive stat bonuses from Mechanical Keyboards to Custom Ergonomic Chairs. Max 1 equipped at a time.
 
@@ -64,50 +64,9 @@ Will you reach retirement, or will your career end in burnout?
 
 ## 🧪 Consumables
 
-Consumables are one-time items that boost a stat for a single event check. You can hold **max 2** in your inventory. Earned on level up — pick from 3 options.
+Consumables are one-time stat boosts for a single event check. Hold **max 2** in inventory, earned on level up (pick from 3 options).
 
-### Common
-| Consumable | Emoji | Effect | Description |
-|------------|-------|--------|-------------|
-| Vitamin Pill | 💊 | +1 Endurance | Tastes like regret |
-| Coffee | ☕ | +2 Endurance | The developer's blood |
-| Energy Drink | 🥤 | +2 Agility | Squeeze, swallow, ship |
-| Red Bull | 🐂 | +3 Endurance | Gives you wings (and jitters) |
-| Instant Noodles | 🍜 | +2 Endurance | 3 minutes to survival |
-| Energy Gel | 🧴 | +2 Agility | Sprint fuel of champions |
-| Protein Bar | 🍫 | +1 Endurance | Tastes like cardboard |
-| Cold Pizza | 🍕 | +2 Charisma | Universal developer currency |
-
-### Uncommon
-| Consumable | Emoji | Effect | Description |
-|------------|-------|--------|-------------|
-| Focus Session | 🧘 | +3 Perception | See the bugs before they see you |
-| Whiteboard Session | 📋 | +3 Intelligence | Architecture clarity |
-| Pair Programming | 👥 | +3 Charisma | Two brains, one PR |
-| Espresso Shot | ☕ | +3 Perception | One shot. Pure clarity. |
-| Matcha Latte | 🍵 | +3 Intelligence | Zen focus |
-| Dark Chocolate | 🍫 | +2 Charisma | Share with the team |
-| Pre-Workout | 💪 | +3 Agility, +1 Endurance | Jitters guaranteed |
-| AI Copilot | 🤖 | 1.5× stat (risky!) | 70% chance it works |
-| Red Bull + Espresso | ⚡ | 1.5× stat (risky!) | Heart rate: 180 |
-
-### Rare
-| Consumable | Emoji | Effect | Description |
-|------------|-------|--------|-------------|
-| Deep Work Block | 🎯 | +4 Strength | Brute force the codebase |
-| Lucky Socks | 🧦 | +4 Luck | First-deploy success |
-| Caffeine IV Drip | 💉 | +4 Strength, +3 Endurance | Talking to the server |
-| Ghost Pepper Hot Sauce | 🌶️ | +4 Agility, -1 Endurance | Fire in your veins |
-| Truffle Pasta | 🍝 | +3 Charisma, +2 Luck | The PM actually enjoyed it |
-| AI Code Generator | 🧠 | 2× stat (very risky!) | Green screen of death |
-| Monster Energy | 👹 | 2× stat (very risky!) | Either you ship or you don't wake up |
-
-### Epic
-| Consumable | Emoji | Effect | Description |
-|------------|-------|--------|-------------|
-| Flow State | ⚡ | +5 to ANY stat | Everything clicks |
-| The Perfect Meal | 🍱 | +5 to ANY stat | Made by someone who cares |
-| Survival Rations | 🎒 | +3 ALL stats (3 events) | MREs from 1998 |
+See the [full consumables list in GAME_DESIGN.md](GAME_DESIGN.md#25-consumables).
 
 ---
 
@@ -126,6 +85,11 @@ pc3-DevLife/
 │   ├── archetypes.js   # Starting builds & stat metadata
 │   ├── ui.js           # UI rendering & screen management
 │   └── save.js         # Save/load system
+├── events/
+│   ├── phase_junior.json   # 13 events
+│   ├── phase_mid.json      # 16 events
+│   ├── phase_senior.json   # 16 events
+│   └── phase_staff.json    # 12 events
 └── GAME_DESIGN.md      # Full design document
 ```
 
@@ -180,7 +144,7 @@ npx serve .
 
 ## 🏆 Victory
 
-Complete all **4 career phases** (20+ events) to retire in style. Choose a consumable to carry into your next career!
+Complete all **4 career phases** (57 events total) to retire in style. Choose a consumable to carry into your next career!
 
 ---
 
@@ -194,12 +158,15 @@ See [`GAME_DESIGN.md`](GAME_DESIGN.md) for the full game design document, includ
 
 This is a prototype/vertical slice. Planned features:
 
-- [ ] More events per phase (currently ~5-8, target 15+)
-- [ ] Boss events at the end of each phase
 - [ ] Achievement system
 - [ ] Sound effects
 - [ ] Animated transitions
 - [ ] Export/share career summaries
+
+Current state:
+- 57 events across 4 career phases (13–16 per phase)
+- Boss events at the end of each phase ✓
+- Meta progression: carry consumables/equipment between runs ✓
 
 ---
 

@@ -159,7 +159,8 @@ const App = {
   }
 };
 
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize when DOM is ready (and events are loaded)
+document.addEventListener('DOMContentLoaded', async () => {
+  await waitForEvents();
   App.init();
 });
