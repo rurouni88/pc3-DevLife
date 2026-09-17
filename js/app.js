@@ -16,11 +16,33 @@ const App = {
     document.getElementById('btn-back-char').addEventListener('click', () => UI.showScreen('title'));
     document.getElementById('btn-start-career').addEventListener('click', () => this.startCareer());
     
-    // Game screen
+    // Game screen - toolbar buttons
+    document.querySelectorAll('.toolbar-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const panelName = btn.dataset.panel;
+        if (panelName === 'save') {
+          UI.openPopup('save');
+        } else {
+          UI.openPopup(panelName);
+        }
+      });
+    });
+    
+    // Popup close buttons
+    document.querySelectorAll('.popup-close').forEach(btn => {
+      btn.addEventListener('click', () => UI.closePopup());
+    });
+    
+    // Popup save confirm
+    document.getElementById('btn-popup-save-confirm').addEventListener('click', () => {
+      this.saveGame();
+      UI.closePopup();
+    });
+    
     document.getElementById('btn-menu-toggle').addEventListener('click', () => UI.togglePanel(true));
     document.getElementById('btn-close-panel').addEventListener('click', () => UI.closePanel());
     document.getElementById('panel-overlay').addEventListener('click', () => UI.closePanel());
-    document.getElementById('btn-save').addEventListener('click', () => this.saveGame());
+    document.getElementById('btn-save').addEventListener('click', () => UI.openPopup('save'));
     
     // Level up screen
     document.getElementById('btn-continue-levelup').addEventListener('click', () => this.afterLevelUp());

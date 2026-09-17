@@ -1500,5 +1500,95 @@ const UI = {
     };
     
     UI.showScreen('equipment-choice');
+  },
+  
+  // --- Popup Panel Methods ---
+  
+  openPopup(panelName) {
+    // Close any currently open popup
+    this.closePopup();
+    
+    const panel = document.getElementById(`panel-${panelName}`);
+    if (!panel) return;
+    
+    // Render content based on panel type
+    switch (panelName) {
+      case 'special':
+        this.renderPopupSpecial();
+        break;
+      case 'equipment':
+        this.renderPopupEquipment();
+        break;
+      case 'log':
+        this.renderPopupCareerLog();
+        break;
+    }
+    
+    panel.classList.add('active');
+  },
+  
+  closePopup() {
+    document.querySelectorAll('.popup-panel').forEach(p => p.classList.remove('active'));
+  },
+  
+  renderPopupSpecial() {
+    const statsContainer = document.getElementById('popup-special-stats');
+    statsContainer.innerHTML = '';
+    
+    STAT_KEYS.forEach(key => {
+      const meta = STAT_META[key];
+      const effective = SpecialSystem.effective(key);
+      const base = SpecialSystem.stats[key];
+      const bonus = effective - base;
+      
+      const bar = document.createElement('div');
+      bar.className = 'stat-bar';
+      bar.innerHTML = `
+        <span class="stat-letter" style="color: ${meta.color}">${key}</span>
+        <div class="stat-track">
+          <div class="stat-fill" style="width: ${effective * 10}%; background: ${meta.color}"></div>
+        </div>
+        <span class="stat-num" style="color: ${meta.color}">${base}${bonus > 0 ? `(+${bonus})` : ''}</span>
+      `;
+      statsContainer.appendChild(bar);
+    });
+    
+    document.getElementById('popup-player-level').textContent = Game.state.level;
+    const eventsInCycle = Game.state.eventsCompleted % EVENTS_PER_BOSS;
+    const progressText = Game.state.levelUpPoints > 0 ? 'LEVEL UP!' : `${eventsInCycle}/${EVENTS_PER_BOSS}`;
+    document.getElementById('popup-level-progress').textContent = progressText;
+  },
+  
+  renderPopupEquipment() {
+    const container = document.getElementById('popup-equipment-list');
+    const equipment = Game.state.equipment;
+    
+    if (equipment.length === 0) {
+      container.innerHTML = '<span class="empty-text">No equipment yet</span>';
+      return;
+    }
+    
+    container.innerHTML = '';
+    equipment.forEach(item => {
+      const el = document.createElement('span');
+      el.className = 'equip-item';
+      el.setAttribute('tabindex', '0');
+      el.innerHTML = `${item.emoji}<span class="tooltip">${item.name}: ${Object.entries(item.effects).map(([k,v]) => `+${v} ${STAT_META[k].name}`).join(', ')}</span>`;
+      container.appendChild(el);
+    });
+  },
+  
+  renderPopupCareerLog() {
+    const container = document.getElementById('popup-career-log');
+    const log = Game.state.careerLog.slice(0, 50);
+    
+    container.innerHTML = '';
+    log.forEach((entry, i) => {
+      const el = document.createElement('div');
+      el.className = `log-entry ${i === 0 ? 'recent' : ''}`;
+      const careerYear = Math.ceil(entry.day / 12);
+      el.textContent = `Year ${careerYear}: ${entry.message}`;
+      container.appendChild(el);
+    });
   }
 };

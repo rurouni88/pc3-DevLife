@@ -1053,6 +1053,132 @@ body {
   padding-bottom: calc(var(--spacing-lg) + env(safe-area-inset-bottom, 0px));
 }
 
+/* --- Mobile Toolbar --- */
+.mobile-toolbar {
+  display: flex;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-xs) 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.toolbar-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-width: 64px;
+  padding: var(--spacing-sm);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all var(--transition-fast);
+}
+
+.toolbar-btn:active {
+  background: var(--bg-tertiary);
+  border-color: var(--accent-green);
+}
+
+.toolbar-btn .toolbar-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Hide toolbar on desktop */
+@media (min-width: 900px) {
+  .mobile-toolbar {
+    display: none;
+  }
+}
+
+/* --- Popup Panels --- */
+.popup-panel {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--bg-primary);
+  overflow-y: auto;
+  animation: slideUpPanel 0.2s ease-out;
+}
+
+.popup-panel.active {
+  display: block;
+}
+
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.popup-header h3 {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  color: var(--accent-green);
+  margin: 0;
+}
+
+.popup-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: var(--spacing-sm);
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.popup-body {
+  padding: var(--spacing-md);
+}
+
+.save-popup-body {
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.save-popup-body p {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-lg);
+}
+
+@keyframes slideUpPanel {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Hide popup panels on desktop */
+@media (min-width: 900px) {
+  .popup-panel {
+    display: none !important;
+  }
+}
+
 /* --- Recent Activity (mobile-friendly) --- */
 .recent-activity {
   margin-top: var(--spacing-lg);
