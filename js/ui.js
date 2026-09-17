@@ -637,6 +637,24 @@ const UI = {
       `;
     }
     
+    // Build equipment display if player has any
+    let equipmentHTML = '';
+    if (Game.state.equipment.length > 0) {
+      equipmentHTML = `
+        <div class="consumable-bar">
+          <span class="consumable-label">🎒 Equipment:</span>
+          <div class="consumable-buttons">
+            ${Game.state.equipment.map(item => `
+              <button class="cons-btn equip-btn" data-name="${item.name}" data-desc="${item.desc}" data-emoji="${item.emoji}">
+                <span class="cons-info equip-info">?</span>
+                ${item.emoji} ${item.name}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+    
     card.innerHTML = `
       <div class="event-header">
         <div class="event-phase">${event.phaseLabel}</div>
@@ -645,6 +663,7 @@ const UI = {
       <div class="event-body">
         <div class="event-narrative">${event.narrative}</div>
         ${consumableHTML}
+        ${equipmentHTML}
         <div class="event-choices">
           ${event.choices.map((choice, i) => {
             const checks = Object.entries(choice.checks || {});
@@ -701,6 +720,34 @@ const UI = {
           this.useConsumable(btn.dataset.id, event);
         }
       });
+    });
+    
+    // Bind equipment info buttons (tooltip only)
+    card.querySelectorAll('.equip-btn').forEach(btn => {
+      const infoBtn = btn.querySelector('.equip-info');
+      if (infoBtn) {
+        const item = {
+          name: btn.dataset.name,
+          desc: btn.dataset.desc,
+          emoji: btn.dataset.emoji
+        };
+        // Desktop: hover to show
+        infoBtn.addEventListener('mouseenter', () => {
+          this.showTooltip(item);
+        });
+        infoBtn.addEventListener('mouseleave', () => {
+          this.hideTooltip();
+        });
+        // Mobile: tap to show/hide
+        infoBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (document.getElementById('item-tooltip').style.display === 'block') {
+            this.hideTooltip();
+          } else {
+            this.showTooltip(item);
+          }
+        });
+      }
     });
     
     // Bind choice buttons

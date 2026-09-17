@@ -1045,43 +1045,12 @@ body {
   border-left-color: var(--accent-green);
 }
 
-/* --- Mobile Menu Toggle --- */
-.mobile-menu-toggle {
-  display: block;
-  position: fixed;
-  top: var(--spacing-md);
-  left: var(--spacing-md);
-  z-index: 101;
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-md);
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  font-size: 1.3rem;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition: background var(--transition-fast);
-}
-
-.mobile-menu-toggle:active {
-  background: var(--bg-tertiary);
-}
-
-/* Hide on desktop where side panel is always visible */
-@media (min-width: 900px) {
-  .mobile-menu-toggle {
-    display: none;
-  }
-}
-
 /* --- Game Main Area --- */
 .game-main {
   flex: 1;
   overflow-y: auto;
   padding: var(--spacing-md);
   padding-bottom: calc(var(--spacing-lg) + env(safe-area-inset-bottom, 0px));
-  padding-top: calc(var(--spacing-md) + 48px);
 }
 
 /* --- Recent Activity (mobile-friendly) --- */
