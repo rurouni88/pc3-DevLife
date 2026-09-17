@@ -570,15 +570,12 @@ const UI = {
     }
     
     // Handle consumable drop
+    let showConsumableChoice = false;
     if (result.consumableDropped) {
       if (Game.state.consumables.length >= 2) {
         // Inventory full — show choice screen instead of auto-adding
         resultHTML += `<div class="item-drop">🧪 Found: ${result.consumableDropped.emoji} ${result.consumableDropped.name} — inventory full!</div>`;
-        
-        // Override continue button to show consumable choice
-        document.getElementById('btn-continue-event').addEventListener('click', () => {
-          UI.showConsumableChoice(result.consumableDropped, [...Game.state.consumables]);
-        });
+        showConsumableChoice = true;
       } else {
         // Inventory has room — add it automatically
         Game.state.consumables.push({ ...result.consumableDropped });
@@ -609,7 +606,9 @@ const UI = {
     
     // Bind continue button
     document.getElementById('btn-continue-event').addEventListener('click', () => {
-      if (result.gameOver) {
+      if (showConsumableChoice) {
+        UI.showConsumableChoice(result.consumableDropped, [...Game.state.consumables]);
+      } else if (result.gameOver) {
         this.showGameOver(result.reason);
       } else if (result.victory) {
         this.showVictory();

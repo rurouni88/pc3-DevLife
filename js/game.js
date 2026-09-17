@@ -98,7 +98,7 @@ const Game = {
     // Random item drop (15% chance on success)
     let itemDropped = null;
     if (allSuccess && Math.random() < 0.15) {
-      itemDropped = getRandomItem();
+      itemDropped = getRandomEquipment();
       this.state.equipment.push({
         id: itemDropped.id,
         name: itemDropped.name,
@@ -122,14 +122,14 @@ const Game = {
     this.state.eventHistory.push(event.id);
     this.addLog(log);
     
+    // Check for phase completion (before level up changes the threshold)
+    const phaseComplete = this.state.eventsCompleted >= this.state.level * this.state.eventsPerPhase;
+    
     // Check for level up
     const leveledUp = this.checkLevelUp();
     
     // Check for game over conditions
     const gameOver = this.checkGameOver();
-    
-    // Check for phase completion
-    const phaseComplete = this.state.eventsCompleted >= this.state.level * this.state.eventsPerPhase;
     
     // Check for victory (all phases complete)
     const victory = this.state.eventsCompleted >= 20 && this.state.phase >= 4;

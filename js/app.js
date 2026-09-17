@@ -145,7 +145,6 @@ const App = {
     if (selected) {
       const stat = selected.dataset.stat;
       SpecialSystem.increase(stat);
-      SpecialSystem.stats[stat]++;
     }
     
     Game.state.levelUpPoints = 0;
