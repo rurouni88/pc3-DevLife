@@ -55,16 +55,8 @@ const Game = {
       this.state.levelUpPoints = 1;
       this.addLog(`Level up! Now level ${this.state.level}.`);
       
-      // Award a random consumable on level up
-      const consumable = getRandomConsumable();
-      if (this.state.consumables.length >= 2) {
-        // Inventory full — return consumable for choice screen
-        this.state.pendingLevelUpConsumable = { ...consumable };
-      } else {
-        // Add to inventory
-        this.state.consumables.push({ ...consumable });
-        this.state.pendingLevelUpConsumable = null;
-      }
+      // Generate 3 random consumables for selection
+      this.state.pendingLevelUpConsumables = get3RandomConsumables();
       
       return true;
     }

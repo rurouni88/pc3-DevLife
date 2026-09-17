@@ -890,6 +890,21 @@ body {
   color: var(--text-secondary);
 }
 
+.consumable-select-item .cs-effect {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.consumable-select-item .cs-stat-any {
+  font-size: 0.85rem;
+}
+
+.consumable-select-item .cs-multiplier {
+  font-size: 0.85rem;
+}
+
 /* Consumable bar in events */
 .consumable-bar {
   margin-bottom: var(--spacing-md);

@@ -677,16 +677,125 @@ const UI = {
   
   // Show level up screen
   showLevelUp() {
-    // Check if there's a pending consumable choice (inventory was full)
-    if (Game.state.pendingLevelUpConsumable) {
-      const pending = Game.state.pendingLevelUpConsumable;
-      Game.state.pendingLevelUpConsumable = null;
-      UI.showConsumableChoice(pending, [...Game.state.consumables]);
+    // Check if there are pending consumables for selection
+    if (Game.state.pendingLevelUpConsumables && Game.state.pendingLevelUpConsumables.length > 0) {
+      UI.showLevelUpConsumableSelection();
       return;
     }
     
     this.showScreen('levelup');
     document.getElementById('new-level').textContent = Game.state.level;
+    
+    const container = document.getElementById('levelup-stats');
+    container.innerHTML = '';
+    
+    STAT_KEYS.forEach(key => {
+      const meta = STAT_META[key];
+      const canIncrease = SpecialSystem.canIncrease(key);
+      
+      const stat = document.createElement('div');
+      stat.className = `levelup-stat ${!canIncrease ? 'disabled' : ''}`;
+      stat.dataset.stat = key;
+      stat.innerHTML = `
+        <span class="stat-letter" style="color: ${meta.color}">${key}</span>
+        <div class="stat-details">
+          <div class="stat-name">${meta.name}</div>
+          <div class="stat-current">${SpecialSystem.stats[key]} ${canIncrease ? '→ ' + (SpecialSystem.stats[key] + 1) : '(MAX)'}</div>
+        </div>
+      `;
+      
+      if (canIncrease) {
+        stat.addEventListener('click', () => {
+          container.querySelectorAll('.levelup-stat').forEach(s => s.classList.remove('selected'));
+          stat.classList.add('selected');
+          document.getElementById('btn-continue-levelup').disabled = false;
+        });
+      }
+      
+      container.appendChild(stat);
+    });
+    
+    document.getElementById('btn-continue-levelup').disabled = true;
+  },
+  
+  // Show consumable selection screen after level up
+  showLevelUpConsumableSelection() {
+    const options = Game.state.pendingLevelUpConsumables;
+    
+    // Show screen
+    document.getElementById('levelup-consumables').style.display = 'block';
+    document.getElementById('levelup-stats-container').style.display = 'none';
+    document.getElementById('btn-continue-levelup').style.display = 'block';
+    document.getElementById('btn-continue-levelup').disabled = true;
+    
+    const container = document.getElementById('levelup-consumables');
+    container.innerHTML = '';
+    
+    options.forEach((item, i) => {
+      const el = document.createElement('div');
+      el.className = 'consumable-select-item';
+      el.dataset.id = item.id;
+      
+      // Build stat info display
+      let statInfo = '';
+      if (item.multiplier) {
+        statInfo = `<span class="cs-multiplier" style="color: var(--accent-yellow)">${item.multiplier > 1 ? item.multiplier + '× stat' : Math.abs(item.multiplier) * 100 + '% stat'}</span>`;
+      } else if (item.stat === 'any') {
+        statInfo = `<span class="cs-stat-any" style="color: var(--accent-green)">+${item.bonus} to ANY stat</span>`;
+      } else {
+        const statName = STAT_META[item.stat]?.name || item.stat;
+        statInfo = `<span class="cs-stat" style="color: ${STAT_META[item.stat]?.color || '#fff'}">+${item.bonus} ${statName}</span>`;
+      }
+      
+      el.innerHTML = `
+        <span class="cs-emoji">${item.emoji}</span>
+        <div class="cs-details">
+          <div class="cs-name">${item.name}</div>
+          <div class="cs-effect">${statInfo}</div>
+          <div class="cs-desc">${item.desc}</div>
+          <div class="cs-rarity ${item.rarity}">${item.rarity}</div>
+        </div>
+      `;
+      el.addEventListener('click', () => {
+        container.querySelectorAll('.consumable-select-item').forEach(s => s.classList.remove('selected'));
+        el.classList.add('selected');
+        document.getElementById('btn-continue-levelup').disabled = false;
+      });
+      container.appendChild(el);
+    });
+    
+    // Bind continue button
+    document.getElementById('btn-continue-levelup').onclick = () => {
+      const selected = container.querySelector('.consumable-select-item.selected');
+      if (selected) {
+        const id = selected.dataset.id;
+        const consumable = CONSUMABLES.find(c => c.id === id);
+        
+        // Add selected consumable to inventory (respect max 2 limit)
+        if (consumable) {
+          if (Game.state.consumables.length >= 2) {
+            // Inventory full — show choice screen
+            Game.state.pendingLevelUpConsumable = { ...consumable };
+          } else {
+            Game.state.consumables.push({ ...consumable });
+          }
+        }
+        
+        // Clear pending consumables
+        Game.state.pendingLevelUpConsumables = null;
+        
+        // Show stat selection screen
+        UI.showLevelUpStats();
+      }
+    };
+  },
+  
+  // Show stat selection screen (after consumable selection)
+  showLevelUpStats() {
+    this.showScreen('levelup');
+    document.getElementById('levelup-consumables').style.display = 'none';
+    document.getElementById('levelup-stats-container').style.display = 'block';
+    document.getElementById('btn-continue-levelup').style.display = 'block';
     
     const container = document.getElementById('levelup-stats');
     container.innerHTML = '';
