@@ -3,6 +3,7 @@ const App = {
   init() {
     this.bindEvents();
     this.checkForSave();
+    UI.initTooltipClose();
     UI.showScreen('title');
   },
   

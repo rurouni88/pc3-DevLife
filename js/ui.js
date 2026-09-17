@@ -149,6 +149,26 @@ const UI = {
     if (tooltip) tooltip.style.display = 'none';
   },
   
+  // Initialize tooltip close handler
+  initTooltipClose() {
+    const tooltip = document.getElementById('item-tooltip');
+    if (!tooltip) return;
+    
+    // Close tooltip when clicking on it
+    tooltip.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.hideTooltip();
+    });
+    
+    // Close tooltip when clicking outside
+    document.addEventListener('click', (e) => {
+      if (tooltip.style.display === 'none') return;
+      if (tooltip.contains(e.target)) return;
+      if (e.target.classList.contains('cons-info')) return;
+      this.hideTooltip();
+    });
+  },
+  
   // Show floating stat change
   showStatFloat(stat, value) {
     const statEl = document.querySelector(`[data-stat="${stat}"]`);
@@ -608,6 +628,7 @@ const UI = {
           <div class="consumable-buttons">
             ${Object.values(grouped).map(c => `
               <button class="cons-btn" data-id="${c.id}">
+                <span class="cons-info" data-id="${c.id}">?</span>
                 ${c.emoji} ${c.name} ×${c.count}
               </button>
             `).join('')}
@@ -650,8 +671,35 @@ const UI = {
     
     // Bind consumable buttons
     card.querySelectorAll('.cons-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        this.useConsumable(btn.dataset.id, event);
+      const infoBtn = btn.querySelector('.cons-info');
+      if (infoBtn) {
+        // Desktop: hover to show
+        infoBtn.addEventListener('mouseenter', () => {
+          const id = infoBtn.dataset.id;
+          const consumable = CONSUMABLES.find(c => c.id === id);
+          if (consumable) this.showTooltip(consumable);
+        });
+        infoBtn.addEventListener('mouseleave', () => {
+          this.hideTooltip();
+        });
+        // Mobile: tap to show/hide
+        infoBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const id = e.target.dataset.id;
+          const consumable = CONSUMABLES.find(c => c.id === id);
+          if (consumable) {
+            if (document.getElementById('item-tooltip').style.display === 'block') {
+              this.hideTooltip();
+            } else {
+              this.showTooltip(consumable);
+            }
+          }
+        });
+      }
+      btn.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('cons-info')) {
+          this.useConsumable(btn.dataset.id, event);
+        }
       });
     });
     

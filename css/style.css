@@ -878,6 +878,9 @@ body {
 }
 
 .cons-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
   padding: var(--spacing-xs) var(--spacing-sm);
   background: var(--bg-primary);
   border: 1px solid var(--accent-green);
@@ -889,6 +892,27 @@ body {
   transition: all var(--transition-fast);
   -webkit-tap-highlight-color: transparent;
   min-height: 36px;
+}
+
+.cons-info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent-green);
+  color: var(--bg-primary);
+  font-size: 0.7rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.cons-info:hover,
+.cons-info:active {
+  background: var(--text-primary);
+  color: var(--accent-green);
 }
 
 .cons-btn:active {
@@ -936,6 +960,23 @@ body {
   z-index: 1000;
   color: var(--text-primary);
   pointer-events: none;
+}
+
+/* Mobile: show name below emoji */
+@media (max-width: 768px) {
+  .equip-item .tooltip {
+    display: block;
+    position: static;
+    transform: none;
+    padding: 4px 0 0 0;
+    margin-top: 4px;
+    background: transparent;
+    border: none;
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    white-space: normal;
+    text-align: center;
+  }
 }
 
 .equip-item .tooltip::after {

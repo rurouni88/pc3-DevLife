@@ -98,14 +98,15 @@ Passive items that give permanent stat bonuses. **Max 1 equipped at a time.**
 #### Uncommon
 | Item | Emoji | Effect | Description |
 |------|-------|--------|-------------|
-| Stack Overflow Premium | 🌟 | +1 Luck | Answers before you finish typing. |
-| LeetCode Subscription | 📚 | +1 Intelligence | Grind never stops. |
-| Reference Architecture Book | 📖 | +2 Intelligence | The one book everyone pretends to read. |
+| Claude Code | 🤖 | +1 Luck | The AI writes it. You pretend you understand it. |
+| System Design Interview Prep | 📊 | +1 Intelligence | You can now draw boxes and arrows confidently. |
+| Domain-Driven Design | 📐 | +2 Intelligence | You can now split your monolith into 47 services. |
 
 #### Rare
 | Item | Emoji | Effect | Description |
 |------|-------|--------|-------------|
-| PMP Certification | 📜 | +2 Charisma | Project Management Professional. Now manage your own projects. |
+| TOGAF Certification | 📜 | +2 Charisma | Enterprise architecture framework. Now you can draw slides about slides. |
+| MacBook Pro M5 | 💻 | +1 Intelligence, +1 Agility | It just works. Mostly. |
 | AWS Certification | ☁️ | +1 Intelligence, +1 Strength | Cloud-native. Lift heavy things into the sky. |
 | Standing Desk | 🪑 | +2 Endurance | Your legs thank you. Your back agrees. |
 

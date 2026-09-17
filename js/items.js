@@ -7,12 +7,13 @@ const EQUIPMENT = [
   { id: 'monitor', name: 'Ultrawide Monitor', emoji: '🖥️', rarity: 'common', effects: { P: 1, A: 1 }, desc: '+1 Perception, +1 Agility' },
   
   // Uncommon
-  { id: 'stackoverflow', name: 'Stack Overflow Premium', emoji: '🌟', rarity: 'uncommon', effects: { L: 1 }, desc: '+1 Luck' },
-  { id: 'leetcode', name: 'LeetCode Subscription', emoji: '📚', rarity: 'uncommon', effects: { I: 1 }, desc: '+1 Intelligence' },
-  { id: 'architecture', name: 'Reference Architecture Book', emoji: '📖', rarity: 'uncommon', effects: { I: 2 }, desc: '+2 Intelligence' },
+  { id: 'claude', name: 'Claude Code', emoji: '🤖', rarity: 'uncommon', effects: { L: 1 }, desc: '+1 Luck — The AI writes it. You pretend you understand it.' },
+  { id: 'systemdesign', name: 'System Design Interview Prep', emoji: '📊', rarity: 'uncommon', effects: { I: 1 }, desc: '+1 Intelligence — You can now draw boxes and arrows confidently.' },
+  { id: 'ddd', name: 'Domain-Driven Design', emoji: '📐', rarity: 'uncommon', effects: { I: 2 }, desc: '+2 Intelligence — You can now split your monolith into 47 services.' },
   
   // Rare
-  { id: 'pmp', name: 'PMP Certification', emoji: '📜', rarity: 'rare', effects: { C: 2 }, desc: '+2 Charisma' },
+  { id: 'togaf', name: 'TOGAF Certification', emoji: '📜', rarity: 'rare', effects: { C: 2 }, desc: '+2 Charisma' },
+  { id: 'macbook', name: 'MacBook Pro M5', emoji: '💻', rarity: 'rare', effects: { I: 1, A: 1 }, desc: '+1 Intelligence, +1 Agility — It just works. Mostly.' },
   { id: 'aws', name: 'AWS Certification', emoji: '☁️', rarity: 'rare', effects: { I: 1, S: 1 }, desc: '+1 Intelligence, +1 Strength' },
   { id: 'standing', name: 'Standing Desk', emoji: '🪑', rarity: 'rare', effects: { E: 2 }, desc: '+2 Endurance' },
   
