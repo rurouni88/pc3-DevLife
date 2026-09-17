@@ -8,7 +8,7 @@ const Game = {
     this.state = {
       stats: { ...statAlloc },
       equipment: [],
-      consumables: [...startingConsumables], // carry-over consumables
+      consumables: [...startingConsumables.slice(0, 2)], // carry-over consumables (max 2)
       level: 1,
       levelUpPoints: 0,
       day: 1,
@@ -108,9 +108,9 @@ const Game = {
       SpecialSystem.addEquipment(itemDropped.emoji, itemDropped.effects);
     }
     
-    // Random consumable drop (40% chance on success)
+    // Random consumable drop (40% chance on success, max 2 in inventory)
     let consumableDropped = null;
-    if (allSuccess && Math.random() < 0.40) {
+    if (allSuccess && Math.random() < 0.40 && this.state.consumables.length < 2) {
       consumableDropped = getRandomConsumable();
       this.state.consumables.push({ ...consumableDropped });
     }
