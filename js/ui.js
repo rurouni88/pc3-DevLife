@@ -569,9 +569,22 @@ const UI = {
       resultHTML += `<div class="item-drop">🎁 Found: ${result.itemDropped.emoji} ${result.itemDropped.name}</div>`;
     }
     
-    // Show consumable drop
+    // Handle consumable drop
     if (result.consumableDropped) {
-      resultHTML += `<div class="item-drop">🧪 Found: ${result.consumableDropped.emoji} ${result.consumableDropped.name}</div>`;
+      if (Game.state.consumables.length >= 2) {
+        // Inventory full — show choice screen instead of auto-adding
+        resultHTML += `<div class="item-drop">🧪 Found: ${result.consumableDropped.emoji} ${result.consumableDropped.name} — inventory full!</div>`;
+        
+        // Override continue button to show consumable choice
+        document.getElementById('btn-continue-event').addEventListener('click', () => {
+          UI.showConsumableChoice(result.consumableDropped, [...Game.state.consumables]);
+        });
+      } else {
+        // Inventory has room — add it automatically
+        Game.state.consumables.push({ ...result.consumableDropped });
+        resultHTML += `<div class="item-drop">🧪 Found: ${result.consumableDropped.emoji} ${result.consumableDropped.name}</div>`;
+        this.renderConsumables();
+      }
     }
     
     // Show check results
@@ -831,5 +844,74 @@ const UI = {
   // Close side panel
   closePanel() {
     this.togglePanel(false);
+  },
+  
+  // Show consumable choice screen (when inventory is full)
+  showConsumableChoice(newConsumable, currentConsumables) {
+    const newContainer = document.getElementById('consumable-choice-new');
+    const currentContainer = document.getElementById('consumable-choice-current');
+    const keepBtn = document.getElementById('btn-keep-consumable');
+    const declineBtn = document.getElementById('btn-decline-consumable');
+    
+    // Show new consumable
+    newContainer.innerHTML = '';
+    const newEl = document.createElement('div');
+    newEl.className = 'consumable-select-item';
+    newEl.style.borderColor = 'var(--accent-green)';
+    newEl.innerHTML = `
+      <span class="cs-emoji" style="font-size: 2em;">${newConsumable.emoji}</span>
+      <div class="cs-details">
+        <div class="cs-name">${newConsumable.name}</div>
+        <div class="cs-desc">${newConsumable.desc}</div>
+      </div>
+      <div class="cs-badge">NEW</div>
+    `;
+    newContainer.appendChild(newEl);
+    
+    // Show current consumables as clickable options
+    currentContainer.innerHTML = '';
+    let selectedIndex = -1;
+    
+    currentConsumables.forEach((cons, i) => {
+      const el = document.createElement('div');
+      el.className = 'consumable-select-item';
+      el.dataset.index = i;
+      el.innerHTML = `
+        <span class="cs-emoji">${cons.emoji}</span>
+        <div class="cs-details">
+          <div class="cs-name">${cons.name}</div>
+          <div class="cs-desc">${cons.desc}</div>
+        </div>
+      `;
+      el.addEventListener('click', () => {
+        currentContainer.querySelectorAll('.consumable-select-item').forEach(s => s.classList.remove('selected'));
+        el.classList.add('selected');
+        selectedIndex = i;
+        keepBtn.disabled = false;
+      });
+      currentContainer.appendChild(el);
+    });
+    
+    // Reset state
+    keepBtn.disabled = true;
+    selectedIndex = -1;
+    
+    // Keep current (decline new)
+    declineBtn.onclick = () => {
+      UI.showScreen('game');
+      UI.nextEvent();
+    };
+    
+    // Swap: replace selected consumable with new one
+    keepBtn.onclick = () => {
+      if (selectedIndex >= 0) {
+        Game.state.consumables[selectedIndex] = { ...newConsumable };
+        UI.showScreen('game');
+        UI.renderConsumables();
+        UI.nextEvent();
+      }
+    };
+    
+    UI.showScreen('consumable-choice');
   }
 };

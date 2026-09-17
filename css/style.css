@@ -720,6 +720,45 @@ body {
   gap: var(--spacing-sm);
 }
 
+/* Mid-run consumable choice screen */
+.consumable-choice-new {
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: rgba(0, 255, 136, 0.05);
+  border: 2px solid var(--accent-green);
+  border-radius: var(--radius-md);
+}
+
+.consumable-choice-current {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+}
+
+.consumable-select-item .cs-badge {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--bg-primary);
+  background: var(--accent-green);
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  align-self: flex-start;
+}
+
+.consumable-choice-current .consumable-select-item {
+  opacity: 0.8;
+}
+
+.consumable-choice-current .consumable-select-item.selected {
+  opacity: 1;
+  border-color: var(--accent-green);
+  background: rgba(0, 255, 136, 0.1);
+}
+
 .consumable-select-item {
   display: flex;
   align-items: center;
