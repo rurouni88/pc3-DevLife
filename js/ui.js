@@ -339,8 +339,8 @@ const UI = {
     log.forEach((entry, i) => {
       const el = document.createElement('div');
       el.className = `log-entry ${i === 0 ? 'recent' : ''}`;
-      const careerMonth = Math.ceil(entry.day / 30);
-      el.textContent = `Month ${careerMonth}: ${entry.message}`;
+      const careerYear = Math.ceil(entry.day / 6);
+      el.textContent = `Year ${careerYear}: ${entry.message}`;
       container.appendChild(el);
     });
   },
@@ -349,9 +349,9 @@ const UI = {
   renderTopBar() {
     const phaseNames = ['', 'Junior Developer', 'Mid-Level Developer', 'Senior Developer', 'Staff/Principal'];
     document.getElementById('career-phase').textContent = phaseNames[Game.state.phase];
-    // Convert days to career month for display consistency with events
-    const careerMonth = Math.ceil(Game.state.day / 30);
-    document.getElementById('career-day').textContent = `Month ${careerMonth}`;
+    // Career spans ~8-10 years across 20 events, so each event is ~0.5 years
+    const careerYear = Math.ceil(Game.state.day / 6);
+    document.getElementById('career-day').textContent = `Year ${careerYear}`;
     document.getElementById('player-level').textContent = Game.state.level;
     document.getElementById('level-up-points').textContent = Game.state.levelUpPoints;
   },

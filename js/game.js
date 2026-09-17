@@ -14,7 +14,7 @@ const Game = {
       day: 1,
       phase: 1,
       eventsCompleted: 0,
-      eventsPerPhase: 4, // events before boss
+      eventsPerPhase: 5, // fixed events per career phase
       currentEventId: null,
       eventHistory: [],
       careerLog: [{ message: 'Career started.', day: 1, timestamp: now }],
@@ -119,8 +119,8 @@ const Game = {
     this.state.eventHistory.push(event.id);
     this.addLog(log);
     
-    // Check for phase completion (before level up changes the threshold)
-    const phaseComplete = this.state.eventsCompleted >= this.state.level * this.state.eventsPerPhase;
+    // Check for phase completion (fixed events per phase, not tied to level)
+    const phaseComplete = this.state.phase < 4 && this.state.eventsCompleted > 0 && this.state.eventsCompleted % this.state.eventsPerPhase === 0;
     
     // Check for level up
     const leveledUp = this.checkLevelUp();
@@ -128,8 +128,8 @@ const Game = {
     // Check for game over conditions
     const gameOver = this.checkGameOver();
     
-    // Check for victory (all phases complete)
-    const victory = this.state.eventsCompleted >= 20 && this.state.phase >= 4;
+    // Check for victory (all 4 phases complete = 20 events)
+    const victory = this.state.eventsCompleted >= 20;
     
     return {
       success: allSuccess,

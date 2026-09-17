@@ -33,7 +33,7 @@
 The game is structured as a series of **Career Phases**, each containing multiple **Events**. Think of it like climbing the tech career ladder — but every step is a gauntlet.
 
 ```
-Career Phase 1: Junior Developer (Months 1-12)
+Career Phase 1: Junior Developer (Years 1-2)
 ├── Event: First Code Review (Perception check)
 ├── Event: Production Incident #1 (Endurance check)
 ├── Event: Sprint Planning (Charisma check)
