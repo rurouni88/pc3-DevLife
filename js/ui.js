@@ -669,9 +669,19 @@ const UI = {
   // Show consumable selection screen after level up
   showLevelUpConsumableSelection() {
     const options = Game.state.pendingLevelUpConsumables;
+    const hasFullInventory = Game.state.consumables.length >= 2;
     
     // Show the level up screen first
     this.showScreen('levelup');
+    
+    // Update description
+    const descEl = document.getElementById('levelup-desc');
+    const descNote = '<span style="font-size: 0.8rem; color: var(--text-muted);">(Consumables are one-time use for a single event — use them wisely!)</span>';
+    if (hasFullInventory) {
+      descEl.innerHTML = `You've reached Level <span id="new-level">${Game.state.level}</span>. Pick a consumable and choose which to replace. ${descNote}`;
+    } else {
+      descEl.innerHTML = `You've reached Level <span id="new-level">${Game.state.level}</span>. Pick a consumable to add to your stash. ${descNote}`;
+    }
     
     // Show consumables container
     document.getElementById('levelup-consumables').style.display = 'block';
@@ -681,6 +691,13 @@ const UI = {
     
     const container = document.getElementById('levelup-consumables');
     container.innerHTML = '';
+    
+    // Show new consumable options
+    const optionsLabel = document.createElement('div');
+    optionsLabel.className = 'consumable-selection-label';
+    optionsLabel.textContent = hasFullInventory ? 'Choose a new consumable:' : 'Choose a consumable:';
+    optionsLabel.style.cssText = 'font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-green); margin-bottom: var(--spacing-sm); text-transform: uppercase;';
+    container.appendChild(optionsLabel);
     
     options.forEach((item, i) => {
       const el = document.createElement('div');
@@ -715,29 +732,71 @@ const UI = {
       container.appendChild(el);
     });
     
+    // If inventory is full, show current consumables for swapping
+    let selectedIndex = -1;
+    if (hasFullInventory) {
+      const currentLabel = document.createElement('div');
+      currentLabel.className = 'consumable-selection-label';
+      currentLabel.textContent = 'Your current stash (click to replace):';
+      currentLabel.style.cssText = 'font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-yellow); margin-top: var(--spacing-lg); margin-bottom: var(--spacing-sm); text-transform: uppercase;';
+      container.appendChild(currentLabel);
+      
+      Game.state.consumables.forEach((cons, i) => {
+        const el = document.createElement('div');
+        el.className = 'consumable-select-item';
+        el.dataset.replaceIndex = i;
+        
+        let statInfo = '';
+        if (cons.multiplier) {
+          statInfo = `<span class="cs-multiplier" style="color: var(--accent-yellow)">${cons.multiplier > 1 ? cons.multiplier + '× stat' : Math.abs(cons.multiplier) * 100 + '% stat'}</span>`;
+        } else if (cons.stat === 'any') {
+          statInfo = `<span class="cs-stat-any" style="color: var(--accent-green)">+${cons.bonus} to ANY stat</span>`;
+        } else {
+          const statName = STAT_META[cons.stat]?.name || cons.stat;
+          statInfo = `<span class="cs-stat" style="color: ${STAT_META[cons.stat]?.color || '#fff'}">+${cons.bonus} ${statName}</span>`;
+        }
+        
+        el.innerHTML = `
+          <span class="cs-emoji">${cons.emoji}</span>
+          <div class="cs-details">
+            <div class="cs-name">${cons.name}</div>
+            <div class="cs-effect">${statInfo}</div>
+            <div class="cs-desc">${cons.desc}</div>
+          </div>
+        `;
+        el.addEventListener('click', () => {
+          // Deselect all replace options
+          container.querySelectorAll('[data-replace-index]').forEach(s => s.classList.remove('selected'));
+          el.classList.add('selected');
+          selectedIndex = i;
+        });
+        container.appendChild(el);
+      });
+    }
+    
     // Bind continue button
     document.getElementById('btn-continue-levelup').onclick = () => {
       const selected = container.querySelector('.consumable-select-item.selected');
-      if (selected) {
-        const id = selected.dataset.id;
-        const consumable = CONSUMABLES.find(c => c.id === id);
-        
-        // Add selected consumable to inventory (respect max 2 limit)
-        if (consumable) {
-          if (Game.state.consumables.length >= 2) {
-            // Inventory full — show choice screen
-            Game.state.pendingLevelUpConsumable = { ...consumable };
-          } else {
-            Game.state.consumables.push({ ...consumable });
-          }
-        }
-        
-        // Clear pending consumables
-        Game.state.pendingLevelUpConsumables = null;
-        
-        // Show stat selection screen
-        UI.showLevelUpStats();
+      if (!selected) return;
+      
+      const id = selected.dataset.id;
+      const consumable = CONSUMABLES.find(c => c.id === id);
+      if (!consumable) return;
+      
+      // Handle the consumable selection
+      if (hasFullInventory && selectedIndex >= 0) {
+        // Swap: replace selected consumable with new one
+        Game.state.consumables[selectedIndex] = { ...consumable };
+      } else {
+        // Add to inventory (should only happen if inventory < 2)
+        Game.state.consumables.push({ ...consumable });
       }
+      
+      // Clear pending consumables
+      Game.state.pendingLevelUpConsumables = null;
+      
+      // Show stat selection screen
+      UI.showLevelUpStats();
     };
   },
   
