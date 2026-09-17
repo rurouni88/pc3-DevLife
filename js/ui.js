@@ -683,8 +683,18 @@ const UI = {
       return;
     }
     
+    UI.showLevelUpStats();
+  },
+  
+  // Show stat selection screen (original flow, no consumable selection)
+  showLevelUpStats() {
     this.showScreen('levelup');
     document.getElementById('new-level').textContent = Game.state.level;
+    
+    // Show stats container, hide consumables
+    document.getElementById('levelup-consumables').style.display = 'none';
+    document.getElementById('levelup-stats-container').style.display = 'block';
+    document.getElementById('btn-continue-levelup').style.display = 'block';
     
     const container = document.getElementById('levelup-stats');
     container.innerHTML = '';
