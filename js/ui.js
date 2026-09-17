@@ -916,15 +916,15 @@ const UI = {
   
   // Apply selected consumable and show game over
   applyEndOfRunConsumable(selectedId) {
-    // Add to meta for next run
+    // Add to meta for next run (store ID only)
     const meta = JSON.parse(localStorage.getItem('devlife_meta') || '{}');
     if (!meta.startingConsumables) meta.startingConsumables = [];
     
-    const consumable = CONSUMABLES.find(c => c.id === selectedId);
-    if (consumable) {
-      meta.startingConsumables.push(consumable);
-      localStorage.setItem('devlife_meta', JSON.stringify(meta));
+    // Only add if not already in the list
+    if (!meta.startingConsumables.includes(selectedId)) {
+      meta.startingConsumables.push(selectedId);
     }
+    localStorage.setItem('devlife_meta', JSON.stringify(meta));
     
     // Show game over summary
     Game.clearSave();
@@ -945,15 +945,15 @@ const UI = {
   
   // Apply selected consumable and show victory summary
   applyVictoryConsumable(selectedId) {
-    // Add to meta for next run
+    // Add to meta for next run (store ID only)
     const meta = JSON.parse(localStorage.getItem('devlife_meta') || '{}');
     if (!meta.startingConsumables) meta.startingConsumables = [];
     
-    const consumable = CONSUMABLES.find(c => c.id === selectedId);
-    if (consumable) {
-      meta.startingConsumables.push(consumable);
-      localStorage.setItem('devlife_meta', JSON.stringify(meta));
+    // Only add if not already in the list
+    if (!meta.startingConsumables.includes(selectedId)) {
+      meta.startingConsumables.push(selectedId);
     }
+    localStorage.setItem('devlife_meta', JSON.stringify(meta));
     
     // Hide consumable selection, show summary
     document.getElementById('victory-consumables').style.display = 'none';
