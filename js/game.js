@@ -54,6 +54,18 @@ const Game = {
       this.state.level++;
       this.state.levelUpPoints = 1;
       this.addLog(`Level up! Now level ${this.state.level}.`);
+      
+      // Award a random consumable on level up
+      const consumable = getRandomConsumable();
+      if (this.state.consumables.length >= 2) {
+        // Inventory full — return consumable for choice screen
+        this.state.pendingLevelUpConsumable = { ...consumable };
+      } else {
+        // Add to inventory
+        this.state.consumables.push({ ...consumable });
+        this.state.pendingLevelUpConsumable = null;
+      }
+      
       return true;
     }
     return false;
@@ -108,13 +120,6 @@ const Game = {
       SpecialSystem.addEquipment(itemDropped.emoji, itemDropped.effects);
     }
     
-    // Random consumable drop (40% chance on success, max 2 in inventory)
-    let consumableDropped = null;
-    if (allSuccess && Math.random() < 0.40 && this.state.consumables.length < 2) {
-      consumableDropped = getRandomConsumable();
-      this.state.consumables.push({ ...consumableDropped });
-    }
-    
     // Advance game state
     this.state.day += Math.floor(Math.random() * 5) + 3;
     this.state.eventsCompleted++;
@@ -140,7 +145,6 @@ const Game = {
       effects,
       log,
       itemDropped,
-      consumableDropped,
       leveledUp,
       gameOver,
       phaseComplete,

@@ -569,21 +569,6 @@ const UI = {
       resultHTML += `<div class="item-drop">🎁 Found: ${result.itemDropped.emoji} ${result.itemDropped.name}</div>`;
     }
     
-    // Handle consumable drop
-    let showConsumableChoice = false;
-    if (result.consumableDropped) {
-      if (Game.state.consumables.length >= 2) {
-        // Inventory full — show choice screen instead of auto-adding
-        resultHTML += `<div class="item-drop">🧪 Found: ${result.consumableDropped.emoji} ${result.consumableDropped.name} — inventory full!</div>`;
-        showConsumableChoice = true;
-      } else {
-        // Inventory has room — add it automatically
-        Game.state.consumables.push({ ...result.consumableDropped });
-        resultHTML += `<div class="item-drop">🧪 Found: ${result.consumableDropped.emoji} ${result.consumableDropped.name}</div>`;
-        this.renderConsumables();
-      }
-    }
-    
     // Show check results
     if (result.checkResults && result.checkResults.length > 0) {
       const checkHTML = result.checkResults.map(cr => 
@@ -606,9 +591,7 @@ const UI = {
     
     // Bind continue button
     document.getElementById('btn-continue-event').addEventListener('click', () => {
-      if (showConsumableChoice) {
-        UI.showConsumableChoice(result.consumableDropped, [...Game.state.consumables]);
-      } else if (result.gameOver) {
+      if (result.gameOver) {
         this.showGameOver(result.reason);
       } else if (result.victory) {
         this.showVictory();
@@ -651,6 +634,14 @@ const UI = {
   
   // Show level up screen
   showLevelUp() {
+    // Check if there's a pending consumable choice (inventory was full)
+    if (Game.state.pendingLevelUpConsumable) {
+      const pending = Game.state.pendingLevelUpConsumable;
+      Game.state.pendingLevelUpConsumable = null;
+      UI.showConsumableChoice(pending, [...Game.state.consumables]);
+      return;
+    }
+    
     this.showScreen('levelup');
     document.getElementById('new-level').textContent = Game.state.level;
     
