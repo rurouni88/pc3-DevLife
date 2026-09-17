@@ -548,6 +548,7 @@ const UI = {
     // Update UI elements
     this.renderSpecialStats();
     this.renderEquipment();
+    this.renderCareerLog();
     this.renderTopBar();
     
     // Show result in event card
