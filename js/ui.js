@@ -1,6 +1,9 @@
 // UI Rendering
 const UI = {
   currentScreen: 'title',
+  _presetToggleHandler: null,
+  _presetCloseHandler: null,
+  _descToggleHandler: null,
   
   // Show a screen
   showScreen(screenId) {
@@ -81,6 +84,10 @@ const UI = {
     const toggleText = document.getElementById('preset-toggle-text');
     container.innerHTML = '';
     
+    // Remove old listeners to prevent duplicates on re-render
+    if (this._presetToggleHandler) toggle.removeEventListener('click', this._presetToggleHandler);
+    if (this._presetCloseHandler) document.removeEventListener('click', this._presetCloseHandler);
+    
     // Only the top 5 are unlocked by default
     const UNLOCKED_KEYS = ['architect', 'startup', 'systems', 'advocate', 'balanced'];
     
@@ -115,20 +122,22 @@ const UI = {
     });
     
     // Toggle dropdown
-    toggle.addEventListener('click', () => {
+    this._presetToggleHandler = () => {
       const isOpen = container.classList.contains('open');
       container.classList.toggle('open');
       toggle.classList.toggle('open');
-    });
+    };
+    toggle.addEventListener('click', this._presetToggleHandler);
     
     // Close dropdown when clicking outside
-    document.addEventListener('click', (e) => {
+    this._presetCloseHandler = (e) => {
       const dropdown = document.getElementById('preset-dropdown');
       if (!dropdown.contains(e.target)) {
         container.classList.remove('open');
         toggle.classList.remove('open');
       }
-    });
+    };
+    document.addEventListener('click', this._presetCloseHandler);
   },
   
   // Apply an archetype preset to the stat allocation
@@ -188,7 +197,7 @@ const UI = {
     const content = document.getElementById('desc-content');
     const arrow = document.getElementById('desc-arrow');
     
-    toggleBtn.addEventListener('click', () => {
+    const toggleHandler = () => {
       const isOpen = content.classList.contains('open');
       if (isOpen) {
         content.classList.remove('open');
@@ -197,7 +206,8 @@ const UI = {
         content.classList.add('open');
         arrow.textContent = '▼';
       }
-    });
+    };
+    toggleBtn.addEventListener('click', toggleHandler);
   },
   
   // Update character creation UI state
