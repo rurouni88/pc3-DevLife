@@ -382,6 +382,26 @@ const UI = {
       el.textContent = `Year ${careerYear}: ${entry.message}`;
       container.appendChild(el);
     });
+    
+    // Also update recent activity in main game area
+    this.renderRecentActivity();
+  },
+  
+  // Render recent activity (mobile-friendly)
+  renderRecentActivity() {
+    const container = document.getElementById('recent-log-entries');
+    if (!container) return;
+    
+    const recentEntries = Game.state.careerLog.slice(0, 3);
+    
+    container.innerHTML = '';
+    recentEntries.forEach((entry, i) => {
+      const el = document.createElement('div');
+      el.className = `recent-log-entry ${i === 0 ? 'recent' : ''}`;
+      const careerYear = Math.ceil(entry.day / 6);
+      el.textContent = `Year ${careerYear}: ${entry.message}`;
+      container.appendChild(el);
+    });
   },
   
   // Render top bar
