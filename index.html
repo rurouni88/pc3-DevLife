@@ -114,60 +114,8 @@
 
       <!-- Main Game Area -->
       <div class="game-main">
-        <!-- Mobile toolbar buttons -->
-        <div class="mobile-toolbar">
-          <button class="toolbar-btn" data-panel="special" aria-label="SPECIAL Stats">⚡<span class="toolbar-label">Stats</span></button>
-          <button class="toolbar-btn" data-panel="equipment" aria-label="Equipment">🎒<span class="toolbar-label">Gear</span></button>
-          <button class="toolbar-btn" data-panel="log" aria-label="Career Log">📋<span class="toolbar-label">Log</span></button>
-          <button class="toolbar-btn" data-panel="save" aria-label="Save Game">💾<span class="toolbar-label">Save</span></button>
-        </div>
-
-        <!-- Popup panels (mobile) -->
-        <div id="panel-special" class="popup-panel" data-panel="special">
-          <div class="popup-header">
-            <h3>SPECIAL Stats</h3>
-            <button class="popup-close" aria-label="Close">✕</button>
-          </div>
-          <div class="popup-body" id="popup-special-body">
-            <div id="popup-special-stats" class="special-stats"></div>
-            <div class="level-info">Level <span id="popup-player-level">1</span> · <span id="popup-level-progress">0/5</span></div>
-          </div>
-        </div>
-
-        <div id="panel-equipment" class="popup-panel" data-panel="equipment">
-          <div class="popup-header">
-            <h3>Equipment</h3>
-            <button class="popup-close" aria-label="Close">✕</button>
-          </div>
-          <div class="popup-body">
-            <div id="popup-equipment-list" class="equipment-list"></div>
-          </div>
-        </div>
-
-        <div id="panel-log" class="popup-panel" data-panel="log">
-          <div class="popup-header">
-            <h3>Career Log</h3>
-            <button class="popup-close" aria-label="Close">✕</button>
-          </div>
-          <div class="popup-body">
-            <div id="popup-career-log" class="career-log"></div>
-          </div>
-        </div>
-
-        <div id="panel-save" class="popup-panel" data-panel="save">
-          <div class="popup-header">
-            <h3>Save Game</h3>
-            <button class="popup-close" aria-label="Close">✕</button>
-          </div>
-          <div class="popup-body save-popup-body">
-            <p>Save your current career progress?</p>
-            <div class="menu-buttons">
-              <button id="btn-popup-save-confirm" class="btn btn-primary">Save</button>
-              <button class="popup-close btn btn-secondary">Cancel</button>
-            </div>
-          </div>
-        </div>
-
+        <!-- Mobile menu toggle -->
+        <button id="btn-menu-toggle-main" class="mobile-menu-toggle" aria-label="Menu">☰</button>
         <div id="event-container" class="event-container">
           <!-- Event content injected here -->
         </div>

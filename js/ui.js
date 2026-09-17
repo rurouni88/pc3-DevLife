@@ -1569,11 +1569,37 @@ const UI = {
     }
     
     container.innerHTML = '';
+    
+    // Show equipment count
+    const countEl = document.createElement('div');
+    countEl.style.cssText = 'font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); margin-bottom: var(--spacing-md); text-transform: uppercase; letter-spacing: 1px;';
+    countEl.textContent = `${equipment.length} item${equipment.length > 1 ? 's' : ''} equipped`;
+    container.appendChild(countEl);
+    
     equipment.forEach(item => {
-      const el = document.createElement('span');
-      el.className = 'equip-item';
-      el.setAttribute('tabindex', '0');
-      el.innerHTML = `${item.emoji}<span class="tooltip">${item.name}: ${Object.entries(item.effects).map(([k,v]) => `+${v} ${STAT_META[k].name}`).join(', ')}</span>`;
+      const el = document.createElement('div');
+      el.className = 'equip-popup-item';
+      
+      const rarityColor = {
+        common: 'var(--accent-yellow)',
+        uncommon: 'var(--accent-purple)',
+        rare: 'var(--accent-red)',
+        epic: 'var(--accent-cyan)'
+      }[item.rarity] || 'var(--text-muted)';
+      
+      const effectsHTML = Object.entries(item.effects)
+        .map(([k, v]) => `+${v} ${STAT_META[k]?.name || k}`)
+        .join(', ');
+      
+      el.innerHTML = `
+        <div class="equip-popup-emoji">${item.emoji}</div>
+        <div class="equip-popup-info">
+          <div class="equip-popup-name">${item.name}</div>
+          <span class="equip-popup-rarity" style="color: ${rarityColor}">${item.rarity}</span>
+          <div class="equip-popup-effects">${effectsHTML}</div>
+          <div class="equip-popup-desc">${item.desc}</div>
+        </div>
+      `;
       container.appendChild(el);
     });
   },

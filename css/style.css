@@ -1023,6 +1023,61 @@ body {
   font-style: italic;
 }
 
+/* --- Equipment Popup Item --- */
+.equip-popup-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-sm);
+}
+
+.equip-popup-emoji {
+  font-size: 2.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.equip-popup-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.equip-popup-name {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.equip-popup-rarity {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: inline-block;
+  margin-bottom: 4px;
+}
+
+.equip-popup-effects {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent-green);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.equip-popup-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
 /* --- Career Log --- */
 .career-log {
   max-height: 200px;
@@ -1051,6 +1106,36 @@ body {
   overflow-y: auto;
   padding: var(--spacing-md);
   padding-bottom: calc(var(--spacing-lg) + env(safe-area-inset-bottom, 0px));
+}
+
+/* --- Mobile Menu Toggle --- */
+.mobile-menu-toggle {
+  display: block;
+  position: fixed;
+  top: var(--spacing-md);
+  left: var(--spacing-md);
+  z-index: 101;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 1.3rem;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background var(--transition-fast);
+}
+
+.mobile-menu-toggle:active {
+  background: var(--bg-tertiary);
+}
+
+/* Hide on desktop */
+@media (min-width: 900px) {
+  .mobile-menu-toggle {
+    display: none;
+  }
 }
 
 /* --- Mobile Toolbar --- */
