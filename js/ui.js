@@ -2,6 +2,170 @@
 const UI = {
   currentScreen: 'title',
   
+  // Audio context for sound effects
+  audioCtx: null,
+  
+  // Initialize audio (must be called after user interaction)
+  initAudio() {
+    if (this.audioCtx) return;
+    this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  },
+  
+  // Play a sound effect
+  playSound(type) {
+    if (!this.audioCtx) this.initAudio();
+    if (!this.audioCtx) return;
+    
+    const ctx = this.audioCtx;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    
+    const now = ctx.currentTime;
+    
+    switch (type) {
+      case 'click':
+        osc.frequency.setValueAtTime(800, now);
+        gain.gain.setValueAtTime(0.1, now);
+        osc.start(now);
+        osc.stop(now + 0.05);
+        break;
+        
+      case 'success':
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523, now);
+        osc.frequency.setValueAtTime(659, now + 0.1);
+        osc.frequency.setValueAtTime(784, now + 0.2);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+        break;
+        
+      case 'failure':
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(200, now);
+        osc.frequency.linearRampToValueAtTime(150, now + 0.2);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+        osc.start(now);
+        osc.stop(now + 0.2);
+        break;
+        
+      case 'levelup':
+        osc.type = 'sine';
+        [523, 659, 784, 1047].forEach((freq, i) => {
+          osc.frequency.setValueAtTime(freq, now + i * 0.1);
+        });
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+        osc.start(now);
+        osc.stop(now + 0.5);
+        break;
+        
+      case 'boss':
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(100, now);
+        osc.frequency.linearRampToValueAtTime(50, now + 0.5);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+        osc.start(now);
+        osc.stop(now + 0.5);
+        break;
+        
+      case 'gameover':
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(400, now);
+        osc.frequency.linearRampToValueAtTime(100, now + 1);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 1);
+        osc.start(now);
+        osc.stop(now + 1);
+        break;
+        
+      case 'victory':
+        osc.type = 'sine';
+        [523, 659, 784, 1047, 784, 1047].forEach((freq, i) => {
+          osc.frequency.setValueAtTime(freq, now + i * 0.15);
+        });
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 1);
+        osc.start(now);
+        osc.stop(now + 1);
+        break;
+    }
+  },
+  
+  // Flash screen with color
+  flashScreen(color, duration = 300) {
+    const flash = document.createElement('div');
+    flash.className = 'screen-flash';
+    flash.style.backgroundColor = color;
+    document.body.appendChild(flash);
+    
+    setTimeout(() => flash.remove(), duration);
+  },
+  
+  // Show toast notification
+  showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    container.appendChild(toast);
+    
+    setTimeout(() => toast.remove(), 3000);
+  },
+  
+  // Show item tooltip
+  showTooltip(item) {
+    const tooltip = document.getElementById('item-tooltip');
+    if (!tooltip) return;
+    
+    tooltip.querySelector('.tooltip-emoji').textContent = item.emoji || '';
+    tooltip.querySelector('.tooltip-name').textContent = item.name || '';
+    tooltip.querySelector('.tooltip-desc').textContent = item.desc || '';
+    
+    // Build effect text
+    let effectText = '';
+    if (item.stat && item.bonus) {
+      effectText = `+${item.bonus} ${item.stat === 'any' ? 'ANY stat' : STAT_META[item.stat]?.name || item.stat}`;
+    } else if (item.multiplier) {
+      effectText = `${item.multiplier}× stat (risky)`;
+    } else if (item.effects) {
+      effectText = Object.entries(item.effects).map(([s, v]) => `+${v} ${STAT_META[s]?.name || s}`).join(', ');
+    }
+    tooltip.querySelector('.tooltip-effect').textContent = effectText;
+    
+    tooltip.style.display = 'block';
+  },
+  
+  hideTooltip() {
+    const tooltip = document.getElementById('item-tooltip');
+    if (tooltip) tooltip.style.display = 'none';
+  },
+  
+  // Show floating stat change
+  showStatFloat(stat, value) {
+    const statEl = document.querySelector(`[data-stat="${stat}"]`);
+    if (!statEl) return;
+    
+    const float = document.createElement('div');
+    float.className = `stat-float ${value > 0 ? 'positive' : 'negative'}`;
+    float.textContent = `${value > 0 ? '+' : ''}${value} ${stat}`;
+    
+    const rect = statEl.getBoundingClientRect();
+    float.style.left = `${rect.left}px`;
+    float.style.top = `${rect.top}px`;
+    
+    document.body.appendChild(float);
+    setTimeout(() => float.remove(), 1500);
+  },
+  
   // Render a single consumable/selectable item
   renderConsumableItem(item, datasetAttrs) {
     const element = document.createElement('div');
@@ -461,11 +625,22 @@ const UI = {
         <div class="event-narrative">${event.narrative}</div>
         ${consumableHTML}
         <div class="event-choices">
-          ${event.choices.map((choice, i) => `
-            <button class="choice-btn" data-choice="${i}">
-              <span class="choice-letter">${letters[i]}.</span> ${choice.text}
-            </button>
-          `).join('')}
+          ${event.choices.map((choice, i) => {
+            const checks = Object.entries(choice.checks || {});
+            const checkHTML = checks.length > 0
+              ? `<div class="choice-checks">${checks.map(([stat, target]) => {
+                  const currentStat = SpecialSystem.effective(stat);
+                  const success = currentStat >= target;
+                  return `<span class="check ${success ? 'success' : 'fail'}">${STAT_META[stat].name}: ${target} ${success ? '✓' : '✗'}</span>`;
+                }).join('')}</div>`
+              : '';
+            return `
+              <button class="choice-btn" data-choice="${i}">
+                <span class="choice-letter">${letters[i]}.</span> ${choice.text}
+                ${checkHTML}
+              </button>
+            `;
+          }).join('')}
         </div>
       </div>
     `;
@@ -483,6 +658,7 @@ const UI = {
     // Bind choice buttons
     card.querySelectorAll('.choice-btn').forEach(btn => {
       btn.addEventListener('click', () => {
+        this.playSound('click');
         const choiceIndex = parseInt(btn.dataset.choice);
         this.handleChoice(event, choiceIndex);
       });
@@ -575,6 +751,37 @@ const UI = {
     this.renderEquipment();
     this.renderCareerLog();
     this.renderTopBar();
+    
+    // Show floating stat changes
+    for (const [stat, value] of Object.entries(result.effects)) {
+      if (value !== 0) {
+        this.showStatFloat(stat, value);
+      }
+    }
+    
+    // Show toast notifications and play sounds for milestones
+    if (result.leveledUp) {
+      this.showToast(`📈 Level Up! Now level ${Game.state.level}`, 'success');
+      this.playSound('levelup');
+    } else if (result.bossDefeated) {
+      this.showToast('🏆 Boss Defeated!', 'success');
+      this.playSound('boss');
+      this.flashScreen('rgba(0, 255, 136, 0.3)');
+    } else if (result.itemDropped && !result.equipmentDropped) {
+      this.showToast(`🎁 Found: ${result.itemDropped.emoji} ${result.itemDropped.name}`, 'success');
+      this.playSound('success');
+    } else if (result.gameOver) {
+      this.showToast('💀 Career Over', 'error');
+      this.playSound('gameover');
+      this.flashScreen('rgba(255, 0, 0, 0.4)');
+    } else if (result.victory) {
+      this.showToast('🏆 Retirement!', 'success');
+      this.playSound('victory');
+      this.flashScreen('rgba(255, 215, 0, 0.3)');
+    } else {
+      // Regular choice sound
+      this.playSound(result.success ? 'success' : 'failure');
+    }
     
     // Show result in event card
     const card = document.getElementById('event-card');
@@ -769,6 +976,7 @@ const UI = {
     // Show consumables container
     document.getElementById('levelup-consumables').style.display = 'block';
     document.getElementById('levelup-stats-container').style.display = 'none';
+    document.getElementById('btn-skip-levelup').style.display = 'block';
     document.getElementById('btn-continue-levelup').style.display = 'block';
     document.getElementById('btn-continue-levelup').disabled = true;
     
@@ -812,6 +1020,12 @@ const UI = {
       });
     }
     
+    // Bind skip button
+    document.getElementById('btn-skip-levelup').onclick = () => {
+      Game.state.pendingLevelUpConsumables = null;
+      UI.showLevelUpStats();
+    };
+    
     // Bind continue button
     document.getElementById('btn-continue-levelup').onclick = () => {
       const selected = container.querySelector('.consumable-select-item.selected');
@@ -846,6 +1060,7 @@ const UI = {
     this.showScreen('levelup');
     document.getElementById('levelup-consumables').style.display = 'none';
     document.getElementById('levelup-stats-container').style.display = 'block';
+    document.getElementById('btn-skip-levelup').style.display = 'none';
     document.getElementById('btn-continue-levelup').style.display = 'block';
     
     const container = document.getElementById('levelup-stats');
