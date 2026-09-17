@@ -662,8 +662,8 @@ const UI = {
       </div>
       <div class="event-body">
         <div class="event-narrative">${event.narrative}</div>
-        ${consumableHTML}
         ${equipmentHTML}
+        ${consumableHTML}
         <div class="event-choices">
           ${event.choices.map((choice, i) => {
             const checks = Object.entries(choice.checks || {});
