@@ -372,7 +372,8 @@ const UI = {
     log.forEach((entry, i) => {
       const el = document.createElement('div');
       el.className = `log-entry ${i === 0 ? 'recent' : ''}`;
-      el.textContent = `Day ${entry.day}: ${entry.message}`;
+      const careerMonth = Math.ceil(entry.day / 30);
+      el.textContent = `Month ${careerMonth}: ${entry.message}`;
       container.appendChild(el);
     });
   },
@@ -381,7 +382,9 @@ const UI = {
   renderTopBar() {
     const phaseNames = ['', 'Junior Developer', 'Mid-Level Developer', 'Senior Developer', 'Staff/Principal'];
     document.getElementById('career-phase').textContent = phaseNames[Game.state.phase];
-    document.getElementById('career-day').textContent = `Day ${Game.state.day}`;
+    // Convert days to career month for display consistency with events
+    const careerMonth = Math.ceil(Game.state.day / 30);
+    document.getElementById('career-day').textContent = `Month ${careerMonth}`;
     document.getElementById('player-level').textContent = Game.state.level;
     document.getElementById('level-up-points').textContent = Game.state.levelUpPoints;
   },
