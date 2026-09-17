@@ -1162,7 +1162,9 @@ const UI = {
     if (type === 'gameover') {
       // Game over screen
       const container = document.getElementById('gameover-cons-selection');
+      const continueBtn = document.getElementById('btn-continue-gameover-cons');
       container.innerHTML = '';
+      continueBtn.disabled = true;
       options.forEach((item, i) => {
         const el = document.createElement('div');
         el.className = 'consumable-select-item';
@@ -1177,7 +1179,7 @@ const UI = {
         el.addEventListener('click', () => {
           container.querySelectorAll('.consumable-select-item').forEach(s => s.classList.remove('selected'));
           el.classList.add('selected');
-          document.getElementById('btn-continue-gameover-cons').disabled = false;
+          continueBtn.disabled = false;
         });
         container.appendChild(el);
       });

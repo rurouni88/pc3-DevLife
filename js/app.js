@@ -39,6 +39,12 @@ const App = {
       UI.closePopup();
     });
     
+    // Hamburger menu toggle (mobile)
+    document.getElementById('btn-menu-toggle-main').addEventListener('click', () => {
+      const panel = document.getElementById('side-panel');
+      const isOpen = panel.classList.contains('open');
+      UI.togglePanel(!isOpen);
+    });
     document.getElementById('btn-menu-toggle').addEventListener('click', () => UI.togglePanel(true));
     document.getElementById('btn-close-panel').addEventListener('click', () => UI.closePanel());
     document.getElementById('panel-overlay').addEventListener('click', () => UI.closePanel());
