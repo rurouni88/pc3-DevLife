@@ -732,7 +732,10 @@ const UI = {
   showLevelUpConsumableSelection() {
     const options = Game.state.pendingLevelUpConsumables;
     
-    // Show screen
+    // Show the level up screen first
+    this.showScreen('levelup');
+    
+    // Show consumables container
     document.getElementById('levelup-consumables').style.display = 'block';
     document.getElementById('levelup-stats-container').style.display = 'none';
     document.getElementById('btn-continue-levelup').style.display = 'block';
