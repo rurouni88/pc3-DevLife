@@ -330,79 +330,6 @@ const UI = {
     });
   },
   
-  // Render consumables
-  renderConsumables() {
-    const container = document.getElementById('consumables-list');
-    const consumables = Game.state.consumables;
-    
-    if (consumables.length === 0) {
-      container.innerHTML = '<span class="empty-text">No consumables</span>';
-      return;
-    }
-    
-    // Group by ID
-    const grouped = {};
-    consumables.forEach(c => {
-      if (!grouped[c.id]) {
-        grouped[c.id] = { ...c, count: 0 };
-      }
-      grouped[c.id].count++;
-    });
-    
-    container.innerHTML = '';
-    Object.values(grouped).forEach(item => {
-      const el = document.createElement('div');
-      el.className = 'consumable-item';
-      el.innerHTML = `
-        <span class="cons-emoji">${item.emoji}</span>
-        <span class="cons-name">${item.name}</span>
-        <span class="cons-count">×${item.count}</span>
-        <button class="cons-info-btn" data-id="${item.id}" title="View details">ℹ️</button>
-      `;
-      el.setAttribute('data-id', item.id);
-      container.appendChild(el);
-    });
-    
-    // Bind info buttons
-    container.querySelectorAll('.cons-info-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        UI.showConsumableInfo(btn.dataset.id);
-      });
-    });
-  },
-  
-  // Show consumable details
-  showConsumableInfo(id) {
-    const consumable = CONSUMABLES.find(c => c.id === id);
-    if (!consumable) return;
-    
-    const count = Game.state.consumables.filter(c => c.id === id).length;
-    
-    let detailHTML = `
-      <div class="consumable-detail">
-        <div class="consumable-detail-header">
-          <span class="consumable-detail-emoji">${consumable.emoji}</span>
-          <span class="consumable-detail-name">${consumable.name}</span>
-          <span class="consumable-detail-rarity ${consumable.rarity}">${consumable.rarity}</span>
-        </div>
-        <div class="consumable-detail-desc">${consumable.desc}</div>
-        <div class="consumable-detail-count">Owned: ${count}</div>
-      </div>
-    `;
-    
-    const container = document.getElementById('consumables-list');
-    const detailEl = document.createElement('div');
-    detailEl.className = 'consumable-detail-wrapper';
-    detailEl.innerHTML = detailHTML;
-    
-    // Insert after the consumable item
-    const itemEl = container.querySelector(`[data-id="${id}"]`);
-    if (itemEl) {
-      itemEl.parentNode.insertBefore(detailEl, itemEl.nextSibling);
-    }
-  },
-  
   // Render career log
   renderCareerLog() {
     const container = document.getElementById('career-log');
@@ -541,7 +468,6 @@ const UI = {
         setTimeout(() => feedback.remove(), 3000);
       }
       
-      this.renderConsumables();
       this.renderEvent(event);
       return;
     }
@@ -569,7 +495,6 @@ const UI = {
       setTimeout(() => feedback.remove(), 2000);
     }
     
-    this.renderConsumables();
     this.renderEvent(event);
   },
   
@@ -1065,7 +990,6 @@ const UI = {
       if (selectedIndex >= 0) {
         Game.state.consumables[selectedIndex] = { ...newConsumable };
         UI.showScreen('game');
-        UI.renderConsumables();
         UI.nextEvent();
       }
     };
