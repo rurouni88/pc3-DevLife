@@ -7,7 +7,7 @@ const EVENTS = [
     id: 'first_code_review',
     title: 'First Code Review',
     phase: 1,
-    phaseLabel: 'Junior Developer — Year 1',
+    phaseLabel: 'Junior Developer',
     narrative: `You've written your first meaningful feature. It works on your machine. You submit the pull request and wait.\n\nTwo hours later, your senior dev comments: "Can you explain why you chose this approach? Also, have you considered edge cases? And can we add a unit test for the happy path?"\n\nYour heart sinks.`,
     choices: [
       {
@@ -34,7 +34,7 @@ const EVENTS = [
     id: 'production_incident_1',
     title: '3 AM Production Incident',
     phase: 1,
-    phaseLabel: 'Junior Developer — Year 1',
+    phaseLabel: 'Junior Developer',
     narrative: `The pager goes off. It\'s 3:17 AM.\n\nProduction database is spiking. Response times are up 500%. Your monitoring dashboard looks like a stock market crash. The CEO just pinged you on Slack: "URGENT - CEO here, we're losing $10k/min!"\n\nYou\'re on call this week. Good luck.`,
     choices: [
       {
@@ -67,7 +67,7 @@ const EVENTS = [
     id: 'sprint_planning',
     title: 'Sprint Planning',
     phase: 1,
-    phaseLabel: 'Junior Developer — Year 1',
+    phaseLabel: 'Junior Developer',
     narrative: `Sprint planning meeting. The PM presents the backlog: 47 story points of work for a 2-week sprint. The team\'s velocity is about 30 points.\n\n"Can we fit all of this in?" the PM asks hopefully.\n\nYour team lead looks at you. "What do you think?"`,
     choices: [
       {
@@ -88,7 +88,7 @@ const EVENTS = [
     id: 'learn_new_framework',
     title: 'The New Framework Mandate',
     phase: 1,
-    phaseLabel: 'Junior Developer — Year 1',
+    phaseLabel: 'Junior Developer',
     narrative: `Your company just decided to rewrite everything in a brand new framework that\'s 3 weeks old. The CTO announced it at all-hands: "This is the future. Everyone needs to learn it by end of quarter."\n\nThe framework has 200 GitHub stars and documentation that says "WIP."\n\nYour current project uses the OLD framework.`,
     choices: [
       {
@@ -144,7 +144,7 @@ const EVENTS = [
     id: 'weekend_oncall',
     title: 'Weekend On-Call',
     phase: 2,
-    phaseLabel: 'Mid-Level Developer — Year 3',
+    phaseLabel: 'Mid-Level Developer',
     narrative: `You\'re on weekend on-call. It\'s Saturday afternoon. You\'re at a BBQ. Your phone buzzes.\n\n"A user can\'t log in." Minor issue. Probably nothing.\n\nYou ignore it. 20 minutes later, the monitoring dashboard lights up red. It\'s not just one user. It\'s ALL users.\n\nYour BBQ is about to become a war room.`,
     choices: [
       {
@@ -165,7 +165,7 @@ const EVENTS = [
     id: 'mentor_junior',
     title: 'Mentor a Junior Developer',
     phase: 2,
-    phaseLabel: 'Mid-Level Developer — Year 3',
+    phaseLabel: 'Mid-Level Developer',
     narrative: `A new junior dev has joined the team. They\'re enthusiastic but... they wrote a function that queries the entire database on every page load.\n\nThey ask you for a code review. The PR is 800 lines of... questionable decisions.\n\nYour manager says: "You\'ll mentor them this quarter."`,
     choices: [
       {
@@ -186,7 +186,7 @@ const EVENTS = [
     id: 'performance_optimization',
     title: 'Performance Crisis',
     phase: 2,
-    phaseLabel: 'Mid-Level Developer — Year 3',
+    phaseLabel: 'Mid-Level Developer',
     narrative: `The app is slow. Really slow. Average page load: 8 seconds. Users are complaining. Churn is up 15%.\n\nYour task: "Make it fast." No specifics on how. The CEO wants it "fixed by next sprint."\n\nYou open the profiler. The app makes 47 API calls per page load. Forty. Seven.`,
     choices: [
       {
@@ -242,7 +242,7 @@ const EVENTS = [
     id: 'tech_debt_crisis',
     title: 'Tech Debt Crisis',
     phase: 3,
-    phaseLabel: 'Senior Developer — Year 6',
+    phaseLabel: 'Senior Developer',
     narrative: `You\'re senior now. And the tech debt is real.\n\nThe codebase has accumulated 3 years of "quick fixes." Half the tests are flaky. The deployment pipeline takes 45 minutes. New hires quit after a week.\n\nYour manager says: "We need to ship features, not fix old code." But you know: without paying down tech debt, shipping features will get slower and slower.\n\nYou need to make the case.`,
     choices: [
       {
@@ -263,7 +263,7 @@ const EVENTS = [
     id: 'interview_panel',
     title: 'The Interview Panel',
     phase: 3,
-    phaseLabel: 'Senior Developer — Year 6',
+    phaseLabel: 'Senior Developer',
     narrative: `You\'re on the engineering interview panel. A candidate is about to come in for a technical interview.\n\nYou\'ve been given a coding problem to administer. The problem is... you know it\'s a terrible problem. It tests trivia, not engineering ability.\n\nThe company standard says "use this exact problem." But you know good engineers when you see them.`,
     choices: [
       {
@@ -284,7 +284,7 @@ const EVENTS = [
     id: 'burnout_warning',
     title: 'Burnout Warning Signs',
     phase: 3,
-    phaseLabel: 'Senior Developer — Year 6',
+    phaseLabel: 'Senior Developer',
     narrative: `You\'ve been working 60+ hour weeks for 3 months. Your code quality is slipping. You\'re irritable in meetings. You check Slack in your dreams.\n\nYour doctor says: "You need to reduce stress." Your partner says: "You need to be present." Your team lead says: "We\'re worried about you."\n\nBut there\'s a major release next week.`,
     choices: [
       {
@@ -340,7 +340,7 @@ const EVENTS = [
     id: 'executive_presentation',
     title: 'Executive Presentation',
     phase: 4,
-    phaseLabel: 'Staff/Principal — Year 8',
+    phaseLabel: 'Staff/Principal',
     narrative: `You\'re presenting to the executive team. The board wants to know why engineering is "behind schedule" and "over budget."\n\nThey have a spreadsheet with 47 columns. None of them understand technical debt, context switching, or the difference between a bug fix and a feature.\n\nThe VP of Sales just asked: "Why can\'t you just ship faster?"`,
     choices: [
       {
@@ -367,7 +367,7 @@ const EVENTS = [
     id: 'open_source_controversy',
     title: 'Open Source Controversy',
     phase: 4,
-    phaseLabel: 'Staff/Principal — Year 8',
+    phaseLabel: 'Staff/Principal',
     narrative: `Your company uses an open-source library that just had a major security vulnerability. The maintainer is one person who built it in their spare time over 5 years.\n\nThe board wants to: A) Replace the library entirely (risky, expensive) or B) Fork it and maintain it internally (legal minefield).\n\nThe maintainer just tweeted: "I can\'t maintain this anymore. I\'m burned out."\n\nYou need to make a recommendation.`,
     choices: [
       {
@@ -388,7 +388,7 @@ const EVENTS = [
     id: 'hiring_freeze',
     title: 'The Great Hiring Freeze',
     phase: 4,
-    phaseLabel: 'Staff/Principal — Year 8',
+    phaseLabel: 'Staff/Principal',
     narrative: `The company is "right-sizing." There\'s a hiring freeze. But your team\'s workload just doubled.\n\nYou have 5 people doing the work of 10. Deadlines are unrealistic. Morale is at an all-time low.\n\nYour team lead asks: "How are we going to handle this?"\n\nYou\'re the senior person. They\'re looking to you.`,
     choices: [
       {
@@ -409,7 +409,7 @@ const EVENTS = [
     id: 'boardroom_strategy',
     title: 'Boardroom Strategy Session',
     phase: 4,
-    phaseLabel: 'Staff/Principal — Year 8',
+    phaseLabel: 'Staff/Principal',
     narrative: `For the first time, you\'re invited to the executive strategy meeting. The board wants engineering\'s input on a major business decision: acquire a competitor or build the features in-house.\n\nThe competitor has 50 engineers and a mature product. Building in-house would take 18 months and cost $5M.\n\nThe CEO asks: "What would you recommend?"`,
     choices: [
       {
@@ -651,7 +651,7 @@ const EVENTS = [
     id: 'the_standup',
     title: 'Daily Standup from Hell',
     phase: 1,
-    phaseLabel: 'Junior Developer — Year 1',
+    phaseLabel: 'Junior Developer',
     narrative: `Daily standup. Your team lead asks: "What did you do yesterday? What will you do today? Any blockers?"
 
 You've been stuck on the same bug for 3 days. Your blocker is... you don't understand the code.
@@ -676,7 +676,7 @@ All eyes are on you.`,
     id: 'the_merge_conflict',
     title: 'The Merge Conflict',
     phase: 1,
-    phaseLabel: 'Junior Developer — Year 1',
+    phaseLabel: 'Junior Developer',
     narrative: `You\'ve been working on a feature branch for 2 weeks. Time to merge to main.
 
 There are 47 merge conflicts. Some are in files you don\'t recognize. One conflict is in a file named "TODO.txt" that contains only the word "help me."
@@ -701,7 +701,7 @@ Your coworker who wrote the conflicting code quit last week.`,
     id: 'the_hotfix',
     title: 'The Midnight Hotfix',
     phase: 2,
-    phaseLabel: 'Mid-Level Developer — Year 3',
+    phaseLabel: 'Mid-Level Developer',
     narrative: `It\'s 11 PM on a Friday. Your phone buzzes.
 
 "URGENT: Production is down. Need someone to push a hotfix ASAP."
@@ -728,7 +728,7 @@ The hotfix involves changing a single line in a file you\'ve never seen before.`
     id: 'the_technical_debt',
     title: 'Technical Debt Avalanche',
     phase: 2,
-    phaseLabel: 'Mid-Level Developer — Year 3',
+    phaseLabel: 'Mid-Level Developer',
     narrative: `You\'ve been assigned to a new feature. The code you need to modify hasn\'t been touched in 3 years.
 
 It\'s written in a framework that\'s no longer maintained. The comments say "TODO: rewrite this" in 47 places.
@@ -753,7 +753,7 @@ The deadline is next week.`,
     id: 'the_performance_review_2',
     title: 'The Promotion Review',
     phase: 3,
-    phaseLabel: 'Senior Developer — Year 6',
+    phaseLabel: 'Senior Developer',
     narrative: `It\'s promotion review season. You\'re up for Senior → Staff.
 
 Your manager says: "You need more visibility. You need to influence at a higher level. You need to..."
@@ -780,7 +780,7 @@ You\'ve spent 6 months deep in the code. Nobody knows what you\'ve built.`,
     id: 'the_security_audit',
     title: 'The Security Audit',
     phase: 3,
-    phaseLabel: 'Senior Developer — Year 6',
+    phaseLabel: 'Senior Developer',
     narrative: `The security team just finished their audit. Your service has 237 vulnerabilities. 12 are critical.
 
 The worst one: your API keys are hardcoded in the source code. They\'ve been public on GitHub for 6 months.
@@ -805,7 +805,7 @@ The CISO wants a meeting. Tomorrow.`,
     id: 'the_keynote',
     title: 'The Keynote Invitation',
     phase: 3,
-    phaseLabel: 'Senior Developer — Year 6',
+    phaseLabel: 'Senior Developer',
     narrative: `You\'ve been invited to give a keynote at a major tech conference. 3,000 attendees. Industry leaders in the audience.
 
 Your topic: "How we scaled our platform to 10 million users."
@@ -832,7 +832,7 @@ Your hands are shaking.`,
     id: 'the_data_breach',
     title: 'The Data Breach',
     phase: 4,
-    phaseLabel: 'Staff/Principal — Year 8',
+    phaseLabel: 'Staff/Principal',
     narrative: `It\'s 2 AM. Your phone buzzes.
 
 "We\'ve been breached. User data is exposed. The press is calling. The board wants answers."
@@ -859,7 +859,7 @@ The breach was caused by an unpatched vulnerability in a library you recommended
     id: 'the_board_meeting',
     title: 'The Board Presentation',
     phase: 4,
-    phaseLabel: 'Staff/Principal — Year 8',
+    phaseLabel: 'Staff/Principal',
     narrative: `You\'re presenting to the board. They want to know the 5-year tech strategy.
 
 You have a 30-minute slot. The board has 12 people. 8 of them don\'t know what a API is.
@@ -886,7 +886,7 @@ Your slides have architecture diagrams.`,
     id: 'the_open_source_crisis',
     title: 'The Open Source Crisis',
     phase: 4,
-    phaseLabel: 'Staff/Principal — Year 8',
+    phaseLabel: 'Staff/Principal',
     narrative: `Your company\'s flagship product uses an open-source library that just announced it\'s shutting down.
 
 The maintainer is retiring. No successor. No fork.
@@ -913,7 +913,7 @@ The board wants to know what\'s happening.`,
     id: 'the_merger',
     title: 'The Company Merger',
     phase: 4,
-    phaseLabel: 'Staff/Principal — Year 8',
+    phaseLabel: 'Staff/Principal',
     narrative: `Your company is merging with a competitor. Both have engineering teams. Both have different tech stacks.
 
 The new CEO says: "We\'re keeping one stack. Figure out which one."
@@ -940,7 +940,7 @@ Both teams are nervous. Both want their stack to win.`,
     id: 'the_mentor_crisis',
     title: 'The Mentor Crisis',
     phase: 2,
-    phaseLabel: 'Mid-Level Developer — Year 3',
+    phaseLabel: 'Mid-Level Developer',
     narrative: `You\'re mentoring a junior dev who keeps making the same mistake. Over and over.
 
 They fix it. You review it. They break it again the next day.
@@ -967,7 +967,7 @@ Their performance review is next week.`,
     id: 'the_demos',
     title: 'Demo Day Disaster',
     phase: 1,
-    phaseLabel: 'Junior Developer — Year 2',
+    phaseLabel: 'Junior Developer',
     narrative: `It\'s demo day. You\'ve been building a feature for 3 weeks. The product team, engineering leads, and CEO are watching.
 
 Your code works on your machine. The staging environment is... questionable.
@@ -994,7 +994,7 @@ The CEO raises an eyebrow.`,
     id: 'the_404',
     title: 'The 404 That Wasn\'t',
     phase: 2,
-    phaseLabel: 'Mid-Level Developer — Year 3',
+    phaseLabel: 'Mid-Level Developer',
     narrative: `A user reports a 404 error. You check the logs. The page exists. The route exists. The code exists.
 
 You check the CDN. You check the load balancer. You check the DNS.
@@ -1021,7 +1021,7 @@ You\'ve been debugging this for 4 hours. It\'s 2 AM.`,
     id: 'the_kpi',
     title: 'The KPI Trap',
     phase: 3,
-    phaseLabel: 'Senior Developer — Year 6',
+    phaseLabel: 'Senior Developer',
     narrative: `Your manager introduces new KPIs: lines of code committed, PRs merged per week, tickets closed.
 
 You\'ve been writing careful, well-tested code. This will make you look bad.
@@ -1048,7 +1048,7 @@ The CEO loves the dashboard.`,
     id: 'the_oncall_nightmare',
     title: 'The On-Call Nightmare',
     phase: 3,
-    phaseLabel: 'Senior Developer — Year 6',
+    phaseLabel: 'Senior Developer',
     narrative: `It\'s your on-call week. Your phone buzzes at 3 AM.
 
 "Database is down. Users can\'t log in. The CEO is calling."
@@ -1075,7 +1075,7 @@ The database cluster has 47 nodes. You don\'t know which one is failing.`,
     id: 'the_refactor',
     title: 'The Refactor Temptation',
     phase: 2,
-    phaseLabel: 'Mid-Level Developer — Year 3',
+    phaseLabel: 'Mid-Level Developer',
     narrative: `You\'re assigned to a feature. The code you need to touch is... terrible.
 
 It\'s a 2,000-line function. It has nested if-statements 12 levels deep. The variable names are single letters.
@@ -1102,7 +1102,7 @@ But you can\'t help yourself. The code is hurting you.`,
     id: 'the_retrospective',
     title: 'The Blameless Retrospective',
     phase: 3,
-    phaseLabel: 'Senior Developer — Year 6',
+    phaseLabel: 'Senior Developer',
     narrative: `A production incident just happened. Your team is in a retrospective.
 
 The manager says: "This is a blameless retrospective. Let\'s focus on process, not people."
@@ -1129,7 +1129,7 @@ The silence is deafening.`,
     id: 'the_api_change',
     title: 'The Breaking API Change',
     phase: 4,
-    phaseLabel: 'Staff/Principal — Year 8',
+    phaseLabel: 'Staff/Principal',
     narrative: `Your team\'s API just broke a major client\'s integration. You changed a response format without a deprecation period.
 
 The client is furious. They\'re threatening to leave. Their CTO is calling your CEO.
@@ -1156,7 +1156,7 @@ You know how bad it could be.`,
     id: 'the_tech_stack_war',
     title: 'The Tech Stack War',
     phase: 2,
-    phaseLabel: 'Mid-Level Developer — Year 3',
+    phaseLabel: 'Mid-Level Developer',
     narrative: `Your team is divided. Half wants to use Framework X. Half wants Framework Y.
 
 Both sides are passionate. Both sides are right. Both sides are wrong.
@@ -1183,7 +1183,7 @@ You\'re asked to break the tie.`,
     id: 'the_presentation',
     title: 'The Architecture Presentation',
     phase: 3,
-    phaseLabel: 'Senior Developer — Year 6',
+    phaseLabel: 'Senior Developer',
     narrative: `You\'ve designed a new architecture. It\'s elegant, scalable, and perfect.
 
 You\'re presenting it to the engineering team. They have questions.
@@ -1210,7 +1210,7 @@ You didn\'t think about those.`,
     id: 'the_performance_crisis_2',
     title: 'The Performance Crisis II',
     phase: 4,
-    phaseLabel: 'Staff/Principal — Year 8',
+    phaseLabel: 'Staff/Principal',
     narrative: `Your platform is slow. Really slow. Average page load: 8 seconds. Users are complaining. Churn is up 15%.
 
 You\'ve been asked to "make it fast." No specifics. The CEO wants it "fixed by next sprint."
@@ -1237,7 +1237,7 @@ This is your final boss-level challenge.`,
     id: 'the_hiring_freeze_2',
     title: 'The Hiring Freeze II',
     phase: 4,
-    phaseLabel: 'Staff/Principal — Year 8',
+    phaseLabel: 'Staff/Principal',
     narrative: `The company is "right-sizing." There\'s a hiring freeze. But your team\'s workload just doubled.
 
 You have 5 people doing the work of 10. Deadlines are unrealistic. Morale is at an all-time low.
@@ -1264,7 +1264,7 @@ You\'re the senior person. They\'re looking to you.`,
     id: 'the_agile_transformation',
     title: 'The Agile Transformation',
     phase: 2,
-    phaseLabel: 'Mid-Level Developer — Year 3',
+    phaseLabel: 'Mid-Level Developer',
     narrative: `The CEO just hired an "Agile Transformation Consultant." They cost $250,000.
 
 Tomorrow, your team is going through "Agile." You\'ve never heard of it. Your team lead says it\'s "just Scrum but more."
@@ -1291,7 +1291,7 @@ The consultant says: "We\'re going to break out of our comfort zones!"`,
     id: 'the_sprint_ceremony',
     title: 'The Sprint Ceremony',
     phase: 2,
-    phaseLabel: 'Mid-Level Developer — Year 3',
+    phaseLabel: 'Mid-Level Developer',
     narrative: `Your team is doing "Sprint Planning." The PM has 80 story points for a 2-week sprint. Your team\'s velocity is 30.
 
 The Scrum Master says: "We can do it if we believe!"
@@ -1318,7 +1318,7 @@ You know you\'ll be working weekends.`,
     id: 'the_svpg_model',
     title: 'The SVPG Product Model',
     phase: 3,
-    phaseLabel: 'Senior Developer — Year 6',
+    phaseLabel: 'Senior Developer',
     narrative: `Your company is adopting the Silicon Valley Product Group (SVPG) model. The VP of Product just sent a 47-page deck.
 
 It talks about "product-market fit," "the product lifecycle," and "the three horizons."
@@ -1347,7 +1347,7 @@ Your simple bug fix now needs a 10-page doc.`,
     id: 'the_product_triangle',
     title: 'The Product Triangle',
     phase: 3,
-    phaseLabel: 'Senior Developer — Year 6',
+    phaseLabel: 'Senior Developer',
     narrative: `Your VP of Product introduces the "Product Triangle": Fast, Good, Cheap. Pick two.
 
 They say: "We want Fast AND Good. We\'re sorry, it\'s going to be expensive."
@@ -1380,7 +1380,7 @@ The Product Triangle is... a lie.`,
     id: 'the_innovation_day',
     title: 'Innovation Day',
     phase: 1,
-    phaseLabel: 'Junior Developer — Year 2',
+    phaseLabel: 'Junior Developer',
     narrative: `It\'s company Innovation Day. Everyone is supposed to work on a passion project for 24 hours.
 
 Your manager says: "You can work on anything! Just make sure it adds value to the company."
@@ -1407,7 +1407,7 @@ Your coworker is building an AI-powered chatbot. Another is building a blockchai
     id: 'the_code_of_conduct',
     title: 'The Code of Conduct Incident',
     phase: 3,
-    phaseLabel: 'Senior Developer — Year 6',
+    phaseLabel: 'Senior Developer',
     narrative: `A team member makes an inappropriate comment in a public channel. It\'s not terrible, but it\'s not okay.
 
 The team is divided. Some think it\'s no big deal. Others are offended.
@@ -1434,7 +1434,7 @@ It\'s your call.`,
     id: 'the_deprecation',
     title: 'The Deprecation Notice',
     phase: 2,
-    phaseLabel: 'Mid-Level Developer — Year 3',
+    phaseLabel: 'Mid-Level Developer',
     narrative: `A critical library your project depends on just announced it\'s being deprecated in 6 months.
 
 There\'s no direct replacement. You\'ll need to find an alternative or build your own.
@@ -1461,7 +1461,7 @@ You know "later" never comes.`,
     id: 'the_sprint_retro',
     title: 'The Sprint Retrospective',
     phase: 1,
-    phaseLabel: 'Junior Developer — Year 2',
+    phaseLabel: 'Junior Developer',
     narrative: `Sprint retrospective. Your team missed every deadline this sprint.
 
 The team lead asks: "What went wrong? What can we improve?"
