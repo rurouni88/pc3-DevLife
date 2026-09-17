@@ -357,10 +357,50 @@ const UI = {
         <span class="cons-emoji">${item.emoji}</span>
         <span class="cons-name">${item.name}</span>
         <span class="cons-count">×${item.count}</span>
+        <button class="cons-info-btn" data-id="${item.id}" title="View details">ℹ️</button>
       `;
       el.setAttribute('data-id', item.id);
       container.appendChild(el);
     });
+    
+    // Bind info buttons
+    container.querySelectorAll('.cons-info-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        UI.showConsumableInfo(btn.dataset.id);
+      });
+    });
+  },
+  
+  // Show consumable details
+  showConsumableInfo(id) {
+    const consumable = CONSUMABLES.find(c => c.id === id);
+    if (!consumable) return;
+    
+    const count = Game.state.consumables.filter(c => c.id === id).length;
+    
+    let detailHTML = `
+      <div class="consumable-detail">
+        <div class="consumable-detail-header">
+          <span class="consumable-detail-emoji">${consumable.emoji}</span>
+          <span class="consumable-detail-name">${consumable.name}</span>
+          <span class="consumable-detail-rarity ${consumable.rarity}">${consumable.rarity}</span>
+        </div>
+        <div class="consumable-detail-desc">${consumable.desc}</div>
+        <div class="consumable-detail-count">Owned: ${count}</div>
+      </div>
+    `;
+    
+    const container = document.getElementById('consumables-list');
+    const detailEl = document.createElement('div');
+    detailEl.className = 'consumable-detail-wrapper';
+    detailEl.innerHTML = detailHTML;
+    
+    // Insert after the consumable item
+    const itemEl = container.querySelector(`[data-id="${id}"]`);
+    if (itemEl) {
+      itemEl.parentNode.insertBefore(detailEl, itemEl.nextSibling);
+    }
   },
   
   // Render career log
