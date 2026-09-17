@@ -837,6 +837,9 @@ const UI = {
     });
     
     document.getElementById('btn-continue-levelup').disabled = true;
+    
+    // Bind continue button to App.afterLevelUp
+    document.getElementById('btn-continue-levelup').onclick = () => App.afterLevelUp();
   },
   
   // Show game over screen
