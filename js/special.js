@@ -21,8 +21,12 @@ const SpecialSystem = {
   },
   
   // Remove equipment bonus
-  removeEquipment(emoji) {
-    // For simplicity, we don't remove — items persist per run
+  removeEquipment(emoji, effects) {
+    for (const [stat, value] of Object.entries(effects)) {
+      if (this.equipmentBonuses[stat] !== undefined) {
+        this.equipmentBonuses[stat] = Math.max(0, this.equipmentBonuses[stat] - value);
+      }
+    }
   },
   
   // Get effective stat (base + equipment + temporary + multiplier)

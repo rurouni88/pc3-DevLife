@@ -533,8 +533,19 @@ const UI = {
     }
     
     // Show item drop
+    let showEquipmentChoice = false;
     if (result.itemDropped) {
-      resultHTML += `<div class="item-drop">🎁 Found: ${result.itemDropped.emoji} ${result.itemDropped.name}</div>`;
+      if (result.equipmentDropped) {
+        // Inventory full — show choice screen
+        resultHTML += `<div class="item-drop">🎁 Found: ${result.itemDropped.emoji} ${result.itemDropped.name} — inventory full!</div>`;
+        showEquipmentChoice = true;
+      } else {
+        // Add to inventory
+        Game.state.equipment.push({ ...result.itemDropped });
+        SpecialSystem.addEquipment(result.itemDropped.emoji, result.itemDropped.effects);
+        resultHTML += `<div class="item-drop">🎁 Found: ${result.itemDropped.emoji} ${result.itemDropped.name}</div>`;
+        this.renderEquipment();
+      }
     }
     
     // Show check results
@@ -559,7 +570,9 @@ const UI = {
     
     // Bind continue button
     document.getElementById('btn-continue-event').addEventListener('click', () => {
-      if (result.gameOver) {
+      if (showEquipmentChoice) {
+        UI.showEquipmentChoice(result.itemDropped, [...Game.state.equipment]);
+      } else if (result.gameOver) {
         this.showGameOver(result.reason);
       } else if (result.victory) {
         this.showVictory();
@@ -995,5 +1008,87 @@ const UI = {
     };
     
     UI.showScreen('consumable-choice');
+  },
+  
+  // Show equipment choice screen (when inventory is full)
+  showEquipmentChoice(newEquipment, currentEquipment) {
+    const newContainer = document.getElementById('equipment-choice-new');
+    const currentContainer = document.getElementById('equipment-choice-current');
+    const keepBtn = document.getElementById('btn-keep-equipment');
+    const declineBtn = document.getElementById('btn-decline-equipment');
+    
+    // Show new equipment
+    newContainer.innerHTML = '';
+    const newEl = document.createElement('div');
+    newEl.className = 'consumable-select-item';
+    newEl.style.borderColor = 'var(--accent-green)';
+    const statStr = Object.entries(newEquipment.effects).map(([k,v]) => `+${v} ${STAT_META[k].name}`).join(', ');
+    newEl.innerHTML = `
+      <span class="cs-emoji" style="font-size: 2em;">${newEquipment.emoji}</span>
+      <div class="cs-details">
+        <div class="cs-name">${newEquipment.name}</div>
+        <div class="cs-desc">${newEquipment.desc}</div>
+        <div class="cs-effect">${statStr}</div>
+      </div>
+      <div class="cs-badge">NEW</div>
+    `;
+    newContainer.appendChild(newEl);
+    
+    // Show current equipment as clickable options
+    currentContainer.innerHTML = '';
+    let selectedIndex = -1;
+    
+    currentEquipment.forEach((equip, i) => {
+      const el = document.createElement('div');
+      el.className = 'consumable-select-item';
+      el.dataset.index = i;
+      const statStr = Object.entries(equip.effects).map(([k,v]) => `+${v} ${STAT_META[k].name}`).join(', ');
+      el.innerHTML = `
+        <span class="cs-emoji">${equip.emoji}</span>
+        <div class="cs-details">
+          <div class="cs-name">${equip.name}</div>
+          <div class="cs-desc">${equip.desc}</div>
+          <div class="cs-effect">${statStr}</div>
+        </div>
+      `;
+      el.addEventListener('click', () => {
+        currentContainer.querySelectorAll('.consumable-select-item').forEach(s => s.classList.remove('selected'));
+        el.classList.add('selected');
+        selectedIndex = i;
+        keepBtn.disabled = false;
+      });
+      currentContainer.appendChild(el);
+    });
+    
+    // Reset state
+    keepBtn.disabled = true;
+    selectedIndex = -1;
+    
+    // Keep current (decline new)
+    declineBtn.onclick = () => {
+      Game.state.pendingEquipmentDrop = null;
+      UI.showScreen('game');
+      UI.nextEvent();
+    };
+    
+    // Swap: replace selected equipment with new one
+    keepBtn.onclick = () => {
+      if (selectedIndex >= 0) {
+        // Remove old equipment bonuses
+        const oldEquip = Game.state.equipment[selectedIndex];
+        SpecialSystem.removeEquipment(oldEquip.emoji, oldEquip.effects);
+        
+        // Replace with new equipment
+        Game.state.equipment[selectedIndex] = { ...newEquipment };
+        SpecialSystem.addEquipment(newEquipment.emoji, newEquipment.effects);
+        Game.state.pendingEquipmentDrop = null;
+        
+        UI.showScreen('game');
+        UI.renderEquipment();
+        UI.nextEvent();
+      }
+    };
+    
+    UI.showScreen('equipment-choice');
   }
 };

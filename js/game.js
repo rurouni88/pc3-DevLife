@@ -3,11 +3,11 @@ const Game = {
   state: null,
   
   // Initialize a new game
-  createCharacter(statAlloc, startingConsumables = []) {
+  createCharacter(statAlloc, startingConsumables = [], startingEquipment = []) {
     const now = Date.now();
     this.state = {
       stats: { ...statAlloc },
-      equipment: [],
+      equipment: [...startingEquipment.slice(0, 1)], // carry-over equipment (max 1)
       consumables: [...startingConsumables.slice(0, 2)], // carry-over consumables (max 2)
       level: 1,
       levelUpPoints: 0,
@@ -37,6 +37,16 @@ const Game = {
     const meta = JSON.parse(localStorage.getItem('devlife_meta') || '{}');
     meta.totalRuns = (meta.totalRuns || 0) + 1;
     meta.lastRunDate = new Date().toISOString();
+    
+    // Save equipment to carry over (max 1)
+    if (this.state.equipment.length > 0) {
+      if (!meta.startingEquipment) meta.startingEquipment = [];
+      const equip = this.state.equipment[0];
+      // Only save if we don't already have it
+      if (!meta.startingEquipment.includes(equip.id)) {
+        meta.startingEquipment.push(equip.id);
+      }
+    }
     
     // Unlock Prototype King after 3 careers
     if (!meta.unlockedArchetypes) meta.unlockedArchetypes = [];
@@ -99,17 +109,23 @@ const Game = {
       }
     }
     
-    // Random item drop (15% chance on success)
+    // Random item drop (15% chance on success, max 1 in inventory)
     let itemDropped = null;
     if (allSuccess && Math.random() < 0.15) {
       itemDropped = getRandomEquipment();
-      this.state.equipment.push({
-        id: itemDropped.id,
-        name: itemDropped.name,
-        emoji: itemDropped.emoji,
-        effects: itemDropped.effects
-      });
-      SpecialSystem.addEquipment(itemDropped.emoji, itemDropped.effects);
+      if (this.state.equipment.length >= 1) {
+        // Inventory full — set pending for choice screen
+        this.state.pendingEquipmentDrop = { ...itemDropped };
+      } else {
+        // Add to inventory
+        this.state.equipment.push({
+          id: itemDropped.id,
+          name: itemDropped.name,
+          emoji: itemDropped.emoji,
+          effects: itemDropped.effects
+        });
+        SpecialSystem.addEquipment(itemDropped.emoji, itemDropped.effects);
+      }
     }
     
     // Advance game state
@@ -137,6 +153,7 @@ const Game = {
       effects,
       log,
       itemDropped,
+      equipmentDropped: !!this.state.pendingEquipmentDrop,
       leveledUp,
       gameOver,
       phaseComplete,
