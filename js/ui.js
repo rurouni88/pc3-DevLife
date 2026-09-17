@@ -569,6 +569,11 @@ const UI = {
       resultHTML += `<div class="item-drop">🎁 Found: ${result.itemDropped.emoji} ${result.itemDropped.name}</div>`;
     }
     
+    // Show consumable drop
+    if (result.consumableDropped) {
+      resultHTML += `<div class="item-drop">🧪 Found: ${result.consumableDropped.emoji} ${result.consumableDropped.name}</div>`;
+    }
+    
     // Show check results
     if (result.checkResults && result.checkResults.length > 0) {
       const checkHTML = result.checkResults.map(cr => 

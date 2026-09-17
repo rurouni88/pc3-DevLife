@@ -108,6 +108,13 @@ const Game = {
       SpecialSystem.addEquipment(itemDropped.emoji, itemDropped.effects);
     }
     
+    // Random consumable drop (40% chance on success)
+    let consumableDropped = null;
+    if (allSuccess && Math.random() < 0.40) {
+      consumableDropped = getRandomConsumable();
+      this.state.consumables.push({ ...consumableDropped });
+    }
+    
     // Advance game state
     this.state.day += Math.floor(Math.random() * 5) + 3;
     this.state.eventsCompleted++;
@@ -133,6 +140,7 @@ const Game = {
       effects,
       log,
       itemDropped,
+      consumableDropped,
       leveledUp,
       gameOver,
       phaseComplete,
