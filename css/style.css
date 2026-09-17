@@ -774,6 +774,42 @@ body {
   font-size: 0.85rem;
 }
 
+.consumable-select-item .cs-rarity {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+  display: inline-block;
+}
+
+.consumable-select-item .cs-rarity.common {
+  background: rgba(255, 215, 64, 0.15);
+  color: #ffd740;
+  border: 1px solid rgba(255, 215, 64, 0.3);
+}
+
+.consumable-select-item .cs-rarity.uncommon {
+  background: rgba(179, 136, 255, 0.15);
+  color: #b388ff;
+  border: 1px solid rgba(179, 136, 255, 0.3);
+}
+
+.consumable-select-item .cs-rarity.rare {
+  background: rgba(255, 82, 82, 0.15);
+  color: #ff5252;
+  border: 1px solid rgba(255, 82, 82, 0.3);
+}
+
+.consumable-select-item .cs-rarity.epic {
+  background: rgba(224, 64, 251, 0.15);
+  color: #e040fb;
+  border: 1px solid rgba(224, 64, 251, 0.3);
+}
+
 /* Consumable bar in events */
 .consumable-bar {
   margin-bottom: var(--spacing-md);
