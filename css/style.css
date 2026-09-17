@@ -611,11 +611,6 @@ body {
   transform: translateX(0);
 }
 
-/* Hide side panel — replaced by mobile toolbar + popups */
-.side-panel {
-  display: none;
-}
-
 .panel-overlay {
   display: none;
   position: fixed;
@@ -1099,7 +1094,12 @@ body {
   letter-spacing: 0.5px;
 }
 
-
+/* Hide toolbar on desktop */
+@media (min-width: 900px) {
+  .mobile-toolbar {
+    display: none;
+  }
+}
 
 /* --- Popup Panels --- */
 .popup-panel {
@@ -1172,7 +1172,12 @@ body {
   to { transform: translateY(0); opacity: 1; }
 }
 
-
+/* Hide popup panels on desktop */
+@media (min-width: 900px) {
+  .popup-panel {
+    display: none !important;
+  }
+}
 
 /* --- Recent Activity (mobile-friendly) --- */
 .recent-activity {
@@ -1503,7 +1508,48 @@ body {
   }
 }
 
-
+/* --- Responsive: Desktop (≥900px) --- */
+@media (min-width: 900px) {
+  #screen-game {
+    flex-direction: row;
+    overflow: hidden;
+  }
+  
+  .game-layout {
+    flex-direction: row;
+  }
+  
+  .side-panel {
+    position: static;
+    width: 280px;
+    min-width: 280px;
+    max-width: 280px;
+    height: 100%;
+    transform: none;
+    overflow-y: auto;
+    border-right: 1px solid var(--border-color);
+    border-bottom: none;
+    padding: var(--spacing-md);
+  }
+  
+  .side-panel.open {
+    /* no-op on desktop */
+  }
+  
+  .panel-overlay {
+    display: none !important;
+  }
+  
+  .game-main {
+    flex: 1;
+    padding: var(--spacing-lg);
+    overflow-y: auto;
+  }
+  
+  .screen-content {
+    padding: var(--spacing-xl);
+  }
+}
 
 /* --- Reduced Motion --- */
 @media (prefers-reduced-motion: reduce) {
