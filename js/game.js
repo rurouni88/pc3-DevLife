@@ -175,9 +175,15 @@ const Game = {
       return { reason: '💀 Skill Obsolescence — You couldn\'t adapt. The industry moved on without you.' };
     }
     
-    // Too many failures
-    const recentFailures = s.eventHistory.slice(-5);
-    // Could add more sophisticated failure tracking
+    // Made redundant — low Charisma + mid/late career + bad luck
+    if (s.phase >= 3 && sp.stats.C <= 2 && s.day > 400) {
+      const redundancyRoll = Math.random();
+      const risk = (3 - sp.stats.C) * 0.15; // Higher charisma = lower risk
+      if (redundancyRoll < risk) {
+        this.addLog('You\'ve been made redundant.');
+        return { reason: '💀 Made Redundant — Low visibility, weak relationships, and the axe fell. The severance package was... adequate.' };
+      }
+    }
     
     return null;
   },
