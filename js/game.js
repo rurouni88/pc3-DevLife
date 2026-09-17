@@ -17,7 +17,7 @@ const Game = {
       eventsPerPhase: 4, // events before boss
       currentEventId: null,
       eventHistory: [],
-      careerLog: ['Career started.'],
+      careerLog: [{ message: 'Career started.', day: 1, timestamp: now }],
       alive: true,
       won: false,
       startTime: now,
