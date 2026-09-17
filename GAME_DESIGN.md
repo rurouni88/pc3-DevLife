@@ -40,21 +40,21 @@ Career Phase 1: Junior Developer (Years 1-2)
 ├── Event: Learn New Framework (Intelligence check)
 ├── BOSS: The Legacy Monolith
 │
-Career Phase 2: Mid-Level Developer (Months 13-36)
+Career Phase 2: Mid-Level Developer (Years 3-5)
 ├── Event: Cross-Team Architecture Debate
 ├── Event: Weekend On-Call (Endurance + Luck)
 ├── Event: Mentor a Junior (Charisma check)
 ├── Event: Performance Optimization (Strength + Perception)
 ├── BOSS: The Migration Project
 │
-Career Phase 3: Senior Developer (Months 37-60)
+Career Phase 3: Senior Developer (Years 6-7)
 ├── Event: Tech Debt Crisis
 ├── Event: Interview Panel (Charisma + Luck)
 ├── Event: Architecture Review Board
 ├── Event: Burnout Warning Signs (Endurance)
 ├── BOSS: The Platform Rewrite
 │
-Career Phase 4: Staff/Principal (Months 61+)
+Career Phase 4: Staff/Principal (Years 8-10)
 ├── Event: Executive Presentation
 ├── Event: Open Source Controversy
 ├── Event: The Great Hiring Freeze
@@ -85,7 +85,7 @@ Events are the core gameplay unit. Each event presents a scenario with:
 
 ### 2.4 Items & Equipment
 
-Items represent tools, certifications, and resources:
+Items represent tools, certifications, and resources. **Max 1 equipped at a time.**
 
 | Item | Effect | Rarity |
 |------|--------|--------|
@@ -95,9 +95,46 @@ Items represent tools, certifications, and resources:
 | LeetCode Subscription | +1 Intelligence | Uncommon |
 | PMP Certification | +2 Charisma | Rare |
 | AWS Certification | +1 Intelligence, +1 Strength | Rare |
-| Custom Ergonomic Chair | +2 Endurance | Epic |
+| Custom Ergonomic Chair | +3 Endurance | Epic |
 | Rubber Duck | +1 Perception | Common |
 | Reference Architecture Book | +2 Intelligence | Uncommon |
+
+### 2.5 Consumables
+
+One-time stat boosts for a single event check. **Max 2 in inventory.** Earned on level up — choose from 3 options.
+
+#### Common
+| Consumable | Effect | Description |
+|------------|--------|-------------|
+| Coffee | +2 Endurance | The developer's blood |
+| Energy Drink | +2 Agility | Squeeze, swallow, ship |
+| Instant Noodles | +2 Endurance | 3 minutes to survival |
+| Cold Pizza | +2 Charisma | Universal developer currency |
+
+#### Uncommon
+| Consumable | Effect | Description |
+|------------|--------|-------------|
+| Espresso Shot | +3 Perception | One shot. Pure clarity. |
+| Matcha Latte | +3 Intelligence | Zen focus |
+| Dark Chocolate | +2 Charisma | Share with the team |
+| AI Copilot | 1.5× stat (risky) | 70% chance it works |
+
+#### Rare
+| Consumable | Effect | Description |
+|------------|--------|-------------|
+| Deep Work Block | +4 Strength | Brute force the codebase |
+| Caffeine IV Drip | +4 Strength, +3 Endurance | Talking to the server |
+| Ghost Pepper Hot Sauce | +4 Agility, -1 Endurance | Fire in your veins |
+| AI Code Generator | 2× stat (very risky) | Green screen of death |
+
+#### Epic
+| Consumable | Effect | Description |
+|------------|--------|-------------|
+| Flow State | +5 ANY stat | Everything clicks |
+| The Perfect Meal | +5 ANY stat | Made by someone who cares |
+| Survival Rations | +3 ALL stats (3 events) | MREs from 1998 |
+
+### 2.6 Career Milestones & Achievements
 
 ### 2.5 Career Milestones & Achievements
 

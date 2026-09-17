@@ -1,6 +1,45 @@
 // UI Rendering
 const UI = {
   currentScreen: 'title',
+  
+  // Render a single consumable/selectable item
+  renderConsumableItem(item, datasetAttrs) {
+    const element = document.createElement('div');
+    element.className = 'consumable-select-item';
+    
+    // Add custom dataset attributes
+    if (datasetAttrs) {
+      Object.entries(datasetAttrs).forEach(([key, value]) => {
+        element.dataset[key] = value;
+      });
+    }
+    
+    const statInfo = UI.formatConsumableStat(item);
+    
+    element.innerHTML = `
+      <span class="cs-emoji">${item.emoji}</span>
+      <div class="cs-details">
+        <div class="cs-name">${item.name}</div>
+        <div class="cs-effect">${statInfo}</div>
+        <div class="cs-desc">${item.desc}</div>
+        <div class="cs-rarity ${item.rarity}">${item.rarity}</div>
+      </div>
+    `;
+    
+    return element;
+  },
+  
+  // Format stat info for consumable display
+  formatConsumableStat(item) {
+    if (item.multiplier) {
+      return `<span class="cs-multiplier" style="color: var(--accent-yellow)">${item.multiplier > 1 ? item.multiplier + '× stat' : Math.abs(item.multiplier) * 100 + '% stat'}</span>`;
+    }
+    if (item.stat === 'any') {
+      return `<span class="cs-stat-any" style="color: var(--accent-green)">+${item.bonus} to ANY stat</span>`;
+    }
+    const statName = STAT_META[item.stat]?.name || item.stat;
+    return `<span class="cs-stat" style="color: ${STAT_META[item.stat]?.color || '#fff'}">+${item.bonus} ${statName}</span>`;
+  },
   _presetToggleHandler: null,
   _presetCloseHandler: null,
   _descToggleHandler: null,
@@ -699,37 +738,14 @@ const UI = {
     optionsLabel.style.cssText = 'font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-green); margin-bottom: var(--spacing-sm); text-transform: uppercase;';
     container.appendChild(optionsLabel);
     
-    options.forEach((item, i) => {
-      const el = document.createElement('div');
-      el.className = 'consumable-select-item';
-      el.dataset.id = item.id;
-      
-      // Build stat info display
-      let statInfo = '';
-      if (item.multiplier) {
-        statInfo = `<span class="cs-multiplier" style="color: var(--accent-yellow)">${item.multiplier > 1 ? item.multiplier + '× stat' : Math.abs(item.multiplier) * 100 + '% stat'}</span>`;
-      } else if (item.stat === 'any') {
-        statInfo = `<span class="cs-stat-any" style="color: var(--accent-green)">+${item.bonus} to ANY stat</span>`;
-      } else {
-        const statName = STAT_META[item.stat]?.name || item.stat;
-        statInfo = `<span class="cs-stat" style="color: ${STAT_META[item.stat]?.color || '#fff'}">+${item.bonus} ${statName}</span>`;
-      }
-      
-      el.innerHTML = `
-        <span class="cs-emoji">${item.emoji}</span>
-        <div class="cs-details">
-          <div class="cs-name">${item.name}</div>
-          <div class="cs-effect">${statInfo}</div>
-          <div class="cs-desc">${item.desc}</div>
-          <div class="cs-rarity ${item.rarity}">${item.rarity}</div>
-        </div>
-      `;
-      el.addEventListener('click', () => {
+    options.forEach((newConsumable) => {
+      const itemElement = UI.renderConsumableItem(newConsumable, { id: newConsumable.id });
+      itemElement.addEventListener('click', () => {
         container.querySelectorAll('.consumable-select-item').forEach(s => s.classList.remove('selected'));
-        el.classList.add('selected');
+        itemElement.classList.add('selected');
         document.getElementById('btn-continue-levelup').disabled = false;
       });
-      container.appendChild(el);
+      container.appendChild(itemElement);
     });
     
     // If inventory is full, show current consumables for swapping
@@ -741,36 +757,14 @@ const UI = {
       currentLabel.style.cssText = 'font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-yellow); margin-top: var(--spacing-lg); margin-bottom: var(--spacing-sm); text-transform: uppercase;';
       container.appendChild(currentLabel);
       
-      Game.state.consumables.forEach((cons, i) => {
-        const el = document.createElement('div');
-        el.className = 'consumable-select-item';
-        el.dataset.replaceIndex = i;
-        
-        let statInfo = '';
-        if (cons.multiplier) {
-          statInfo = `<span class="cs-multiplier" style="color: var(--accent-yellow)">${cons.multiplier > 1 ? cons.multiplier + '× stat' : Math.abs(cons.multiplier) * 100 + '% stat'}</span>`;
-        } else if (cons.stat === 'any') {
-          statInfo = `<span class="cs-stat-any" style="color: var(--accent-green)">+${cons.bonus} to ANY stat</span>`;
-        } else {
-          const statName = STAT_META[cons.stat]?.name || cons.stat;
-          statInfo = `<span class="cs-stat" style="color: ${STAT_META[cons.stat]?.color || '#fff'}">+${cons.bonus} ${statName}</span>`;
-        }
-        
-        el.innerHTML = `
-          <span class="cs-emoji">${cons.emoji}</span>
-          <div class="cs-details">
-            <div class="cs-name">${cons.name}</div>
-            <div class="cs-effect">${statInfo}</div>
-            <div class="cs-desc">${cons.desc}</div>
-          </div>
-        `;
-        el.addEventListener('click', () => {
-          // Deselect all replace options
+      Game.state.consumables.forEach((currentConsumable, inventoryIndex) => {
+        const itemElement = UI.renderConsumableItem(currentConsumable, { replaceIndex: inventoryIndex });
+        itemElement.addEventListener('click', () => {
           container.querySelectorAll('[data-replace-index]').forEach(s => s.classList.remove('selected'));
-          el.classList.add('selected');
-          selectedIndex = i;
+          itemElement.classList.add('selected');
+          selectedIndex = inventoryIndex;
         });
-        container.appendChild(el);
+        container.appendChild(itemElement);
       });
     }
     

@@ -18,7 +18,7 @@ Will you reach retirement, or will your career end in burnout?
 3. **Navigate your career** — Make decisions at each event, pass stat checks, survive
 4. **Climb the ladder** — Progress through 4 career phases:
    - **Junior Developer** → **Mid-Level Developer** → **Senior Developer** → **Staff/Principal**
-5. **Retire or die trying** — Complete all phases to win, or fall victim to burnout, imposter syndrome, or skill obsolescence
+5. **Retire or die trying** — Complete all phases to win, or fall victim to burnout, imposter syndrome, skill obsolescence, or redundancy
 
 ### Controls
 
@@ -48,13 +48,13 @@ Will you reach retirement, or will your career end in burnout?
 
 - **Procedural Events** — Hundreds of satirical tech scenarios: production incidents, code reviews, sprint planning, architecture debates, and more
 
-- **Items & Equipment** — Collect passive stat bonuses from Mechanical Keyboards to Custom Ergonomic Chairs
+- **Items & Equipment** — Collect passive stat bonuses from Mechanical Keyboards to Custom Ergonomic Chairs. Max 1 equipped at a time.
 
-- **Consumables** — One-time stat boosts like Coffee, Flow State, and risky AI tools (Copilot, Code Generator)
+- **Consumables** — One-time stat boosts for a single event. Max 2 in inventory. Includes food, drinks, and risky AI tools.
 
 - **Permadeath** — Each run is a new career. Game over means starting fresh.
 
-- **Meta Progression** — Carry consumables between runs, unlock new archetypes
+- **Meta Progression** — Carry consumables and equipment between runs, unlock new archetypes
 
 - **Mobile-First Design** — Works great on phones, tablets, and desktops
 
@@ -64,22 +64,50 @@ Will you reach retirement, or will your career end in burnout?
 
 ## 🧪 Consumables
 
-Consumables are one-time items that boost a stat for a single check. You can hold **max 2** in your inventory.
+Consumables are one-time items that boost a stat for a single event check. You can hold **max 2** in your inventory. Earned on level up — pick from 3 options.
 
-| Consumable | Emoji | Effect | Rarity |
-|------------|-------|--------|--------|
-| Vitamin Pill | 💊 | +1 Endurance | Common |
-| Coffee | ☕ | +2 Endurance | Common |
-| Energy Drink | 🥤 | +2 Agility | Common |
-| Red Bull | 🐂 | +3 Endurance | Common |
-| Focus Session | 🧘 | +3 Perception | Uncommon |
-| Whiteboard Session | 📋 | +3 Intelligence | Uncommon |
-| Pair Programming | 👥 | +3 Charisma | Uncommon |
-| Deep Work Block | 🎯 | +4 Strength | Rare |
-| Lucky Socks | 🧦 | +4 Luck | Rare |
-| Flow State | ⚡ | +5 to ANY stat | Epic |
-| AI Copilot | 🤖 | 1.5× stat (risky!) | Uncommon |
-| AI Code Generator | 🧠 | 2× stat (very risky!) | Rare |
+### Common
+| Consumable | Emoji | Effect | Description |
+|------------|-------|--------|-------------|
+| Vitamin Pill | 💊 | +1 Endurance | Tastes like regret |
+| Coffee | ☕ | +2 Endurance | The developer's blood |
+| Energy Drink | 🥤 | +2 Agility | Squeeze, swallow, ship |
+| Red Bull | 🐂 | +3 Endurance | Gives you wings (and jitters) |
+| Instant Noodles | 🍜 | +2 Endurance | 3 minutes to survival |
+| Energy Gel | 🧴 | +2 Agility | Sprint fuel of champions |
+| Protein Bar | 🍫 | +1 Endurance | Tastes like cardboard |
+| Cold Pizza | 🍕 | +2 Charisma | Universal developer currency |
+
+### Uncommon
+| Consumable | Emoji | Effect | Description |
+|------------|-------|--------|-------------|
+| Focus Session | 🧘 | +3 Perception | See the bugs before they see you |
+| Whiteboard Session | 📋 | +3 Intelligence | Architecture clarity |
+| Pair Programming | 👥 | +3 Charisma | Two brains, one PR |
+| Espresso Shot | ☕ | +3 Perception | One shot. Pure clarity. |
+| Matcha Latte | 🍵 | +3 Intelligence | Zen focus |
+| Dark Chocolate | 🍫 | +2 Charisma | Share with the team |
+| Pre-Workout | 💪 | +3 Agility, +1 Endurance | Jitters guaranteed |
+| AI Copilot | 🤖 | 1.5× stat (risky!) | 70% chance it works |
+| Red Bull + Espresso | ⚡ | 1.5× stat (risky!) | Heart rate: 180 |
+
+### Rare
+| Consumable | Emoji | Effect | Description |
+|------------|-------|--------|-------------|
+| Deep Work Block | 🎯 | +4 Strength | Brute force the codebase |
+| Lucky Socks | 🧦 | +4 Luck | First-deploy success |
+| Caffeine IV Drip | 💉 | +4 Strength, +3 Endurance | Talking to the server |
+| Ghost Pepper Hot Sauce | 🌶️ | +4 Agility, -1 Endurance | Fire in your veins |
+| Truffle Pasta | 🍝 | +3 Charisma, +2 Luck | The PM actually enjoyed it |
+| AI Code Generator | 🧠 | 2× stat (very risky!) | Green screen of death |
+| Monster Energy | 👹 | 2× stat (very risky!) | Either you ship or you don't wake up |
+
+### Epic
+| Consumable | Emoji | Effect | Description |
+|------------|-------|--------|-------------|
+| Flow State | ⚡ | +5 to ANY stat | Everything clicks |
+| The Perfect Meal | 🍱 | +5 to ANY stat | Made by someone who cares |
+| Survival Rations | 🎒 | +3 ALL stats (3 events) | MREs from 1998 |
 
 ---
 
@@ -146,6 +174,7 @@ npx serve .
 | 💀 **Burnout** | Endurance drops to 0 |
 | 💀 **Imposter Syndrome** | Charisma drops too low |
 | 💀 **Skill Obsolescence** | Intelligence too low after 365 days |
+| 💀 **Made Redundant** | Low Charisma in mid/late career + bad luck |
 
 ---
 

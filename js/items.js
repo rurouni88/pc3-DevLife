@@ -23,20 +23,44 @@ const EQUIPMENT = [
 
 // Consumables — one-time use items that boost a specific stat for a check
 const CONSUMABLES = [
+  // Common — food & substances
   { id: 'coffee', name: 'Coffee', emoji: '☕', rarity: 'common', stat: 'E', bonus: 2, desc: '+2 Endurance on next check' },
   { id: 'energy_drink', name: 'Energy Drink', emoji: '🥤', rarity: 'common', stat: 'A', bonus: 2, desc: '+2 Agility on next check' },
   { id: 'redbull', name: 'Red Bull', emoji: '🐂', rarity: 'common', stat: 'E', bonus: 3, desc: '+3 Endurance on next check' },
   { id: 'vitamin', name: 'Vitamin Pill', emoji: '💊', rarity: 'common', stat: 'E', bonus: 1, desc: '+1 Endurance on next check' },
+  { id: 'instant_noodles', name: 'Instant Noodles', emoji: '🍜', rarity: 'common', stat: 'E', bonus: 2, desc: '+2 Endurance — 3 minutes to survival. 3 hours to regret.' },
+  { id: 'energy_gel', name: 'Energy Gel', emoji: '🧴', rarity: 'common', stat: 'A', bonus: 2, desc: '+2 Agility — Squeeze, swallow, ship.' },
+  { id: 'protein_bar', name: 'Protein Bar', emoji: '🍫', rarity: 'common', stat: 'E', bonus: 1, desc: '+1 Endurance — Tastes like cardboard. Works like magic.' },
+  { id: 'cold_pizza', name: 'Cold Pizza', emoji: '🍕', rarity: 'common', stat: 'C', bonus: 2, desc: '+2 Charisma — The universal developer currency.' },
+  
+  // Uncommon — food & substances
   { id: 'focus', name: 'Focus Session', emoji: '🧘', rarity: 'uncommon', stat: 'P', bonus: 3, desc: '+3 Perception on next check' },
   { id: 'whiteboard', name: 'Whiteboard Session', emoji: '📋', rarity: 'uncommon', stat: 'I', bonus: 3, desc: '+3 Intelligence on next check' },
   { id: 'pair_program', name: 'Pair Programming', emoji: '👥', rarity: 'uncommon', stat: 'C', bonus: 3, desc: '+3 Charisma on next check' },
+  { id: 'espresso', name: 'Espresso Shot', emoji: '☕', rarity: 'uncommon', stat: 'P', bonus: 3, desc: '+3 Perception — One shot. Pure clarity. The bug will reveal itself.' },
+  { id: 'matcha', name: 'Matcha Latte', emoji: '🍵', rarity: 'uncommon', stat: 'I', bonus: 3, desc: '+3 Intelligence — Zen focus for when you need to architect the impossible.' },
+  { id: 'dark_chocolate', name: 'Dark Chocolate', emoji: '🍫', rarity: 'uncommon', stat: 'C', bonus: 2, desc: '+2 Charisma — Share with the team. They\'ll forgive you for the merge conflict.' },
+  { id: 'pre_workout', name: 'Pre-Workout', emoji: '💪', rarity: 'uncommon', stat: 'A', bonus: 3, desc: '+3 Agility, +1 Endurance — Jitters guaranteed. Shipping accelerated.' },
+  
+  // Rare — food & substances
   { id: 'deep_work', name: 'Deep Work Block', emoji: '🎯', rarity: 'rare', stat: 'S', bonus: 4, desc: '+4 Strength on next check' },
   { id: 'lucky_charm', name: 'Lucky Socks', emoji: '🧦', rarity: 'rare', stat: 'L', bonus: 4, desc: '+4 Luck on next check' },
+  { id: 'caffeine_iv', name: 'Caffeine IV Drip', emoji: '💉', rarity: 'rare', stat: 'S', bonus: 4, desc: '+4 Strength, +3 Endurance — For when coffee just isn\'t cutting it anymore.' },
+  { id: 'ghost_pepper', name: 'Ghost Pepper Hot Sauce', emoji: '🌶️', rarity: 'rare', stat: 'A', bonus: 4, desc: '+4 Agility, -1 Endurance — Fire in your veins. Fire in your gut. Code so fast it burns.' },
+  { id: 'truffle_pasta', name: 'Truffle Pasta', emoji: '🍝', rarity: 'rare', stat: 'C', bonus: 3, desc: '+3 Charisma, +2 Luck — The PM actually enjoyed it. Miracles happen.' },
+  
+  // Epic — food & substances
   { id: 'flow_state', name: 'Flow State', emoji: '⚡', rarity: 'epic', stat: 'any', bonus: 5, desc: '+5 to ANY stat on next check' },
+  { id: 'perfect_meal', name: 'The Perfect Meal', emoji: '🍱', rarity: 'epic', stat: 'any', bonus: 5, desc: '+5 to ANY stat — Home-cooked. Made by someone who cares. Everything clicks.' },
+  { id: 'survival_rations', name: 'Survival Rations', emoji: '🎒', rarity: 'epic', stat: 'any', bonus: 3, desc: '+3 ALL stats for 3 events — MREs from 1998. They taste like betrayal.' },
   
   // AI — risky multiplier
   { id: 'ai_copilot', name: 'AI Copilot', emoji: '🤖', rarity: 'uncommon', stat: 'any', bonus: 0, multiplier: 1.5, desc: '1.5× your stat... or does it?' },
-  { id: 'ai_codegen', name: 'AI Code Generator', emoji: '🧠', rarity: 'rare', stat: 'any', bonus: 0, multiplier: 2, desc: '2× your stat... probably' }
+  { id: 'ai_codegen', name: 'AI Code Generator', emoji: '🧠', rarity: 'rare', stat: 'any', bonus: 0, multiplier: 2, desc: '2× your stat... probably' },
+  
+  // Substances — risky multipliers
+  { id: 'red_bull_espresso', name: 'Red Bull + Espresso', emoji: '⚡', rarity: 'uncommon', stat: 'any', bonus: 0, multiplier: 1.5, desc: '1.5× your stat — The double shot of doom. Heart rate: 180. Code quality: TBD.' },
+  { id: 'monster_energy', name: 'Monster Energy', emoji: '👹', rarity: 'rare', stat: 'any', bonus: 0, multiplier: 2, desc: '2× your stat — Green liquid. Green screen of death. Either you ship or you don\'t wake up.' }
 ];
 
 const RARITY_WEIGHTS = {

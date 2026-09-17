@@ -74,82 +74,40 @@ const Game = {
   },
   
   // Process an event choice
-  processChoice(event, choiceIndex) {
-    const eventDef = EVENTS.find(e => e.id === event.id);
+  processChoice(gameEvent, choiceIndex) {
+    const eventDef = EVENTS.find(e => e.id === gameEvent.id);
     if (!eventDef) return { error: 'Event not found' };
     
     const choice = eventDef.choices[choiceIndex];
     if (!choice) return { error: 'Invalid choice' };
     
-    // Perform stat checks
-    let allSuccess = true;
-    const checkResults = [];
+    // Resolve stat checks and apply consequences
+    const checkResult = this.resolveStatChecks(choice);
     
-    if (choice.checks) {
-      for (const [stat, target] of Object.entries(choice.checks)) {
-        const effective = SpecialSystem.effective(stat);
-        const roll = Math.floor(Math.random() * 20) + 1;
-        const success = roll <= target && effective >= target * 0.5; // Need both roll AND stat
-        
-        checkResults.push({ stat, roll, target, effective, success });
-        if (!success) allSuccess = false;
-      }
-    }
+    // Apply stat effects and log the outcome
+    const effects = checkResult.allSuccess ? choice.success.effects : choice.failure.effects;
+    const log = checkResult.allSuccess ? choice.success.log : choice.failure.log;
+    this.applyEffects(effects);
     
-    // Clear any temporary bonuses (consumables) after check
-    SpecialSystem.clearTempBonuses();
-    
-    // Apply effects
-    const effects = allSuccess ? choice.success.effects : choice.failure.effects;
-    const log = allSuccess ? choice.success.log : choice.failure.log;
-    
-    for (const [stat, value] of Object.entries(effects)) {
-      if (SpecialSystem.stats[stat] !== undefined) {
-        SpecialSystem.stats[stat] = Math.max(1, Math.min(10, SpecialSystem.stats[stat] + value));
-      }
-    }
-    
-    // Random item drop (15% chance on success, max 1 in inventory)
-    let itemDropped = null;
-    if (allSuccess && Math.random() < 0.15) {
-      itemDropped = getRandomEquipment();
-      if (this.state.equipment.length >= 1) {
-        // Inventory full — set pending for choice screen
-        this.state.pendingEquipmentDrop = { ...itemDropped };
-      } else {
-        // Add to inventory
-        this.state.equipment.push({
-          id: itemDropped.id,
-          name: itemDropped.name,
-          emoji: itemDropped.emoji,
-          effects: itemDropped.effects
-        });
-        SpecialSystem.addEquipment(itemDropped.emoji, itemDropped.effects);
-      }
-    }
+    // Award loot if successful
+    const itemDropped = this.checkForEquipmentDrop(checkResult.allSuccess);
     
     // Advance game state
     this.state.day += Math.floor(Math.random() * 5) + 3;
     this.state.eventsCompleted++;
-    this.state.currentEventId = event.id;
-    this.state.eventHistory.push(event.id);
+    this.state.currentEventId = gameEvent.id;
+    this.state.eventHistory.push(gameEvent.id);
     this.addLog(log);
     
-    // Check for phase completion (fixed events per phase, not tied to level)
-    const phaseComplete = this.state.phase < 4 && this.state.eventsCompleted > 0 && this.state.eventsCompleted % this.state.eventsPerPhase === 0;
-    
-    // Check for level up
+    // Check progression milestones
+    const phaseComplete = this.checkPhaseCompletion();
     const leveledUp = this.checkLevelUp();
-    
-    // Check for game over conditions
     const gameOver = this.checkGameOver();
-    
-    // Check for victory (all 4 phases complete = 20 events)
-    const victory = this.state.eventsCompleted >= 20;
+    const victory = this.checkVictory();
     
     return {
-      success: allSuccess,
-      checkResults,
+      success: checkResult.allSuccess,
+      checkResults: checkResult.results,
       effects,
       log,
       itemDropped,
@@ -161,33 +119,99 @@ const Game = {
     };
   },
   
+  // Resolve stat checks for a choice
+  resolveStatChecks(choice) {
+    const results = [];
+    let allSuccess = true;
+    
+    if (choice.checks) {
+      for (const [stat, target] of Object.entries(choice.checks)) {
+        const effective = SpecialSystem.effective(stat);
+        const roll = Math.floor(Math.random() * 20) + 1;
+        const success = roll <= target && effective >= target * 0.5;
+        
+        results.push({ stat, roll, target, effective, success });
+        if (!success) allSuccess = false;
+      }
+    }
+    
+    // Consumable bonuses are one-time — clear after stat check resolves
+    SpecialSystem.clearTempBonuses();
+    
+    return { allSuccess, results };
+  },
+  
+  // Apply stat effects from choice outcome
+  applyEffects(effects) {
+    for (const [stat, value] of Object.entries(effects)) {
+      if (SpecialSystem.stats[stat] !== undefined) {
+        SpecialSystem.stats[stat] = Math.max(1, Math.min(10, SpecialSystem.stats[stat] + value));
+      }
+    }
+  },
+  
+  // Check for equipment drop and handle inventory
+  checkForEquipmentDrop(isSuccess) {
+    if (!isSuccess || Math.random() >= 0.15) {
+      return null;
+    }
+    
+    const droppedItem = getRandomEquipment();
+    
+    if (this.state.equipment.length >= 1) {
+      // Inventory full — flag for player choice
+      this.state.pendingEquipmentDrop = { ...droppedItem };
+      return null;
+    }
+    
+    // Add to inventory and apply bonuses
+    this.state.equipment.push({
+      id: droppedItem.id,
+      name: droppedItem.name,
+      emoji: droppedItem.emoji,
+      effects: droppedItem.effects
+    });
+    SpecialSystem.addEquipment(droppedItem.emoji, droppedItem.effects);
+    
+    return droppedItem;
+  },
+  
+  // Check if career phase is complete
+  checkPhaseCompletion() {
+    return this.state.phase < 4 && 
+           this.state.eventsCompleted > 0 && 
+           this.state.eventsCompleted % this.state.eventsPerPhase === 0;
+  },
+  
+  // Check if player has reached victory condition
+  checkVictory() {
+    return this.state.eventsCompleted >= 20;
+  },
+  
   // Check game over conditions
   checkGameOver() {
-    const s = this.state;
-    const sp = SpecialSystem;
+    const careerState = this.state;
+    const stats = SpecialSystem.stats;
     
-    // Burnout
-    if (sp.stats.E <= 0) {
+    if (stats.E <= 0) {
       this.addLog('Burnout! You collapsed from exhaustion.');
       return { reason: '💀 Burnout — Your body and mind gave out. Too many late nights and unsustainable pace.' };
     }
     
-    // Imposter syndrome
-    if (sp.stats.C <= 0) {
+    if (stats.C <= 0) {
       this.addLog('Imposter syndrome overwhelmed you.');
       return { reason: '💀 Imposter Syndrome — You can\'t function in the industry anymore. The self-doubt was too much.' };
     }
     
-    // Skill obsolescence
-    if (sp.stats.I <= 0 && s.day > 365) {
+    if (stats.I <= 0 && careerState.day > 365) {
       this.addLog('Your skills became obsolete.');
       return { reason: '💀 Skill Obsolescence — You couldn\'t adapt. The industry moved on without you.' };
     }
     
-    // Made redundant — low Charisma + mid/late career + bad luck
-    if (s.phase >= 3 && sp.stats.C <= 2 && s.day > 400) {
+    // Redundancy risk scales with low Charisma in mid/late career
+    if (careerState.phase >= 3 && stats.C <= 2 && careerState.day > 400) {
       const redundancyRoll = Math.random();
-      const risk = (3 - sp.stats.C) * 0.15; // Higher charisma = lower risk
+      const risk = (3 - stats.C) * 0.15;
       if (redundancyRoll < risk) {
         this.addLog('You\'ve been made redundant.');
         return { reason: '💀 Made Redundant — Low visibility, weak relationships, and the axe fell. The severance package was... adequate.' };
@@ -255,15 +279,14 @@ const Game = {
 
 // Consumable management
 const ConsumableManager = {
-  // Use a consumable — returns the effect or null if not found
-  use(id) {
-    const idx = Game.state.consumables.findIndex(c => c.id === id);
-    if (idx === -1) return null;
+  use(consumableId) {
+    const inventoryIndex = Game.state.consumables.findIndex(c => c.id === consumableId);
+    if (inventoryIndex === -1) return null;
     
-    const consumable = Game.state.consumables[idx];
-    Game.state.consumables.splice(idx, 1);
+    const consumable = Game.state.consumables[inventoryIndex];
+    Game.state.consumables.splice(inventoryIndex, 1);
     
-    const result = {
+    const effect = {
       id: consumable.id,
       name: consumable.name,
       emoji: consumable.emoji,
@@ -271,37 +294,31 @@ const ConsumableManager = {
       bonus: consumable.bonus
     };
     
-    // Handle AI multiplier consumables
     if (consumable.multiplier !== undefined) {
-      // AI always has a chance to backfire
+      // AI tools have 30% chance to backfire
       const roll = Math.random();
-      const isGood = roll > 0.3; // 70% chance it works, 30% it backfires
-      
-      if (isGood) {
-        result.multiplier = consumable.multiplier;
-        result.effective = `+${Math.round((consumable.multiplier - 1) * 100)}% stat multiplier`;
-        result.backfired = false;
+      if (roll > 0.3) {
+        effect.multiplier = consumable.multiplier;
+        effect.effective = `+${Math.round((consumable.multiplier - 1) * 100)}% stat multiplier`;
+        effect.backfired = false;
       } else {
-        result.multiplier = -0.5; // AI makes it worse
-        result.effective = 'AI backfired! -50% stat';
-        result.backfired = true;
+        effect.multiplier = -0.5;
+        effect.effective = 'AI backfired! -50% stat';
+        effect.backfired = true;
       }
     }
     
-    return result;
+    return effect;
   },
   
-  // Get count of specific consumable
-  count(id) {
-    return Game.state.consumables.filter(c => c.id === id).length;
+  count(consumableId) {
+    return Game.state.consumables.filter(c => c.id === consumableId).length;
   },
   
-  // Check if player has any consumables
   hasAny() {
     return Game.state.consumables.length > 0;
   },
   
-  // Get 3 random consumables for end-of-run selection
   getEndOfRunOptions() {
     return get3RandomConsumables();
   }
