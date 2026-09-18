@@ -202,10 +202,22 @@ END
 ```
 
 ### Game Over Conditions
-- **Burnout:** Endurance drops to 0 (from events)
-- **Terminated:** Failed too many critical checks in a row
-- **Imposter Syndrome:** Charisma drops too low (can't function in the industry)
-- **Skill Obsolescence:** Intelligence too low, can't learn new tech
+
+**Stat Collapse** — stats are clamped to a floor of **1** (range 1–10). If a stat drops to its floor, the run ends:
+
+| Stat | Condition | Ending |
+|------|-----------|--------|
+| **S**trength | S ≤ 1 | 💀 Technical Collapse |
+| **P**erception | P ≤ 1 | 💀 Lost in the Stack |
+| **E**ndurance | E ≤ 1 | 💀 Burnout |
+| **C**harisma | C ≤ 1 | 💀 Imposter Syndrome |
+| **I**ntelligence | I ≤ 1 *and day > 365* | 💀 Skill Obsolescence |
+| **A**gility | A ≤ 1 | 💀 Velocity Zero |
+| **L**uck | L ≤ 1 | 💀 Bad Luck Runs Out |
+
+**Made Redundant** — from Phase 3, if Charisma ≤ 2 past day 400, a scaled risk roll can get you axed.
+
+**Terminated** *(planned — not yet implemented)* — fail a threshold number of events in a row and face a 50/50 roll; lose it and you're fired. The allowed failure streak shrinks with seniority: Phase 1 = 5, Phase 2 = 4, Phase 3+ = 3.
 
 ### Victory Condition
 Reach **Retirement** (complete all Career Phases) OR achieve a personal goal.

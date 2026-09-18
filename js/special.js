@@ -84,7 +84,7 @@ const SpecialSystem = {
   // stat: which SPECIAL stat to use
   check(stat, target) {
     const effective = this.effective(stat);
-    const roll = Math.floor(Math.random() * 20) + 1;
+    const roll = d20();
     const success = roll <= target;
     return { roll, target: effective, success, stat };
   },
