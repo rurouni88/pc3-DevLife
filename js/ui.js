@@ -593,10 +593,18 @@ const UI = {
     
     container.innerHTML = '';
     equipment.forEach(item => {
+      const effectText = Object.entries(item.effects).map(([k,v]) => `+${v} ${STAT_META[k].name}`).join(', ');
       const el = document.createElement('span');
       el.className = 'equip-item';
-      el.setAttribute('tabindex', '0');
-      el.innerHTML = `${item.emoji}<span class="tooltip">${item.name}: ${Object.entries(item.effects).map(([k,v]) => `+${v} ${STAT_META[k].name}`).join(', ')}</span>`;
+      el.dataset.tooltip = `${item.name}: ${effectText}`;
+      el.innerHTML = `${item.emoji}`;
+      
+      // Mobile: tap to show full tooltip
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        UI.showTooltip(item);
+      });
+      
       container.appendChild(el);
     });
   },

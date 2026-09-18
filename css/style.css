@@ -1114,60 +1114,24 @@ body {
   display: inline-block;
 }
 
-.equip-item .tooltip {
-  display: none;
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  white-space: nowrap;
-  z-index: 1000;
-  color: var(--text-primary);
-  pointer-events: none;
-}
-
-/* Mobile: show name below emoji */
-@media (max-width: 768px) {
-  .equip-item .tooltip {
-    display: block;
-    position: static;
-    transform: none;
-    padding: 4px 0 0 0;
-    margin-top: 4px;
-    background: transparent;
-    border: none;
-    font-size: 0.65rem;
-    color: var(--text-secondary);
-    white-space: normal;
-    text-align: center;
-  }
-}
-
-.equip-item .tooltip::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 5px solid transparent;
-  border-top-color: var(--border-color);
-}
-
-.equip-item:hover .tooltip,
-.equip-item:focus .tooltip {
-  display: block;
-}
-
-/* Mobile: show tooltip on tap */
-@media (hover: none) and (pointer: coarse) {
-  .equip-item:active .tooltip {
-    display: block;
+/* Desktop: hover tooltip */
+@media (hover: hover) {
+  .equip-item:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    white-space: nowrap;
+    z-index: 1000;
+    color: var(--text-primary);
+    pointer-events: none;
   }
 }
 
