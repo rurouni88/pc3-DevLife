@@ -8,23 +8,30 @@ const App = {
   },
   
   bindEvents() {
+    // Safely bind a click handler; skip (with a warning) if the element
+    // is missing so one absent element can't break all later bindings.
+    const bind = (id, handler) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('click', handler);
+      } else {
+        console.warn(`[DevLife] bindEvents: #${id} not found, skipping binding`);
+      }
+    };
+    
     // Title screen
-    document.getElementById('btn-new-game').addEventListener('click', () => this.startNewGame());
-    document.getElementById('btn-continue').addEventListener('click', () => this.continueGame());
+    bind('btn-new-game', () => this.startNewGame());
+    bind('btn-continue', () => this.continueGame());
     
     // Character creation
-    document.getElementById('btn-back-char').addEventListener('click', () => UI.showScreen('title'));
-    document.getElementById('btn-start-career').addEventListener('click', () => this.startCareer());
+    bind('btn-back-char', () => UI.showScreen('title'));
+    bind('btn-start-career', () => this.startCareer());
     
     // Game screen - toolbar buttons
     document.querySelectorAll('.toolbar-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const panelName = btn.dataset.panel;
-        if (panelName === 'save') {
-          UI.openPopup('save');
-        } else {
-          UI.openPopup(panelName);
-        }
+        UI.openPopup(panelName);
       });
     });
     
@@ -34,39 +41,41 @@ const App = {
     });
     
     // Popup save confirm
-    document.getElementById('btn-popup-save-confirm').addEventListener('click', () => {
+    bind('btn-popup-save-confirm', () => {
       this.saveGame();
       UI.closePopup();
     });
     
     // Hamburger menu toggle (mobile)
-    document.getElementById('btn-menu-toggle-main').addEventListener('click', () => {
+    bind('btn-menu-toggle-main', () => {
       const panel = document.getElementById('side-panel');
       const toggleBtn = document.getElementById('btn-menu-toggle-main');
       const isOpen = panel.classList.contains('open');
       UI.togglePanel(!isOpen);
       toggleBtn.classList.toggle('open');
     });
-    document.getElementById('btn-menu-toggle').addEventListener('click', () => UI.togglePanel(true));
-    document.getElementById('btn-close-panel').addEventListener('click', () => {
+    bind('btn-menu-toggle', () => UI.togglePanel(true));
+    bind('btn-close-panel', () => {
       UI.closePanel();
-      document.getElementById('btn-menu-toggle-main').classList.remove('open');
+      const toggleBtn = document.getElementById('btn-menu-toggle-main');
+      if (toggleBtn) toggleBtn.classList.remove('open');
     });
-    document.getElementById('panel-overlay').addEventListener('click', () => {
+    bind('panel-overlay', () => {
       UI.closePanel();
-      document.getElementById('btn-menu-toggle-main').classList.remove('open');
+      const toggleBtn = document.getElementById('btn-menu-toggle-main');
+      if (toggleBtn) toggleBtn.classList.remove('open');
     });
-    document.getElementById('btn-save').addEventListener('click', () => UI.openPopup('save'));
+    bind('btn-save', () => UI.openPopup('save'));
     
     // Level up screen
-    document.getElementById('btn-continue-levelup').addEventListener('click', () => this.afterLevelUp());
+    bind('btn-continue-levelup', () => this.afterLevelUp());
     
     // Game over / Victory
-    document.getElementById('btn-new-career').addEventListener('click', () => this.startNewGame());
-    document.getElementById('btn-new-victory').addEventListener('click', () => this.startNewGame());
+    bind('btn-new-career', () => this.startNewGame());
+    bind('btn-new-victory', () => this.startNewGame());
     
     // End-of-run consumable selection
-    document.getElementById('btn-continue-gameover-cons').addEventListener('click', () => {
+    bind('btn-continue-gameover-cons', () => {
       const selected = document.querySelector('#gameover-cons-selection .consumable-select-item.selected');
       if (selected) {
         const id = selected.dataset.id;
@@ -74,7 +83,7 @@ const App = {
       }
     });
     
-    document.getElementById('btn-continue-victory-cons').addEventListener('click', () => {
+    bind('btn-continue-victory-cons', () => {
       const selected = document.querySelector('#victory-consumables .consumable-select-item.selected');
       if (selected) {
         const id = selected.dataset.id;
