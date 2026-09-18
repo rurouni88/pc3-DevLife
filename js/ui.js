@@ -240,6 +240,7 @@ const UI = {
   
   // Render character creation screen
   renderCharacterCreation() {
+    this._selectedPreset = null;
     const container = document.getElementById('stat-allocation');
     container.innerHTML = '';
     
@@ -287,9 +288,11 @@ const UI = {
         
         if (action === 'plus' && cur < 10 && total < STARTING_POINTS) {
           valueEl.textContent = cur + 1;
+          this._selectedPreset = null;
           this.updateCharCreationUI();
         } else if (action === 'minus' && cur > 1) {
           valueEl.textContent = cur - 1;
+          this._selectedPreset = null;
           this.updateCharCreationUI();
         }
       });
@@ -311,8 +314,9 @@ const UI = {
     if (this._presetToggleHandler) toggle.removeEventListener('click', this._presetToggleHandler);
     if (this._presetCloseHandler) document.removeEventListener('click', this._presetCloseHandler);
     
-    // Only the top 5 are unlocked by default
-    const UNLOCKED_KEYS = ['architect', 'startup', 'systems', 'advocate', 'balanced'];
+    // All archetypes are unlocked except Prototype King, which depends on the
+    // not-yet-implemented max-stat > 10 mechanic.
+    const UNLOCKED_KEYS = Object.keys(ARCHETYPES).filter(key => key !== 'prototype_king');
     
     Object.entries(ARCHETYPES).forEach(([key, arch]) => {
       const btn = document.createElement('button');
@@ -333,7 +337,7 @@ const UI = {
           <span class="preset-stats">${statStr}</span>
         `;
         btn.addEventListener('click', () => {
-          this.applyArchetypePreset(arch.stats);
+          this.applyArchetypePreset(arch.stats, arch);
           // Close dropdown and update toggle text
           container.classList.remove('open');
           toggle.classList.remove('open');
@@ -364,7 +368,7 @@ const UI = {
   },
   
   // Apply an archetype preset to the stat allocation
-  applyArchetypePreset(stats) {
+  applyArchetypePreset(stats, arch) {
     const container = document.getElementById('stat-allocation');
     const rows = container.querySelectorAll('.stat-row');
     
@@ -387,6 +391,9 @@ const UI = {
       currentStats[label] = parseInt(row.querySelector('.stat-value').textContent);
     });
     
+    // Remember which preset was chosen so the preview can show it directly
+    // (its stats may be too flat to classify uniquely).
+    this._selectedPreset = arch || null;
     this.updateCharCreationUI();
   },
   
@@ -485,23 +492,31 @@ const UI = {
     
     const preview = document.getElementById('archetype-preview');
     
-    // Determine archetype based on top 2 stats
-    const sorted = STAT_KEYS.sort((a, b) => currentStats[b] - currentStats[a]);
-    const top1 = sorted[0];
-    const top2 = sorted[1];
+    // If a preset was just selected, show that archetype directly. Some presets
+    // (e.g. Full-Stack Generalist) have stats too flat to classify uniquely, so
+    // the stats-based fallback below would mislabel them.
+    let archetype = this._selectedPreset || null;
     
-    let archetype = null;
+    if (!archetype) {
+      // Determine archetype based on top 2 stats.
+      // Sort a copy — Array.prototype.sort mutates in place, which would
+      // permanently reorder the shared global STAT_KEYS and make the
+      // tie-breaking (and thus the preview) depend on prior calls.
+      const sorted = [...STAT_KEYS].sort((a, b) => currentStats[b] - currentStats[a]);
+      const top1 = sorted[0];
+      const top2 = sorted[1];
     
-    if ((top1 === 'I' && top2 === 'C') || (top1 === 'C' && top2 === 'I')) archetype = ARCHETYPES.architect;
-    else if ((top1 === 'A' && top2 === 'E') || (top1 === 'E' && top2 === 'A')) archetype = ARCHETYPES.startup;
-    else if ((top1 === 'S' && top2 === 'P') || (top1 === 'P' && top2 === 'S')) archetype = ARCHETYPES.systems;
-    else if ((top1 === 'C' && top2 === 'A') || (top1 === 'A' && top2 === 'C')) archetype = ARCHETYPES.advocate;
-    else if ((top1 === 'P' && top2 === 'E') || (top1 === 'E' && top2 === 'P')) archetype = ARCHETYPES.sre;
-    else if ((top1 === 'P' && top2 === 'I') || (top1 === 'I' && top2 === 'P')) archetype = ARCHETYPES.pentester;
-    else if ((top1 === 'S' && top2 === 'E') || (top1 === 'E' && top2 === 'S')) archetype = ARCHETYPES.archeologist;
-    else if ((top1 === 'C' && top2 === 'E') || (top1 === 'E' && top2 === 'C')) archetype = ARCHETYPES.em;
-    else if ((top1 === 'A' && top2 === 'L') || (top1 === 'L' && top2 === 'A')) archetype = ARCHETYPES.prototype_king;
-    else archetype = ARCHETYPES.balanced;
+      if ((top1 === 'I' && top2 === 'C') || (top1 === 'C' && top2 === 'I')) archetype = ARCHETYPES.architect;
+      else if ((top1 === 'A' && top2 === 'E') || (top1 === 'E' && top2 === 'A')) archetype = ARCHETYPES.startup;
+      else if ((top1 === 'S' && top2 === 'P') || (top1 === 'P' && top2 === 'S')) archetype = ARCHETYPES.systems;
+      else if ((top1 === 'C' && top2 === 'A') || (top1 === 'A' && top2 === 'C')) archetype = ARCHETYPES.advocate;
+      else if ((top1 === 'P' && top2 === 'E') || (top1 === 'E' && top2 === 'P')) archetype = ARCHETYPES.sre;
+      else if ((top1 === 'P' && top2 === 'I') || (top1 === 'I' && top2 === 'P')) archetype = ARCHETYPES.pentester;
+      else if ((top1 === 'S' && top2 === 'E') || (top1 === 'E' && top2 === 'S')) archetype = ARCHETYPES.archeologist;
+      else if ((top1 === 'C' && top2 === 'E') || (top1 === 'E' && top2 === 'C')) archetype = ARCHETYPES.em;
+      else if ((top1 === 'A' && top2 === 'L') || (top1 === 'L' && top2 === 'A')) archetype = ARCHETYPES.prototype_king;
+      else archetype = ARCHETYPES.balanced;
+    }
     
     preview.innerHTML = `
       <div class="archetype-name">${archetype.name}</div>
@@ -916,7 +931,7 @@ const UI = {
       if (showEquipmentChoice) {
         UI.showEquipmentChoice(result.itemDropped, [...Game.state.equipment]);
       } else if (result.gameOver) {
-        this.showGameOver(result.reason);
+        this.showGameOver(result.gameOver.reason);
       } else if (result.victory) {
         this.showVictory();
       } else if (result.leveledUp) {
@@ -974,14 +989,8 @@ const UI = {
     this.renderEvent(event);
   },
   
-  // Show level up screen
+  // Show level up screen — stat selection first, then consumables if any
   showLevelUp() {
-    // Check if there are pending consumables for selection
-    if (Game.state.pendingLevelUpConsumables && Game.state.pendingLevelUpConsumables.length > 0) {
-      UI.showLevelUpConsumableSelection();
-      return;
-    }
-    
     UI.showLevelUpStats();
   },
   
@@ -1097,10 +1106,10 @@ const UI = {
       });
     }
     
-    // Bind skip button
+    // Bind skip button — skip consumable, finish level up
     document.getElementById('btn-skip-levelup').onclick = () => {
       Game.state.pendingLevelUpConsumables = null;
-      UI.showLevelUpStats();
+      App.afterLevelUp();
     };
     
     // Bind continue button
@@ -1127,8 +1136,8 @@ const UI = {
       // Clear pending consumables
       Game.state.pendingLevelUpConsumables = null;
       
-      // Show stat selection screen
-      UI.showLevelUpStats();
+      // Finish level up
+      App.afterLevelUp();
     };
   },
   
@@ -1171,8 +1180,14 @@ const UI = {
     
     document.getElementById('btn-continue-levelup').disabled = true;
     
-    // Bind continue button to App.afterLevelUp
-    document.getElementById('btn-continue-levelup').onclick = () => App.afterLevelUp();
+    // Bind continue button — show consumables first if pending, otherwise continue
+    document.getElementById('btn-continue-levelup').onclick = () => {
+      if (Game.state.pendingLevelUpConsumables && Game.state.pendingLevelUpConsumables.length > 0) {
+        UI.showLevelUpConsumableSelection();
+      } else {
+        App.afterLevelUp();
+      }
+    };
   },
   
   // Show game over screen

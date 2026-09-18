@@ -592,12 +592,12 @@ body {
 }
 
 .side-panel {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
+  bottom: 0;
   width: 300px;
   max-width: 80vw;
-  height: 100%;
   background: var(--bg-secondary);
   border-right: 1px solid var(--border-color);
   z-index: 100;
@@ -647,6 +647,116 @@ body {
   margin-bottom: var(--spacing-sm);
   text-transform: uppercase;
   letter-spacing: 1px;
+}
+
+/* --- Panel Info / About (collapsible) + footer --- */
+.panel-info-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-bottom: var(--spacing-sm);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.panel-info-toggle:active {
+  opacity: 0.7;
+}
+
+.panel-info-arrow {
+  display: inline-block;
+  transition: transform var(--transition-fast);
+}
+
+.panel-info-content {
+  display: none;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.panel-info-content.open {
+  display: flex;
+}
+
+.panel-info-content p {
+  margin: 0;
+}
+
+.panel-info-lead {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+}
+
+.panel-info-muted {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.info-block {
+  padding: var(--spacing-sm);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid;
+}
+
+.info-block h4 {
+  margin: 0 0 var(--spacing-xs);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.info-block p {
+  margin: 0;
+}
+
+.info-block ul {
+  margin: 0;
+  padding-left: 1.1em;
+}
+
+.info-block li {
+  margin-bottom: 2px;
+}
+
+.info-win {
+  border-left-color: var(--accent-green);
+}
+
+.info-win h4 {
+  color: var(--accent-green);
+}
+
+.info-lose {
+  border-left-color: var(--accent-red);
+}
+
+.info-lose h4 {
+  color: var(--accent-red);
+}
+
+.panel-footer {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
 }
 
 /* --- SPECIAL Stats Display --- */
@@ -1354,6 +1464,13 @@ body {
   margin: 0 auto;
 }
 
+@media (min-width: 900px) {
+  .event-container {
+    margin-left: 0;
+    max-width: 560px;
+  }
+}
+
 .event-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -1672,6 +1789,13 @@ body {
   
   .panel-overlay {
     display: none !important;
+  }
+  
+  .game-layout {
+    width: 280px;
+    min-width: 280px;
+    max-width: 280px;
+    flex: none;
   }
   
   .game-main {

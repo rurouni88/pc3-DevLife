@@ -34,25 +34,25 @@ const ARCHETYPES = {
   sre: {
     name: "The DevOps / SRE Specialist",
     description: "Incident response, on-call survival, production stability",
-    stats: { S: 4, P: 9, E: 9, C: 4, I: 5, A: 3, L: 4 },
+    stats: { S: 4, P: 9, E: 10, C: 4, I: 6, A: 3, L: 4 },
     colors: { S: '#ff6b6b', P: '#4fc3f7', E: '#81c784', C: '#ffab40', I: '#b388ff', A: '#ffd740', L: '#e040fb' }
   },
   pentester: {
     name: "The Cyber Security / Penetration Tester",
     description: "Exploit hunting, breaking things, finding anomalies",
-    stats: { S: 3, P: 9, E: 4, C: 3, I: 9, A: 4, L: 6 },
+    stats: { S: 3, P: 10, E: 4, C: 3, I: 10, A: 4, L: 6 },
     colors: { S: '#ff6b6b', P: '#4fc3f7', E: '#81c784', C: '#ffab40', I: '#b388ff', A: '#ffd740', L: '#e040fb' }
   },
   archeologist: {
     name: "The Legacy Code Archeologist",
     description: "Reading ancient codebases without burning out",
-    stats: { S: 8, P: 5, E: 9, C: 2, I: 7, A: 3, L: 4 },
+    stats: { S: 9, P: 5, E: 9, C: 2, I: 8, A: 3, L: 4 },
     colors: { S: '#ff6b6b', P: '#4fc3f7', E: '#81c784', C: '#ffab40', I: '#b388ff', A: '#ffd740', L: '#e040fb' }
   },
   em: {
     name: "The Engineering Manager",
     description: "People leadership, talent retention, org alignment",
-    stats: { S: 2, P: 5, E: 8, C: 9, I: 5, A: 4, L: 5 },
+    stats: { S: 2, P: 5, E: 9, C: 10, I: 5, A: 4, L: 5 },
     colors: { S: '#ff6b6b', P: '#4fc3f7', E: '#81c784', C: '#ffab40', I: '#b388ff', A: '#ffd740', L: '#e040fb' }
   },
   // Unlockable archetype
@@ -110,7 +110,7 @@ const STAT_META = {
   }
 };
 
-const STAT_KEYS = ['S', 'P', 'E', 'C', 'I', 'A', 'L'];
-const STARTING_POINTS = 40;
-const MIN_STAT = 1;
-const MAX_STAT = 10;
+const STAT_KEYS = CONFIG.stats.keys;
+const STARTING_POINTS = CONFIG.stats.startingPoints;
+const MIN_STAT = CONFIG.stats.min;
+const MAX_STAT = CONFIG.stats.max;

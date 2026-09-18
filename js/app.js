@@ -5,6 +5,7 @@ const App = {
     this.checkForSave();
     UI.initTooltipClose();
     UI.showScreen('title');
+    document.getElementById('version-badge').textContent = `v${CONFIG.version} ${CONFIG.versionLabel}`;
   },
   
   bindEvents() {
@@ -65,6 +66,22 @@ const App = {
       const toggleBtn = document.getElementById('btn-menu-toggle-main');
       if (toggleBtn) toggleBtn.classList.remove('open');
     });
+
+    // Collapsible Info / About sections in the side panel
+    const bindInfoToggle = (btnId, contentId, arrowId) => {
+      const btn = document.getElementById(btnId);
+      const content = document.getElementById(contentId);
+      const arrow = document.getElementById(arrowId);
+      if (!btn || !content) return;
+      btn.addEventListener('click', () => {
+        const open = content.classList.toggle('open');
+        if (arrow) arrow.textContent = open ? '▼' : '▶';
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+    };
+    bindInfoToggle('btn-toggle-info', 'info-content', 'info-arrow');
+    bindInfoToggle('btn-toggle-about', 'about-content', 'about-arrow');
+
     bind('btn-save', () => UI.openPopup('save'));
     
     // Level up screen

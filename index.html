@@ -21,7 +21,7 @@
           <button id="btn-new-game" class="btn btn-primary">New Career</button>
           <button id="btn-continue" class="btn btn-secondary" style="display:none;">Continue</button>
         </div>
-        <div class="version-badge">v0.17 Prototype</div>
+        <div class="version-badge" id="version-badge"></div>
       </div>
     </div>
 
@@ -111,6 +111,49 @@
           <div id="career-log" class="career-log">
             <div class="log-entry">Career started.</div>
           </div>
+        </div>
+
+        <!-- Info (collapsible): terminal conditions of a run -->
+        <div class="panel-section">
+          <button class="panel-info-toggle" id="btn-toggle-info" aria-expanded="false">
+            <span class="panel-info-arrow" id="info-arrow">▶</span> Info
+          </button>
+          <div class="panel-info-content" id="info-content">
+            <p class="panel-info-lead">Terminal conditions of a run</p>
+            <div class="info-block info-win">
+              <h4>🏆 Win — Retire</h4>
+              <p>Climb all four phases — Junior → Mid-Level → Senior → Staff/Principal — and defeat the final Staff/Principal boss to retire in style.</p>
+            </div>
+            <div class="info-block info-lose">
+              <h4>💀 Lose — Career Over</h4>
+              <p>If any SPECIAL stat drops to rock bottom, your career is over:</p>
+              <ul>
+                <li><strong>Strength</strong> — Technical Collapse</li>
+                <li><strong>Perception</strong> — Lost in the Stack</li>
+                <li><strong>Endurance</strong> — Burnout</li>
+                <li><strong>Charisma</strong> — Imposter Syndrome</li>
+                <li><strong>Intelligence</strong> — Skill Obsolescence (after year one)</li>
+                <li><strong>Agility</strong> — Velocity Zero</li>
+                <li><strong>Luck</strong> — Bad Luck Runs Out</li>
+              </ul>
+              <p>You can also be <strong>Made Redundant</strong> — low Charisma in a late career can get the axe to fall.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- About (collapsible) -->
+        <div class="panel-section">
+          <button class="panel-info-toggle" id="btn-toggle-about" aria-expanded="false">
+            <span class="panel-info-arrow" id="about-arrow">▶</span> About
+          </button>
+          <div class="panel-info-content" id="about-content">
+            <p><strong>DevLife</strong> is a software-engineering roguelike. Build your SPECIAL stats, survive the daily grind, and climb the career ladder — or burn out trying.</p>
+            <p class="panel-info-muted">v0.18 Prototype</p>
+          </div>
+        </div>
+
+        <div class="panel-footer">
+          <span>Copyright 2026 PC3 Enterprises</span>
         </div>
       </div>
       </div>
@@ -264,6 +307,8 @@
     <div class="tooltip-close">Tap anywhere to close</div>
   </div>
 
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
   <script src="js/events.js"></script>
   <script src="js/items.js"></script>
   <script src="js/archetypes.js"></script>

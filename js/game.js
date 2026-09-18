@@ -135,10 +135,10 @@ const Game = {
     if (choice.checks) {
       for (const [stat, target] of Object.entries(choice.checks)) {
         const effective = SpecialSystem.effective(stat);
-        const roll = Math.floor(Math.random() * 20) + 1;
-        // 💪 Brute Force: +2 to Strength check targets
+        const L = SpecialSystem.stats.L;
+        const roll = d20() - L;
         const checkTarget = PerkSystem.checkTarget(stat, target);
-        const success = roll <= checkTarget && effective >= target * 0.5;
+        const success = roll <= checkTarget && effective >= (target - L) * CONFIG.game.competenceGateFactor;
         
         results.push({ stat, roll, target: checkTarget, effective, success });
         if (!success) allSuccess = false;
@@ -167,7 +167,7 @@ const Game = {
       const adjusted = PerkSystem.transformEffect(stat, value);
       // 🧘 Iron Nerves: Endurance can never drop below 1
       const floor = PerkSystem.statFloor(stat);
-      SpecialSystem.stats[stat] = Math.max(floor, Math.min(MAX_STAT, SpecialSystem.stats[stat] + adjusted));
+      SpecialSystem.stats[stat] = Math.max(floor, Math.min(CONFIG.stats.max, SpecialSystem.stats[stat] + adjusted));
     }
     
     // Stat changes may unlock or revoke perks
@@ -195,7 +195,8 @@ const Game = {
   // Check for equipment drop and handle inventory
   checkForEquipmentDrop(isSuccess) {
     // 🍀 Clean Deploy: 25% drop chance (base 15%)
-    if (!isSuccess || Math.random() >= PerkSystem.dropChance()) {
+    const baseChance = Math.min(1, CONFIG.game.dropRate + SpecialSystem.stats.L * 0.03);
+    if (!isSuccess || Math.random() >= PerkSystem.dropChance(baseChance)) {
       return null;
     }
     
@@ -231,28 +232,65 @@ const Game = {
   
   // Check game over conditions
   checkGameOver() {
+    // Deterministic checks first; fall back to probabilistic ones only if
+    // no deterministic death fired.
+    return this._checkDeterministicGameOver() || this._checkProbabilisticGameOver();
+  },
+  
+  // Deterministic terminal conditions: a stat on its floor (1) would end the run,
+  // unless a saving roll (d20 vs LUCK + 0.5*CHARISMA) succeeds.
+  _checkDeterministicGameOver() {
     const careerState = this.state;
     const stats = SpecialSystem.stats;
     
-    if (stats.E <= 0) {
-      this.addLog('Burnout! You collapsed from exhaustion.');
-      return { reason: '💀 Burnout — Your body and mind gave out. Too many late nights and unsustainable pace.' };
+    // Find the first deterministic death condition met (order preserved).
+    let death = null;
+    if (stats.S <= 1) {
+      death = { log: 'Technical collapse! You could no longer carry the code.', reason: '💀 Technical Collapse — You couldn\'t keep up with the technical demands. The codebase won, and your career didn\'t survive the merge.' };
+    } else if (stats.P <= 1) {
+      death = { log: 'You lost the plot — the system became incomprehensible.', reason: '💀 Lost in the Stack — You could no longer understand the system. Every bug was a mystery and every review a guess, until there was nowhere left to debug to.' };
+    } else if (stats.E <= 1) {
+      death = { log: 'Burnout! You collapsed from exhaustion.', reason: '💀 Burnout — Your body and mind gave out. Too many late nights and unsustainable pace.' };
+    } else if (stats.C <= 1) {
+      death = { log: 'Imposter syndrome overwhelmed you.', reason: '💀 Imposter Syndrome — You can\'t function in the industry anymore. The self-doubt was too much.' };
+    } else if (stats.I <= 1 && careerState.day > CONFIG.game.deathThresholds.obsolescenceDay) {
+      death = { log: 'Your skills became obsolete.', reason: '💀 Skill Obsolescence — You couldn\'t adapt. The industry moved on without you.' };
+    } else if (stats.A <= 1) {
+      death = { log: 'Velocity hit zero — you could no longer ship.', reason: '💀 Velocity Zero — You couldn\'t deliver fast enough. Every sprint slipped and every deadline passed, and the team moved on without you.' };
+    } else if (stats.L <= 1) {
+      death = { log: 'Your luck ran out — everything you touched broke.', reason: '💀 Bad Luck Runs Out — Every deploy broke and every guess was wrong. The universe finally stopped favoring you.' };
     }
     
-    if (stats.C <= 0) {
-      this.addLog('Imposter syndrome overwhelmed you.');
-      return { reason: '💀 Imposter Syndrome — You can\'t function in the industry anymore. The self-doubt was too much.' };
+    // No stat on the floor — no deterministic death pending.
+    if (!death) return null;
+    
+    // Attempt the saving roll.
+    const target = stats.L + CONFIG.game.savingRollCharismaFactor * stats.C;
+    const roll = d20();
+    if (roll <= target) {
+      // Survived: claw every floored stat back up by 1. This also acts as the
+      // cooldown — no stat is on the floor again until one drops there.
+      for (const key of STAT_KEYS) {
+        if (stats[key] <= 1) stats[key] += 1;
+      }
+      this.addLog(`🎲 Saving roll: ${roll} vs ${target} — survived. Your luck and ability to bullsh*t keeps you around.`);
+      return null;
     }
     
-    if (stats.I <= 0 && careerState.day > 365) {
-      this.addLog('Your skills became obsolete.');
-      return { reason: '💀 Skill Obsolescence — You couldn\'t adapt. The industry moved on without you.' };
-    }
+    // Save failed: career over.
+    this.addLog(death.log);
+    return { reason: death.reason };
+  },
+  
+  // Probabilistic terminal conditions: chance-based deaths.
+  _checkProbabilisticGameOver() {
+    const careerState = this.state;
+    const stats = SpecialSystem.stats;
     
     // Redundancy risk scales with low Charisma in mid/late career
-    if (careerState.phase >= 3 && stats.C <= 2 && careerState.day > 400) {
+    if (careerState.phase >= CONFIG.game.redundancyPhase && stats.C <= 2 && careerState.day > CONFIG.game.deathThresholds.redundancyDay) {
       const redundancyRoll = Math.random();
-      const risk = (3 - stats.C) * 0.15;
+      const risk = (3 - stats.C) * CONFIG.game.redundancyRiskPerCharisma;
       if (redundancyRoll < risk) {
         this.addLog('You\'ve been made redundant.');
         return { reason: '💀 Made Redundant — Low visibility, weak relationships, and the axe fell. The severance package was... adequate.' };
