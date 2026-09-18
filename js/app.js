@@ -5,6 +5,7 @@ const App = {
     this.checkForSave();
     UI.initTooltipClose();
     UI.showScreen('title');
+    document.getElementById('version-badge').textContent = `v${CONFIG.version} ${CONFIG.versionLabel}`;
   },
   
   bindEvents() {

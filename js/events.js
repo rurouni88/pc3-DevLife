@@ -1,8 +1,8 @@
 // Events — loaded from per-phase JSON files
 // Source files: js/events/phase_*.json
 
-const EVENTS_PER_BOSS = 6;
-const BOSS_PREFIX = 'BOSS:';
+const EVENTS_PER_BOSS = CONFIG.game.eventsPerBoss;
+const BOSS_PREFIX = CONFIG.game.bossPrefix;
 
 const PHASE_FILES = {
   1: 'js/events/phase_junior.json',

@@ -136,7 +136,7 @@ const Game = {
         const effective = SpecialSystem.effective(stat);
         const L = SpecialSystem.stats.L;
         const roll = d20() - L;
-        const success = roll <= target && effective >= (target - L) * 0.5;
+        const success = roll <= target && effective >= (target - L) * CONFIG.game.competenceGateFactor;
         
         results.push({ stat, roll, target, effective, success });
         if (!success) allSuccess = false;
@@ -153,14 +153,14 @@ const Game = {
   applyEffects(effects) {
     for (const [stat, value] of Object.entries(effects)) {
       if (SpecialSystem.stats[stat] !== undefined) {
-        SpecialSystem.stats[stat] = Math.max(1, Math.min(10, SpecialSystem.stats[stat] + value));
+        SpecialSystem.stats[stat] = Math.max(CONFIG.stats.min, Math.min(CONFIG.stats.max, SpecialSystem.stats[stat] + value));
       }
     }
   },
   
   // Check for equipment drop and handle inventory
   checkForEquipmentDrop(isSuccess) {
-    if (!isSuccess || Math.random() >= 0.15) {
+    if (!isSuccess || Math.random() >= CONFIG.game.dropRate) {
       return null;
     }
     
@@ -217,7 +217,7 @@ const Game = {
       death = { log: 'Burnout! You collapsed from exhaustion.', reason: '💀 Burnout — Your body and mind gave out. Too many late nights and unsustainable pace.' };
     } else if (stats.C <= 1) {
       death = { log: 'Imposter syndrome overwhelmed you.', reason: '💀 Imposter Syndrome — You can\'t function in the industry anymore. The self-doubt was too much.' };
-    } else if (stats.I <= 1 && careerState.day > 365) {
+    } else if (stats.I <= 1 && careerState.day > CONFIG.game.deathThresholds.obsolescenceDay) {
       death = { log: 'Your skills became obsolete.', reason: '💀 Skill Obsolescence — You couldn\'t adapt. The industry moved on without you.' };
     } else if (stats.A <= 1) {
       death = { log: 'Velocity hit zero — you could no longer ship.', reason: '💀 Velocity Zero — You couldn\'t deliver fast enough. Every sprint slipped and every deadline passed, and the team moved on without you.' };
@@ -229,7 +229,7 @@ const Game = {
     if (!death) return null;
     
     // Attempt the saving roll.
-    const target = stats.L + 0.5 * stats.C;
+    const target = stats.L + CONFIG.game.savingRollCharismaFactor * stats.C;
     const roll = d20();
     if (roll <= target) {
       // Survived: claw every floored stat back up by 1. This also acts as the
@@ -252,9 +252,9 @@ const Game = {
     const stats = SpecialSystem.stats;
     
     // Redundancy risk scales with low Charisma in mid/late career
-    if (careerState.phase >= 3 && stats.C <= 2 && careerState.day > 400) {
+    if (careerState.phase >= CONFIG.game.redundancyPhase && stats.C <= 2 && careerState.day > CONFIG.game.deathThresholds.redundancyDay) {
       const redundancyRoll = Math.random();
-      const risk = (3 - stats.C) * 0.15;
+      const risk = (3 - stats.C) * CONFIG.game.redundancyRiskPerCharisma;
       if (redundancyRoll < risk) {
         this.addLog('You\'ve been made redundant.');
         return { reason: '💀 Made Redundant — Low visibility, weak relationships, and the axe fell. The severance package was... adequate.' };

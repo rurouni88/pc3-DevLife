@@ -110,7 +110,7 @@ const STAT_META = {
   }
 };
 
-const STAT_KEYS = ['S', 'P', 'E', 'C', 'I', 'A', 'L'];
-const STARTING_POINTS = 40;
-const MIN_STAT = 1;
-const MAX_STAT = 10;
+const STAT_KEYS = CONFIG.stats.keys;
+const STARTING_POINTS = CONFIG.stats.startingPoints;
+const MIN_STAT = CONFIG.stats.min;
+const MAX_STAT = CONFIG.stats.max;
