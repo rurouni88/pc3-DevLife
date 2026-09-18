@@ -48,12 +48,6 @@ const Game = {
       }
     }
     
-    // Unlock Prototype King after 3 careers
-    if (!meta.unlockedArchetypes) meta.unlockedArchetypes = [];
-    if (meta.totalRuns >= 3 && !meta.unlockedArchetypes.includes('prototype_king')) {
-      meta.unlockedArchetypes.push('prototype_king');
-    }
-    
     localStorage.setItem('devlife_meta', JSON.stringify(meta));
   },
   
@@ -355,28 +349,7 @@ const Game = {
       duration: `${hours}h ${minutes % 60}m`
     };
   },
-  
-  // Check if save exists
-  hasSave() {
-    return localStorage.getItem('devlife_save') !== null;
-  },
-  
-  // Get save data
-  getSave() {
-    const data = localStorage.getItem('devlife_save');
-    if (!data) return null;
-    return JSON.parse(data);
-  },
-  
-  // Set save data
-  setSave(state) {
-    localStorage.setItem('devlife_save', JSON.stringify(state));
-  },
-  
-  // Clear save
-  clearSave() {
-    localStorage.removeItem('devlife_save');
-  }
+
 };
 
 // Consumable management
@@ -411,14 +384,6 @@ const ConsumableManager = {
     }
     
     return effect;
-  },
-  
-  count(consumableId) {
-    return Game.state.consumables.filter(c => c.id === consumableId).length;
-  },
-  
-  hasAny() {
-    return Game.state.consumables.length > 0;
   },
   
   getEndOfRunOptions() {

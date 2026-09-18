@@ -60,11 +60,6 @@ const SpecialSystem = {
     this.temporaryMultiplier = multiplier;
   },
   
-  // Get total points in base stats
-  totalPoints() {
-    return STAT_KEYS.reduce((sum, key) => sum + this.stats[key], 0);
-  },
-  
   // Check if a stat can be increased
   canIncrease(stat) {
     return this.stats[stat] < MAX_STAT;
