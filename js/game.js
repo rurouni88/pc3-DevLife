@@ -134,8 +134,9 @@ const Game = {
     if (choice.checks) {
       for (const [stat, target] of Object.entries(choice.checks)) {
         const effective = SpecialSystem.effective(stat);
-        const roll = d20();
-        const success = roll <= target && effective >= target * 0.5;
+        const L = SpecialSystem.stats.L;
+        const roll = d20() - L;
+        const success = roll <= target && effective >= (target - L) * 0.5;
         
         results.push({ stat, roll, target, effective, success });
         if (!success) allSuccess = false;
