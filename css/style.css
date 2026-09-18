@@ -1439,6 +1439,13 @@ body {
   margin: 0 auto;
 }
 
+@media (min-width: 900px) {
+  .event-container {
+    margin-left: 0;
+    max-width: 560px;
+  }
+}
+
 .event-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
