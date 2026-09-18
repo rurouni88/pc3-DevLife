@@ -169,6 +169,17 @@ const UI = {
       if (e.target.classList.contains('cons-info')) return;
       this.hideTooltip();
     });
+    
+    // Close popup when clicking close button or overlay
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('popup-close')) {
+        this.closePopup();
+      }
+      const activePopup = document.querySelector('.popup-panel.active');
+      if (activePopup && e.target === activePopup) {
+        this.closePopup();
+      }
+    });
   },
   
   // Help modal
@@ -1556,6 +1567,9 @@ const UI = {
         break;
       case 'log':
         this.renderPopupCareerLog();
+        break;
+      case 'save':
+        // Save popup — no extra rendering needed
         break;
     }
     
