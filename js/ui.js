@@ -907,7 +907,7 @@ const UI = {
       if (showEquipmentChoice) {
         UI.showEquipmentChoice(result.itemDropped, [...Game.state.equipment]);
       } else if (result.gameOver) {
-        this.showGameOver(result.reason);
+        this.showGameOver(result.gameOver.reason);
       } else if (result.victory) {
         this.showVictory();
       } else if (result.leveledUp) {
