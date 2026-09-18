@@ -224,6 +224,7 @@ const App = {
   
   saveGame() {
     SaveSystem.save(Game.state);
+    UI.closePopup();
     
     // Show brief feedback
     const btn = document.getElementById('btn-save');
