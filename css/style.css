@@ -592,12 +592,12 @@ body {
 }
 
 .side-panel {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
+  bottom: 0;
   width: 300px;
   max-width: 80vw;
-  height: 100%;
   background: var(--bg-secondary);
   border-right: 1px solid var(--border-color);
   z-index: 100;
