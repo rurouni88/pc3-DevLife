@@ -171,6 +171,28 @@ const UI = {
     });
   },
   
+  // Help modal
+  openHelp() {
+    const modal = document.getElementById('help-modal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    this.setHelpTab('info');
+    document.getElementById('help-version').textContent = `v${CONFIG.version} ${CONFIG.versionLabel}`;
+  },
+  
+  closeHelp() {
+    const modal = document.getElementById('help-modal');
+    if (!modal) return;
+    modal.style.display = 'none';
+  },
+  
+  setHelpTab(tab) {
+    document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.modal-tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelector(`.modal-tab[data-tab="${tab}"]`).classList.add('active');
+    document.getElementById(`help-${tab}`).classList.add('active');
+  },
+  
   // Show floating stat change
   showStatFloat(stat, value) {
     const statEl = document.querySelector(`[data-stat="${stat}"]`);

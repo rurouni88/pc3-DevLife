@@ -4,6 +4,7 @@ const App = {
     this.bindEvents();
     this.checkForSave();
     UI.initTooltipClose();
+    this.initHelpTabs();
     UI.showScreen('title');
     document.getElementById('version-badge').textContent = `v${CONFIG.version} ${CONFIG.versionLabel}`;
   },
@@ -91,6 +92,10 @@ const App = {
     bind('btn-new-career', () => this.startNewGame());
     bind('btn-new-victory', () => this.startNewGame());
     
+    // Help modal
+    bind('btn-help-title', () => UI.openHelp());
+    bind('btn-close-help', () => UI.closeHelp());
+    
     // End-of-run consumable selection
     bind('btn-continue-gameover-cons', () => {
       const selected = document.querySelector('#gameover-cons-selection .consumable-select-item.selected');
@@ -112,6 +117,21 @@ const App = {
   checkForSave() {
     if (SaveSystem.hasSave()) {
       document.getElementById('btn-continue').style.display = 'block';
+    }
+  },
+  
+  initHelpTabs() {
+    document.querySelectorAll('.modal-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        UI.setHelpTab(tab.dataset.tab);
+      });
+    });
+    // Close modal on overlay click
+    const modal = document.getElementById('help-modal');
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) UI.closeHelp();
+      });
     }
   },
   
