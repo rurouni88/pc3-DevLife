@@ -121,7 +121,7 @@ const UI = {
     setTimeout(() => toast.remove(), 3000);
   },
   
-  // Show item tooltip
+  // Show item tooltip (consumables, equipment, perks)
   showTooltip(item) {
     const tooltip = document.getElementById('item-tooltip');
     if (!tooltip) return;
@@ -130,7 +130,7 @@ const UI = {
     tooltip.querySelector('.tooltip-name').textContent = item.name || '';
     tooltip.querySelector('.tooltip-desc').textContent = item.desc || '';
     
-    // Build effect text
+    // Build effect text (only for consumables/equipment, not perks)
     let effectText = '';
     if (item.stat && item.bonus) {
       effectText = `+${item.bonus} ${item.stat === 'any' ? 'ANY stat' : STAT_META[item.stat]?.name || item.stat}`;
@@ -139,7 +139,9 @@ const UI = {
     } else if (item.effects) {
       effectText = Object.entries(item.effects).map(([s, v]) => `+${v} ${STAT_META[s]?.name || s}`).join(', ');
     }
-    tooltip.querySelector('.tooltip-effect').textContent = effectText;
+    const effectEl = tooltip.querySelector('.tooltip-effect');
+    effectEl.textContent = effectText;
+    effectEl.style.display = effectText ? 'block' : 'none';
     
     tooltip.style.display = 'block';
   },
@@ -167,6 +169,39 @@ const UI = {
       if (e.target.classList.contains('cons-info')) return;
       this.hideTooltip();
     });
+    
+    // Close popup when clicking close button or overlay
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('popup-close')) {
+        this.closePopup();
+      }
+      const activePopup = document.querySelector('.popup-panel.active');
+      if (activePopup && e.target === activePopup) {
+        this.closePopup();
+      }
+    });
+  },
+  
+  // Help modal
+  openHelp() {
+    const modal = document.getElementById('help-modal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    this.setHelpTab('info');
+    document.getElementById('help-version').textContent = `v${CONFIG.version} ${CONFIG.versionLabel}`;
+  },
+  
+  closeHelp() {
+    const modal = document.getElementById('help-modal');
+    if (!modal) return;
+    modal.style.display = 'none';
+  },
+  
+  setHelpTab(tab) {
+    document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.modal-tab-content').forEach(c => c.classList.remove('active'));
+    document.querySelector(`.modal-tab[data-tab="${tab}"]`).classList.add('active');
+    document.getElementById(`help-${tab}`).classList.add('active');
   },
   
   // Show floating stat change
@@ -524,6 +559,35 @@ const UI = {
     `;
   },
   
+  // Render active perks as chips
+  renderPerks() {
+    const container = document.getElementById('perk-list');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    if (PerkSystem.active.length === 0) {
+      container.innerHTML = '<span class="empty-text">Max a stat to 10 to unlock perks</span>';
+      return;
+    }
+    
+    PerkSystem.active.forEach(id => {
+      const perk = PERK_BY_ID[id];
+      const chip = document.createElement('span');
+      chip.className = 'perk-chip';
+      chip.dataset.perkId = id;
+      chip.dataset.desc = perk.desc;
+      chip.innerHTML = `${perk.emoji} ${perk.name}`;
+      
+      // Mobile: tap to show tooltip
+      chip.addEventListener('click', (e) => {
+        e.stopPropagation();
+        UI.showTooltip(perk);
+      });
+      
+      container.appendChild(chip);
+    });
+  },
+  
   // Render SPECIAL stats in game
   renderSpecialStats() {
     const container = document.getElementById('special-stats');
@@ -546,6 +610,8 @@ const UI = {
       `;
       container.appendChild(bar);
     });
+    
+    this.renderPerks();
   },
   
   // Render equipment
@@ -560,10 +626,18 @@ const UI = {
     
     container.innerHTML = '';
     equipment.forEach(item => {
+      const effectText = Object.entries(item.effects).map(([k,v]) => `+${v} ${STAT_META[k].name}`).join(', ');
       const el = document.createElement('span');
       el.className = 'equip-item';
-      el.setAttribute('tabindex', '0');
-      el.innerHTML = `${item.emoji}<span class="tooltip">${item.name}: ${Object.entries(item.effects).map(([k,v]) => `+${v} ${STAT_META[k].name}`).join(', ')}</span>`;
+      el.dataset.tooltip = `${item.name}: ${effectText}`;
+      el.innerHTML = `${item.emoji}`;
+      
+      // Mobile: tap to show full tooltip
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        UI.showTooltip(item);
+      });
+      
       container.appendChild(el);
     });
   },
@@ -612,9 +686,10 @@ const UI = {
     document.getElementById('career-day').textContent = `Year ${careerYear}`;
     document.getElementById('player-level').textContent = Game.state.level;
     
-    // Progress toward next boss
-    const eventsInCycle = Game.state.eventsCompleted % EVENTS_PER_BOSS;
-    const progressText = Game.state.levelUpPoints > 0 ? 'LEVEL UP!' : `${eventsInCycle}/${EVENTS_PER_BOSS}`;
+    // Progress toward next boss (🚀 Fast Ship: 5 instead of 6)
+    const bossEvery = PerkSystem.bossInterval();
+    const eventsInCycle = Game.state.eventsCompleted % bossEvery;
+    const progressText = Game.state.levelUpPoints > 0 ? 'LEVEL UP!' : `${eventsInCycle}/${bossEvery}`;
     document.getElementById('level-progress').textContent = progressText;
     document.getElementById('level-progress-top').textContent = `Level ${Game.state.level} · ${progressText}`;
   },
@@ -697,17 +772,13 @@ const UI = {
         infoBtn.addEventListener('mouseleave', () => {
           this.hideTooltip();
         });
-        // Mobile: tap to show/hide
+        // Mobile: tap to show (stays until tapped elsewhere)
         infoBtn.addEventListener('click', (e) => {
           e.stopPropagation();
           const id = e.target.dataset.id;
           const consumable = CONSUMABLES.find(c => c.id === id);
           if (consumable) {
-            if (document.getElementById('item-tooltip').style.display === 'block') {
-              this.hideTooltip();
-            } else {
-              this.showTooltip(consumable);
-            }
+            this.showTooltip(consumable);
           }
         });
       }
@@ -884,9 +955,19 @@ const UI = {
     // Show check results
     if (result.checkResults && result.checkResults.length > 0) {
       const checkHTML = result.checkResults.map(cr => 
-        `<span class="stat-change ${cr.success ? 'positive' : 'negative'}">${cr.stat}: rolled ${cr.roll} vs ${cr.target} ${cr.success ? '✓' : '✗'}</span>`
+        `<span class="stat-change ${cr.success ? 'positive' : 'negative'}">${cr.stat}: rolled ${cr.roll} vs ${cr.target} ${cr.success ? (cr.negotiated ? '🤝' : '✓') : '✗'}</span>`
       ).join('');
       resultHTML += `<div class="stat-changes">${checkHTML}</div>`;
+    }
+    
+    // Negotiate prompt
+    let negotiateHTML = '';
+    if (result.hasNegotiate) {
+      resultHTML += `<div class="negotiate-prompt">🤝 <strong>Negotiate!</strong> Use your once-per-run reroll to turn this around?</div>`;
+      negotiateHTML = `
+        <button class="btn btn-primary" id="btn-negotiate-yes">🤝 Use Negotiate</button>
+        <button class="btn btn-ghost" id="btn-negotiate-no">No, thanks</button>
+      `;
     }
     
     // Continue button
@@ -897,10 +978,45 @@ const UI = {
     else if (result.phaseComplete) continueText = 'Continue →';
     else if (result.bossDefeated) continueText = 'Boss Defeated — Continue →';
     
-    resultHTML += `<button class="btn btn-primary btn-continue" id="btn-continue-event">${continueText}</button>`;
+    resultHTML += `<div class="result-actions">${negotiateHTML}<button class="btn btn-primary btn-continue" id="btn-continue-event">${continueText}</button></div>`;
     
     resultDiv.innerHTML = resultHTML;
     body.appendChild(resultDiv);
+    
+    // Bind Negotiate buttons
+    const btnNegotiateYes = document.getElementById('btn-negotiate-yes');
+    const btnNegotiateNo = document.getElementById('btn-negotiate-no');
+    if (btnNegotiateYes) {
+      btnNegotiateYes.addEventListener('click', () => {
+        Game.useNegotiate();
+        // Re-render the result as success
+        resultDiv.querySelector('.result-text').classList.remove('failure');
+        resultDiv.querySelector('.result-text').classList.add('success');
+        resultDiv.querySelector('.result-text').textContent = result.log;
+        // Update stat changes
+        const statChanges = resultDiv.querySelector('.stat-changes:last-of-type');
+        if (statChanges) {
+          statChanges.innerHTML = result.checkResults.map(cr => 
+            `<span class="stat-change positive">${cr.stat}: rolled ${cr.roll} vs ${cr.target} 🤝</span>`
+          ).join('');
+        }
+        // Remove negotiate buttons, update continue
+        const actions = resultDiv.querySelector('.result-actions');
+        actions.innerHTML = `<button class="btn btn-primary btn-continue" id="btn-continue-event">Continue →</button>`;
+        document.getElementById('btn-continue-event').addEventListener('click', () => {
+          this.nextEvent();
+        });
+      });
+    }
+    if (btnNegotiateNo) {
+      btnNegotiateNo.addEventListener('click', () => {
+        const actions = resultDiv.querySelector('.result-actions');
+        actions.innerHTML = `<button class="btn btn-primary btn-continue" id="btn-continue-event">Continue →</button>`;
+        document.getElementById('btn-continue-event').addEventListener('click', () => {
+          this.nextEvent();
+        });
+      });
+    }
     
     // Bind continue button
     document.getElementById('btn-continue-event').addEventListener('click', () => {
@@ -944,7 +1060,8 @@ const UI = {
     }
     
     // Boss every N events (eventsCompleted is incremented AFTER this call)
-    if ((Game.state.eventsCompleted + 1) % EVENTS_PER_BOSS === 0) {
+    // 🚀 Fast Ship: bosses every 5 events instead of 6
+    if ((Game.state.eventsCompleted + 1) % PerkSystem.bossInterval() === 0) {
       event = getBossEvent(Game.state.phase);
     } else {
       event = getRandomNonBossEvent(Game.state.phase, excludeIds);
@@ -973,6 +1090,12 @@ const UI = {
   showLevelUpStats() {
     this.showScreen('levelup');
     document.getElementById('new-level').textContent = Game.state.level;
+    
+    // Show remaining points (🧠 Rapid Learner can grant 2+)
+    const pointsEl = document.getElementById('levelup-points');
+    const points = Game.state.levelUpPoints || 1;
+    pointsEl.textContent = points > 1 ? `You have ${points} points to spend — choose one.` : '';
+    pointsEl.style.display = points > 1 ? 'block' : 'none';
     
     // Show stats container, hide consumables
     document.getElementById('levelup-consumables').style.display = 'none';
@@ -1490,6 +1613,9 @@ const UI = {
       case 'log':
         this.renderPopupCareerLog();
         break;
+      case 'save':
+        // Save popup — no extra rendering needed
+        break;
     }
     
     panel.classList.add('active');
@@ -1522,8 +1648,9 @@ const UI = {
     });
     
     document.getElementById('popup-player-level').textContent = Game.state.level;
-    const eventsInCycle = Game.state.eventsCompleted % EVENTS_PER_BOSS;
-    const progressText = Game.state.levelUpPoints > 0 ? 'LEVEL UP!' : `${eventsInCycle}/${EVENTS_PER_BOSS}`;
+    const bossEvery = PerkSystem.bossInterval();
+    const eventsInCycle = Game.state.eventsCompleted % bossEvery;
+    const progressText = Game.state.levelUpPoints > 0 ? 'LEVEL UP!' : `${eventsInCycle}/${bossEvery}`;
     document.getElementById('popup-level-progress').textContent = progressText;
   },
   

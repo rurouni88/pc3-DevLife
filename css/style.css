@@ -137,6 +137,17 @@ body {
   background: var(--border-color);
 }
 
+.btn-ghost {
+  background: none;
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+}
+
+.btn-ghost:hover {
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+}
+
 .btn-icon {
   display: inline-flex;
   align-items: center;
@@ -243,6 +254,167 @@ body {
   font-size: 0.7rem;
   color: var(--text-muted);
   margin-top: var(--spacing-lg);
+}
+
+/* --- Help Modal --- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--spacing-md);
+}
+
+.modal-content {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  max-width: 480px;
+  width: 100%;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: var(--spacing-xs);
+  z-index: 10;
+}
+
+.modal-close:hover {
+  color: var(--text-primary);
+}
+
+.modal-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.modal-tab {
+  flex: 1;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.modal-tab:hover {
+  color: var(--text-primary);
+}
+
+.modal-tab.active {
+  color: var(--accent-yellow);
+  border-bottom-color: var(--accent-yellow);
+}
+
+.modal-body {
+  padding: var(--spacing-md);
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-tab-content {
+  display: none;
+}
+
+.modal-tab-content.active {
+  display: block;
+}
+
+.modal-tab-content h4 {
+  margin: var(--spacing-sm) 0 var(--spacing-xs);
+  color: var(--text-primary);
+}
+
+.modal-tab-content p {
+  margin: 0 0 var(--spacing-sm);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.modal-tab-content ul {
+  margin: 0 0 var(--spacing-sm);
+  padding-left: var(--spacing-lg);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.modal-tab-content li {
+  margin-bottom: var(--spacing-xs);
+}
+
+/* --- Popup Panels --- */
+.popup-panel {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.popup-panel.active {
+  display: flex;
+}
+
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.popup-header h3 {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.popup-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: var(--spacing-xs);
+}
+
+.popup-close:hover {
+  color: var(--text-primary);
+}
+
+.popup-body {
+  padding: var(--spacing-md);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.popup-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  justify-content: flex-end;
+  margin-top: var(--spacing-md);
 }
 
 /* --- Screen Content (generic) --- */
@@ -817,6 +989,66 @@ body {
   gap: var(--spacing-xs);
 }
 
+/* Perks (stat mastery) */
+.perk-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+.perk-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  color: var(--accent-yellow);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  cursor: help;
+}
+
+.perk-chip:hover {
+  border-color: var(--accent-yellow);
+}
+
+/* Desktop: hover tooltip */
+@media (hover: hover) {
+  .perk-chip {
+    position: relative;
+  }
+  
+  .perk-chip::after {
+    content: attr(data-desc);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 12px;
+    background: var(--bg-primary);
+    border: 1px solid var(--accent-yellow);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    white-space: normal;
+    max-width: 220px;
+    white-space: normal;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+    pointer-events: none;
+    z-index: 200;
+  }
+  
+  .perk-chip:hover::after {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
 .consumables-list {
   display: flex;
   flex-direction: column;
@@ -1054,60 +1286,24 @@ body {
   display: inline-block;
 }
 
-.equip-item .tooltip {
-  display: none;
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  white-space: nowrap;
-  z-index: 1000;
-  color: var(--text-primary);
-  pointer-events: none;
-}
-
-/* Mobile: show name below emoji */
-@media (max-width: 768px) {
-  .equip-item .tooltip {
-    display: block;
-    position: static;
-    transform: none;
-    padding: 4px 0 0 0;
-    margin-top: 4px;
-    background: transparent;
-    border: none;
-    font-size: 0.65rem;
-    color: var(--text-secondary);
-    white-space: normal;
-    text-align: center;
-  }
-}
-
-.equip-item .tooltip::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 5px solid transparent;
-  border-top-color: var(--border-color);
-}
-
-.equip-item:hover .tooltip,
-.equip-item:focus .tooltip {
-  display: block;
-}
-
-/* Mobile: show tooltip on tap */
-@media (hover: none) and (pointer: coarse) {
-  .equip-item:active .tooltip {
-    display: block;
+/* Desktop: hover tooltip */
+@media (hover: hover) {
+  .equip-item:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    white-space: nowrap;
+    z-index: 1000;
+    color: var(--text-primary);
+    pointer-events: none;
   }
 }
 
@@ -1317,84 +1513,6 @@ body {
 @media (min-width: 900px) {
   .mobile-toolbar {
     display: none;
-  }
-}
-
-/* --- Popup Panels --- */
-.popup-panel {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  background: var(--bg-primary);
-  overflow-y: auto;
-  animation: slideUpPanel 0.2s ease-out;
-}
-
-.popup-panel.active {
-  display: block;
-}
-
-.popup-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-md);
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
-  position: sticky;
-  top: 0;
-  z-index: 1;
-}
-
-.popup-header h3 {
-  font-family: var(--font-mono);
-  font-size: 1rem;
-  color: var(--accent-green);
-  margin: 0;
-}
-
-.popup-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 44px;
-  min-height: 44px;
-  padding: var(--spacing-sm);
-  background: transparent;
-  border: none;
-  color: var(--text-primary);
-  font-size: 1.2rem;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.popup-body {
-  padding: var(--spacing-md);
-}
-
-.save-popup-body {
-  max-width: 400px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.save-popup-body p {
-  font-family: var(--font-mono);
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  margin-bottom: var(--spacing-lg);
-}
-
-@keyframes slideUpPanel {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-
-/* Hide popup panels on desktop */
-@media (min-width: 900px) {
-  .popup-panel {
-    display: none !important;
   }
 }
 

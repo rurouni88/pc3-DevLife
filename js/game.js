@@ -59,10 +59,11 @@ const Game = {
   
   // Check if character can level up (every N events = 1 level)
   checkLevelUp() {
-    const eventsNeeded = this.state.level * EVENTS_PER_BOSS;
+    const eventsNeeded = this.state.level * PerkSystem.bossInterval();
     if (this.state.eventsCompleted >= eventsNeeded && this.state.levelUpPoints === 0) {
       this.state.level++;
-      this.state.levelUpPoints = 1;
+      // 🧠 Rapid Learner: +1 bonus level up point
+      this.state.levelUpPoints = PerkSystem.levelUpPoints();
       this.addLog(`Level up! Now level ${this.state.level}.`);
       
       // Generate 3 random consumables for selection
@@ -87,7 +88,7 @@ const Game = {
     // Apply stat effects and log the outcome
     const effects = checkResult.allSuccess ? choice.success.effects : choice.failure.effects;
     const log = checkResult.allSuccess ? choice.success.log : choice.failure.log;
-    this.applyEffects(effects);
+    const effectResult = this.applyEffects(effects);
     
     // Award loot if successful
     const itemDropped = this.checkForEquipmentDrop(checkResult.allSuccess);
@@ -122,7 +123,10 @@ const Game = {
       gameOver,
       phaseComplete,
       victory,
-      bossDefeated: isBoss
+      bossDefeated: isBoss,
+      hasNegotiate: checkResult.hasNegotiate,
+      hasBruteForce: checkResult.hasBruteForce,
+      hasCodeReview: effectResult.hasNegativeEffects
     };
   },
   
@@ -133,36 +137,88 @@ const Game = {
     
     if (choice.checks) {
       for (const [stat, target] of Object.entries(choice.checks)) {
-        const effective = SpecialSystem.effective(stat);
+        let effective = SpecialSystem.effective(stat);
         const L = SpecialSystem.stats.L;
-        const roll = d20() - L;
-        const success = roll <= target && effective >= (target - L) * CONFIG.game.competenceGateFactor;
+        let roll = d20() - L;
+        let checkTarget = target;
+        let success = roll <= checkTarget && effective >= (target - L) * CONFIG.game.competenceGateFactor;
         
-        results.push({ stat, roll, target, effective, success });
+        // 🍀 Clean Deploy: once per run, reroll a failed check
+        if (!success && PerkSystem.canCleanDeployReroll()) {
+          PerkSystem.useCleanDeployReroll();
+          roll = d20() - L;
+          success = roll <= checkTarget && effective >= (target - L) * CONFIG.game.competenceGateFactor;
+          if (success) {
+            this.addLog(`🍀 Clean Deploy! Rerolled ${stat}: ${roll} → success`);
+          }
+        }
+        
+        results.push({ stat, roll, target: checkTarget, effective, success });
         if (!success) allSuccess = false;
       }
     }
     
+    // 💪 Brute Force: flag for player choice on failed Strength checks
+    const hasBruteForce = results.some(r => r.stat === 'S' && !r.success) && PerkSystem.canUseBruteForce();
+    
+    // 🤝 Negotiate: flag for player choice (not auto-used)
+    const hasNegotiate = !allSuccess && PerkSystem.canNegotiate();
+    
     // Consumable bonuses are one-time — clear after stat check resolves
     SpecialSystem.clearTempBonuses();
     
-    return { allSuccess, results };
+    return { allSuccess, results, hasNegotiate, hasBruteForce };
+  },
+  
+  // Use Negotiate perk after event result
+  useNegotiate() {
+    if (!PerkSystem.canNegotiate()) return false;
+    PerkSystem.useNegotiate();
+    // Re-resolve with all checks passed
+    this.addLog('🤝 Negotiate! You talked your way out of it.');
+    return true;
   },
   
   // Apply stat effects from choice outcome
   applyEffects(effects) {
+    // 🐛 Code Review: check if there are negative effects to potentially halve
+    const hasNegativeEffects = Object.entries(effects).some(([_, v]) => v < 0) && PerkSystem.canUseCodeReview();
+    
     for (const [stat, value] of Object.entries(effects)) {
-      if (SpecialSystem.stats[stat] !== undefined) {
-        SpecialSystem.stats[stat] = Math.max(CONFIG.stats.min, Math.min(CONFIG.stats.max, SpecialSystem.stats[stat] + value));
-      }
+      if (SpecialSystem.stats[stat] === undefined) continue;
+      const adjusted = PerkSystem.canUseCodeReview() && value < 0 
+        ? PerkSystem.applyCodeReview(value) 
+        : value;
+      SpecialSystem.stats[stat] = Math.max(CONFIG.stats.min, Math.min(CONFIG.stats.max, SpecialSystem.stats[stat] + adjusted));
+    }
+    
+    // Stat changes may unlock or revoke perks
+    this.refreshPerks();
+    
+    return { hasNegativeEffects };
+  },
+  
+  // Recompute active perks and announce changes
+  refreshPerks() {
+    const { gained, lost } = PerkSystem.refresh();
+    gained.forEach(id => {
+      const perk = PERK_BY_ID[id];
+      UI.showToast(`🏅 Perk Unlocked: ${perk.emoji} ${perk.name}`, 'success');
+      this.addLog(`🏅 Perk unlocked: ${perk.name} — ${perk.desc}`);
+    });
+    lost.forEach(id => {
+      const perk = PERK_BY_ID[id];
+      UI.showToast(`💔 Perk Lost: ${perk.emoji} ${perk.name}`, 'error');
+      this.addLog(`💔 Perk lost: ${perk.name}`);
+    });
+    if (gained.length > 0 || lost.length > 0) {
+      UI.renderPerks();
     }
   },
   
   // Check for equipment drop and handle inventory
   checkForEquipmentDrop(isSuccess) {
-    if (!isSuccess) return null;
-    const dropChance = Math.min(1, CONFIG.game.dropRate + SpecialSystem.stats.L * 0.03);
-    if (Math.random() >= dropChance) {
+    if (!isSuccess || Math.random() >= Math.min(1, CONFIG.game.dropRate + SpecialSystem.stats.L * 0.03)) {
       return null;
     }
     
@@ -215,7 +271,7 @@ const Game = {
       death = { log: 'Technical collapse! You could no longer carry the code.', reason: '💀 Technical Collapse — You couldn\'t keep up with the technical demands. The codebase won, and your career didn\'t survive the merge.' };
     } else if (stats.P <= 1) {
       death = { log: 'You lost the plot — the system became incomprehensible.', reason: '💀 Lost in the Stack — You could no longer understand the system. Every bug was a mystery and every review a guess, until there was nowhere left to debug to.' };
-    } else if (stats.E <= 1) {
+    } else if (stats.E <= 1 && !PerkSystem.has('iron_nerves')) {
       death = { log: 'Burnout! You collapsed from exhaustion.', reason: '💀 Burnout — Your body and mind gave out. Too many late nights and unsustainable pace.' };
     } else if (stats.C <= 1) {
       death = { log: 'Imposter syndrome overwhelmed you.', reason: '💀 Imposter Syndrome — You can\'t function in the industry anymore. The self-doubt was too much.' };
@@ -341,9 +397,9 @@ const ConsumableManager = {
     };
     
     if (consumable.multiplier !== undefined) {
-      // AI tools have 30% chance to backfire
+      // AI tools have a 30% chance to backfire
       const roll = Math.random();
-      if (roll > 0.3) {
+      if (roll > 0.30) {
         effect.multiplier = consumable.multiplier;
         effect.effective = `+${Math.round((consumable.multiplier - 1) * 100)}% stat multiplier`;
         effect.backfired = false;

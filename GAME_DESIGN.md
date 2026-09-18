@@ -163,7 +163,34 @@ One-time stat boosts for a single event check. **Max 2 in inventory.** Earned on
 | The Perfect Meal | 🍱 | +5 to ANY stat | Home-cooked. Made by someone who cares. Everything clicks. |
 | Survival Rations | 🎒 | +3 ALL stats (3 events) | MREs from 1998. They taste like betrayal. |
 
-### 2.6 Career Milestones & Achievements
+### 2.6 Perks (Stat Mastery)
+
+Maxing a stat (**base value of 10**) unlocks a **Perk** — a permanent, passive ability for the duration of the run. Perks are the reward for investing heavily in a single stat and give each build a distinct "class-like" identity.
+
+#### Rules
+- **Trigger:** A perk activates when the **base** stat value reaches 10. Equipment and temporary (consumable) bonuses do **not** count — a +2 equipment bonus on a base-8 stat does not unlock the perk.
+- **Duration:** Perks are **per-run**. If a stat drops below 10 (e.g. a −3 Endurance hit), the perk is lost until the stat reaches 10 again. This keeps high stats genuinely valuable late in a run.
+- **Multiple perks:** A stat at 10 unlocks exactly one perk. It is possible (rare) to have multiple perks active if multiple stats are at 10.
+- **Communication:** A toast notification (`🏅 Perk Unlocked: ...`) fires when a perk activates or deactivates, and active perks are shown as chips in the SPECIAL panel.
+
+#### Perk Table
+
+| Stat | Perk | Effect |
+|------|------|--------|
+| **S**trength | 💪 **Brute Force** | +2 to the target number on all Strength checks (a target-12 check becomes target-14) |
+| **P**erception | 🐛 **Code Review** | Negative stat effects from events are halved (round up) — a −3 hit becomes −2 |
+| **E**ndurance | 🧘 **Iron Nerves** | Endurance can never drop below 1 — Burnout game-over is impossible |
+| **C**harisma | 🤝 **Negotiate** | Once per run: after any failed stat check, convert it to a success (you talk your way out) |
+| **I**ntelligence | 🧠 **Rapid Learner** | +1 bonus point to every level-up allocation |
+| **A**gility | 🚀 **Fast Ship** | Bosses appear every 5 events instead of 6 (faster career progression) |
+| **L**uck | 🍀 **Clean Deploy** | Equipment drop chance raised from 15% to 25%; AI-consumable backfire chance reduced from 30% to 10% |
+
+#### Design Notes
+- Perks only matter at 10, and with 40 starting points spread over 7 stats, maxing a stat at character creation is rare — perks are a mid/late-run goal or a legacy-carry build objective.
+- **Fast Ship** (Agility) is the strongest perk because it compounds with everything (more levels, more drops, more events per career). If playtesting shows it is too strong, nerf to: "Bosses every 6 events, but +1 consumable at the end of each phase."
+- Future: perks could persist as **legacy unlocks** across runs (meta-progression). The data model should stay open to this (perk state stored per-run, meta storage reserved).
+
+### 2.7 Career Milestones & Achievements
 
 Trackable achievements for replayability:
 - 🏆 **Ship It:** Complete 100 deployments
@@ -299,6 +326,7 @@ pc3-DevLife/
 │   ├── events.js       # Event definitions
 │   ├── items.js        # Item definitions
 │   ├── archetypes.js   # Starting builds
+│   ├── perks.js        # Perk system (stat mastery)
 │   ├── ui.js           # UI rendering
 │   └── save.js         # Save/load system
 └── events/
@@ -412,5 +440,5 @@ Example: Strength 7 vs threshold 6 → success (7 >= 6)
 
 ---
 
-*Document Version: 1.0*
+*Document Version: 1.1*
 *Last Updated: 2025*

@@ -4,6 +4,7 @@ const App = {
     this.bindEvents();
     this.checkForSave();
     UI.initTooltipClose();
+    this.initHelpTabs();
     UI.showScreen('title');
     document.getElementById('version-badge').textContent = `v${CONFIG.version} ${CONFIG.versionLabel}`;
   },
@@ -41,9 +42,11 @@ const App = {
       btn.addEventListener('click', () => UI.closePopup());
     });
     
-    // Popup save confirm
+    // Popup save confirm/cancel
     bind('btn-popup-save-confirm', () => {
       this.saveGame();
+    });
+    bind('btn-popup-save-cancel', () => {
       UI.closePopup();
     });
     
@@ -91,6 +94,10 @@ const App = {
     bind('btn-new-career', () => this.startNewGame());
     bind('btn-new-victory', () => this.startNewGame());
     
+    // Help modal
+    bind('btn-help-title', () => UI.openHelp());
+    bind('btn-close-help', () => UI.closeHelp());
+    
     // End-of-run consumable selection
     bind('btn-continue-gameover-cons', () => {
       const selected = document.querySelector('#gameover-cons-selection .consumable-select-item.selected');
@@ -112,6 +119,21 @@ const App = {
   checkForSave() {
     if (SaveSystem.hasSave()) {
       document.getElementById('btn-continue').style.display = 'block';
+    }
+  },
+  
+  initHelpTabs() {
+    document.querySelectorAll('.modal-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        UI.setHelpTab(tab.dataset.tab);
+      });
+    });
+    // Close modal on overlay click
+    const modal = document.getElementById('help-modal');
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) UI.closeHelp();
+      });
     }
   },
   
@@ -152,6 +174,10 @@ const App = {
     // Initialize SPECIAL system
     SpecialSystem.init(stats);
     
+    // Initialize perk system (a starting build may already have a stat at 10)
+    PerkSystem.reset();
+    PerkSystem.refresh();
+    
     // Show game screen
     UI.showScreen('game');
     UI.renderSpecialStats();
@@ -172,6 +198,9 @@ const App = {
   continueGame() {
     const saveData = SaveSystem.load();
     if (!saveData) return;
+    
+    // Re-sync perks with loaded stats
+    PerkSystem.refresh();
     
     UI.showScreen('game');
     UI.renderSpecialStats();
@@ -195,6 +224,7 @@ const App = {
   
   saveGame() {
     SaveSystem.save(Game.state);
+    UI.closePopup();
     
     // Show brief feedback
     const btn = document.getElementById('btn-save');
@@ -213,7 +243,17 @@ const App = {
       SpecialSystem.increase(stat);
     }
     
-    Game.state.levelUpPoints = 0;
+    Game.state.levelUpPoints = Math.max(0, (Game.state.levelUpPoints || 1) - 1);
+    
+    // A stat increase may unlock a perk (e.g. pushing a stat to 10)
+    Game.refreshPerks();
+    UI.renderPerks();
+    
+    // 🧠 Rapid Learner: spend remaining points one at a time
+    if (Game.state.levelUpPoints > 0) {
+      UI.showLevelUpStats();
+      return;
+    }
     
     UI.showScreen('game');
     UI.renderSpecialStats();
