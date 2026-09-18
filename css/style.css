@@ -1766,6 +1766,13 @@ body {
     display: none !important;
   }
   
+  .game-layout {
+    width: 280px;
+    min-width: 280px;
+    max-width: 280px;
+    flex: none;
+  }
+  
   .game-main {
     flex: 1;
     padding: var(--spacing-lg);
