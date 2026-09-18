@@ -485,8 +485,11 @@ const UI = {
     
     const preview = document.getElementById('archetype-preview');
     
-    // Determine archetype based on top 2 stats
-    const sorted = STAT_KEYS.sort((a, b) => currentStats[b] - currentStats[a]);
+    // Determine archetype based on top 2 stats.
+    // Sort a copy — Array.prototype.sort mutates in place, which would
+    // permanently reorder the shared global STAT_KEYS and make the
+    // tie-breaking (and thus the preview) depend on prior calls.
+    const sorted = [...STAT_KEYS].sort((a, b) => currentStats[b] - currentStats[a]);
     const top1 = sorted[0];
     const top2 = sorted[1];
     
