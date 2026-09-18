@@ -1027,7 +1027,7 @@ const UI = {
       } else if (result.victory) {
         this.showVictory();
       } else if (result.leveledUp) {
-        this.showLevelUp();
+        this.showLevelUpStats();
       } else if (result.phaseComplete) {
         Game.advancePhase();
         this.renderTopBar();
@@ -1079,59 +1079,6 @@ const UI = {
     }
     
     this.renderEvent(event);
-  },
-  
-  // Show level up screen — stat selection first, then consumables if any
-  showLevelUp() {
-    UI.showLevelUpStats();
-  },
-  
-  // Show stat selection screen (original flow, no consumable selection)
-  showLevelUpStats() {
-    this.showScreen('levelup');
-    document.getElementById('new-level').textContent = Game.state.level;
-    
-    // Show remaining points (🧠 Rapid Learner can grant 2+)
-    const pointsEl = document.getElementById('levelup-points');
-    const points = Game.state.levelUpPoints || 1;
-    pointsEl.textContent = points > 1 ? `You have ${points} points to spend — choose one.` : '';
-    pointsEl.style.display = points > 1 ? 'block' : 'none';
-    
-    // Show stats container, hide consumables
-    document.getElementById('levelup-consumables').style.display = 'none';
-    document.getElementById('levelup-stats-container').style.display = 'block';
-    document.getElementById('btn-continue-levelup').style.display = 'block';
-    
-    const container = document.getElementById('levelup-stats');
-    container.innerHTML = '';
-    
-    STAT_KEYS.forEach(key => {
-      const meta = STAT_META[key];
-      const canIncrease = SpecialSystem.canIncrease(key);
-      
-      const stat = document.createElement('div');
-      stat.className = `levelup-stat ${!canIncrease ? 'disabled' : ''}`;
-      stat.dataset.stat = key;
-      stat.innerHTML = `
-        <span class="stat-letter" style="color: ${meta.color}">${key}</span>
-        <div class="stat-details">
-          <div class="stat-name">${meta.name}</div>
-          <div class="stat-current">${SpecialSystem.stats[key]} ${canIncrease ? '→ ' + (SpecialSystem.stats[key] + 1) : '(MAX)'}</div>
-        </div>
-      `;
-      
-      if (canIncrease) {
-        stat.addEventListener('click', () => {
-          container.querySelectorAll('.levelup-stat').forEach(s => s.classList.remove('selected'));
-          stat.classList.add('selected');
-          document.getElementById('btn-continue-levelup').disabled = false;
-        });
-      }
-      
-      container.appendChild(stat);
-    });
-    
-    document.getElementById('btn-continue-levelup').disabled = true;
   },
   
   // Show consumable selection screen after level up
@@ -1233,9 +1180,20 @@ const UI = {
     };
   },
   
-  // Show stat selection screen (after consumable selection)
+  // Show stat selection screen
   showLevelUpStats() {
     this.showScreen('levelup');
+    
+    // Update description (stat selection phase)
+    const descEl = document.getElementById('levelup-desc');
+    descEl.innerHTML = `You've reached Level <span id="new-level">${Game.state.level}</span>. Choose a stat to increase.`;
+    
+    // Show remaining points (🧠 Rapid Learner can grant 2+)
+    const pointsEl = document.getElementById('levelup-points');
+    const points = Game.state.levelUpPoints || 1;
+    pointsEl.textContent = points > 1 ? `You have ${points} points to spend — choose one at a time.` : '';
+    pointsEl.style.display = points > 1 ? 'block' : 'none';
+    
     document.getElementById('levelup-consumables').style.display = 'none';
     document.getElementById('levelup-stats-container').style.display = 'block';
     document.getElementById('btn-skip-levelup').style.display = 'none';
@@ -1272,9 +1230,12 @@ const UI = {
     
     document.getElementById('btn-continue-levelup').disabled = true;
     
-    // Bind continue button — show consumables first if pending, otherwise continue
+    // Bind continue button — spend points one at a time; consumables come
+    // after the last point is spent, otherwise continue straight away.
     document.getElementById('btn-continue-levelup').onclick = () => {
-      if (Game.state.pendingLevelUpConsumables && Game.state.pendingLevelUpConsumables.length > 0) {
+      if ((Game.state.levelUpPoints || 1) > 1) {
+        App.afterLevelUp();
+      } else if (Game.state.pendingLevelUpConsumables && Game.state.pendingLevelUpConsumables.length > 0) {
         UI.showLevelUpConsumableSelection();
       } else {
         App.afterLevelUp();

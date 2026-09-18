@@ -6,7 +6,10 @@ const App = {
     UI.initTooltipClose();
     this.initHelpTabs();
     UI.showScreen('title');
-    document.getElementById('version-badge').textContent = `v${CONFIG.version} ${CONFIG.versionLabel}`;
+    const versionText = `v${CONFIG.version} ${CONFIG.versionLabel}`;
+    document.getElementById('version-badge').textContent = versionText;
+    const aboutVersion = document.getElementById('about-version');
+    if (aboutVersion) aboutVersion.textContent = versionText;
   },
   
   bindEvents() {
@@ -86,9 +89,6 @@ const App = {
     bindInfoToggle('btn-toggle-about', 'about-content', 'about-arrow');
 
     bind('btn-save', () => UI.openPopup('save'));
-    
-    // Level up screen
-    bind('btn-continue-levelup', () => this.afterLevelUp());
     
     // Game over / Victory
     bind('btn-new-career', () => this.startNewGame());
