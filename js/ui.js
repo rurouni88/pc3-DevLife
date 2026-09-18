@@ -964,14 +964,8 @@ const UI = {
     this.renderEvent(event);
   },
   
-  // Show level up screen
+  // Show level up screen — stat selection first, then consumables if any
   showLevelUp() {
-    // Check if there are pending consumables for selection
-    if (Game.state.pendingLevelUpConsumables && Game.state.pendingLevelUpConsumables.length > 0) {
-      UI.showLevelUpConsumableSelection();
-      return;
-    }
-    
     UI.showLevelUpStats();
   },
   
@@ -1081,10 +1075,10 @@ const UI = {
       });
     }
     
-    // Bind skip button
+    // Bind skip button — skip consumable, finish level up
     document.getElementById('btn-skip-levelup').onclick = () => {
       Game.state.pendingLevelUpConsumables = null;
-      UI.showLevelUpStats();
+      App.afterLevelUp();
     };
     
     // Bind continue button
@@ -1111,8 +1105,8 @@ const UI = {
       // Clear pending consumables
       Game.state.pendingLevelUpConsumables = null;
       
-      // Show stat selection screen
-      UI.showLevelUpStats();
+      // Finish level up
+      App.afterLevelUp();
     };
   },
   
@@ -1155,8 +1149,14 @@ const UI = {
     
     document.getElementById('btn-continue-levelup').disabled = true;
     
-    // Bind continue button to App.afterLevelUp
-    document.getElementById('btn-continue-levelup').onclick = () => App.afterLevelUp();
+    // Bind continue button — show consumables first if pending, otherwise continue
+    document.getElementById('btn-continue-levelup').onclick = () => {
+      if (Game.state.pendingLevelUpConsumables && Game.state.pendingLevelUpConsumables.length > 0) {
+        UI.showLevelUpConsumableSelection();
+      } else {
+        App.afterLevelUp();
+      }
+    };
   },
   
   // Show game over screen
