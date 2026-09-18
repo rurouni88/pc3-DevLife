@@ -6,11 +6,11 @@
 const PERKS = {
   S: { id: 'brute_force',   name: 'Brute Force',   emoji: '💪', desc: '+2 to the target number on all Strength checks' },
   P: { id: 'code_review',   name: 'Code Review',   emoji: '🐛', desc: 'Negative stat effects are halved (round up)' },
-  E: { id: 'iron_nerves',   name: 'Iron Nerves',   emoji: '🧘', desc: 'Endurance can never drop below 1 — burnout is impossible' },
+  E: { id: 'iron_nerves',   name: 'Iron Nerves',   emoji: '🧘', desc: 'Immune to burnout death from low Endurance' },
   C: { id: 'negotiate',     name: 'Negotiate',     emoji: '🤝', desc: 'Once per run: a failed stat check is converted to a success' },
   I: { id: 'rapid_learner', name: 'Rapid Learner', emoji: '🧠', desc: '+1 bonus point on every level up' },
   A: { id: 'fast_ship',     name: 'Fast Ship',     emoji: '🚀', desc: 'Bosses appear every 5 events instead of 6' },
-  L: { id: 'clean_deploy',  name: 'Clean Deploy',  emoji: '🍀', desc: 'Equipment drop chance 25% (was 15%); AI backfire chance 10% (was 30%)' }
+  L: { id: 'clean_deploy',  name: 'Clean Deploy',  emoji: '🍀', desc: 'Once per run: reroll a failed stat check' }
 };
 
 // Lookup by perk id
@@ -18,13 +18,15 @@ const PERK_BY_ID = {};
 Object.values(PERKS).forEach(perk => { PERK_BY_ID[perk.id] = perk; });
 
 const PerkSystem = {
-  active: [],           // perk ids currently active
-  negotiateUsed: false, // Negotiate is once per run
+  active: [],              // perk ids currently active
+  negotiateUsed: false,    // Negotiate is once per run
+  cleanDeployUsed: false,  // Clean Deploy reroll is once per run
   
   // Reset for a new run
   reset() {
     this.active = [];
     this.negotiateUsed = false;
+    this.cleanDeployUsed = false;
   },
   
   // Recompute active perks from base stats.
@@ -59,12 +61,6 @@ const PerkSystem = {
     return value;
   },
   
-  // 🧘 Iron Nerves: Endurance floor
-  statFloor(stat) {
-    if (stat === 'E' && this.has('iron_nerves')) return 1;
-    return 0;
-  },
-  
   // 🤝 Negotiate: once per run, convert a failed check to success
   canNegotiate() {
     return this.has('negotiate') && !this.negotiateUsed;
@@ -84,20 +80,21 @@ const PerkSystem = {
     return this.has('fast_ship') ? 5 : EVENTS_PER_BOSS;
   },
   
-  // 🍀 Clean Deploy: drop & backfire chances
-  dropChance() {
-    return this.has('clean_deploy') ? 0.25 : 0.15;
+  // 🍀 Clean Deploy: once per run, reroll a failed stat check
+  canCleanDeployReroll() {
+    return this.has('clean_deploy') && !this.cleanDeployUsed;
   },
   
-  aiBackfireChance() {
-    return this.has('clean_deploy') ? 0.10 : 0.30;
+  useCleanDeployReroll() {
+    this.cleanDeployUsed = true;
   },
   
   // Clone for save/load
   clone() {
     return {
       active: [...this.active],
-      negotiateUsed: this.negotiateUsed
+      negotiateUsed: this.negotiateUsed,
+      cleanDeployUsed: this.cleanDeployUsed
     };
   },
   
@@ -109,5 +106,6 @@ const PerkSystem = {
     }
     this.active = [...(data.active || [])];
     this.negotiateUsed = !!data.negotiateUsed;
+    this.cleanDeployUsed = !!data.cleanDeployUsed;
   }
 };

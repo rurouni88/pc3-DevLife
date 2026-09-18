@@ -134,11 +134,21 @@ const Game = {
     
     if (choice.checks) {
       for (const [stat, target] of Object.entries(choice.checks)) {
-        const effective = SpecialSystem.effective(stat);
+        let effective = SpecialSystem.effective(stat);
         const L = SpecialSystem.stats.L;
-        const roll = d20() - L;
+        let roll = d20() - L;
         const checkTarget = PerkSystem.checkTarget(stat, target);
-        const success = roll <= checkTarget && effective >= (target - L) * CONFIG.game.competenceGateFactor;
+        let success = roll <= checkTarget && effective >= (target - L) * CONFIG.game.competenceGateFactor;
+        
+        // 🍀 Clean Deploy: once per run, reroll a failed check
+        if (!success && PerkSystem.canCleanDeployReroll()) {
+          PerkSystem.useCleanDeployReroll();
+          roll = d20() - L;
+          success = roll <= checkTarget && effective >= (target - L) * CONFIG.game.competenceGateFactor;
+          if (success) {
+            this.addLog(`🍀 Clean Deploy! Rerolled ${stat}: ${roll} → success`);
+          }
+        }
         
         results.push({ stat, roll, target: checkTarget, effective, success });
         if (!success) allSuccess = false;
@@ -165,9 +175,7 @@ const Game = {
       if (SpecialSystem.stats[stat] === undefined) continue;
       // 🐛 Code Review: negative effects are halved (round up)
       const adjusted = PerkSystem.transformEffect(stat, value);
-      // 🧘 Iron Nerves: Endurance can never drop below 1
-      const floor = PerkSystem.statFloor(stat);
-      SpecialSystem.stats[stat] = Math.max(floor, Math.min(CONFIG.stats.max, SpecialSystem.stats[stat] + adjusted));
+      SpecialSystem.stats[stat] = Math.max(CONFIG.stats.min, Math.min(CONFIG.stats.max, SpecialSystem.stats[stat] + adjusted));
     }
     
     // Stat changes may unlock or revoke perks
@@ -194,9 +202,7 @@ const Game = {
   
   // Check for equipment drop and handle inventory
   checkForEquipmentDrop(isSuccess) {
-    // 🍀 Clean Deploy: 25% drop chance (base 15%)
-    const baseChance = Math.min(1, CONFIG.game.dropRate + SpecialSystem.stats.L * 0.03);
-    if (!isSuccess || Math.random() >= PerkSystem.dropChance(baseChance)) {
+    if (!isSuccess || Math.random() >= Math.min(1, CONFIG.game.dropRate + SpecialSystem.stats.L * 0.03)) {
       return null;
     }
     
@@ -249,7 +255,7 @@ const Game = {
       death = { log: 'Technical collapse! You could no longer carry the code.', reason: '💀 Technical Collapse — You couldn\'t keep up with the technical demands. The codebase won, and your career didn\'t survive the merge.' };
     } else if (stats.P <= 1) {
       death = { log: 'You lost the plot — the system became incomprehensible.', reason: '💀 Lost in the Stack — You could no longer understand the system. Every bug was a mystery and every review a guess, until there was nowhere left to debug to.' };
-    } else if (stats.E <= 1) {
+    } else if (stats.E <= 1 && !PerkSystem.has('iron_nerves')) {
       death = { log: 'Burnout! You collapsed from exhaustion.', reason: '💀 Burnout — Your body and mind gave out. Too many late nights and unsustainable pace.' };
     } else if (stats.C <= 1) {
       death = { log: 'Imposter syndrome overwhelmed you.', reason: '💀 Imposter Syndrome — You can\'t function in the industry anymore. The self-doubt was too much.' };
@@ -375,9 +381,9 @@ const ConsumableManager = {
     };
     
     if (consumable.multiplier !== undefined) {
-      // AI tools have a chance to backfire (30% base, 10% with 🍀 Clean Deploy)
+      // AI tools have a 30% chance to backfire
       const roll = Math.random();
-      if (roll > PerkSystem.aiBackfireChance()) {
+      if (roll > 0.30) {
         effect.multiplier = consumable.multiplier;
         effect.effective = `+${Math.round((consumable.multiplier - 1) * 100)}% stat multiplier`;
         effect.backfired = false;
