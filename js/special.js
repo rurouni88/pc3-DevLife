@@ -79,30 +79,6 @@ const SpecialSystem = {
     return false;
   },
   
-  // Perform a stat check (d20 system)
-  // target: the stat value needed to succeed
-  // stat: which SPECIAL stat to use
-  check(stat, target) {
-    const effective = this.effective(stat);
-    const roll = d20();
-    const success = roll <= target;
-    return { roll, target: effective, success, stat };
-  },
-  
-  // Multi-stat check (requires ALL to pass)
-  multiCheck(checks) {
-    const results = [];
-    let allSuccess = true;
-    
-    for (const [stat, target] of Object.entries(checks)) {
-      const result = this.check(stat, target);
-      results.push(result);
-      if (!result.success) allSuccess = false;
-    }
-    
-    return { results, allSuccess };
-  },
-  
   // Clone for save/load
   clone() {
     return {
