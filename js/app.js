@@ -49,8 +49,6 @@ const App = {
     bind('btn-popup-save-cancel', () => {
       UI.closePopup();
     });
-      UI.closePopup();
-    });
     
     // Hamburger menu toggle (mobile)
     bind('btn-menu-toggle-main', () => {
