@@ -509,6 +509,27 @@ const UI = {
     `;
   },
   
+  // Render active perks as chips
+  renderPerks() {
+    const container = document.getElementById('perk-list');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    if (PerkSystem.active.length === 0) {
+      container.innerHTML = '<span class="empty-text">Max a stat to 10 to unlock perks</span>';
+      return;
+    }
+    
+    PerkSystem.active.forEach(id => {
+      const perk = PERK_BY_ID[id];
+      const chip = document.createElement('span');
+      chip.className = 'perk-chip';
+      chip.title = perk.desc;
+      chip.innerHTML = `${perk.emoji} ${perk.name}`;
+      container.appendChild(chip);
+    });
+  },
+  
   // Render SPECIAL stats in game
   renderSpecialStats() {
     const container = document.getElementById('special-stats');
@@ -531,6 +552,8 @@ const UI = {
       `;
       container.appendChild(bar);
     });
+    
+    this.renderPerks();
   },
   
   // Render equipment
@@ -597,9 +620,10 @@ const UI = {
     document.getElementById('career-day').textContent = `Year ${careerYear}`;
     document.getElementById('player-level').textContent = Game.state.level;
     
-    // Progress toward next boss
-    const eventsInCycle = Game.state.eventsCompleted % EVENTS_PER_BOSS;
-    const progressText = Game.state.levelUpPoints > 0 ? 'LEVEL UP!' : `${eventsInCycle}/${EVENTS_PER_BOSS}`;
+    // Progress toward next boss (🚀 Fast Ship: 5 instead of 6)
+    const bossEvery = PerkSystem.bossInterval();
+    const eventsInCycle = Game.state.eventsCompleted % bossEvery;
+    const progressText = Game.state.levelUpPoints > 0 ? 'LEVEL UP!' : `${eventsInCycle}/${bossEvery}`;
     document.getElementById('level-progress').textContent = progressText;
     document.getElementById('level-progress-top').textContent = `Level ${Game.state.level} · ${progressText}`;
   },
@@ -869,7 +893,7 @@ const UI = {
     // Show check results
     if (result.checkResults && result.checkResults.length > 0) {
       const checkHTML = result.checkResults.map(cr => 
-        `<span class="stat-change ${cr.success ? 'positive' : 'negative'}">${cr.stat}: rolled ${cr.roll} vs ${cr.target} ${cr.success ? '✓' : '✗'}</span>`
+        `<span class="stat-change ${cr.success ? 'positive' : 'negative'}">${cr.stat}: rolled ${cr.roll} vs ${cr.target} ${cr.success ? (cr.negotiated ? '🤝' : '✓') : '✗'}</span>`
       ).join('');
       resultHTML += `<div class="stat-changes">${checkHTML}</div>`;
     }
@@ -929,7 +953,8 @@ const UI = {
     }
     
     // Boss every N events (eventsCompleted is incremented AFTER this call)
-    if ((Game.state.eventsCompleted + 1) % EVENTS_PER_BOSS === 0) {
+    // 🚀 Fast Ship: bosses every 5 events instead of 6
+    if ((Game.state.eventsCompleted + 1) % PerkSystem.bossInterval() === 0) {
       event = getBossEvent(Game.state.phase);
     } else {
       event = getRandomNonBossEvent(Game.state.phase, excludeIds);
@@ -964,6 +989,12 @@ const UI = {
   showLevelUpStats() {
     this.showScreen('levelup');
     document.getElementById('new-level').textContent = Game.state.level;
+    
+    // Show remaining points (🧠 Rapid Learner can grant 2+)
+    const pointsEl = document.getElementById('levelup-points');
+    const points = Game.state.levelUpPoints || 1;
+    pointsEl.textContent = points > 1 ? `You have ${points} points to spend — choose one.` : '';
+    pointsEl.style.display = points > 1 ? 'block' : 'none';
     
     // Show stats container, hide consumables
     document.getElementById('levelup-consumables').style.display = 'none';
@@ -1507,8 +1538,9 @@ const UI = {
     });
     
     document.getElementById('popup-player-level').textContent = Game.state.level;
-    const eventsInCycle = Game.state.eventsCompleted % EVENTS_PER_BOSS;
-    const progressText = Game.state.levelUpPoints > 0 ? 'LEVEL UP!' : `${eventsInCycle}/${EVENTS_PER_BOSS}`;
+    const bossEvery = PerkSystem.bossInterval();
+    const eventsInCycle = Game.state.eventsCompleted % bossEvery;
+    const progressText = Game.state.levelUpPoints > 0 ? 'LEVEL UP!' : `${eventsInCycle}/${bossEvery}`;
     document.getElementById('popup-level-progress').textContent = progressText;
   },
   

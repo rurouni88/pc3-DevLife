@@ -707,6 +707,31 @@ body {
   gap: var(--spacing-xs);
 }
 
+/* Perks (stat mastery) */
+.perk-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+.perk-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  color: var(--accent-yellow);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  cursor: help;
+}
+
+.perk-chip:hover {
+  border-color: var(--accent-yellow);
+}
+
 .consumables-list {
   display: flex;
   flex-direction: column;

@@ -93,6 +93,13 @@
         </div>
 
         <div class="panel-section">
+          <h3>Perks</h3>
+          <div id="perk-list" class="perk-list">
+            <span class="empty-text">Max a stat to 10 to unlock perks</span>
+          </div>
+        </div>
+
+        <div class="panel-section">
           <h3>Equipment</h3>
           <div id="equipment-list" class="equipment-list">
             <span class="empty-text">No equipment yet</span>
@@ -139,6 +146,7 @@
       <div class="screen-content">
         <h2>🎉 Level Up!</h2>
         <p class="screen-desc" id="levelup-desc">You've reached Level <span id="new-level">2</span>. Choose a consumable to add.</p>
+        <p class="screen-desc" id="levelup-points" style="display:none;"></p>
         
         <!-- Consumable selection (shown first) -->
         <div id="levelup-consumables" class="consumable-selection" style="display:none;"></div>
@@ -260,6 +268,7 @@
   <script src="js/items.js"></script>
   <script src="js/archetypes.js"></script>
   <script src="js/special.js"></script>
+  <script src="js/perks.js"></script>
   <script src="js/game.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/save.js"></script>

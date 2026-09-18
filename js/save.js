@@ -6,6 +6,7 @@ const SaveSystem = {
     const saveData = {
       state: { ...state },
       special: SpecialSystem.clone(),
+      perks: PerkSystem.clone(),
       timestamp: Date.now()
     };
     localStorage.setItem(this.SAVE_KEY, JSON.stringify(saveData));
@@ -23,6 +24,10 @@ const SaveSystem = {
       
       // Restore SPECIAL system
       SpecialSystem.restore(saveData.special);
+      
+      // Restore perk system (negotiate-used flag; active perks re-sync from stats)
+      PerkSystem.restore(saveData.perks);
+      PerkSystem.refresh();
       
       return saveData;
     } catch (e) {

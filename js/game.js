@@ -59,10 +59,11 @@ const Game = {
   
   // Check if character can level up (every N events = 1 level)
   checkLevelUp() {
-    const eventsNeeded = this.state.level * EVENTS_PER_BOSS;
+    const eventsNeeded = this.state.level * PerkSystem.bossInterval();
     if (this.state.eventsCompleted >= eventsNeeded && this.state.levelUpPoints === 0) {
       this.state.level++;
-      this.state.levelUpPoints = 1;
+      // 🧠 Rapid Learner: +1 bonus level up point
+      this.state.levelUpPoints = PerkSystem.levelUpPoints();
       this.addLog(`Level up! Now level ${this.state.level}.`);
       
       // Generate 3 random consumables for selection
@@ -135,11 +136,21 @@ const Game = {
       for (const [stat, target] of Object.entries(choice.checks)) {
         const effective = SpecialSystem.effective(stat);
         const roll = Math.floor(Math.random() * 20) + 1;
-        const success = roll <= target && effective >= target * 0.5;
+        // 💪 Brute Force: +2 to Strength check targets
+        const checkTarget = PerkSystem.checkTarget(stat, target);
+        const success = roll <= checkTarget && effective >= target * 0.5;
         
-        results.push({ stat, roll, target, effective, success });
+        results.push({ stat, roll, target: checkTarget, effective, success });
         if (!success) allSuccess = false;
       }
+    }
+    
+    // 🤝 Negotiate: once per run, convert a failed check into a success
+    if (!allSuccess && PerkSystem.canNegotiate()) {
+      PerkSystem.useNegotiate();
+      results.forEach(r => { r.success = true; r.negotiated = true; });
+      allSuccess = true;
+      this.addLog('🤝 Negotiate! You talked your way out of it.');
     }
     
     // Consumable bonuses are one-time — clear after stat check resolves
@@ -151,15 +162,40 @@ const Game = {
   // Apply stat effects from choice outcome
   applyEffects(effects) {
     for (const [stat, value] of Object.entries(effects)) {
-      if (SpecialSystem.stats[stat] !== undefined) {
-        SpecialSystem.stats[stat] = Math.max(1, Math.min(10, SpecialSystem.stats[stat] + value));
-      }
+      if (SpecialSystem.stats[stat] === undefined) continue;
+      // 🐛 Code Review: negative effects are halved (round up)
+      const adjusted = PerkSystem.transformEffect(stat, value);
+      // 🧘 Iron Nerves: Endurance can never drop below 1
+      const floor = PerkSystem.statFloor(stat);
+      SpecialSystem.stats[stat] = Math.max(floor, Math.min(MAX_STAT, SpecialSystem.stats[stat] + adjusted));
+    }
+    
+    // Stat changes may unlock or revoke perks
+    this.refreshPerks();
+  },
+  
+  // Recompute active perks and announce changes
+  refreshPerks() {
+    const { gained, lost } = PerkSystem.refresh();
+    gained.forEach(id => {
+      const perk = PERK_BY_ID[id];
+      UI.showToast(`🏅 Perk Unlocked: ${perk.emoji} ${perk.name}`, 'success');
+      this.addLog(`🏅 Perk unlocked: ${perk.name} — ${perk.desc}`);
+    });
+    lost.forEach(id => {
+      const perk = PERK_BY_ID[id];
+      UI.showToast(`💔 Perk Lost: ${perk.emoji} ${perk.name}`, 'error');
+      this.addLog(`💔 Perk lost: ${perk.name}`);
+    });
+    if (gained.length > 0 || lost.length > 0) {
+      UI.renderPerks();
     }
   },
   
   // Check for equipment drop and handle inventory
   checkForEquipmentDrop(isSuccess) {
-    if (!isSuccess || Math.random() >= 0.15) {
+    // 🍀 Clean Deploy: 25% drop chance (base 15%)
+    if (!isSuccess || Math.random() >= PerkSystem.dropChance()) {
       return null;
     }
     
@@ -301,9 +337,9 @@ const ConsumableManager = {
     };
     
     if (consumable.multiplier !== undefined) {
-      // AI tools have 30% chance to backfire
+      // AI tools have a chance to backfire (30% base, 10% with 🍀 Clean Deploy)
       const roll = Math.random();
-      if (roll > 0.3) {
+      if (roll > PerkSystem.aiBackfireChance()) {
         effect.multiplier = consumable.multiplier;
         effect.effective = `+${Math.round((consumable.multiplier - 1) * 100)}% stat multiplier`;
         effect.backfired = false;

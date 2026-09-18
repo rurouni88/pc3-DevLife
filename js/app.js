@@ -135,6 +135,10 @@ const App = {
     // Initialize SPECIAL system
     SpecialSystem.init(stats);
     
+    // Initialize perk system (a starting build may already have a stat at 10)
+    PerkSystem.reset();
+    PerkSystem.refresh();
+    
     // Show game screen
     UI.showScreen('game');
     UI.renderSpecialStats();
@@ -155,6 +159,9 @@ const App = {
   continueGame() {
     const saveData = SaveSystem.load();
     if (!saveData) return;
+    
+    // Re-sync perks with loaded stats
+    PerkSystem.refresh();
     
     UI.showScreen('game');
     UI.renderSpecialStats();
@@ -196,7 +203,17 @@ const App = {
       SpecialSystem.increase(stat);
     }
     
-    Game.state.levelUpPoints = 0;
+    Game.state.levelUpPoints = Math.max(0, (Game.state.levelUpPoints || 1) - 1);
+    
+    // A stat increase may unlock a perk (e.g. pushing a stat to 10)
+    Game.refreshPerks();
+    UI.renderPerks();
+    
+    // 🧠 Rapid Learner: spend remaining points one at a time
+    if (Game.state.levelUpPoints > 0) {
+      UI.showLevelUpStats();
+      return;
+    }
     
     UI.showScreen('game');
     UI.renderSpecialStats();
