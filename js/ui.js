@@ -739,17 +739,13 @@ const UI = {
         infoBtn.addEventListener('mouseleave', () => {
           this.hideTooltip();
         });
-        // Mobile: tap to show/hide
+        // Mobile: tap to show (stays until tapped elsewhere)
         infoBtn.addEventListener('click', (e) => {
           e.stopPropagation();
           const id = e.target.dataset.id;
           const consumable = CONSUMABLES.find(c => c.id === id);
           if (consumable) {
-            if (document.getElementById('item-tooltip').style.display === 'block') {
-              this.hideTooltip();
-            } else {
-              this.showTooltip(consumable);
-            }
+            this.showTooltip(consumable);
           }
         });
       }
