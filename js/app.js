@@ -42,9 +42,13 @@ const App = {
       btn.addEventListener('click', () => UI.closePopup());
     });
     
-    // Popup save confirm
+    // Popup save confirm/cancel
     bind('btn-popup-save-confirm', () => {
       this.saveGame();
+    });
+    bind('btn-popup-save-cancel', () => {
+      UI.closePopup();
+    });
       UI.closePopup();
     });
     
