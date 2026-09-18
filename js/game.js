@@ -160,7 +160,9 @@ const Game = {
   
   // Check for equipment drop and handle inventory
   checkForEquipmentDrop(isSuccess) {
-    if (!isSuccess || Math.random() >= CONFIG.game.dropRate) {
+    if (!isSuccess) return null;
+    const dropChance = Math.min(1, CONFIG.game.dropRate + SpecialSystem.stats.L * 0.03);
+    if (Math.random() >= dropChance) {
       return null;
     }
     
