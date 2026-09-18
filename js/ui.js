@@ -860,9 +860,7 @@ const UI = {
         resultHTML += `<div class="item-drop">🎁 Found: ${result.itemDropped.emoji} ${result.itemDropped.name} — inventory full!</div>`;
         showEquipmentChoice = true;
       } else {
-        // Add to inventory
-        Game.state.equipment.push({ ...result.itemDropped });
-        SpecialSystem.addEquipment(result.itemDropped.emoji, result.itemDropped.effects);
+        // Item already added to inventory by Game.checkForEquipmentDrop()
         resultHTML += `<div class="item-drop">🎁 Found: ${result.itemDropped.emoji} ${result.itemDropped.name}</div>`;
         this.renderEquipment();
       }
