@@ -539,10 +539,49 @@ const UI = {
       const perk = PERK_BY_ID[id];
       const chip = document.createElement('span');
       chip.className = 'perk-chip';
-      chip.title = perk.desc;
+      chip.dataset.perkId = id;
+      chip.dataset.desc = perk.desc;
       chip.innerHTML = `${perk.emoji} ${perk.name}`;
+      
+      // Mobile: tap to toggle perk description popup
+      chip.addEventListener('click', (e) => {
+        e.stopPropagation();
+        UI.togglePerkTooltip(chip, perk);
+      });
+      
       container.appendChild(chip);
     });
+    
+    // Close perk tooltip when tapping elsewhere
+    document.removeEventListener('click', UI._closePerkTooltip);
+    UI._closePerkTooltip = () => {
+      const tooltip = document.querySelector('.perk-tooltip.open');
+      if (tooltip) tooltip.remove();
+    };
+    document.addEventListener('click', UI._closePerkTooltip);
+  },
+  
+  // Show/hide perk tooltip (mobile tap, desktop hover via CSS)
+  togglePerkTooltip(chip, perk) {
+    // Remove any existing open tooltip
+    const existing = document.querySelector('.perk-tooltip.open');
+    if (existing) existing.remove();
+    
+    const tooltip = document.createElement('div');
+    tooltip.className = 'perk-tooltip';
+    tooltip.innerHTML = `<strong>${perk.emoji} ${perk.name}</strong><br>${perk.desc}`;
+    
+    const rect = chip.getBoundingClientRect();
+    const panelRect = chip.closest('.side-panel').getBoundingClientRect();
+    
+    tooltip.style.position = 'absolute';
+    tooltip.style.left = (rect.left - panelRect.left + rect.width / 2) + 'px';
+    tooltip.style.top = (rect.bottom - panelRect.top + 8) + 'px';
+    tooltip.style.transform = 'translateX(-50%)';
+    tooltip.style.zIndex = '200';
+    
+    chip.closest('.side-panel').appendChild(tooltip);
+    requestAnimationFrame(() => tooltip.classList.add('open'));
   },
   
   // Render SPECIAL stats in game

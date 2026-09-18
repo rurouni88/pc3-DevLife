@@ -842,6 +842,73 @@ body {
   border-color: var(--accent-yellow);
 }
 
+/* Perk tooltip (mobile tap, desktop hover) */
+.perk-tooltip {
+  position: absolute;
+  bottom: auto;
+  left: 0;
+  right: 0;
+  padding: 10px 14px;
+  background: var(--bg-primary);
+  border: 1px solid var(--accent-yellow);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  line-height: 1.4;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+  pointer-events: none;
+  max-width: 240px;
+  white-space: normal;
+  z-index: 200;
+}
+
+.perk-tooltip.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.perk-tooltip strong {
+  color: var(--accent-yellow);
+}
+
+/* Desktop: hover tooltip */
+@media (hover: hover) {
+  .perk-chip {
+    position: relative;
+  }
+  
+  .perk-chip::after {
+    content: attr(data-desc);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 12px;
+    background: var(--bg-primary);
+    border: 1px solid var(--accent-yellow);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 0.75rem;
+    font-family: var(--font-mono);
+    white-space: normal;
+    max-width: 220px;
+    white-space: normal;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+    pointer-events: none;
+    z-index: 200;
+  }
+  
+  .perk-chip:hover::after {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
 .consumables-list {
   display: flex;
   flex-direction: column;
