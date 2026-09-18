@@ -88,7 +88,7 @@ const Game = {
     // Apply stat effects and log the outcome
     const effects = checkResult.allSuccess ? choice.success.effects : choice.failure.effects;
     const log = checkResult.allSuccess ? choice.success.log : choice.failure.log;
-    this.applyEffects(effects);
+    const effectResult = this.applyEffects(effects);
     
     // Award loot if successful
     const itemDropped = this.checkForEquipmentDrop(checkResult.allSuccess);
@@ -123,7 +123,10 @@ const Game = {
       gameOver,
       phaseComplete,
       victory,
-      bossDefeated: isBoss
+      bossDefeated: isBoss,
+      hasNegotiate: checkResult.hasNegotiate,
+      hasBruteForce: checkResult.hasBruteForce,
+      hasCodeReview: effectResult.hasNegativeEffects
     };
   },
   
@@ -137,7 +140,7 @@ const Game = {
         let effective = SpecialSystem.effective(stat);
         const L = SpecialSystem.stats.L;
         let roll = d20() - L;
-        const checkTarget = PerkSystem.checkTarget(stat, target);
+        let checkTarget = target;
         let success = roll <= checkTarget && effective >= (target - L) * CONFIG.game.competenceGateFactor;
         
         // 🍀 Clean Deploy: once per run, reroll a failed check
@@ -155,31 +158,44 @@ const Game = {
       }
     }
     
-    // 🤝 Negotiate: once per run, convert a failed check into a success
-    if (!allSuccess && PerkSystem.canNegotiate()) {
-      PerkSystem.useNegotiate();
-      results.forEach(r => { r.success = true; r.negotiated = true; });
-      allSuccess = true;
-      this.addLog('🤝 Negotiate! You talked your way out of it.');
-    }
+    // 💪 Brute Force: flag for player choice on failed Strength checks
+    const hasBruteForce = results.some(r => r.stat === 'S' && !r.success) && PerkSystem.canUseBruteForce();
+    
+    // 🤝 Negotiate: flag for player choice (not auto-used)
+    const hasNegotiate = !allSuccess && PerkSystem.canNegotiate();
     
     // Consumable bonuses are one-time — clear after stat check resolves
     SpecialSystem.clearTempBonuses();
     
-    return { allSuccess, results };
+    return { allSuccess, results, hasNegotiate, hasBruteForce };
+  },
+  
+  // Use Negotiate perk after event result
+  useNegotiate() {
+    if (!PerkSystem.canNegotiate()) return false;
+    PerkSystem.useNegotiate();
+    // Re-resolve with all checks passed
+    this.addLog('🤝 Negotiate! You talked your way out of it.');
+    return true;
   },
   
   // Apply stat effects from choice outcome
   applyEffects(effects) {
+    // 🐛 Code Review: check if there are negative effects to potentially halve
+    const hasNegativeEffects = Object.entries(effects).some(([_, v]) => v < 0) && PerkSystem.canUseCodeReview();
+    
     for (const [stat, value] of Object.entries(effects)) {
       if (SpecialSystem.stats[stat] === undefined) continue;
-      // 🐛 Code Review: negative effects are halved (round up)
-      const adjusted = PerkSystem.transformEffect(stat, value);
+      const adjusted = PerkSystem.canUseCodeReview() && value < 0 
+        ? PerkSystem.applyCodeReview(value) 
+        : value;
       SpecialSystem.stats[stat] = Math.max(CONFIG.stats.min, Math.min(CONFIG.stats.max, SpecialSystem.stats[stat] + adjusted));
     }
     
     // Stat changes may unlock or revoke perks
     this.refreshPerks();
+    
+    return { hasNegativeEffects };
   },
   
   // Recompute active perks and announce changes

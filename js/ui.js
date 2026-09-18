@@ -960,6 +960,16 @@ const UI = {
       resultHTML += `<div class="stat-changes">${checkHTML}</div>`;
     }
     
+    // Negotiate prompt
+    let negotiateHTML = '';
+    if (result.hasNegotiate) {
+      resultHTML += `<div class="negotiate-prompt">🤝 <strong>Negotiate!</strong> Use your once-per-run reroll to turn this around?</div>`;
+      negotiateHTML = `
+        <button class="btn btn-primary" id="btn-negotiate-yes">🤝 Use Negotiate</button>
+        <button class="btn btn-ghost" id="btn-negotiate-no">No, thanks</button>
+      `;
+    }
+    
     // Continue button
     let continueText = 'Continue →';
     if (result.gameOver) continueText = 'View Results →';
@@ -968,10 +978,45 @@ const UI = {
     else if (result.phaseComplete) continueText = 'Continue →';
     else if (result.bossDefeated) continueText = 'Boss Defeated — Continue →';
     
-    resultHTML += `<button class="btn btn-primary btn-continue" id="btn-continue-event">${continueText}</button>`;
+    resultHTML += `<div class="result-actions">${negotiateHTML}<button class="btn btn-primary btn-continue" id="btn-continue-event">${continueText}</button></div>`;
     
     resultDiv.innerHTML = resultHTML;
     body.appendChild(resultDiv);
+    
+    // Bind Negotiate buttons
+    const btnNegotiateYes = document.getElementById('btn-negotiate-yes');
+    const btnNegotiateNo = document.getElementById('btn-negotiate-no');
+    if (btnNegotiateYes) {
+      btnNegotiateYes.addEventListener('click', () => {
+        Game.useNegotiate();
+        // Re-render the result as success
+        resultDiv.querySelector('.result-text').classList.remove('failure');
+        resultDiv.querySelector('.result-text').classList.add('success');
+        resultDiv.querySelector('.result-text').textContent = result.log;
+        // Update stat changes
+        const statChanges = resultDiv.querySelector('.stat-changes:last-of-type');
+        if (statChanges) {
+          statChanges.innerHTML = result.checkResults.map(cr => 
+            `<span class="stat-change positive">${cr.stat}: rolled ${cr.roll} vs ${cr.target} 🤝</span>`
+          ).join('');
+        }
+        // Remove negotiate buttons, update continue
+        const actions = resultDiv.querySelector('.result-actions');
+        actions.innerHTML = `<button class="btn btn-primary btn-continue" id="btn-continue-event">Continue →</button>`;
+        document.getElementById('btn-continue-event').addEventListener('click', () => {
+          this.nextEvent();
+        });
+      });
+    }
+    if (btnNegotiateNo) {
+      btnNegotiateNo.addEventListener('click', () => {
+        const actions = resultDiv.querySelector('.result-actions');
+        actions.innerHTML = `<button class="btn btn-primary btn-continue" id="btn-continue-event">Continue →</button>`;
+        document.getElementById('btn-continue-event').addEventListener('click', () => {
+          this.nextEvent();
+        });
+      });
+    }
     
     // Bind continue button
     document.getElementById('btn-continue-event').addEventListener('click', () => {

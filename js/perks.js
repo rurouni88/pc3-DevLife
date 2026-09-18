@@ -4,8 +4,8 @@
 // drops below 10, its perk is lost until the stat reaches 10 again.
 
 const PERKS = {
-  S: { id: 'brute_force',   name: 'Brute Force',   emoji: '💪', desc: '+2 to the target number on all Strength checks' },
-  P: { id: 'code_review',   name: 'Code Review',   emoji: '🐛', desc: 'Negative stat effects are halved (round up)' },
+  S: { id: 'brute_force',   name: 'Brute Force',   emoji: '💪', desc: 'Once per run: +2 to a failed Strength check target' },
+  P: { id: 'code_review',   name: 'Code Review',   emoji: '🐛', desc: 'Once per run: halve a negative stat effect (round up)' },
   E: { id: 'iron_nerves',   name: 'Iron Nerves',   emoji: '🧘', desc: 'Immune to burnout death from low Endurance' },
   C: { id: 'negotiate',     name: 'Negotiate',     emoji: '🤝', desc: 'Once per run: a failed stat check is converted to a success' },
   I: { id: 'rapid_learner', name: 'Rapid Learner', emoji: '🧠', desc: '+1 bonus point on every level up' },
@@ -19,12 +19,16 @@ Object.values(PERKS).forEach(perk => { PERK_BY_ID[perk.id] = perk; });
 
 const PerkSystem = {
   active: [],              // perk ids currently active
+  bruteForceUsed: false,   // Brute Force is once per run
+  codeReviewUsed: false,   // Code Review is once per run
   negotiateUsed: false,    // Negotiate is once per run
   cleanDeployUsed: false,  // Clean Deploy reroll is once per run
   
   // Reset for a new run
   reset() {
     this.active = [];
+    this.bruteForceUsed = false;
+    this.codeReviewUsed = false;
     this.negotiateUsed = false;
     this.cleanDeployUsed = false;
   },
@@ -47,18 +51,22 @@ const PerkSystem = {
     return this.active.includes(perkId);
   },
   
-  // 💪 Brute Force: +2 to Strength check targets
-  checkTarget(stat, target) {
-    if (stat === 'S' && this.has('brute_force')) return target + 2;
-    return target;
+  // 💪 Brute Force: once per run, +2 to a failed Strength check
+  canUseBruteForce() {
+    return this.has('brute_force') && !this.bruteForceUsed;
   },
   
-  // 🐛 Code Review: halve negative effects (round up)
-  transformEffect(stat, value) {
-    if (value < 0 && this.has('code_review')) {
-      return -Math.ceil(Math.abs(value) / 2);
-    }
-    return value;
+  useBruteForce() {
+    this.bruteForceUsed = true;
+  },
+  
+  // 🐛 Code Review: once per run, halve a negative effect
+  canUseCodeReview() {
+    return this.has('code_review') && !this.codeReviewUsed;
+  },
+  
+  useCodeReview() {
+    this.codeReviewUsed = true;
   },
   
   // 🤝 Negotiate: once per run, convert a failed check to success
@@ -89,10 +97,22 @@ const PerkSystem = {
     this.cleanDeployUsed = true;
   },
   
+  // Helper: apply brute force to a check target
+  applyBruteForce(target) {
+    return target + 2;
+  },
+  
+  // Helper: apply code review to an effect value
+  applyCodeReview(value) {
+    return -Math.ceil(Math.abs(value) / 2);
+  },
+  
   // Clone for save/load
   clone() {
     return {
       active: [...this.active],
+      bruteForceUsed: this.bruteForceUsed,
+      codeReviewUsed: this.codeReviewUsed,
       negotiateUsed: this.negotiateUsed,
       cleanDeployUsed: this.cleanDeployUsed
     };
@@ -105,6 +125,8 @@ const PerkSystem = {
       return;
     }
     this.active = [...(data.active || [])];
+    this.bruteForceUsed = !!data.bruteForceUsed;
+    this.codeReviewUsed = !!data.codeReviewUsed;
     this.negotiateUsed = !!data.negotiateUsed;
     this.cleanDeployUsed = !!data.cleanDeployUsed;
   }
