@@ -28,8 +28,10 @@ Will you reach retirement, or will your career end in burnout?
 | Apply archetype preset | Click a preset from the dropdown |
 | Make a choice | Click one of the choice buttons (A, B, C, D) |
 | Use a consumable | Click a consumable button before making a choice |
+| Intervene with a perk | Click ⚡ on the result screen (when a perk offers it) |
 | View stats/inventory | Click the ☰ menu (mobile) or side panel (desktop) |
 | Save game | Click the 💾 button |
+| Help | Click the ❓ button for rules, stats, and about |
 
 ---
 
@@ -44,17 +46,25 @@ Will you reach retirement, or will your career end in burnout?
   - **A**gility — Adaptability & delivery velocity
   - **L**uck — Heuristics & clean production runs
 
-- **Archetype Presets** — Start as a Principal Architect, Startup Rockstar, SRE Specialist, and more
+- **d20 Stat Checks** — Every choice rolls a d20 (modified by Luck) against a target, gated by a competence check so low stats can't muscle past checks far above them
 
-- **Procedural Events** — 57+ satirical tech scenarios: production incidents, code reviews, sprint planning, architecture debates, and more
+- **Perks (Stat Mastery)** — Max a stat to 10 to unlock a perk: once-per-run interventions (Negotiate, Brute Force, Code Review, Clean Deploy) and passive boons (Iron Nerves, Rapid Learner, Fast Ship)
 
-- **Items & Equipment** — Collect passive stat bonuses from Mechanical Keyboards to Custom Ergonomic Chairs. Max 1 equipped at a time.
+- **Archetype Presets** — Start as a Principal Architect, Startup Rockstar, SRE Specialist, Penetration Tester, and more
 
-- **Consumables** — One-time stat boosts for a single event. Max 2 in inventory. Includes food, drinks, and risky AI tools.
+- **Procedural Events** — 57 satirical tech scenarios across 4 career phases: production incidents, code reviews, sprint planning, architecture debates, and more. No event repeats within a run; each phase ends with a boss
+
+- **Items & Equipment** — Collect passive stat bonuses from Mechanical Keyboards to Custom Ergonomic Chairs (rarity-weighted drops, boosted by Luck). Max 1 equipped at a time.
+
+- **Consumables** — One-time stat boosts for a single event check, earned on level up. Max 2 in inventory. Includes food, drinks, and risky AI tools that can backfire.
+
+- **Saving Rolls** — Hit a stat floor and you get a d20 saving throw (Luck + half Charisma) before your career ends
 
 - **Permadeath** — Each run is a new career. Game over means starting fresh.
 
-- **Meta Progression** — Carry consumables and equipment between runs, unlock new archetypes
+- **Meta Progression** — Carry your end-of-run equipment and up to 2 consumables into your next career
+
+- **Synthesized Sound Effects** — 8 Web Audio API bleeps (no audio files): success, failure, level up, boss, perk, victory, and more
 
 - **Mobile-First Design** — Works great on phones, tablets, and desktops
 
@@ -78,18 +88,31 @@ pc3-DevLife/
 ├── css/
 │   └── style.css       # Dark terminal theme
 ├── js/
+│   ├── app.js          # Entry point: wiring, career start/continue
+│   ├── config.js       # All tunable constants (version, thresholds, rates)
 │   ├── game.js         # Core game engine & state
-│   ├── special.js      # SPECIAL stat system
-│   ├── events.js       # Event definitions
-│   ├── items.js        # Equipment & consumables
+│   ├── special.js      # SPECIAL stat system (base/equipment/temp bonuses)
+│   ├── events.js       # Event loading (fetch) & validation
+│   ├── events/         # Event content, per career phase
+│   │   ├── phase_junior.json   # 13 events (incl. boss)
+│   │   ├── phase_mid.json      # 16 events (incl. boss)
+│   │   ├── phase_senior.json   # 16 events (incl. boss)
+│   │   └── phase_staff.json    # 12 events (incl. boss)
+│   ├── items.js        # Equipment & consumables (rarity-weighted)
 │   ├── archetypes.js   # Starting builds & stat metadata
-│   ├── ui.js           # UI rendering & screen management
-│   └── save.js         # Save/load system
-├── events/
-│   ├── phase_junior.json   # 13 events
-│   ├── phase_mid.json      # 16 events
-│   ├── phase_senior.json   # 16 events
-│   └── phase_staff.json    # 12 events
+│   ├── perks.js        # Perk system (stat mastery)
+│   ├── meta.js         # Meta progression (run count, carry-over items)
+│   ├── save.js         # Save/load system (localStorage)
+│   ├── ui.js           # UI rendering, screens, toasts, sound
+│   ├── utils.js        # Shared helpers (d20, day→year)
+│   └── types.js        # JSDoc @typedefs (typecheck only, not loaded)
+├── test/
+│   ├── core.test.js    # Node VM test runner (no framework)
+│   └── core.tests.js   # Core game-logic tests
+├── .github/workflows/
+│   └── ci.yml          # CI: typecheck + test on push/PR
+├── package.json        # Scripts: typecheck, test (TypeScript dev dep only)
+├── tsconfig.json       # JSDoc/checkJs typecheck config (noEmit)
 └── GAME_DESIGN.md      # Full design document
 ```
 
@@ -127,6 +150,8 @@ npx serve .
 
 - **HTML5 / CSS3 / Vanilla JavaScript** — No frameworks, no build tools
 - **TypeScript type checking** — JSDoc annotations + `tsc --noEmit` (no transpilation, no emitted JS)
+- **Web Audio API** — 8 synthesized sound effects, no audio files
+- **Node VM test suite** — Core game logic tested without a browser or framework
 - **LocalStorage** — Save games and meta-progression
 - **Single-Page Application** — Screen-based navigation
 - **Mobile-First Responsive Design** — Works on all screen sizes
@@ -135,18 +160,26 @@ npx serve .
 
 ## 🎯 Game Over Conditions
 
+Stats have a floor of **1**. When a stat hits its floor you make a **saving roll**: d20 vs **Luck + ½ Charisma**. Fail it and your career is over:
+
 | Condition | Cause |
 |-----------|-------|
-| 💀 **Burnout** | Endurance drops to 0 |
-| 💀 **Imposter Syndrome** | Charisma drops too low |
-| 💀 **Skill Obsolescence** | Intelligence too low after 365 days |
-| 💀 **Made Redundant** | Low Charisma in mid/late career + bad luck |
+| 💀 **Technical Obsolescence** | Strength hits 1 |
+| 🐛 **Debugging Burnout** | Perception hits 1 |
+| 🔥 **Burnout** | Endurance hits 1 (the **Iron Nerves** perk prevents this) |
+| 📉 **Career Stagnation** | Charisma hits 1 |
+| 📚 **Knowledge Decay** | Intelligence hits 1 after day 365 |
+| 🐌 **Productivity Cliff** | Agility hits 1 |
+| 🍀 **Unlucky Streak** | Luck hits 1 |
+| 📉 **Made Redundant** | Phase 3+, after day 400, with Charisma ≤ 2 — a growing chance each event the lower your Charisma |
+
+A successful saving roll bumps every floored stat back up by 1 — barely clinging on.
 
 ---
 
 ## 🏆 Victory
 
-Complete all **4 career phases** (57 events total) to retire in style. Choose a consumable to carry into your next career!
+Defeat the **4 phase bosses** (24 events total — 20 with Fast Ship) to retire in style. Choose a consumable to carry into your next career!
 
 ---
 
@@ -162,7 +195,8 @@ See [`GAME_DESIGN.md`](GAME_DESIGN.md) for the full game design document, includ
 
 DevLife is a static site — there is **no build step** and nothing to compile.
 The files in this repo are exactly what gets served. The only tooling is a
-type checker that guards the shared data shapes (game state, events, items):
+type checker (guards the shared data shapes: game state, events, items) and
+a core-logic test suite:
 
 ```bash
 npm install        # installs TypeScript (dev dependency only)
@@ -172,22 +206,25 @@ npm test           # runs the core game-logic tests (Node, no framework)
 
 - Type definitions live in [`js/types.js`](js/types.js) (JSDoc `@typedef`s only — no runtime code, not loaded by the browser).
 - Annotations are plain JSDoc comments in the existing `.js` files; the game runs identically with or without them.
-- Tests live in [`test/`](test/): the logic modules run in a Node VM context with stubbed browser globals, so the rules (stat checks, perks, effects) are verified without a browser. Both checks run in CI on every push and PR.
-- The **Typecheck** GitHub Action (`.github/workflows/typecheck.yml`) runs `npm run typecheck` on every push to `main` and on all pull requests.
+- Tests live in [`test/`](test/): the logic modules (`config`, `utils`, `items`, `special`, `perks`, `game`) run in a Node VM context with stubbed browser globals, so the rules (stat checks, perk activation and grace rules, equipment drops, carry-over) are verified without a browser.
+- CI (`.github/workflows/ci.yml`) runs both `npm run typecheck` and `npm test` on every push to `main` and on all pull requests (Node 20, two jobs).
 
 ### Roadmap
 
 This is a prototype/vertical slice. Planned features:
 
 - [ ] Achievement system
-- [ ] Sound effects
 - [ ] Animated transitions
+- [ ] More events (50+ per phase)
 - [ ] Export/share career summaries
 
 Current state:
 - 57 events across 4 career phases (13–16 per phase)
-- Boss events at the end of each phase ✓
-- Meta progression: carry consumables/equipment between runs ✓
+- Boss events ending each phase ✓
+- d20 stat checks with competence gate and saving rolls ✓
+- Perk system with once-per-run interventions ✓
+- Meta progression: carry equipment/consumables between runs ✓
+- Synthesized sound effects ✓
 
 ---
 
