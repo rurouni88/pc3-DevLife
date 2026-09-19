@@ -26,10 +26,10 @@ const MetaStore = {
     meta.totalRuns = (meta.totalRuns || 0) + 1;
     meta.lastRunDate = new Date().toISOString();
     
-    // Save equipment to carry over (max 1); skip if already carried
-    if (equipmentId && !(meta.startingEquipment || []).includes(equipmentId)) {
-      meta.startingEquipment = [...(meta.startingEquipment || []), equipmentId];
-    }
+    // Carry-over is exactly the equipment the run ended with (max 1):
+    // replace, don't append — a mid-run swap must carry the NEW item
+    // (issue #4: appending kept the oldest item winning via slice(0,1))
+    meta.startingEquipment = equipmentId ? [equipmentId] : [];
     
     this.save(meta);
   },

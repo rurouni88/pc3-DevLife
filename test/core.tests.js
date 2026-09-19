@@ -101,6 +101,18 @@ assert.ok(Game.useBruteForce(graceBF), '+2 still fires');
 assert.strictEqual(graceBF.checkResults[0].target, 3, 'target +2 applied');
 console.log('✓ grace: perk revoked by the failure itself can still intervene');
 
+// --- Equipment carry-over: most recent equipment wins (issue #4) ---
+localStorage.setItem('devlife_meta', JSON.stringify({ totalRuns: 0, startingEquipment: ['mech_keyboard'] }));
+MetaStore.recordRunComplete('standing_desk'); // swapped mid-run; ended with the new item
+assert.deepStrictEqual(MetaStore.carriedIds('startingEquipment'), ['standing_desk'], 'newest equipment replaces the carried one');
+MetaStore.recordRunComplete('mech_keyboard'); // swapped back in a later run
+assert.deepStrictEqual(MetaStore.carriedIds('startingEquipment'), ['mech_keyboard'], 'carries over again after swap-back');
+MetaStore.recordRunComplete(null); // ended a run with no equipment
+assert.deepStrictEqual(MetaStore.carriedIds('startingEquipment'), [], 'no equipment at run end clears carry-over');
+assert.strictEqual(MetaStore.runCount(), 3, 'run counter still increments');
+localStorage.removeItem('devlife_meta');
+console.log('✓ equipment carry-over: most recent wins (issue #4)');
+
 // --- Clean Deploy (auto-reroll, cleanDeployUsed flag) ---
 freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 10 });
 assert.ok(PerkSystem.has('clean_deploy'), 'L=10 activates Clean Deploy');
