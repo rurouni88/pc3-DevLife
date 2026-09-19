@@ -13,6 +13,8 @@ const CONFIG = {
   game: {
     eventsPerBoss: 6,
     daysPerCareerYear: 12,
+    // Career phase display names, indexed by phase (1-4); index 0 unused
+    phaseNames: ['', 'Junior Developer', 'Mid-Level Developer', 'Senior Developer', 'Staff/Principal'],
     bossPrefix: 'BOSS:',
     dropRate: 0.15,
     competenceGateFactor: 0.5,

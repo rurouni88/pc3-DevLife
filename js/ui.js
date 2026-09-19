@@ -695,8 +695,7 @@ const UI = {
   
   // Render top bar
   renderTopBar() {
-    const phaseNames = ['', 'Junior Developer', 'Mid-Level Developer', 'Senior Developer', 'Staff/Principal'];
-    document.getElementById('career-phase').textContent = phaseNames[Game.state.phase];
+    document.getElementById('career-phase').textContent = CONFIG.game.phaseNames[Game.state.phase];
     // Career spans ~8-10 years across ~24 events, each event ~0.4 years
     const careerYear = dayToCareerYear(Game.state.day);
     document.getElementById('career-day').textContent = `Year ${careerYear}`;
@@ -1376,12 +1375,11 @@ const UI = {
     this.showScreen('gameover');
     
     const summary = Game.getSummary();
-    const phaseNames = ['', 'Junior Developer', 'Mid-Level Developer', 'Senior Developer', 'Staff/Principal'];
     const container = document.getElementById('gameover-summary');
     container.innerHTML = `
       <div class="summary-row"><span class="label">Run #</span><span class="value">${summary.runNumber}</span></div>
       <div class="summary-row"><span class="label">Level Reached</span><span class="value">${summary.level}</span></div>
-      <div class="summary-row"><span class="label">Final Position</span><span class="value">${phaseNames[summary.phase] || summary.phase}</span></div>
+      <div class="summary-row"><span class="label">Final Position</span><span class="value">${CONFIG.game.phaseNames[summary.phase] || summary.phase}</span></div>
       <div class="summary-row"><span class="label">Career Length</span><span class="value">${(summary.day / CONFIG.game.daysPerCareerYear).toFixed(1)} years</span></div>
       <div class="summary-row"><span class="label">Events Completed</span><span class="value">${summary.eventsCompleted}</span></div>
       <div class="summary-row"><span class="label">Equipment</span><span class="value">${summary.equipment.length}</span></div>
@@ -1404,11 +1402,10 @@ const UI = {
     SaveSystem.deleteSave();
     
     const summary = Game.getSummary();
-    const phaseNames = ['', 'Junior Developer', 'Mid-Level Developer', 'Senior Developer', 'Staff/Principal'];
     summaryContainer.innerHTML = `
       <div class="summary-row"><span class="label">Run #</span><span class="value">${summary.runNumber}</span></div>
       <div class="summary-row"><span class="label">Final Level</span><span class="value">${summary.level}</span></div>
-      <div class="summary-row"><span class="label">Final Position</span><span class="value">${phaseNames[summary.phase] || summary.phase} 🏆</span></div>
+      <div class="summary-row"><span class="label">Final Position</span><span class="value">${CONFIG.game.phaseNames[summary.phase] || summary.phase} 🏆</span></div>
       <div class="summary-row"><span class="label">Career Length</span><span class="value">${(summary.day / CONFIG.game.daysPerCareerYear).toFixed(1)} years</span></div>
       <div class="summary-row"><span class="label">Events Completed</span><span class="value">${summary.eventsCompleted}</span></div>
       <div class="summary-row"><span class="label">Equipment Collected</span><span class="value">${summary.equipment.length}</span></div>

@@ -11,6 +11,15 @@ function freshRun(stats) {
   Game.state = { careerLog: [], day: 1 };
 }
 
+// --- Phase names: single source in CONFIG ---
+assert.strictEqual(CONFIG.game.phaseNames.length, 5, 'phase names indexed 0-4');
+freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+Game.state.phase = 1;
+Game.advancePhase();
+assert.strictEqual(Game.state.phase, 2, 'phase advanced');
+assert.ok(Game.state.careerLog[0].message.includes('Mid-Level Developer'), 'promotion log uses CONFIG phase name');
+console.log('✓ phase names: single CONFIG source, promotion log correct');
+
 // --- Perk activation: stats at 10 unlock, dropping below revokes ---
 freshRun({ S: 10, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
 assert.ok(PerkSystem.has('brute_force'), 'S=10 activates Brute Force');

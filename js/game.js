@@ -364,8 +364,7 @@ const Game = {
   advancePhase() {
     this.state.phase++;
     this.state.bossCompleted = false;
-    const phaseNames = ['', 'Junior Developer', 'Mid-Level Developer', 'Senior Developer', 'Staff/Principal'];
-    this.addLog(`Promoted to ${phaseNames[this.state.phase]}! 🎉`);
+    this.addLog(`Promoted to ${CONFIG.game.phaseNames[this.state.phase]}! 🎉`);
   },
   
   // Add to career log
