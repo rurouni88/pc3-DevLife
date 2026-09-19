@@ -85,6 +85,17 @@ const UI = {
         osc.stop(now + 1);
         break;
         
+      case 'perk':
+        // Distinctive high two-note ping — a perk intervention fired
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(988, now);
+        osc.frequency.setValueAtTime(1319, now + 0.09);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+        osc.start(now);
+        osc.stop(now + 0.25);
+        break;
+        
       case 'victory':
         osc.type = 'sine';
         [523, 659, 784, 1047, 784, 1047].forEach((freq, i) => {
@@ -950,6 +961,7 @@ const UI = {
     if (result.cleanDeployUsed) {
       result.cleanDeployUsed = false;
       this.showToast(`⚡ Clean Deploy: ${result.success ? 'SUCCESS' : 'FAILURE'}`, result.success ? 'success' : 'error');
+      this.playSound('perk');
     }
     
     const resultDiv = document.createElement('div');
@@ -1038,6 +1050,7 @@ const UI = {
             result[flag] = false;
             const outcome = getOutcome();
             this.showToast(`⚡ ${perkName}: ${outcome ? 'SUCCESS' : 'FAILURE'}`, outcome ? 'success' : 'error');
+            this.playSound('perk');
             this.renderResult(result);
           }
         });
