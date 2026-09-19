@@ -167,10 +167,12 @@ type checker that guards the shared data shapes (game state, events, items):
 ```bash
 npm install        # installs TypeScript (dev dependency only)
 npm run typecheck  # runs tsc --noEmit; reports errors, emits nothing
+npm test           # runs the core game-logic tests (Node, no framework)
 ```
 
 - Type definitions live in [`js/types.js`](js/types.js) (JSDoc `@typedef`s only — no runtime code, not loaded by the browser).
 - Annotations are plain JSDoc comments in the existing `.js` files; the game runs identically with or without them.
+- Tests live in [`test/`](test/): the logic modules run in a Node VM context with stubbed browser globals, so the rules (stat checks, perks, effects) are verified without a browser. Both checks run in CI on every push and PR.
 - The **Typecheck** GitHub Action (`.github/workflows/typecheck.yml`) runs `npm run typecheck` on every push to `main` and on all pull requests.
 
 ### Roadmap

@@ -4,7 +4,8 @@
   "private": true,
   "description": "DevLife — a software engineering roguelike",
   "scripts": {
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "test": "node test/core.test.js"
   },
   "devDependencies": {
     "typescript": "^5.5.0"
