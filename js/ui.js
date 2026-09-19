@@ -982,6 +982,16 @@ const UI = {
       `;
     }
     
+    // Brute Force prompt (failed Strength check, once per run)
+    let bruteForceHTML = '';
+    if (result.hasBruteForce) {
+      resultHTML += `<div class="negotiate-prompt">💪 <strong>Brute Force!</strong> Apply +2 to the failed Strength check target?</div>`;
+      bruteForceHTML = `
+        <button class="btn btn-primary" id="btn-bruteforce-yes">💪 Use Brute Force</button>
+        <button class="btn btn-ghost" id="btn-bruteforce-no">No, thanks</button>
+      `;
+    }
+    
     // Continue button
     let continueText = 'Continue →';
     if (result.gameOver) continueText = 'View Results →';
@@ -990,7 +1000,7 @@ const UI = {
     else if (result.phaseComplete) continueText = 'Continue →';
     else if (result.bossDefeated) continueText = 'Boss Defeated — Continue →';
     
-    resultHTML += `<div class="result-actions">${negotiateHTML}<button class="btn btn-primary btn-continue" id="btn-continue-event">${continueText}</button></div>`;
+    resultHTML += `<div class="result-actions">${negotiateHTML}${bruteForceHTML}<button class="btn btn-primary btn-continue" id="btn-continue-event">${continueText}</button></div>`;
     
     resultDiv.innerHTML = resultHTML;
     body.appendChild(resultDiv);
@@ -1022,6 +1032,40 @@ const UI = {
     }
     if (btnNegotiateNo) {
       btnNegotiateNo.addEventListener('click', () => {
+        const actions = resultDiv.querySelector('.result-actions');
+        actions.innerHTML = `<button class="btn btn-primary btn-continue" id="btn-continue-event">Continue →</button>`;
+        document.getElementById('btn-continue-event').addEventListener('click', () => {
+          this.nextEvent();
+        });
+      });
+    }
+    
+    // Bind Brute Force buttons
+    const btnBruteForceYes = document.getElementById('btn-bruteforce-yes');
+    const btnBruteForceNo = document.getElementById('btn-bruteforce-no');
+    if (btnBruteForceYes) {
+      btnBruteForceYes.addEventListener('click', () => {
+        Game.useBruteForce(result);
+        // Update the displayed check with the new target/success state
+        const statChanges = resultDiv.querySelector('.stat-changes:last-of-type');
+        if (statChanges) {
+          statChanges.innerHTML = result.checkResults.map(cr =>
+            `<span class="stat-change ${cr.success ? 'positive' : 'negative'}">${cr.stat}: rolled ${cr.roll} vs ${cr.target} ${cr.success ? '💪' : '✗'}</span>`
+          ).join('');
+        }
+        if (result.success) {
+          resultDiv.querySelector('.result-text').classList.remove('failure');
+          resultDiv.querySelector('.result-text').classList.add('success');
+        }
+        const actions = resultDiv.querySelector('.result-actions');
+        actions.innerHTML = `<button class="btn btn-primary btn-continue" id="btn-continue-event">Continue →</button>`;
+        document.getElementById('btn-continue-event').addEventListener('click', () => {
+          this.nextEvent();
+        });
+      });
+    }
+    if (btnBruteForceNo) {
+      btnBruteForceNo.addEventListener('click', () => {
         const actions = resultDiv.querySelector('.result-actions');
         actions.innerHTML = `<button class="btn btn-primary btn-continue" id="btn-continue-event">Continue →</button>`;
         document.getElementById('btn-continue-event').addEventListener('click', () => {

@@ -164,16 +164,44 @@ const Game = {
     return true;
   },
   
+  // 💪 Brute Force: re-evaluate the failed Strength check with a +2 target.
+  // Like Negotiate, this is cosmetic: effects were already applied, but the
+  // displayed check (and success state, if all checks now pass) is updated.
+  /** @param {ProcessResult} result @returns {ProcessResult} */
+  useBruteForce(result) {
+    PerkSystem.useBruteForce();
+    
+    result.checkResults.forEach(cr => {
+      if (cr.stat === 'S' && !cr.success) {
+        cr.target = PerkSystem.applyBruteForce(cr.target);
+        cr.success = cr.roll <= cr.target;
+      }
+    });
+    
+    if (result.checkResults.length > 0 && result.checkResults.every(cr => cr.success)) {
+      result.success = true;
+    }
+    
+    this.addLog('💪 Brute Force! +2 to the Strength check target.');
+    return result;
+  },
+  
   // Apply stat effects from choice outcome
   /** @param {Partial<Stats>} effects @returns {{ hasNegativeEffects: boolean }} */
   applyEffects(effects) {
-    // 🐛 Code Review: check if there are negative effects to potentially halve
+    // 🐛 Code Review: once per run, halve this outcome's negative effects.
+    // Consumed here, before the loop — canUseCodeReview() is false once used,
+    // so the loop relies on the captured flag.
     const hasNegativeEffects = Object.entries(effects).some(([_, v]) => v < 0) && PerkSystem.canUseCodeReview();
+    if (hasNegativeEffects) {
+      PerkSystem.useCodeReview();
+      this.addLog('🐛 Code Review! Negative effects halved.');
+    }
     
     for (const [stat, value] of Object.entries(effects)) {
       if (SpecialSystem.stats[stat] === undefined) continue;
-      const adjusted = PerkSystem.canUseCodeReview() && value < 0 
-        ? PerkSystem.applyCodeReview(value) 
+      const adjusted = hasNegativeEffects && value < 0
+        ? PerkSystem.applyCodeReview(value)
         : value;
       SpecialSystem.stats[stat] = Math.max(CONFIG.stats.min, Math.min(CONFIG.stats.max, SpecialSystem.stats[stat] + adjusted));
     }
