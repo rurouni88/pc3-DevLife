@@ -945,12 +945,11 @@ const UI = {
     const existingResult = body.querySelector('.event-result');
     if (existingResult) existingResult.remove();
     
-    // 🍀 Clean Deploy intervened (auto-reroll) — show the intervention
-    // screen first, then the result
+    // 🍀 Clean Deploy intervened (auto-reroll) — announce it; the result
+    // below already shows the rerolled outcome
     if (result.cleanDeployUsed) {
       result.cleanDeployUsed = false;
-      this.showPerkIntervention('Clean Deploy', '🍀', result.success, () => this.renderResult(result));
-      return;
+      this.showToast(`⚡ Clean Deploy: ${result.success ? 'SUCCESS' : 'FAILURE'}`, result.success ? 'success' : 'error');
     }
     
     const resultDiv = document.createElement('div');
@@ -1027,7 +1026,7 @@ const UI = {
     body.appendChild(resultDiv);
     
     // Bind perk prompt buttons — unified pattern:
-    //   Use     → apply perk, show intervention screen, re-render result
+    //   Use     → apply perk, toast the outcome, re-render result
     //   Decline → re-render result (other prompts stay available)
     /** @param {string} yesId @param {string} noId @param {'hasNegotiate' | 'hasBruteForce' | 'hasCodeReview'} flag @param {() => boolean} useFn @param {string} perkName @param {string} emoji @param {() => boolean} getOutcome */
     const bindPerkPrompt = (yesId, noId, flag, useFn, perkName, emoji, getOutcome) => {
@@ -1037,7 +1036,9 @@ const UI = {
         yes.addEventListener('click', () => {
           if (useFn()) {
             result[flag] = false;
-            this.showPerkIntervention(perkName, emoji, getOutcome(), () => this.renderResult(result));
+            const outcome = getOutcome();
+            this.showToast(`⚡ ${perkName}: ${outcome ? 'SUCCESS' : 'FAILURE'}`, outcome ? 'success' : 'error');
+            this.renderResult(result);
           }
         });
       }
@@ -1072,31 +1073,6 @@ const UI = {
         this.nextEvent();
       }
     });
-  },
-  
-  // Transition screen shown after a perk intervention (active perks and
-  // Clean Deploy's auto-reroll). Continue removes it and runs onContinue
-  // (usually a re-render of the updated result).
-  /** @param {string} perkName @param {string} emoji @param {boolean} success @param {() => void} onContinue */
-  showPerkIntervention(perkName, emoji, success, onContinue) {
-    const card = document.getElementById('event-card');
-    const body = card.querySelector('.event-body');
-    
-    const div = document.createElement('div');
-    div.className = 'event-result perk-intervention';
-    div.innerHTML = `
-      <div class="perk-intervention-title">⚡ Perk Intervention</div>
-      <div class="perk-intervention-perk">${emoji} <strong>${perkName}</strong></div>
-      <div class="perk-intervention-outcome ${success ? 'success' : 'failure'}">Outcome: ${success ? 'SUCCESS' : 'FAILURE'}</div>
-      <div class="result-actions"><button class="btn btn-primary btn-continue" id="btn-perk-int-continue">Continue →</button></div>
-    `;
-    body.appendChild(div);
-    
-    /** @type {HTMLButtonElement} */ (document.getElementById('btn-perk-int-continue'))
-      .addEventListener('click', () => {
-        div.remove();
-        onContinue();
-      });
   },
   
   // Get next event

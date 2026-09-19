@@ -72,4 +72,4 @@ d20 = () => rolls.shift();
 const cdLose = Game.resolveStatChecks({ checks: { S: 5 } });
 assert.strictEqual(cdLose.cleanDeployUsed, true, 'flag set even when the reroll fails');
 assert.strictEqual(cdLose.allSuccess, false, 'failed reroll stays a failure');
-console.log('✓ clean deploy: auto-reroll, flag reported for intervention screen');
+console.log('✓ clean deploy: auto-reroll, flag reported for outcome toast');
