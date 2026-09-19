@@ -2092,3 +2092,18 @@ body {
     padding-top: max(var(--spacing-sm), env(safe-area-inset-top, 0px));
   }
 }
+
+/* Event load failure banner (title screen) */
+.events-load-error {
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-md);
+  border: 1px solid var(--stat-str);
+  border-radius: var(--radius-md);
+  background: rgba(255, 107, 107, 0.08);
+  color: var(--stat-str);
+  font-size: 13px;
+}
+
+.events-load-error p {
+  margin-top: var(--spacing-xs);
+}

@@ -587,9 +587,10 @@ const UI = {
     });
   },
   
-  // Render SPECIAL stats in game
-  renderSpecialStats() {
-    const container = document.getElementById('special-stats');
+  // Render the seven SPECIAL stat bars into a container.
+  // Shared by the side panel (renderSpecialStats) and the character popup
+  // (renderPopupSpecial) so the bar markup has a single home.
+  renderStatBars(container) {
     container.innerHTML = '';
     
     STAT_KEYS.forEach(key => {
@@ -609,7 +610,11 @@ const UI = {
       `;
       container.appendChild(bar);
     });
-    
+  },
+  
+  // Render SPECIAL stats in game
+  renderSpecialStats() {
+    this.renderStatBars(document.getElementById('special-stats'));
     this.renderPerks();
   },
   
@@ -650,7 +655,7 @@ const UI = {
     log.forEach((entry, i) => {
       const el = document.createElement('div');
       el.className = `log-entry ${i === 0 ? 'recent' : ''}`;
-      const careerYear = Math.ceil(entry.day / 12);
+      const careerYear = dayToCareerYear(entry.day);
       el.textContent = `Year ${careerYear}: ${entry.message}`;
       container.appendChild(el);
     });
@@ -670,7 +675,7 @@ const UI = {
     recentEntries.forEach((entry, i) => {
       const el = document.createElement('div');
       el.className = `recent-log-entry ${i === 0 ? 'recent' : ''}`;
-      const careerYear = Math.ceil(entry.day / 12);
+      const careerYear = dayToCareerYear(entry.day);
       el.textContent = `Year ${careerYear}: ${entry.message}`;
       container.appendChild(el);
     });
@@ -681,7 +686,7 @@ const UI = {
     const phaseNames = ['', 'Junior Developer', 'Mid-Level Developer', 'Senior Developer', 'Staff/Principal'];
     document.getElementById('career-phase').textContent = phaseNames[Game.state.phase];
     // Career spans ~8-10 years across ~24 events, each event ~0.4 years
-    const careerYear = Math.ceil(Game.state.day / 12);
+    const careerYear = dayToCareerYear(Game.state.day);
     document.getElementById('career-day').textContent = `Year ${careerYear}`;
     document.getElementById('player-level').textContent = Game.state.level;
     
@@ -1322,15 +1327,8 @@ const UI = {
   
   // Apply selected consumable and show game over
   applyEndOfRunConsumable(selectedId) {
-    // Add to meta for next run (store ID only)
-    const meta = JSON.parse(localStorage.getItem('devlife_meta') || '{}');
-    if (!meta.startingConsumables) meta.startingConsumables = [];
-    
-    // Only add if not already in the list
-    if (!meta.startingConsumables.includes(selectedId)) {
-      meta.startingConsumables.push(selectedId);
-    }
-    localStorage.setItem('devlife_meta', JSON.stringify(meta));
+    // Carry this consumable into future runs (store ID only)
+    MetaStore.addCarriedConsumable(selectedId);
     
     // Show game over summary
     SaveSystem.deleteSave();
@@ -1342,7 +1340,7 @@ const UI = {
       <div class="summary-row"><span class="label">Run #</span><span class="value">${summary.runNumber}</span></div>
       <div class="summary-row"><span class="label">Level Reached</span><span class="value">${summary.level}</span></div>
       <div class="summary-row"><span class="label">Career Phase</span><span class="value">${summary.phase}/4</span></div>
-      <div class="summary-row"><span class="label">Career Length</span><span class="value">${(summary.day / 12).toFixed(1)} years</span></div>
+      <div class="summary-row"><span class="label">Career Length</span><span class="value">${(summary.day / CONFIG.game.daysPerCareerYear).toFixed(1)} years</span></div>
       <div class="summary-row"><span class="label">Events Completed</span><span class="value">${summary.eventsCompleted}</span></div>
       <div class="summary-row"><span class="label">Equipment</span><span class="value">${summary.equipment.length}</span></div>
       <div class="summary-row"><span class="label">Stats</span><span class="value">${STAT_KEYS.map(k => `${k}:${SpecialSystem.stats[k]}`).join(' ')}</span></div>
@@ -1351,15 +1349,8 @@ const UI = {
   
   // Apply selected consumable and show victory summary
   applyVictoryConsumable(selectedId) {
-    // Add to meta for next run (store ID only)
-    const meta = JSON.parse(localStorage.getItem('devlife_meta') || '{}');
-    if (!meta.startingConsumables) meta.startingConsumables = [];
-    
-    // Only add if not already in the list
-    if (!meta.startingConsumables.includes(selectedId)) {
-      meta.startingConsumables.push(selectedId);
-    }
-    localStorage.setItem('devlife_meta', JSON.stringify(meta));
+    // Carry this consumable into future runs (store ID only)
+    MetaStore.addCarriedConsumable(selectedId);
     
     // Hide consumable selection, show summary
     document.getElementById('victory-consumables').style.display = 'none';
@@ -1375,7 +1366,7 @@ const UI = {
       <div class="summary-row"><span class="label">Run #</span><span class="value">${summary.runNumber}</span></div>
       <div class="summary-row"><span class="label">Final Level</span><span class="value">${summary.level}</span></div>
       <div class="summary-row"><span class="label">Career Phase</span><span class="value">${summary.phase}/4 🏆</span></div>
-      <div class="summary-row"><span class="label">Career Length</span><span class="value">${(summary.day / 12).toFixed(1)} years</span></div>
+      <div class="summary-row"><span class="label">Career Length</span><span class="value">${(summary.day / CONFIG.game.daysPerCareerYear).toFixed(1)} years</span></div>
       <div class="summary-row"><span class="label">Events Completed</span><span class="value">${summary.eventsCompleted}</span></div>
       <div class="summary-row"><span class="label">Equipment Collected</span><span class="value">${summary.equipment.length}</span></div>
       <div class="summary-row"><span class="label">Final Stats</span><span class="value">${STAT_KEYS.map(k => `${k}:${SpecialSystem.stats[k]}`).join(' ')}</span></div>
@@ -1522,26 +1513,7 @@ const UI = {
   },
   
   renderPopupSpecial() {
-    const statsContainer = document.getElementById('popup-special-stats');
-    statsContainer.innerHTML = '';
-    
-    STAT_KEYS.forEach(key => {
-      const meta = STAT_META[key];
-      const effective = SpecialSystem.effective(key);
-      const base = SpecialSystem.stats[key];
-      const bonus = effective - base;
-      
-      const bar = document.createElement('div');
-      bar.className = 'stat-bar';
-      bar.innerHTML = `
-        <span class="stat-letter" style="color: ${meta.color}">${key}</span>
-        <div class="stat-track">
-          <div class="stat-fill" style="width: ${effective * 10}%; background: ${meta.color}"></div>
-        </div>
-        <span class="stat-num" style="color: ${meta.color}">${base}${bonus > 0 ? `(+${bonus})` : ''}</span>
-      `;
-      statsContainer.appendChild(bar);
-    });
+    this.renderStatBars(document.getElementById('popup-special-stats'));
     
     document.getElementById('popup-player-level').textContent = Game.state.level;
     document.getElementById('popup-level-progress').textContent = this.progressText();
@@ -1600,7 +1572,7 @@ const UI = {
     log.forEach((entry, i) => {
       const el = document.createElement('div');
       el.className = `log-entry ${i === 0 ? 'recent' : ''}`;
-      const careerYear = Math.ceil(entry.day / 12);
+      const careerYear = dayToCareerYear(entry.day);
       el.textContent = `Year ${careerYear}: ${entry.message}`;
       container.appendChild(el);
     });

@@ -12,6 +12,7 @@ const CONFIG = {
 
   game: {
     eventsPerBoss: 6,
+    daysPerCareerYear: 12,
     bossPrefix: 'BOSS:',
     dropRate: 0.15,
     competenceGateFactor: 0.5,

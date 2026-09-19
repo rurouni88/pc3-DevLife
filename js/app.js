@@ -160,11 +160,10 @@ const App = {
     });
     
     // Get starting consumables and equipment from meta
-    const meta = JSON.parse(localStorage.getItem('devlife_meta') || '{}');
-    const startingConsumables = (meta.startingConsumables || []).map(id => {
+    const startingConsumables = MetaStore.carriedIds('startingConsumables').map(id => {
       return CONSUMABLES.find(c => c.id === id);
     }).filter(Boolean);
-    const startingEquipment = (meta.startingEquipment || []).map(id => {
+    const startingEquipment = MetaStore.carriedIds('startingEquipment').map(id => {
       return EQUIPMENT.find(e => e.id === id);
     }).filter(Boolean);
     

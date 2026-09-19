@@ -28,27 +28,13 @@ const Game = {
   
   // Get run number from meta
   getRunNumber() {
-    const meta = JSON.parse(localStorage.getItem('devlife_meta') || '{}');
-    return meta.totalRuns || 0;
+    return MetaStore.runCount();
   },
   
   // Save run completion to meta
   saveRunComplete() {
-    const meta = JSON.parse(localStorage.getItem('devlife_meta') || '{}');
-    meta.totalRuns = (meta.totalRuns || 0) + 1;
-    meta.lastRunDate = new Date().toISOString();
-    
-    // Save equipment to carry over (max 1)
-    if (this.state.equipment.length > 0) {
-      if (!meta.startingEquipment) meta.startingEquipment = [];
-      const equip = this.state.equipment[0];
-      // Only save if we don't already have it
-      if (!meta.startingEquipment.includes(equip.id)) {
-        meta.startingEquipment.push(equip.id);
-      }
-    }
-    
-    localStorage.setItem('devlife_meta', JSON.stringify(meta));
+    const firstEquipment = this.state.equipment[0];
+    MetaStore.recordRunComplete(firstEquipment ? firstEquipment.id : null);
   },
   
   // Check if character can level up (every N events = 1 level)

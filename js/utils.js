@@ -8,3 +8,8 @@ function dRoll(sides) {
 // 20-sided die — stat checks and saving rolls.
 function d20() { return dRoll(20); }
 
+// Convert in-game days to career years (12 days = 1 career year).
+function dayToCareerYear(day) {
+  return Math.ceil(day / CONFIG.game.daysPerCareerYear);
+}
+

@@ -46,4 +46,21 @@ function getBossEvent(phase) {
 // Initialize event loading
 initEvents().catch(err => {
   console.error('[DevLife] Failed to load events:', err);
+  showEventsLoadError();
 });
+
+// Surface a load failure to the player. Without this, waitForEvents() never
+// resolves and the title screen freezes with no explanation (the usual cause
+// is opening index.html via file://, where fetch() is blocked).
+function showEventsLoadError() {
+  const screen = document.getElementById('screen-title');
+  if (!screen) return;
+  
+  const error = document.createElement('div');
+  error.className = 'events-load-error';
+  error.innerHTML = `
+    <strong>Failed to load game events.</strong>
+    <p>The event files could not be fetched. Serve the game over HTTP — e.g. <code>npx serve</code> in the project root — and reload the page.</p>
+  `;
+  screen.appendChild(error);
+}
