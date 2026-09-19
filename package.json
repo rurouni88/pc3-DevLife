@@ -1,0 +1,12 @@
+{
+  "name": "devlife",
+  "version": "0.22",
+  "private": true,
+  "description": "DevLife — a software engineering roguelike",
+  "scripts": {
+    "typecheck": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0"
+  }
+}

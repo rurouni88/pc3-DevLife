@@ -1,4 +1,5 @@
 // Archetypes — predefined starting builds
+/** @type {Record<string, Archetype>} */
 const ARCHETYPES = {
   architect: {
     name: "The Principal Architect",
@@ -55,6 +56,7 @@ const ARCHETYPES = {
 };
 
 // Stat metadata
+/** @type {Record<StatKey, { name: string, short: string, desc: string, color: string }>} */
 const STAT_META = {
   S: { 
     name: "Strength", 
@@ -100,6 +102,8 @@ const STAT_META = {
   }
 };
 
-const STAT_KEYS = CONFIG.stats.keys;
+// CONFIG.stats.keys is validated at startup; the letters are the stat keys
+/** @type {StatKey[]} */
+const STAT_KEYS = /** @type {StatKey[]} */ (CONFIG.stats.keys);
 const STARTING_POINTS = CONFIG.stats.startingPoints;
 const MAX_STAT = CONFIG.stats.max;

@@ -1,8 +1,10 @@
 // Core game engine
 const Game = {
+  /** @type {GameState | null} */
   state: null,
   
   // Initialize a new game
+  /** @param {Stats} statAlloc @param {Consumable[]} [startingConsumables] @param {Equipment[]} [startingEquipment] @returns {GameState} */
   createCharacter(statAlloc, startingConsumables = [], startingEquipment = []) {
     const now = Date.now();
     this.state = {
@@ -55,6 +57,7 @@ const Game = {
   },
   
   // Process an event choice
+  /** @param {GameEvent} gameEvent @param {number} choiceIndex @returns {ProcessResult} */
   processChoice(gameEvent, choiceIndex) {
     const eventDef = EVENTS.find(e => e.id === gameEvent.id);
     if (!eventDef) return { error: 'Event not found' };
@@ -111,12 +114,14 @@ const Game = {
   },
   
   // Resolve stat checks for a choice
+  /** @param {EventChoice} choice @returns {{ allSuccess: boolean, results: CheckResult[], hasNegotiate: boolean, hasBruteForce: boolean }} */
   resolveStatChecks(choice) {
     const results = [];
     let allSuccess = true;
     
     if (choice.checks) {
-      for (const [stat, target] of Object.entries(choice.checks)) {
+      // Event JSON is validated at load, so check keys are always stat letters
+      for (const [stat, target] of /** @type {Array<[StatKey, number]>} */ (Object.entries(choice.checks))) {
         let effective = SpecialSystem.effective(stat);
         const L = SpecialSystem.stats.L;
         let roll = d20() - L;
@@ -160,6 +165,7 @@ const Game = {
   },
   
   // Apply stat effects from choice outcome
+  /** @param {Partial<Stats>} effects @returns {{ hasNegativeEffects: boolean }} */
   applyEffects(effects) {
     // 🐛 Code Review: check if there are negative effects to potentially halve
     const hasNegativeEffects = Object.entries(effects).some(([_, v]) => v < 0) && PerkSystem.canUseCodeReview();
@@ -210,13 +216,9 @@ const Game = {
       return null;
     }
     
-    // Add to inventory and apply bonuses
-    this.state.equipment.push({
-      id: droppedItem.id,
-      name: droppedItem.name,
-      emoji: droppedItem.emoji,
-      effects: droppedItem.effects
-    });
+    // Add to inventory and apply bonuses. Store the full item — the
+    // equipment popup renders rarity and desc.
+    this.state.equipment.push({ ...droppedItem });
     SpecialSystem.addEquipment(droppedItem.emoji, droppedItem.effects);
     
     return droppedItem;
@@ -311,6 +313,7 @@ const Game = {
   },
   
   // Add to career log
+  /** @param {string} message */
   addLog(message) {
     this.state.careerLog.unshift({ message, day: this.state.day, timestamp: Date.now() });
     if (this.state.careerLog.length > 50) {

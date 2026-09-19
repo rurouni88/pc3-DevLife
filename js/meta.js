@@ -5,6 +5,7 @@
 const MetaStore = {
   KEY: 'devlife_meta',
   
+  /** @returns {MetaState} */
   load() {
     return JSON.parse(localStorage.getItem(this.KEY) || '{}');
   },
@@ -19,6 +20,7 @@ const MetaStore = {
   },
   
   // Record a finished run: increment counter, timestamp, carry over equipment
+  /** @param {string | null} equipmentId */
   recordRunComplete(equipmentId) {
     const meta = this.load();
     meta.totalRuns = (meta.totalRuns || 0) + 1;
@@ -42,6 +44,7 @@ const MetaStore = {
   },
   
   // IDs of items carried into a new run ('startingConsumables' or 'startingEquipment')
+  /** @param {'startingConsumables' | 'startingEquipment'} kind @returns {string[]} */
   carriedIds(kind) {
     return (this.load()[kind] || []).slice();
   },

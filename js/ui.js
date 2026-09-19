@@ -8,7 +8,7 @@ const UI = {
   // Initialize audio (must be called after user interaction)
   initAudio() {
     if (this.audioCtx) return;
-    this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    this.audioCtx = new (window.AudioContext || (/** @type {any} */ (window)).webkitAudioContext)();
   },
   
   // Play a sound effect
@@ -139,7 +139,7 @@ const UI = {
     } else if (item.effects) {
       effectText = Object.entries(item.effects).map(([s, v]) => `+${v} ${STAT_META[s]?.name || s}`).join(', ');
     }
-    const effectEl = tooltip.querySelector('.tooltip-effect');
+    const effectEl = /** @type {HTMLElement} */ (tooltip.querySelector('.tooltip-effect'));
     effectEl.textContent = effectText;
     effectEl.style.display = effectText ? 'block' : 'none';
     
@@ -165,14 +165,15 @@ const UI = {
     // Close tooltip when clicking outside
     document.addEventListener('click', (e) => {
       if (tooltip.style.display === 'none') return;
-      if (tooltip.contains(e.target)) return;
-      if (e.target.classList.contains('cons-info')) return;
+      const target = /** @type {Element} */ (e.target);
+      if (tooltip.contains(target)) return;
+      if (target.classList.contains('cons-info')) return;
       this.hideTooltip();
     });
     
     // Close popup when clicking close button or overlay
     document.addEventListener('click', (e) => {
-      if (e.target.classList.contains('popup-close')) {
+      if ((/** @type {Element} */ (e.target)).classList.contains('popup-close')) {
         this.closePopup();
       }
       const activePopup = document.querySelector('.popup-panel.active');
@@ -310,7 +311,7 @@ const UI = {
     };
     
     // Bind events
-    container.querySelectorAll('.stat-btn').forEach(btn => {
+    container.querySelectorAll('.stat-btn').forEach(/** @param {HTMLElement} btn */ (btn) => {
       btn.addEventListener('click', () => {
         const stat = btn.dataset.stat;
         const action = btn.dataset.action;
@@ -321,11 +322,11 @@ const UI = {
         const total = STAT_KEYS.reduce((s, k) => s + stats[k], 0);
         
         if (action === 'plus' && cur < 10 && total < STARTING_POINTS) {
-          valueEl.textContent = cur + 1;
+          valueEl.textContent = String(cur + 1);
           this._selectedPreset = null;
           this.updateCharCreationUI();
         } else if (action === 'minus' && cur > 1) {
-          valueEl.textContent = cur - 1;
+          valueEl.textContent = String(cur - 1);
           this._selectedPreset = null;
           this.updateCharCreationUI();
         }
@@ -409,8 +410,8 @@ const UI = {
     rows.forEach(row => {
       const label = row.querySelector('.stat-label').textContent;
       const valueEl = row.querySelector('.stat-value');
-      const minusBtn = row.querySelector('.stat-btn.minus');
-      const plusBtn = row.querySelector('.stat-btn.plus');
+      const minusBtn = /** @type {HTMLButtonElement} */ (row.querySelector('.stat-btn.minus'));
+      const plusBtn = /** @type {HTMLButtonElement} */ (row.querySelector('.stat-btn.plus'));
       
       const value = stats[label];
       valueEl.textContent = value;
@@ -488,16 +489,16 @@ const UI = {
     
     const total = STAT_KEYS.reduce((sum, k) => sum + currentStats[k], 0);
     const remaining = STARTING_POINTS - total;
-    document.getElementById('points-remaining').textContent = remaining;
+    document.getElementById('points-remaining').textContent = String(remaining);
     
-    const startBtn = document.getElementById('btn-start-career');
+    const startBtn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-start-career'));
     startBtn.disabled = remaining !== 0;
     
     // Update button disabled states
     rows.forEach(row => {
       const label = row.querySelector('.stat-label').textContent;
-      const minusBtn = row.querySelector('.stat-btn.minus');
-      const plusBtn = row.querySelector('.stat-btn.plus');
+      const minusBtn = /** @type {HTMLButtonElement} */ (row.querySelector('.stat-btn.minus'));
+      const plusBtn = /** @type {HTMLButtonElement} */ (row.querySelector('.stat-btn.plus'));
       const value = currentStats[label];
       
       minusBtn.disabled = value <= 1;
@@ -688,7 +689,7 @@ const UI = {
     // Career spans ~8-10 years across ~24 events, each event ~0.4 years
     const careerYear = dayToCareerYear(Game.state.day);
     document.getElementById('career-day').textContent = `Year ${careerYear}`;
-    document.getElementById('player-level').textContent = Game.state.level;
+    document.getElementById('player-level').textContent = String(Game.state.level);
     
     // Progress toward next boss (🚀 Fast Ship: 5 instead of 6)
     const progressText = this.progressText();
@@ -704,6 +705,7 @@ const UI = {
   },
   
   // Render an event
+  /** @param {GameEvent} event */
   renderEvent(event) {
     const container = document.getElementById('event-container');
     const letters = ['A', 'B', 'C', 'D'];
@@ -749,7 +751,7 @@ const UI = {
             const checks = Object.entries(choice.checks || {});
             const checkHTML = checks.length > 0
               ? `<div class="choice-checks">${checks.map(([stat, target]) => {
-                  const currentStat = SpecialSystem.effective(stat);
+                  const currentStat = SpecialSystem.effective(/** @type {StatKey} */ (stat));
                   const success = currentStat >= target;
                   return `<span class="check ${success ? 'success' : 'fail'}">${STAT_META[stat].name}: ${target} ${success ? '✓' : '✗'}</span>`;
                 }).join('')}</div>`
@@ -769,8 +771,8 @@ const UI = {
     container.appendChild(card);
     
     // Bind consumable buttons
-    card.querySelectorAll('.cons-btn').forEach(btn => {
-      const infoBtn = btn.querySelector('.cons-info');
+    card.querySelectorAll('.cons-btn').forEach(/** @param {HTMLElement} btn */ (btn) => {
+      const infoBtn = /** @type {HTMLElement | null} */ (btn.querySelector('.cons-info'));
       if (infoBtn) {
         // Desktop: hover to show
         infoBtn.addEventListener('mouseenter', () => {
@@ -784,7 +786,7 @@ const UI = {
         // Mobile: tap to show (stays until tapped elsewhere)
         infoBtn.addEventListener('click', (e) => {
           e.stopPropagation();
-          const id = e.target.dataset.id;
+          const id = /** @type {HTMLElement} */ (e.target).dataset.id;
           const consumable = CONSUMABLES.find(c => c.id === id);
           if (consumable) {
             this.showTooltip(consumable);
@@ -792,14 +794,14 @@ const UI = {
         });
       }
       btn.addEventListener('click', (e) => {
-        if (!e.target.classList.contains('cons-info')) {
+        if (!(/** @type {Element} */ (e.target)).classList.contains('cons-info')) {
           this.useConsumable(btn.dataset.id, event);
         }
       });
     });
     
     // Bind choice buttons
-    card.querySelectorAll('.choice-btn').forEach(btn => {
+    card.querySelectorAll('.choice-btn').forEach(/** @param {HTMLElement} btn */ (btn) => {
       btn.addEventListener('click', () => {
         this.playSound('click');
         const choiceIndex = parseInt(btn.dataset.choice);
@@ -809,6 +811,7 @@ const UI = {
   },
   
   // Use a consumable before a choice
+  /** @param {string} id @param {GameEvent} event */
   useConsumable(id, event) {
     const result = ConsumableManager.use(id);
     if (!result) return;
@@ -882,6 +885,7 @@ const UI = {
   },
   
   // Handle a choice selection
+  /** @param {GameEvent} event @param {number} choiceIndex */
   handleChoice(event, choiceIndex) {
     const result = Game.processChoice(event, choiceIndex);
     if (result.error) {
@@ -929,7 +933,7 @@ const UI = {
     // Show result in event card
     const card = document.getElementById('event-card');
     const body = card.querySelector('.event-body');
-    body.querySelector('.event-choices').style.display = 'none';
+    /** @type {HTMLElement} */ (body.querySelector('.event-choices')).style.display = 'none';
     
     const resultDiv = document.createElement('div');
     resultDiv.className = 'event-result';
@@ -1111,7 +1115,7 @@ const UI = {
     document.getElementById('levelup-stats-container').style.display = 'none';
     document.getElementById('btn-skip-levelup').style.display = 'block';
     document.getElementById('btn-continue-levelup').style.display = 'block';
-    document.getElementById('btn-continue-levelup').disabled = true;
+/** @type {HTMLButtonElement} */ (document.getElementById('btn-continue-levelup')).disabled = true;
     
     const container = document.getElementById('levelup-consumables');
     container.innerHTML = '';
@@ -1128,7 +1132,7 @@ const UI = {
       itemElement.addEventListener('click', () => {
         container.querySelectorAll('.consumable-select-item').forEach(s => s.classList.remove('selected'));
         itemElement.classList.add('selected');
-        document.getElementById('btn-continue-levelup').disabled = false;
+/** @type {HTMLButtonElement} */ (document.getElementById('btn-continue-levelup')).disabled = false;
       });
       container.appendChild(itemElement);
     });
@@ -1161,7 +1165,7 @@ const UI = {
     
     // Bind continue button
     document.getElementById('btn-continue-levelup').onclick = () => {
-      const selected = container.querySelector('.consumable-select-item.selected');
+      const selected = /** @type {HTMLElement | null} */ (container.querySelector('.consumable-select-item.selected'));
       if (!selected) return;
       
       const id = selected.dataset.id;
@@ -1229,14 +1233,14 @@ const UI = {
         stat.addEventListener('click', () => {
           container.querySelectorAll('.levelup-stat').forEach(s => s.classList.remove('selected'));
           stat.classList.add('selected');
-          document.getElementById('btn-continue-levelup').disabled = false;
+/** @type {HTMLButtonElement} */ (document.getElementById('btn-continue-levelup')).disabled = false;
         });
       }
       
       container.appendChild(stat);
     });
     
-    document.getElementById('btn-continue-levelup').disabled = true;
+/** @type {HTMLButtonElement} */ (document.getElementById('btn-continue-levelup')).disabled = true;
     
     // Bind continue button — spend points one at a time; consumables come
     // after the last point is spent, otherwise continue straight away.
@@ -1267,7 +1271,7 @@ const UI = {
     if (type === 'gameover') {
       // Game over screen
       const container = document.getElementById('gameover-cons-selection');
-      const continueBtn = document.getElementById('btn-continue-gameover-cons');
+      const continueBtn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-continue-gameover-cons'));
       container.innerHTML = '';
       continueBtn.disabled = true;
       options.forEach((item, i) => {
@@ -1293,7 +1297,7 @@ const UI = {
       // Victory screen
       const consContainer = document.getElementById('victory-consumables');
       const summaryContainer = document.getElementById('victory-summary');
-      const continueBtn = document.getElementById('btn-continue-victory-cons');
+      const continueBtn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-continue-victory-cons'));
       const buttonsContainer = document.getElementById('victory-buttons');
       
       consContainer.style.display = 'block';
@@ -1402,7 +1406,7 @@ const UI = {
   showEquipmentChoice(newEquipment, currentEquipment) {
     const newContainer = document.getElementById('equipment-choice-new');
     const currentContainer = document.getElementById('equipment-choice-current');
-    const keepBtn = document.getElementById('btn-keep-equipment');
+    const keepBtn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-keep-equipment'));
     const skipBtn = document.getElementById('btn-skip-equipment');
     
     // Show new equipment
@@ -1515,7 +1519,7 @@ const UI = {
   renderPopupSpecial() {
     this.renderStatBars(document.getElementById('popup-special-stats'));
     
-    document.getElementById('popup-player-level').textContent = Game.state.level;
+    document.getElementById('popup-player-level').textContent = String(Game.state.level);
     document.getElementById('popup-level-progress').textContent = this.progressText();
   },
   

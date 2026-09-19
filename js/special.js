@@ -1,11 +1,15 @@
 // SPECIAL stat system
 const SpecialSystem = {
+  /** @type {Stats} */
   stats: { S: 1, P: 1, E: 1, C: 1, I: 1, A: 1, L: 1 },
-  equipmentBonuses: {},
+  /** @type {Stats} */
+  equipmentBonuses: { S: 0, P: 0, E: 0, C: 0, I: 0, A: 0, L: 0 },
+  /** @type {Stats} */
   temporaryBonuses: { S: 0, P: 0, E: 0, C: 0, I: 0, A: 0, L: 0 },
   temporaryMultiplier: null,
   
   // Initialize with starting values
+  /** @param {Stats} stats */
   init(stats) {
     this.stats = { ...stats };
     this.equipmentBonuses = { S: 0, P: 0, E: 0, C: 0, I: 0, A: 0, L: 0 };
@@ -30,6 +34,7 @@ const SpecialSystem = {
   },
   
   // Get effective stat (base + equipment + temporary + multiplier)
+  /** @param {StatKey} stat @returns {number} */
   effective(stat) {
     const base = this.stats[stat] || 0;
     const equipmentBonus = this.equipmentBonuses[stat] || 0;
@@ -45,6 +50,7 @@ const SpecialSystem = {
   },
   
   // Apply temporary bonus (for consumables)
+  /** @param {StatKey} stat @param {number} bonus */
   applyTempBonus(stat, bonus) {
     this.temporaryBonuses[stat] = (this.temporaryBonuses[stat] || 0) + bonus;
   },
@@ -75,6 +81,7 @@ const SpecialSystem = {
   },
   
   // Clone for save/load
+  /** @returns {SpecialSnapshot} */
   clone() {
     return {
       stats: { ...this.stats },
@@ -83,6 +90,7 @@ const SpecialSystem = {
   },
   
   // Restore from clone
+  /** @param {SpecialSnapshot} data */
   restore(data) {
     this.stats = { ...data.stats };
     this.equipmentBonuses = { ...data.equipmentBonuses };

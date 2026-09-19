@@ -33,7 +33,7 @@ const App = {
     bind('btn-start-career', () => this.startCareer());
     
     // Game screen - toolbar buttons
-    document.querySelectorAll('.toolbar-btn').forEach(btn => {
+    document.querySelectorAll('.toolbar-btn').forEach(/** @param {HTMLElement} btn */ (btn) => {
       btn.addEventListener('click', () => {
         const panelName = btn.dataset.panel;
         UI.openPopup(panelName);
@@ -100,7 +100,7 @@ const App = {
     
     // End-of-run consumable selection
     bind('btn-continue-gameover-cons', () => {
-      const selected = document.querySelector('#gameover-cons-selection .consumable-select-item.selected');
+      const selected = /** @type {HTMLElement | null} */ (document.querySelector('#gameover-cons-selection .consumable-select-item.selected'));
       if (selected) {
         const id = selected.dataset.id;
         UI.applyEndOfRunConsumable(id);
@@ -108,7 +108,7 @@ const App = {
     });
     
     bind('btn-continue-victory-cons', () => {
-      const selected = document.querySelector('#victory-consumables .consumable-select-item.selected');
+      const selected = /** @type {HTMLElement | null} */ (document.querySelector('#victory-consumables .consumable-select-item.selected'));
       if (selected) {
         const id = selected.dataset.id;
         UI.applyVictoryConsumable(id);
@@ -123,7 +123,7 @@ const App = {
   },
   
   initHelpTabs() {
-    document.querySelectorAll('.modal-tab').forEach(tab => {
+    document.querySelectorAll('.modal-tab').forEach(/** @param {HTMLElement} tab */ (tab) => {
       tab.addEventListener('click', () => {
         UI.setHelpTab(tab.dataset.tab);
       });
@@ -150,7 +150,8 @@ const App = {
   
   startCareer() {
     // Collect stats from character creation
-    const stats = {};
+    // All seven rows are present in the DOM; zeros are overwritten below
+    /** @type {Stats} */ const stats = { S: 0, P: 0, E: 0, C: 0, I: 0, A: 0, L: 0 };
     const container = document.getElementById('stat-allocation');
     const rows = container.querySelectorAll('.stat-row');
     rows.forEach(row => {
@@ -230,9 +231,9 @@ const App = {
   
   afterLevelUp() {
     // Apply level up
-    const selected = document.querySelector('.levelup-stat.selected');
+    const selected = /** @type {HTMLElement | null} */ (document.querySelector('.levelup-stat.selected'));
     if (selected) {
-      const stat = selected.dataset.stat;
+      const stat = /** @type {StatKey} */ (selected.dataset.stat);
       SpecialSystem.increase(stat);
     }
     
