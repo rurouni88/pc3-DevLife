@@ -101,6 +101,16 @@ assert.ok(Game.useBruteForce(graceBF), '+2 still fires');
 assert.strictEqual(graceBF.checkResults[0].target, 3, 'target +2 applied');
 console.log('✓ grace: perk revoked by the failure itself can still intervene');
 
+// --- Consumable carry-over: pick = most recent, pool capped at 2 ---
+localStorage.setItem('devlife_meta', JSON.stringify({ totalRuns: 0, startingConsumables: ['coffee', 'focus'] }));
+MetaStore.addCarriedConsumable('espresso'); // new pick
+assert.deepStrictEqual(MetaStore.carriedIds('startingConsumables'), ['focus', 'espresso'], 'new pick moves to end, oldest drops');
+localStorage.setItem('devlife_meta', JSON.stringify({ totalRuns: 0, startingConsumables: ['espresso', 'coffee', 'focus'] }));
+MetaStore.addCarriedConsumable('espresso'); // re-pick an older entry (issue #4 follow-up)
+assert.deepStrictEqual(MetaStore.carriedIds('startingConsumables'), ['focus', 'espresso'], 're-pick refreshes recency, pool capped at 2');
+localStorage.removeItem('devlife_meta');
+console.log('✓ consumable carry-over: pick = most recent, pool capped at 2');
+
 // --- Consumable carry-over: the last 2 in the pool are granted ---
 const conById = id => CONSUMABLES.find(c => c.id === id);
 const conStats = { S: 10, P: 10, E: 10, C: 10, I: 10, A: 10, L: 10 };

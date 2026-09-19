@@ -34,12 +34,14 @@ const MetaStore = {
     this.save(meta);
   },
   
-  // Carry a consumable into future runs; skip if already carried
+  // Carry a consumable into future runs. Selection = most recent: the pick
+  // moves to the end of the pool (re-picking an older entry refreshes it —
+  // the old skip-if-exists left stale entries winning via slice(-2)), and
+  // the pool is capped at the 2 slots that get granted.
   addCarriedConsumable(id) {
     const meta = this.load();
-    if (!meta.startingConsumables || !meta.startingConsumables.includes(id)) {
-      meta.startingConsumables = [...(meta.startingConsumables || []), id];
-    }
+    const pool = (meta.startingConsumables || []).filter(x => x !== id);
+    meta.startingConsumables = [...pool, id].slice(-2);
     this.save(meta);
   },
   
