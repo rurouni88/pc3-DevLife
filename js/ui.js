@@ -1376,11 +1376,12 @@ const UI = {
     this.showScreen('gameover');
     
     const summary = Game.getSummary();
+    const phaseNames = ['', 'Junior Developer', 'Mid-Level Developer', 'Senior Developer', 'Staff/Principal'];
     const container = document.getElementById('gameover-summary');
     container.innerHTML = `
       <div class="summary-row"><span class="label">Run #</span><span class="value">${summary.runNumber}</span></div>
       <div class="summary-row"><span class="label">Level Reached</span><span class="value">${summary.level}</span></div>
-      <div class="summary-row"><span class="label">Career Phase</span><span class="value">${summary.phase}/4</span></div>
+      <div class="summary-row"><span class="label">Final Position</span><span class="value">${phaseNames[summary.phase] || summary.phase}</span></div>
       <div class="summary-row"><span class="label">Career Length</span><span class="value">${(summary.day / CONFIG.game.daysPerCareerYear).toFixed(1)} years</span></div>
       <div class="summary-row"><span class="label">Events Completed</span><span class="value">${summary.eventsCompleted}</span></div>
       <div class="summary-row"><span class="label">Equipment</span><span class="value">${summary.equipment.length}</span></div>
@@ -1403,10 +1404,11 @@ const UI = {
     SaveSystem.deleteSave();
     
     const summary = Game.getSummary();
+    const phaseNames = ['', 'Junior Developer', 'Mid-Level Developer', 'Senior Developer', 'Staff/Principal'];
     summaryContainer.innerHTML = `
       <div class="summary-row"><span class="label">Run #</span><span class="value">${summary.runNumber}</span></div>
       <div class="summary-row"><span class="label">Final Level</span><span class="value">${summary.level}</span></div>
-      <div class="summary-row"><span class="label">Career Phase</span><span class="value">${summary.phase}/4 🏆</span></div>
+      <div class="summary-row"><span class="label">Final Position</span><span class="value">${phaseNames[summary.phase] || summary.phase} 🏆</span></div>
       <div class="summary-row"><span class="label">Career Length</span><span class="value">${(summary.day / CONFIG.game.daysPerCareerYear).toFixed(1)} years</span></div>
       <div class="summary-row"><span class="label">Events Completed</span><span class="value">${summary.eventsCompleted}</span></div>
       <div class="summary-row"><span class="label">Equipment Collected</span><span class="value">${summary.equipment.length}</span></div>
