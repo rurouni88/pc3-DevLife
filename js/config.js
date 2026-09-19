@@ -1,6 +1,6 @@
 // Game configuration — all tunable constants in one place
 const CONFIG = {
-  version: '0.22',
+  version: '0.23',
   versionLabel: 'Prototype',
 
   stats: {
@@ -12,6 +12,7 @@ const CONFIG = {
 
   game: {
     eventsPerBoss: 6,
+    daysPerCareerYear: 12,
     bossPrefix: 'BOSS:',
     dropRate: 0.15,
     competenceGateFactor: 0.5,

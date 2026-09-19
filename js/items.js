@@ -1,4 +1,4 @@
-// Equipment — passive items with permanent stat bonuses
+/** @type {Equipment[]} */
 const EQUIPMENT = [
   // Common
   { id: 'keyboard', name: 'Mechanical Keyboard', emoji: '⌨️', rarity: 'common', effects: { S: 1 }, desc: '+1 Strength' },
@@ -22,7 +22,7 @@ const EQUIPMENT = [
   { id: 'homeoffice', name: 'Home Office Setup', emoji: '🏠', rarity: 'epic', effects: { P: 1, E: 1, A: 1 }, desc: '+1 Perception, +1 Endurance, +1 Agility' }
 ];
 
-// Consumables — one-time use items that boost a specific stat for a check
+/** @type {Consumable[]} */
 const CONSUMABLES = [
   // Common — food & substances
   { id: 'coffee', name: 'Coffee', emoji: '☕', rarity: 'common', stat: 'E', bonus: 2, desc: '+2 Endurance on next check' },
@@ -71,7 +71,8 @@ const RARITY_WEIGHTS = {
   epic: 5
 };
 
-// Get random equipment item
+// Get random equipment item (rarity-weighted)
+/** @returns {Equipment} */
 function getRandomEquipment() {
   const totalWeight = Object.values(RARITY_WEIGHTS).reduce((a, b) => a + b, 0);
   let roll = Math.random() * totalWeight;
@@ -90,6 +91,7 @@ function getRandomEquipment() {
 }
 
 // Get 3 random consumables for end-of-run selection
+/** @returns {Consumable[]} */
 function get3RandomConsumables() {
   const all = [...CONSUMABLES];
   const shuffled = all.sort(() => Math.random() - 0.5);

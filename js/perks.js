@@ -14,6 +14,7 @@ const PERKS = {
 };
 
 // Lookup by perk id
+/** @type {Record<string, { id: string, name: string, emoji: string, desc: string }>} */
 const PERK_BY_ID = {};
 Object.values(PERKS).forEach(perk => { PERK_BY_ID[perk.id] = perk; });
 
@@ -108,6 +109,7 @@ const PerkSystem = {
   },
   
   // Clone for save/load
+  /** @returns {PerkSnapshot} */
   clone() {
     return {
       active: [...this.active],
@@ -119,6 +121,7 @@ const PerkSystem = {
   },
   
   // Restore from clone
+  /** @param {PerkSnapshot | null} data */
   restore(data) {
     if (!data) {
       this.reset();

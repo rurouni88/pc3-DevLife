@@ -2,6 +2,7 @@
 const SaveSystem = {
   SAVE_KEY: 'devlife_save',
   
+  /** @param {GameState} state */
   save(state) {
     const saveData = {
       state: { ...state },
@@ -12,12 +13,17 @@ const SaveSystem = {
     localStorage.setItem(this.SAVE_KEY, JSON.stringify(saveData));
   },
   
+  /** @returns {SaveData | null} */
   load() {
     const data = localStorage.getItem(this.SAVE_KEY);
     if (!data) return null;
     
     try {
       const saveData = JSON.parse(data);
+      if (!this.isValidSave(saveData)) {
+        console.error('[DevLife] Save data is invalid; ignoring it');
+        return null;
+      }
       
       // Restore game state
       Game.state = saveData.state;
@@ -38,6 +44,18 @@ const SaveSystem = {
   
   hasSave() {
     return localStorage.getItem(this.SAVE_KEY) !== null;
+  },
+  
+  // Minimal shape check at the load boundary: a save from an older version
+  // (or hand-edited) must not be restored into the live game.
+  /** @param {unknown} saveData @returns {boolean} */
+  isValidSave(saveData) {
+    if (!saveData || typeof saveData !== 'object') return false;
+    const state = /** @type {SaveData} */ (saveData).state;
+    if (!state || typeof state !== 'object') return false;
+    if (typeof state.level !== 'number' || typeof state.day !== 'number' || typeof state.phase !== 'number') return false;
+    if (!state.stats || !Array.isArray(state.careerLog)) return false;
+    return true;
   },
   
   deleteSave() {

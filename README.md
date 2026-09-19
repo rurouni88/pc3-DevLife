@@ -109,12 +109,13 @@ pc3-DevLife/
 
 ### Local Development
 
-Just open `index.html` in any modern browser:
+Serve the project over HTTP and open `http://localhost:8000` (opening
+`index.html` directly via `file://` won't work — the event files are loaded
+with `fetch()`):
 
 ```bash
 # Using Python
 python3 -m http.server 8000
-# Then open http://localhost:8000
 
 # Or any other local server
 npx serve .
@@ -125,6 +126,7 @@ npx serve .
 ## 🛠️ Tech Stack
 
 - **HTML5 / CSS3 / Vanilla JavaScript** — No frameworks, no build tools
+- **TypeScript type checking** — JSDoc annotations + `tsc --noEmit` (no transpilation, no emitted JS)
 - **LocalStorage** — Save games and meta-progression
 - **Single-Page Application** — Screen-based navigation
 - **Mobile-First Responsive Design** — Works on all screen sizes
@@ -155,6 +157,25 @@ See [`GAME_DESIGN.md`](GAME_DESIGN.md) for the full game design document, includ
 ---
 
 ## 🧑‍💻 Development
+
+### Building & verifying
+
+DevLife is a static site — there is **no build step** and nothing to compile.
+The files in this repo are exactly what gets served. The only tooling is a
+type checker that guards the shared data shapes (game state, events, items):
+
+```bash
+npm install        # installs TypeScript (dev dependency only)
+npm run typecheck  # runs tsc --noEmit; reports errors, emits nothing
+npm test           # runs the core game-logic tests (Node, no framework)
+```
+
+- Type definitions live in [`js/types.js`](js/types.js) (JSDoc `@typedef`s only — no runtime code, not loaded by the browser).
+- Annotations are plain JSDoc comments in the existing `.js` files; the game runs identically with or without them.
+- Tests live in [`test/`](test/): the logic modules run in a Node VM context with stubbed browser globals, so the rules (stat checks, perks, effects) are verified without a browser. Both checks run in CI on every push and PR.
+- The **Typecheck** GitHub Action (`.github/workflows/typecheck.yml`) runs `npm run typecheck` on every push to `main` and on all pull requests.
+
+### Roadmap
 
 This is a prototype/vertical slice. Planned features:
 

@@ -1,8 +1,10 @@
 // Core game engine
 const Game = {
+  /** @type {GameState | null} */
   state: null,
   
   // Initialize a new game
+  /** @param {Stats} statAlloc @param {Consumable[]} [startingConsumables] @param {Equipment[]} [startingEquipment] @returns {GameState} */
   createCharacter(statAlloc, startingConsumables = [], startingEquipment = []) {
     const now = Date.now();
     this.state = {
@@ -28,27 +30,13 @@ const Game = {
   
   // Get run number from meta
   getRunNumber() {
-    const meta = JSON.parse(localStorage.getItem('devlife_meta') || '{}');
-    return meta.totalRuns || 0;
+    return MetaStore.runCount();
   },
   
   // Save run completion to meta
   saveRunComplete() {
-    const meta = JSON.parse(localStorage.getItem('devlife_meta') || '{}');
-    meta.totalRuns = (meta.totalRuns || 0) + 1;
-    meta.lastRunDate = new Date().toISOString();
-    
-    // Save equipment to carry over (max 1)
-    if (this.state.equipment.length > 0) {
-      if (!meta.startingEquipment) meta.startingEquipment = [];
-      const equip = this.state.equipment[0];
-      // Only save if we don't already have it
-      if (!meta.startingEquipment.includes(equip.id)) {
-        meta.startingEquipment.push(equip.id);
-      }
-    }
-    
-    localStorage.setItem('devlife_meta', JSON.stringify(meta));
+    const firstEquipment = this.state.equipment[0];
+    MetaStore.recordRunComplete(firstEquipment ? firstEquipment.id : null);
   },
   
   // Check if character can level up (every N events = 1 level)
@@ -69,6 +57,7 @@ const Game = {
   },
   
   // Process an event choice
+  /** @param {GameEvent} gameEvent @param {number} choiceIndex @returns {ProcessResult} */
   processChoice(gameEvent, choiceIndex) {
     const eventDef = EVENTS.find(e => e.id === gameEvent.id);
     if (!eventDef) return { error: 'Event not found' };
@@ -78,6 +67,11 @@ const Game = {
     
     // Resolve stat checks and apply consequences
     const checkResult = this.resolveStatChecks(choice);
+    
+    // Perk availability is judged BEFORE effects: the failure's own effects
+    // may drop a stat and revoke the perk, but the intervention for this
+    // event is still offered (and usable) — see useNegotiate() etc.
+    const codeReviewAvailable = PerkSystem.canUseCodeReview();
     
     // Apply stat effects and log the outcome
     const effects = checkResult.allSuccess ? choice.success.effects : choice.failure.effects;
@@ -120,17 +114,21 @@ const Game = {
       bossDefeated: isBoss,
       hasNegotiate: checkResult.hasNegotiate,
       hasBruteForce: checkResult.hasBruteForce,
-      hasCodeReview: effectResult.hasNegativeEffects
+      hasCodeReview: effectResult.hasNegativeEffects && codeReviewAvailable,
+      cleanDeployUsed: checkResult.cleanDeployUsed
     };
   },
   
   // Resolve stat checks for a choice
+  /** @param {EventChoice} choice @returns {{ allSuccess: boolean, results: CheckResult[], hasNegotiate: boolean, hasBruteForce: boolean, cleanDeployUsed: boolean }} */
   resolveStatChecks(choice) {
     const results = [];
     let allSuccess = true;
+    let cleanDeployUsed = false;
     
     if (choice.checks) {
-      for (const [stat, target] of Object.entries(choice.checks)) {
+      // Event JSON is validated at load, so check keys are always stat letters
+      for (const [stat, target] of /** @type {Array<[StatKey, number]>} */ (Object.entries(choice.checks))) {
         let effective = SpecialSystem.effective(stat);
         const L = SpecialSystem.stats.L;
         let roll = d20() - L;
@@ -140,6 +138,7 @@ const Game = {
         // 🍀 Clean Deploy: once per run, reroll a failed check
         if (!success && PerkSystem.canCleanDeployReroll()) {
           PerkSystem.useCleanDeployReroll();
+          cleanDeployUsed = true;
           roll = d20() - L;
           success = roll <= checkTarget && effective >= (target - L) * CONFIG.game.competenceGateFactor;
           if (success) {
@@ -161,29 +160,78 @@ const Game = {
     // Consumable bonuses are one-time — clear after stat check resolves
     SpecialSystem.clearTempBonuses();
     
-    return { allSuccess, results, hasNegotiate, hasBruteForce };
+    return { allSuccess, results, hasNegotiate, hasBruteForce, cleanDeployUsed };
   },
   
-  // Use Negotiate perk after event result
-  useNegotiate() {
-    if (!PerkSystem.canNegotiate()) return false;
+  // Use Negotiate perk after event result. Cosmetic: effects were already
+  // applied, but the displayed result flips to success.
+  // Gate is "not yet spent this run", NOT "perk still active": the
+  // failure's own effects may have dropped C below 10 and revoked the
+  // perk, but the intervention was earned when the check resolved.
+  /** @param {ProcessResult} result @returns {boolean} */
+  useNegotiate(result) {
+    if (PerkSystem.negotiateUsed) return false;
     PerkSystem.useNegotiate();
-    // Re-resolve with all checks passed
+    result.success = true;
+    (result.checkResults || []).forEach(cr => { cr.negotiated = true; });
     this.addLog('🤝 Negotiate! You talked your way out of it.');
     return true;
   },
   
-  // Apply stat effects from choice outcome
+  // 💪 Brute Force: re-evaluate the failed Strength check with a +2 target.
+  // Cosmetic: effects were already applied, but the displayed check (and
+  // success state, if all checks now pass) is updated.
+  /** @param {ProcessResult} result @returns {boolean} */
+  useBruteForce(result) {
+    if (PerkSystem.bruteForceUsed) return false;
+    PerkSystem.useBruteForce();
+    
+    (result.checkResults || []).forEach(cr => {
+      if (cr.stat === 'S' && !cr.success) {
+        cr.target = PerkSystem.applyBruteForce(cr.target);
+        cr.success = cr.roll <= cr.target;
+      }
+    });
+    
+    if (result.checkResults.length > 0 && result.checkResults.every(cr => cr.success)) {
+      result.success = true;
+    }
+    
+    this.addLog('💪 Brute Force! +2 to the Strength check target.');
+    return true;
+  },
+  
+  // 🐛 Code Review: retroactively halve this outcome's negative effects
+  // (the full effects were already applied by applyEffects). Edge case:
+  // if a stat was clamped at the min, the correction may over-restore by
+  // the clamped amount — accepted as rare.
+  /** @param {ProcessResult} result @returns {boolean} */
+  useCodeReview(result) {
+    if (PerkSystem.codeReviewUsed || !result.effects) return false;
+    PerkSystem.useCodeReview();
+    
+    for (const [stat, value] of Object.entries(result.effects)) {
+      if (value < 0 && SpecialSystem.stats[stat] !== undefined) {
+        const correction = PerkSystem.applyCodeReview(value) - value; // e.g. -2 - (-4) = +2
+        SpecialSystem.stats[stat] = Math.max(CONFIG.stats.min, Math.min(CONFIG.stats.max, SpecialSystem.stats[stat] + correction));
+      }
+    }
+    
+    this.refreshPerks();
+    this.addLog('🐛 Code Review! Negative effects halved.');
+    return true;
+  },
+  
+  // Apply stat effects from choice outcome. Negative effects are applied in
+  // full — Code Review (player choice) may retroactively halve them via
+  // useCodeReview().
+  /** @param {Partial<Stats>} effects @returns {{ hasNegativeEffects: boolean }} */
   applyEffects(effects) {
-    // 🐛 Code Review: check if there are negative effects to potentially halve
-    const hasNegativeEffects = Object.entries(effects).some(([_, v]) => v < 0) && PerkSystem.canUseCodeReview();
+    const hasNegativeEffects = Object.entries(effects).some(([_, v]) => v < 0);
     
     for (const [stat, value] of Object.entries(effects)) {
       if (SpecialSystem.stats[stat] === undefined) continue;
-      const adjusted = PerkSystem.canUseCodeReview() && value < 0 
-        ? PerkSystem.applyCodeReview(value) 
-        : value;
-      SpecialSystem.stats[stat] = Math.max(CONFIG.stats.min, Math.min(CONFIG.stats.max, SpecialSystem.stats[stat] + adjusted));
+      SpecialSystem.stats[stat] = Math.max(CONFIG.stats.min, Math.min(CONFIG.stats.max, SpecialSystem.stats[stat] + value));
     }
     
     // Stat changes may unlock or revoke perks
@@ -224,13 +272,9 @@ const Game = {
       return null;
     }
     
-    // Add to inventory and apply bonuses
-    this.state.equipment.push({
-      id: droppedItem.id,
-      name: droppedItem.name,
-      emoji: droppedItem.emoji,
-      effects: droppedItem.effects
-    });
+    // Add to inventory and apply bonuses. Store the full item — the
+    // equipment popup renders rarity and desc.
+    this.state.equipment.push({ ...droppedItem });
     SpecialSystem.addEquipment(droppedItem.emoji, droppedItem.effects);
     
     return droppedItem;
@@ -325,6 +369,7 @@ const Game = {
   },
   
   // Add to career log
+  /** @param {string} message */
   addLog(message) {
     this.state.careerLog.unshift({ message, day: this.state.day, timestamp: Date.now() });
     if (this.state.careerLog.length > 50) {
