@@ -10,7 +10,9 @@ const Game = {
     this.state = {
       stats: { ...statAlloc },
       equipment: [...startingEquipment.slice(0, 1)], // carry-over equipment (max 1)
-      consumables: [...startingConsumables.slice(0, 2)], // carry-over consumables (max 2)
+      // Carry-over consumables (max 2): the LAST 2 in the pool — the pool
+      // grows by append, so most recent picks are granted, not the oldest
+      consumables: [...startingConsumables.slice(-2)],
       level: 1,
       levelUpPoints: 0,
       day: 1,

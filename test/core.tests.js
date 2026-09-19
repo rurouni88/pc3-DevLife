@@ -101,6 +101,15 @@ assert.ok(Game.useBruteForce(graceBF), '+2 still fires');
 assert.strictEqual(graceBF.checkResults[0].target, 3, 'target +2 applied');
 console.log('✓ grace: perk revoked by the failure itself can still intervene');
 
+// --- Consumable carry-over: the last 2 in the pool are granted ---
+const conById = id => CONSUMABLES.find(c => c.id === id);
+const conStats = { S: 10, P: 10, E: 10, C: 10, I: 10, A: 10, L: 10 };
+const conRun3 = Game.createCharacter(conStats, ['coffee', 'focus', 'espresso'].map(conById), []);
+assert.deepStrictEqual(conRun3.consumables.map(c => c.id), ['focus', 'espresso'], 'last 2 carried consumables granted');
+const conRun1 = Game.createCharacter(conStats, ['coffee'].map(conById), []);
+assert.deepStrictEqual(conRun1.consumables.map(c => c.id), ['coffee'], 'single carried consumable granted');
+console.log('✓ consumable carry-over: last 2 in pool granted');
+
 // --- Equipment carry-over: most recent equipment wins (issue #4) ---
 localStorage.setItem('devlife_meta', JSON.stringify({ totalRuns: 0, startingEquipment: ['mech_keyboard'] }));
 MetaStore.recordRunComplete('standing_desk'); // swapped mid-run; ended with the new item
