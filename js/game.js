@@ -109,15 +109,17 @@ const Game = {
       bossDefeated: isBoss,
       hasNegotiate: checkResult.hasNegotiate,
       hasBruteForce: checkResult.hasBruteForce,
-      hasCodeReview: effectResult.hasNegativeEffects
+      hasCodeReview: effectResult.hasNegativeEffects && PerkSystem.canUseCodeReview(),
+      cleanDeployUsed: checkResult.cleanDeployUsed
     };
   },
   
   // Resolve stat checks for a choice
-  /** @param {EventChoice} choice @returns {{ allSuccess: boolean, results: CheckResult[], hasNegotiate: boolean, hasBruteForce: boolean }} */
+  /** @param {EventChoice} choice @returns {{ allSuccess: boolean, results: CheckResult[], hasNegotiate: boolean, hasBruteForce: boolean, cleanDeployUsed: boolean }} */
   resolveStatChecks(choice) {
     const results = [];
     let allSuccess = true;
+    let cleanDeployUsed = false;
     
     if (choice.checks) {
       // Event JSON is validated at load, so check keys are always stat letters
@@ -131,6 +133,7 @@ const Game = {
         // 🍀 Clean Deploy: once per run, reroll a failed check
         if (!success && PerkSystem.canCleanDeployReroll()) {
           PerkSystem.useCleanDeployReroll();
+          cleanDeployUsed = true;
           roll = d20() - L;
           success = roll <= checkTarget && effective >= (target - L) * CONFIG.game.competenceGateFactor;
           if (success) {
@@ -152,26 +155,30 @@ const Game = {
     // Consumable bonuses are one-time — clear after stat check resolves
     SpecialSystem.clearTempBonuses();
     
-    return { allSuccess, results, hasNegotiate, hasBruteForce };
+    return { allSuccess, results, hasNegotiate, hasBruteForce, cleanDeployUsed };
   },
   
-  // Use Negotiate perk after event result
-  useNegotiate() {
+  // Use Negotiate perk after event result. Cosmetic: effects were already
+  // applied, but the displayed result flips to success.
+  /** @param {ProcessResult} result @returns {boolean} */
+  useNegotiate(result) {
     if (!PerkSystem.canNegotiate()) return false;
     PerkSystem.useNegotiate();
-    // Re-resolve with all checks passed
+    result.success = true;
+    (result.checkResults || []).forEach(cr => { cr.negotiated = true; });
     this.addLog('🤝 Negotiate! You talked your way out of it.');
     return true;
   },
   
   // 💪 Brute Force: re-evaluate the failed Strength check with a +2 target.
-  // Like Negotiate, this is cosmetic: effects were already applied, but the
-  // displayed check (and success state, if all checks now pass) is updated.
-  /** @param {ProcessResult} result @returns {ProcessResult} */
+  // Cosmetic: effects were already applied, but the displayed check (and
+  // success state, if all checks now pass) is updated.
+  /** @param {ProcessResult} result @returns {boolean} */
   useBruteForce(result) {
+    if (!PerkSystem.canUseBruteForce()) return false;
     PerkSystem.useBruteForce();
     
-    result.checkResults.forEach(cr => {
+    (result.checkResults || []).forEach(cr => {
       if (cr.stat === 'S' && !cr.success) {
         cr.target = PerkSystem.applyBruteForce(cr.target);
         cr.success = cr.roll <= cr.target;
@@ -183,27 +190,40 @@ const Game = {
     }
     
     this.addLog('💪 Brute Force! +2 to the Strength check target.');
-    return result;
+    return true;
   },
   
-  // Apply stat effects from choice outcome
+  // 🐛 Code Review: retroactively halve this outcome's negative effects
+  // (the full effects were already applied by applyEffects). Edge case:
+  // if a stat was clamped at the min, the correction may over-restore by
+  // the clamped amount — accepted as rare.
+  /** @param {ProcessResult} result @returns {boolean} */
+  useCodeReview(result) {
+    if (!PerkSystem.canUseCodeReview() || !result.effects) return false;
+    PerkSystem.useCodeReview();
+    
+    for (const [stat, value] of Object.entries(result.effects)) {
+      if (value < 0 && SpecialSystem.stats[stat] !== undefined) {
+        const correction = PerkSystem.applyCodeReview(value) - value; // e.g. -2 - (-4) = +2
+        SpecialSystem.stats[stat] = Math.max(CONFIG.stats.min, Math.min(CONFIG.stats.max, SpecialSystem.stats[stat] + correction));
+      }
+    }
+    
+    this.refreshPerks();
+    this.addLog('🐛 Code Review! Negative effects halved.');
+    return true;
+  },
+  
+  // Apply stat effects from choice outcome. Negative effects are applied in
+  // full — Code Review (player choice) may retroactively halve them via
+  // useCodeReview().
   /** @param {Partial<Stats>} effects @returns {{ hasNegativeEffects: boolean }} */
   applyEffects(effects) {
-    // 🐛 Code Review: once per run, halve this outcome's negative effects.
-    // Consumed here, before the loop — canUseCodeReview() is false once used,
-    // so the loop relies on the captured flag.
-    const hasNegativeEffects = Object.entries(effects).some(([_, v]) => v < 0) && PerkSystem.canUseCodeReview();
-    if (hasNegativeEffects) {
-      PerkSystem.useCodeReview();
-      this.addLog('🐛 Code Review! Negative effects halved.');
-    }
+    const hasNegativeEffects = Object.entries(effects).some(([_, v]) => v < 0);
     
     for (const [stat, value] of Object.entries(effects)) {
       if (SpecialSystem.stats[stat] === undefined) continue;
-      const adjusted = hasNegativeEffects && value < 0
-        ? PerkSystem.applyCodeReview(value)
-        : value;
-      SpecialSystem.stats[stat] = Math.max(CONFIG.stats.min, Math.min(CONFIG.stats.max, SpecialSystem.stats[stat] + adjusted));
+      SpecialSystem.stats[stat] = Math.max(CONFIG.stats.min, Math.min(CONFIG.stats.max, SpecialSystem.stats[stat] + value));
     }
     
     // Stat changes may unlock or revoke perks

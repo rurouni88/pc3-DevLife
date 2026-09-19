@@ -930,10 +930,28 @@ const UI = {
       this.playSound(result.success ? 'success' : 'failure');
     }
     
-    // Show result in event card
+    this.renderResult(result);
+  },
+  
+  // Render the event result screen. Called after processChoice, and again
+  // after perk prompts resolve so the updated state is shown.
+  /** @param {ProcessResult} result */
+  renderResult(result) {
     const card = document.getElementById('event-card');
     const body = card.querySelector('.event-body');
     /** @type {HTMLElement} */ (body.querySelector('.event-choices')).style.display = 'none';
+    
+    // Re-renders (after perk prompts) replace the previous result
+    const existingResult = body.querySelector('.event-result');
+    if (existingResult) existingResult.remove();
+    
+    // 🍀 Clean Deploy intervened (auto-reroll) — show the intervention
+    // screen first, then the result
+    if (result.cleanDeployUsed) {
+      result.cleanDeployUsed = false;
+      this.showPerkIntervention('Clean Deploy', '🍀', result.success, () => this.renderResult(result));
+      return;
+    }
     
     const resultDiv = document.createElement('div');
     resultDiv.className = 'event-result';
@@ -972,25 +990,27 @@ const UI = {
       resultHTML += `<div class="stat-changes">${checkHTML}</div>`;
     }
     
-    // Negotiate prompt
-    let negotiateHTML = '';
-    if (result.hasNegotiate) {
-      resultHTML += `<div class="negotiate-prompt">🤝 <strong>Negotiate!</strong> Use your once-per-run reroll to turn this around?</div>`;
-      negotiateHTML = `
-        <button class="btn btn-primary" id="btn-negotiate-yes">🤝 Use Negotiate</button>
-        <button class="btn btn-ghost" id="btn-negotiate-no">No, thanks</button>
+    // Perk intervention prompts — styled boxes (like item drops), one per
+    // available active perk
+    /** @param {string} perkId @param {string} yesId @param {string} noId @param {string} useLabel @returns {string} */
+    const perkPromptBox = (perkId, yesId, noId, useLabel) => {
+      const perk = PERK_BY_ID[perkId];
+      return `
+        <div class="perk-prompt-box">
+          <div class="perk-prompt-title">⚡ Intervene with Perk</div>
+          <div class="perk-prompt-desc">${perk.emoji} <strong>${perk.name}</strong> — ${perk.desc}</div>
+          <div class="perk-prompt-actions">
+            <button class="btn btn-primary" id="${yesId}">${useLabel}</button>
+            <button class="btn btn-ghost" id="${noId}">No, thanks</button>
+          </div>
+        </div>
       `;
-    }
+    };
     
-    // Brute Force prompt (failed Strength check, once per run)
-    let bruteForceHTML = '';
-    if (result.hasBruteForce) {
-      resultHTML += `<div class="negotiate-prompt">💪 <strong>Brute Force!</strong> Apply +2 to the failed Strength check target?</div>`;
-      bruteForceHTML = `
-        <button class="btn btn-primary" id="btn-bruteforce-yes">💪 Use Brute Force</button>
-        <button class="btn btn-ghost" id="btn-bruteforce-no">No, thanks</button>
-      `;
-    }
+    let perkPromptsHTML = '';
+    if (result.hasNegotiate) perkPromptsHTML += perkPromptBox('negotiate', 'btn-negotiate-yes', 'btn-negotiate-no', '🤝 Use Negotiate');
+    if (result.hasBruteForce) perkPromptsHTML += perkPromptBox('brute_force', 'btn-bruteforce-yes', 'btn-bruteforce-no', '💪 Use Brute Force');
+    if (result.hasCodeReview) perkPromptsHTML += perkPromptBox('code_review', 'btn-codereview-yes', 'btn-codereview-no', '🐛 Use Code Review');
     
     // Continue button
     let continueText = 'Continue →';
@@ -1000,79 +1020,38 @@ const UI = {
     else if (result.phaseComplete) continueText = 'Continue →';
     else if (result.bossDefeated) continueText = 'Boss Defeated — Continue →';
     
-    resultHTML += `<div class="result-actions">${negotiateHTML}${bruteForceHTML}<button class="btn btn-primary btn-continue" id="btn-continue-event">${continueText}</button></div>`;
+    resultHTML += perkPromptsHTML;
+    resultHTML += `<div class="result-actions"><button class="btn btn-primary btn-continue" id="btn-continue-event">${continueText}</button></div>`;
     
     resultDiv.innerHTML = resultHTML;
     body.appendChild(resultDiv);
     
-    // Bind Negotiate buttons
-    const btnNegotiateYes = document.getElementById('btn-negotiate-yes');
-    const btnNegotiateNo = document.getElementById('btn-negotiate-no');
-    if (btnNegotiateYes) {
-      btnNegotiateYes.addEventListener('click', () => {
-        Game.useNegotiate();
-        // Re-render the result as success
-        resultDiv.querySelector('.result-text').classList.remove('failure');
-        resultDiv.querySelector('.result-text').classList.add('success');
-        resultDiv.querySelector('.result-text').textContent = result.log;
-        // Update stat changes
-        const statChanges = resultDiv.querySelector('.stat-changes:last-of-type');
-        if (statChanges) {
-          statChanges.innerHTML = result.checkResults.map(cr => 
-            `<span class="stat-change positive">${cr.stat}: rolled ${cr.roll} vs ${cr.target} 🤝</span>`
-          ).join('');
-        }
-        // Remove negotiate buttons, update continue
-        const actions = resultDiv.querySelector('.result-actions');
-        actions.innerHTML = `<button class="btn btn-primary btn-continue" id="btn-continue-event">Continue →</button>`;
-        document.getElementById('btn-continue-event').addEventListener('click', () => {
-          this.nextEvent();
+    // Bind perk prompt buttons — unified pattern:
+    //   Use     → apply perk, show intervention screen, re-render result
+    //   Decline → re-render result (other prompts stay available)
+    /** @param {string} yesId @param {string} noId @param {'hasNegotiate' | 'hasBruteForce' | 'hasCodeReview'} flag @param {() => boolean} useFn @param {string} perkName @param {string} emoji @param {() => boolean} getOutcome */
+    const bindPerkPrompt = (yesId, noId, flag, useFn, perkName, emoji, getOutcome) => {
+      const yes = document.getElementById(yesId);
+      const no = document.getElementById(noId);
+      if (yes) {
+        yes.addEventListener('click', () => {
+          if (useFn()) {
+            result[flag] = false;
+            this.showPerkIntervention(perkName, emoji, getOutcome(), () => this.renderResult(result));
+          }
         });
-      });
-    }
-    if (btnNegotiateNo) {
-      btnNegotiateNo.addEventListener('click', () => {
-        const actions = resultDiv.querySelector('.result-actions');
-        actions.innerHTML = `<button class="btn btn-primary btn-continue" id="btn-continue-event">Continue →</button>`;
-        document.getElementById('btn-continue-event').addEventListener('click', () => {
-          this.nextEvent();
+      }
+      if (no) {
+        no.addEventListener('click', () => {
+          result[flag] = false;
+          this.renderResult(result);
         });
-      });
-    }
+      }
+    };
     
-    // Bind Brute Force buttons
-    const btnBruteForceYes = document.getElementById('btn-bruteforce-yes');
-    const btnBruteForceNo = document.getElementById('btn-bruteforce-no');
-    if (btnBruteForceYes) {
-      btnBruteForceYes.addEventListener('click', () => {
-        Game.useBruteForce(result);
-        // Update the displayed check with the new target/success state
-        const statChanges = resultDiv.querySelector('.stat-changes:last-of-type');
-        if (statChanges) {
-          statChanges.innerHTML = result.checkResults.map(cr =>
-            `<span class="stat-change ${cr.success ? 'positive' : 'negative'}">${cr.stat}: rolled ${cr.roll} vs ${cr.target} ${cr.success ? '💪' : '✗'}</span>`
-          ).join('');
-        }
-        if (result.success) {
-          resultDiv.querySelector('.result-text').classList.remove('failure');
-          resultDiv.querySelector('.result-text').classList.add('success');
-        }
-        const actions = resultDiv.querySelector('.result-actions');
-        actions.innerHTML = `<button class="btn btn-primary btn-continue" id="btn-continue-event">Continue →</button>`;
-        document.getElementById('btn-continue-event').addEventListener('click', () => {
-          this.nextEvent();
-        });
-      });
-    }
-    if (btnBruteForceNo) {
-      btnBruteForceNo.addEventListener('click', () => {
-        const actions = resultDiv.querySelector('.result-actions');
-        actions.innerHTML = `<button class="btn btn-primary btn-continue" id="btn-continue-event">Continue →</button>`;
-        document.getElementById('btn-continue-event').addEventListener('click', () => {
-          this.nextEvent();
-        });
-      });
-    }
+    bindPerkPrompt('btn-negotiate-yes', 'btn-negotiate-no', 'hasNegotiate', () => Game.useNegotiate(result), 'Negotiate', '🤝', () => true);
+    bindPerkPrompt('btn-bruteforce-yes', 'btn-bruteforce-no', 'hasBruteForce', () => Game.useBruteForce(result), 'Brute Force', '💪', () => (result.checkResults || []).some(cr => cr.stat === 'S' && cr.success));
+    bindPerkPrompt('btn-codereview-yes', 'btn-codereview-no', 'hasCodeReview', () => Game.useCodeReview(result), 'Code Review', '🐛', () => true);
     
     // Bind continue button
     document.getElementById('btn-continue-event').addEventListener('click', () => {
@@ -1093,6 +1072,31 @@ const UI = {
         this.nextEvent();
       }
     });
+  },
+  
+  // Transition screen shown after a perk intervention (active perks and
+  // Clean Deploy's auto-reroll). Continue removes it and runs onContinue
+  // (usually a re-render of the updated result).
+  /** @param {string} perkName @param {string} emoji @param {boolean} success @param {() => void} onContinue */
+  showPerkIntervention(perkName, emoji, success, onContinue) {
+    const card = document.getElementById('event-card');
+    const body = card.querySelector('.event-body');
+    
+    const div = document.createElement('div');
+    div.className = 'event-result perk-intervention';
+    div.innerHTML = `
+      <div class="perk-intervention-title">⚡ Perk Intervention</div>
+      <div class="perk-intervention-perk">${emoji} <strong>${perkName}</strong></div>
+      <div class="perk-intervention-outcome ${success ? 'success' : 'failure'}">Outcome: ${success ? 'SUCCESS' : 'FAILURE'}</div>
+      <div class="result-actions"><button class="btn btn-primary btn-continue" id="btn-perk-int-continue">Continue →</button></div>
+    `;
+    body.appendChild(div);
+    
+    /** @type {HTMLButtonElement} */ (document.getElementById('btn-perk-int-continue'))
+      .addEventListener('click', () => {
+        div.remove();
+        onContinue();
+      });
   },
   
   // Get next event

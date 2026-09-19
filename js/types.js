@@ -81,7 +81,8 @@
  * @property {boolean} [bossDefeated]
  * @property {boolean} [hasNegotiate]
  * @property {boolean} [hasBruteForce]
- * @property {boolean} [hasCodeReview] */
+ * @property {boolean} [hasCodeReview]
+ * @property {boolean} [cleanDeployUsed] */
 
 /** A career log entry (most recent first). */
 /** @typedef {Object} CareerLogEntry 
