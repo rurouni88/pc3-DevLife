@@ -68,6 +68,11 @@ const Game = {
     // Resolve stat checks and apply consequences
     const checkResult = this.resolveStatChecks(choice);
     
+    // Perk availability is judged BEFORE effects: the failure's own effects
+    // may drop a stat and revoke the perk, but the intervention for this
+    // event is still offered (and usable) — see useNegotiate() etc.
+    const codeReviewAvailable = PerkSystem.canUseCodeReview();
+    
     // Apply stat effects and log the outcome
     const effects = checkResult.allSuccess ? choice.success.effects : choice.failure.effects;
     const log = checkResult.allSuccess ? choice.success.log : choice.failure.log;
@@ -109,7 +114,7 @@ const Game = {
       bossDefeated: isBoss,
       hasNegotiate: checkResult.hasNegotiate,
       hasBruteForce: checkResult.hasBruteForce,
-      hasCodeReview: effectResult.hasNegativeEffects && PerkSystem.canUseCodeReview(),
+      hasCodeReview: effectResult.hasNegativeEffects && codeReviewAvailable,
       cleanDeployUsed: checkResult.cleanDeployUsed
     };
   },
@@ -160,9 +165,12 @@ const Game = {
   
   // Use Negotiate perk after event result. Cosmetic: effects were already
   // applied, but the displayed result flips to success.
+  // Gate is "not yet spent this run", NOT "perk still active": the
+  // failure's own effects may have dropped C below 10 and revoked the
+  // perk, but the intervention was earned when the check resolved.
   /** @param {ProcessResult} result @returns {boolean} */
   useNegotiate(result) {
-    if (!PerkSystem.canNegotiate()) return false;
+    if (PerkSystem.negotiateUsed) return false;
     PerkSystem.useNegotiate();
     result.success = true;
     (result.checkResults || []).forEach(cr => { cr.negotiated = true; });
@@ -175,7 +183,7 @@ const Game = {
   // success state, if all checks now pass) is updated.
   /** @param {ProcessResult} result @returns {boolean} */
   useBruteForce(result) {
-    if (!PerkSystem.canUseBruteForce()) return false;
+    if (PerkSystem.bruteForceUsed) return false;
     PerkSystem.useBruteForce();
     
     (result.checkResults || []).forEach(cr => {
@@ -199,7 +207,7 @@ const Game = {
   // the clamped amount — accepted as rare.
   /** @param {ProcessResult} result @returns {boolean} */
   useCodeReview(result) {
-    if (!PerkSystem.canUseCodeReview() || !result.effects) return false;
+    if (PerkSystem.codeReviewUsed || !result.effects) return false;
     PerkSystem.useCodeReview();
     
     for (const [stat, value] of Object.entries(result.effects)) {

@@ -57,6 +57,41 @@ assert.strictEqual(bfLose.success, false, 'roll 8 vs 5 still fails');
 assert.ok(!Game.useBruteForce({ success: false, checkResults: [] }), 'third use rejected (once per run)');
 console.log('✓ brute force: +2 target, flips when it saves, consumed');
 
+// --- Grace: the failure's own effects may revoke the perk, but the
+//     intervention was earned when the check resolved, so it still fires ---
+
+// Negotiate: C=10, failed C check, failure effect C-2 revokes the perk
+freshRun({ S: 5, P: 5, E: 5, C: 10, I: 5, A: 5, L: 5 });
+d20 = () => 20; // fail the C check
+const graceNCheck = Game.resolveStatChecks({ checks: { C: 1 } });
+assert.ok(graceNCheck.hasNegotiate, 'prompt offered while perk active at roll time');
+Game.applyEffects({ C: -2 }); // failure effect drops C to 8 → perk revoked
+assert.ok(!PerkSystem.has('negotiate'), 'negotiate revoked by the failure effect');
+const graceN = { success: false, checkResults: graceNCheck.results };
+assert.ok(Game.useNegotiate(graceN), 'intervention still fires (earned at roll time)');
+assert.strictEqual(graceN.success, true, 'result flips to success');
+
+// Code Review: P=10, effects P-2/E-4 revoke the perk, halving still applies
+freshRun({ S: 5, P: 10, E: 5, C: 5, I: 5, A: 5, L: 5 });
+const graceCR = { effects: { P: -2, E: -4 } };
+Game.applyEffects(graceCR.effects); // P: 10→8 (perk revoked), E: 5→1
+assert.ok(!PerkSystem.has('code_review'), 'code review revoked by the failure effects');
+assert.ok(Game.useCodeReview(graceCR), 'halving still fires');
+assert.strictEqual(SpecialSystem.stats.P, 9, 'P corrected to the halved outcome (10-1)');
+assert.strictEqual(SpecialSystem.stats.E, 3, 'E corrected to the halved outcome (5-2)');
+
+// Brute Force: S=10, failed S check, effect S-2 revokes the perk, +2 still applies
+freshRun({ S: 10, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+d20 = () => 20; // fail the S check
+const graceBFCheck = Game.resolveStatChecks({ checks: { S: 1 } });
+assert.ok(graceBFCheck.hasBruteForce, 'prompt offered while perk active at roll time');
+Game.applyEffects({ S: -2 }); // S: 10→8 → perk revoked
+assert.ok(!PerkSystem.has('brute_force'), 'brute force revoked by the failure effect');
+const graceBF = { success: false, checkResults: graceBFCheck.results };
+assert.ok(Game.useBruteForce(graceBF), '+2 still fires');
+assert.strictEqual(graceBF.checkResults[0].target, 3, 'target +2 applied');
+console.log('✓ grace: perk revoked by the failure itself can still intervene');
+
 // --- Clean Deploy (auto-reroll, cleanDeployUsed flag) ---
 freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 10 });
 assert.ok(PerkSystem.has('clean_deploy'), 'L=10 activates Clean Deploy');
