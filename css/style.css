@@ -2056,10 +2056,6 @@ body {
   border-color: var(--accent-green);
 }
 
-.toast.warning {
-  border-color: var(--accent-yellow);
-}
-
 .toast.error {
   border-color: var(--accent-red);
 }

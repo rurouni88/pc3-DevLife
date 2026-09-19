@@ -4,63 +4,53 @@ const ARCHETYPES = {
     name: "The Principal Architect",
     description: "High-level design & stakeholder alignment",
     stats: { S: 3, P: 5, E: 5, C: 8, I: 8, A: 6, L: 5 },
-    colors: { S: '#ff6b6b', P: '#4fc3f7', E: '#81c784', C: '#ffab40', I: '#b388ff', A: '#ffd740', L: '#e040fb' }
   },
   startup: {
     name: "The Rockstar Startup Engineer",
     description: "Ships fast, thrives in chaos",
     stats: { S: 4, P: 4, E: 8, C: 5, I: 6, A: 8, L: 5 },
-    colors: { S: '#ff6b6b', P: '#4fc3f7', E: '#81c784', C: '#ffab40', I: '#b388ff', A: '#ffd740', L: '#e040fb' }
   },
   systems: {
     name: "The Hardcore Systems Engineer",
     description: "Deep technical, low-level mastery",
     stats: { S: 9, P: 9, E: 5, C: 3, I: 6, A: 4, L: 4 },
-    colors: { S: '#ff6b6b', P: '#4fc3f7', E: '#81c784', C: '#ffab40', I: '#b388ff', A: '#ffd740', L: '#e040fb' }
   },
   advocate: {
     name: "The Developer Advocate",
     description: "Community builder, fast demos",
     stats: { S: 3, P: 5, E: 5, C: 9, I: 6, A: 7, L: 5 },
-    colors: { S: '#ff6b6b', P: '#4fc3f7', E: '#81c784', C: '#ffab40', I: '#b388ff', A: '#ffd740', L: '#e040fb' }
   },
   balanced: {
     name: "The Full-Stack Generalist",
     description: "Jack of all trades, master of enough",
     stats: { S: 5, P: 6, E: 6, C: 6, I: 6, A: 6, L: 5 },
-    colors: { S: '#ff6b6b', P: '#4fc3f7', E: '#81c784', C: '#ffab40', I: '#b388ff', A: '#ffd740', L: '#e040fb' }
   },
   // New archetypes
   sre: {
     name: "The DevOps / SRE Specialist",
     description: "Incident response, on-call survival, production stability",
     stats: { S: 4, P: 9, E: 10, C: 4, I: 6, A: 3, L: 4 },
-    colors: { S: '#ff6b6b', P: '#4fc3f7', E: '#81c784', C: '#ffab40', I: '#b388ff', A: '#ffd740', L: '#e040fb' }
   },
   pentester: {
     name: "The Cyber Security / Penetration Tester",
     description: "Exploit hunting, breaking things, finding anomalies",
     stats: { S: 3, P: 10, E: 4, C: 3, I: 10, A: 4, L: 6 },
-    colors: { S: '#ff6b6b', P: '#4fc3f7', E: '#81c784', C: '#ffab40', I: '#b388ff', A: '#ffd740', L: '#e040fb' }
   },
   archeologist: {
     name: "The Legacy Code Archeologist",
     description: "Reading ancient codebases without burning out",
     stats: { S: 9, P: 5, E: 9, C: 2, I: 8, A: 3, L: 4 },
-    colors: { S: '#ff6b6b', P: '#4fc3f7', E: '#81c784', C: '#ffab40', I: '#b388ff', A: '#ffd740', L: '#e040fb' }
   },
   em: {
     name: "The Engineering Manager",
     description: "People leadership, talent retention, org alignment",
     stats: { S: 2, P: 5, E: 9, C: 10, I: 5, A: 4, L: 5 },
-    colors: { S: '#ff6b6b', P: '#4fc3f7', E: '#81c784', C: '#ffab40', I: '#b388ff', A: '#ffd740', L: '#e040fb' }
   },
   // Unlockable archetype
   prototype_king: {
     name: "The Prototype King / Hackathon Champion",
     description: "⚠️ UNLOCKED — Lightning-speed prototyping, demo-day legend",
     stats: { S: 2, P: 3, E: 3, C: 5, I: 4, A: 10, L: 10 },
-    colors: { S: '#ff6b6b', P: '#4fc3f7', E: '#81c784', C: '#ffab40', I: '#b388ff', A: '#ffd740', L: '#e040fb' }
   }
 };
 
@@ -112,5 +102,4 @@ const STAT_META = {
 
 const STAT_KEYS = CONFIG.stats.keys;
 const STARTING_POINTS = CONFIG.stats.startingPoints;
-const MIN_STAT = CONFIG.stats.min;
 const MAX_STAT = CONFIG.stats.max;

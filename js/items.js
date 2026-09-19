@@ -89,24 +89,6 @@ function getRandomEquipment() {
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
-// Get random consumable
-function getRandomConsumable() {
-  const totalWeight = Object.values(RARITY_WEIGHTS).reduce((a, b) => a + b, 0);
-  let roll = Math.random() * totalWeight;
-  let selectedRarity = 'common';
-  
-  for (const [rarity, weight] of Object.entries(RARITY_WEIGHTS)) {
-    roll -= weight;
-    if (roll <= 0) {
-      selectedRarity = rarity;
-      break;
-    }
-  }
-  
-  const pool = CONSUMABLES.filter(item => item.rarity === selectedRarity);
-  return pool[Math.floor(Math.random() * pool.length)];
-}
-
 // Get 3 random consumables for end-of-run selection
 function get3RandomConsumables() {
   const all = [...CONSUMABLES];

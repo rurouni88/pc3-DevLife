@@ -261,7 +261,6 @@ const UI = {
   },
   _presetToggleHandler: null,
   _presetCloseHandler: null,
-  _descToggleHandler: null,
   
   // Show a screen
   showScreen(screenId) {
@@ -687,11 +686,16 @@ const UI = {
     document.getElementById('player-level').textContent = Game.state.level;
     
     // Progress toward next boss (🚀 Fast Ship: 5 instead of 6)
-    const bossEvery = PerkSystem.bossInterval();
-    const eventsInCycle = Game.state.eventsCompleted % bossEvery;
-    const progressText = Game.state.levelUpPoints > 0 ? 'LEVEL UP!' : `${eventsInCycle}/${bossEvery}`;
+    const progressText = this.progressText();
     document.getElementById('level-progress').textContent = progressText;
     document.getElementById('level-progress-top').textContent = `Level ${Game.state.level} · ${progressText}`;
+  },
+  
+  // Progress text toward next boss (or level-up indicator)
+  progressText() {
+    const bossEvery = PerkSystem.bossInterval();
+    const eventsInCycle = Game.state.eventsCompleted % bossEvery;
+    return Game.state.levelUpPoints > 0 ? 'LEVEL UP!' : `${eventsInCycle}/${bossEvery}`;
   },
   
   // Render an event
@@ -901,7 +905,7 @@ const UI = {
       this.showToast('🏆 Boss Defeated!', 'success');
       this.playSound('boss');
       this.flashScreen('rgba(0, 255, 136, 0.3)');
-    } else if (result.itemDropped && !result.equipmentDropped) {
+    } else if (result.itemDropped) {
       this.showToast(`🎁 Found: ${result.itemDropped.emoji} ${result.itemDropped.name}`, 'success');
       this.playSound('success');
     } else if (result.gameOver) {
@@ -940,16 +944,15 @@ const UI = {
     
     // Show item drop
     let showEquipmentChoice = false;
-    if (result.itemDropped) {
-      if (result.equipmentDropped) {
-        // Inventory full — show choice screen
-        resultHTML += `<div class="item-drop">🎁 Found: ${result.itemDropped.emoji} ${result.itemDropped.name} — inventory full!</div>`;
-        showEquipmentChoice = true;
-      } else {
-        // Item already added to inventory by Game.checkForEquipmentDrop()
-        resultHTML += `<div class="item-drop">🎁 Found: ${result.itemDropped.emoji} ${result.itemDropped.name}</div>`;
-        this.renderEquipment();
-      }
+    if (result.equipmentDropped) {
+      // Inventory full — the item is held in pendingEquipmentDrop; show choice screen
+      const pending = Game.state.pendingEquipmentDrop;
+      resultHTML += `<div class="item-drop">🎁 Found: ${pending.emoji} ${pending.name} — inventory full!</div>`;
+      showEquipmentChoice = true;
+    } else if (result.itemDropped) {
+      // Item already added to inventory by Game.checkForEquipmentDrop()
+      resultHTML += `<div class="item-drop">🎁 Found: ${result.itemDropped.emoji} ${result.itemDropped.name}</div>`;
+      this.renderEquipment();
     }
     
     // Show check results
@@ -1021,7 +1024,7 @@ const UI = {
     // Bind continue button
     document.getElementById('btn-continue-event').addEventListener('click', () => {
       if (showEquipmentChoice) {
-        UI.showEquipmentChoice(result.itemDropped, [...Game.state.equipment]);
+        UI.showEquipmentChoice(Game.state.pendingEquipmentDrop, [...Game.state.equipment]);
       } else if (result.gameOver) {
         this.showGameOver(result.gameOver.reason);
       } else if (result.victory) {
@@ -1330,7 +1333,7 @@ const UI = {
     localStorage.setItem('devlife_meta', JSON.stringify(meta));
     
     // Show game over summary
-    Game.clearSave();
+    SaveSystem.deleteSave();
     this.showScreen('gameover');
     
     const summary = Game.getSummary();
@@ -1365,7 +1368,7 @@ const UI = {
     summaryContainer.style.display = 'block';
     document.getElementById('victory-buttons').style.display = 'flex';
     
-    Game.clearSave();
+    SaveSystem.deleteSave();
     
     const summary = Game.getSummary();
     summaryContainer.innerHTML = `
@@ -1402,74 +1405,6 @@ const UI = {
   // Close side panel
   closePanel() {
     this.togglePanel(false);
-  },
-  
-  // Show consumable choice screen (when inventory is full)
-  showConsumableChoice(newConsumable, currentConsumables) {
-    const newContainer = document.getElementById('consumable-choice-new');
-    const currentContainer = document.getElementById('consumable-choice-current');
-    const keepBtn = document.getElementById('btn-keep-consumable');
-    const skipBtn = document.getElementById('btn-skip-consumable');
-    
-    // Show new consumable
-    newContainer.innerHTML = '';
-    const newEl = document.createElement('div');
-    newEl.className = 'consumable-select-item';
-    newEl.style.borderColor = 'var(--accent-green)';
-    newEl.innerHTML = `
-      <span class="cs-emoji" style="font-size: 2em;">${newConsumable.emoji}</span>
-      <div class="cs-details">
-        <div class="cs-name">${newConsumable.name}</div>
-        <div class="cs-desc">${newConsumable.desc}</div>
-      </div>
-      <div class="cs-badge">NEW</div>
-    `;
-    newContainer.appendChild(newEl);
-    
-    // Show current consumables as clickable options
-    currentContainer.innerHTML = '';
-    let selectedIndex = -1;
-    
-    currentConsumables.forEach((cons, i) => {
-      const el = document.createElement('div');
-      el.className = 'consumable-select-item';
-      el.dataset.index = i;
-      el.innerHTML = `
-        <span class="cs-emoji">${cons.emoji}</span>
-        <div class="cs-details">
-          <div class="cs-name">${cons.name}</div>
-          <div class="cs-desc">${cons.desc}</div>
-        </div>
-      `;
-      el.addEventListener('click', () => {
-        currentContainer.querySelectorAll('.consumable-select-item').forEach(s => s.classList.remove('selected'));
-        el.classList.add('selected');
-        selectedIndex = i;
-        keepBtn.disabled = false;
-      });
-      currentContainer.appendChild(el);
-    });
-    
-    // Reset state
-    keepBtn.disabled = true;
-    selectedIndex = -1;
-    
-    // Skip (keep current)
-    skipBtn.onclick = () => {
-      UI.showScreen('game');
-      UI.nextEvent();
-    };
-    
-    // Swap: replace selected consumable with new one
-    keepBtn.onclick = () => {
-      if (selectedIndex >= 0) {
-        Game.state.consumables[selectedIndex] = { ...newConsumable };
-        UI.showScreen('game');
-        UI.nextEvent();
-      }
-    };
-    
-    UI.showScreen('consumable-choice');
   },
   
   // Show equipment choice screen (when inventory is full)
@@ -1609,10 +1544,7 @@ const UI = {
     });
     
     document.getElementById('popup-player-level').textContent = Game.state.level;
-    const bossEvery = PerkSystem.bossInterval();
-    const eventsInCycle = Game.state.eventsCompleted % bossEvery;
-    const progressText = Game.state.levelUpPoints > 0 ? 'LEVEL UP!' : `${eventsInCycle}/${bossEvery}`;
-    document.getElementById('popup-level-progress').textContent = progressText;
+    document.getElementById('popup-level-progress').textContent = this.progressText();
   },
   
   renderPopupEquipment() {

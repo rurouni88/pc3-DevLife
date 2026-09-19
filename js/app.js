@@ -187,12 +187,6 @@ const App = {
     
     // Load first event
     UI.nextEvent();
-    
-    // Debug: check if event rendered
-    setTimeout(() => {
-      const eventContainer = document.getElementById('event-container');
-      console.log('Event container HTML:', eventContainer ? eventContainer.innerHTML.substring(0, 100) : 'NULL');
-    }, 100);
   },
   
   continueGame() {

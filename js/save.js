@@ -42,18 +42,5 @@ const SaveSystem = {
   
   deleteSave() {
     localStorage.removeItem(this.SAVE_KEY);
-  },
-  
-  getSaveInfo() {
-    const data = this.load();
-    if (!data) return null;
-    
-    return {
-      level: data.state.level,
-      phase: data.state.phase,
-      day: data.state.day,
-      eventsCompleted: data.state.eventsCompleted,
-      timestamp: data.timestamp
-    };
   }
 };
