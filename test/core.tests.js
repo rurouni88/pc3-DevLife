@@ -175,6 +175,40 @@ assert.strictEqual(MetaStore.runCount(), 3, 'run counter still increments');
 localStorage.removeItem('devlife_meta');
 console.log('✓ equipment carry-over: most recent wins (issue #4)');
 
+// --- Save schema: SaveData class validates the full shape ---
+function validSave() {
+  const stats = { S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 };
+  return {
+    state: { stats: { ...stats }, equipment: [], consumables: [], level: 1, day: 1, phase: 1, careerLog: [] },
+    special: { stats: { ...stats }, equipmentBonuses: { S: 0, P: 0, E: 0, C: 0, I: 0, A: 0, L: 0 } },
+    perks: { active: [], bruteForceUsed: false, codeReviewUsed: false, negotiateUsed: false, cleanDeployUsed: false },
+    timestamp: 123
+  };
+}
+assert.deepStrictEqual(SaveData.validate(validSave()), [], 'valid save passes the schema');
+assert.deepStrictEqual(SaveData.validate(null), ['save is not an object'], 'null rejected');
+assert.ok(SaveData.validate({}).includes('state is missing'), 'missing state reported');
+const noSpecial = validSave(); delete noSpecial.special;
+assert.ok(SaveData.validate(noSpecial).some(e => e.startsWith('special')), 'missing special reported');
+const badPerk = validSave(); badPerk.perks.negotiateUsed = 'yes';
+assert.ok(SaveData.validate(badPerk).some(e => e.includes('perks.negotiateUsed')), 'bad perk flag reported');
+const badStat = validSave(); badStat.state.stats.S = 'high';
+assert.ok(SaveData.validate(badStat).some(e => e.includes('state.stats.S')), 'bad stat type reported');
+const multi = validSave(); delete multi.special; multi.state.level = 'one';
+assert.ok(SaveData.validate(multi).length >= 2, 'all problems reported at once');
+assert.ok(SaveData.parse(validSave()) instanceof SaveData, 'parse returns a SaveData instance');
+assert.strictEqual(SaveData.parse({ nope: 1 }), null, 'parse returns null when invalid');
+
+// SaveSystem round-trip through the schema
+localStorage.setItem('devlife_save', JSON.stringify(validSave()));
+const loaded = SaveSystem.load();
+assert.ok(loaded instanceof SaveData, 'load returns a SaveData instance');
+assert.strictEqual(/** @type {any} */ (Game.state).level, 1, 'game state restored');
+localStorage.setItem('devlife_save', '{corrupt');
+assert.strictEqual(SaveSystem.load(), null, 'corrupt JSON rejected');
+localStorage.removeItem('devlife_save');
+console.log('✓ save schema: SaveData class validation, reasons logged, load round-trip');
+
 // --- Clean Deploy (auto-reroll, cleanDeployUsed flag) ---
 freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 10 });
 assert.ok(PerkSystem.has('clean_deploy'), 'L=10 activates Clean Deploy');

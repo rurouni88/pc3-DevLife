@@ -20,7 +20,7 @@ const assert = require('assert');
 const JS_DIR = path.join(__dirname, '..', 'js');
 
 // Executable in Node (no DOM/fetch at load time), in dependency order.
-const RUN_FILES = ['config', 'utils', 'archetypes', 'items', 'special', 'perks', 'meta', 'game'];
+const RUN_FILES = ['config', 'utils', 'archetypes', 'items', 'special', 'perks', 'meta', 'game', 'save'];
 
 // 1. Syntax-check every JS file (including the DOM-bound ones)
 for (const file of fs.readdirSync(JS_DIR).filter(f => f.endsWith('.js'))) {
