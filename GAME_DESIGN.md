@@ -212,14 +212,7 @@ Maxing a stat (**base value of 10**) unlocks a **Perk** — a boon for the durat
 ### 2.7 Career Milestones & Achievements
 
 **Planned — not yet implemented.** Trackable achievements for replayability:
-- 🏆 **Ship It:** Complete 100 deployments
-- 💀 **Died by 404:** Failed during the Junior phase
-- 🧙 **Full Stack Wizard:** Max out all stats across a single run
-- 📉 **Laid Off:** Survive a hiring freeze event
-- 🎯 **Perfect Deploy:** Deploy without any issues (Luck check)
-- 🐛 **Bug Hunter:** Find and fix 50 bugs in a single run
-- 👔 **Corporate Ladder:** Reach Staff/Principal level
-- 🤝 **Mentor:** Successfully mentor 10 junior developers
+- https://github.com/rurouni88/pc3-DevLife/issues/13
 
 ---
 
@@ -503,5 +496,5 @@ Example: Strength 3 (effective), Luck 1, target 8:
 
 ---
 
-*Document Version: 1.2*
+*Document Version: 1.3*
 *Last Updated: 2026*
