@@ -20,6 +20,7 @@ const MetaStore = {
     }
   },
   
+  /** @param {MetaState} meta */
   save(meta) {
     localStorage.setItem(this.KEY, JSON.stringify(meta));
   },

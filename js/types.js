@@ -32,6 +32,17 @@
  * @property {number} [multiplier] 
  * @property {string} desc */
 
+/** Result of using a consumable (multiplier fields only for AI tools). */
+/** @typedef {Object} ConsumableUseResult
+ * @property {string} id
+ * @property {string} name
+ * @property {string} emoji
+ * @property {StatKey | 'any'} stat
+ * @property {number} bonus
+ * @property {number} [multiplier]
+ * @property {string} [effective]
+ * @property {boolean} [backfired] */
+
 /** The outcome of a choice branch (success or failure). */
 /** @typedef {Object} EventOutcome 
  * @property {string} text 

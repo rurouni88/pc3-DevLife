@@ -1,6 +1,7 @@
 // utils.js — shared helpers (dice rolls)
 
 // Generic n-sided die: returns a random integer in [1, sides].
+/** @param {number} sides @returns {number} */
 function dRoll(sides) {
   return Math.floor(Math.random() * sides) + 1;
 }
@@ -9,6 +10,7 @@ function dRoll(sides) {
 function d20() { return dRoll(20); }
 
 // Convert in-game days to career years (12 days = 1 career year).
+/** @param {number} day @returns {number} */
 function dayToCareerYear(day) {
   return Math.ceil(day / CONFIG.game.daysPerCareerYear);
 }

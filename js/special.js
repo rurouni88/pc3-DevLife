@@ -6,6 +6,7 @@ const SpecialSystem = {
   equipmentBonuses: { S: 0, P: 0, E: 0, C: 0, I: 0, A: 0, L: 0 },
   /** @type {Stats} */
   temporaryBonuses: { S: 0, P: 0, E: 0, C: 0, I: 0, A: 0, L: 0 },
+  /** @type {number | null} */
   temporaryMultiplier: null,
   
   // Initialize with starting values
@@ -16,20 +17,18 @@ const SpecialSystem = {
   },
   
   // Add equipment bonus
+  /** @param {string} emoji @param {Partial<Stats>} effects */
   addEquipment(emoji, effects) {
-    for (const [stat, value] of Object.entries(effects)) {
-      if (this.equipmentBonuses[stat] !== undefined) {
-        this.equipmentBonuses[stat] += value;
-      }
+    for (const [stat, value] of /** @type {Array<[StatKey, number]>} */ (Object.entries(effects))) {
+      this.equipmentBonuses[stat] += value;
     }
   },
   
   // Remove equipment bonus
+  /** @param {string} emoji @param {Partial<Stats>} effects */
   removeEquipment(emoji, effects) {
-    for (const [stat, value] of Object.entries(effects)) {
-      if (this.equipmentBonuses[stat] !== undefined) {
-        this.equipmentBonuses[stat] = Math.max(0, this.equipmentBonuses[stat] - value);
-      }
+    for (const [stat, value] of /** @type {Array<[StatKey, number]>} */ (Object.entries(effects))) {
+      this.equipmentBonuses[stat] = Math.max(0, this.equipmentBonuses[stat] - value);
     }
   },
   
@@ -62,16 +61,19 @@ const SpecialSystem = {
   },
   
   // Apply multiplier
+  /** @param {number} multiplier */
   applyMultiplier(multiplier) {
     this.temporaryMultiplier = multiplier;
   },
   
   // Check if a stat can be increased
+  /** @param {StatKey} stat @returns {boolean} */
   canIncrease(stat) {
     return this.stats[stat] < MAX_STAT;
   },
   
   // Increase a stat
+  /** @param {StatKey} stat @returns {boolean} */
   increase(stat) {
     if (this.canIncrease(stat)) {
       this.stats[stat]++;
