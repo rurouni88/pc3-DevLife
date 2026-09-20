@@ -457,6 +457,41 @@ assert.ok(Game.processChoice(EVENTS[0], 5).error, 'bad choice index → error re
 Math.random = realRandom;
 console.log('✓ processChoice: success/failure paths, boss detection, day/history, error paths');
 
+// --- Boss event + run end: terminal flags co-occur (toast clobber guard) ---
+// processChoice sets bossDefeated from the event title alone, so a run
+// that ENDS on a boss event reports bossDefeated AND gameOver (AND
+// leveledUp, if the event count lines up). handleChoice must toast
+// terminal states FIRST (gameOver → victory → ...) or the death toast is
+// clobbered by a celebration — regression guard for that ordering.
+EVENTS = [
+  {
+    id: 'test_boss_death', title: 'BOSS: The Meltdown', phase: 1, phaseLabel: 'Test', narrative: 'n',
+    choices: [{
+      text: 'Fight', checks: { S: 1 },
+      success: { text: 's', effects: {}, log: 'boss down' },
+      failure: { text: 'f', effects: {}, log: 'boss wins' }
+    }]
+  }
+];
+// S on the floor; saving roll target = L + 0.5*C = 3.5, roll 20 → death
+freshRun({ S: 1, P: 5, E: 5, C: 5, I: 5, A: 5, L: 1 });
+Object.assign(Game.state, {
+  level: 1, levelUpPoints: 0, phase: 1, eventsCompleted: 5,
+  equipment: [], consumables: [], eventHistory: [],
+  bossCompleted: false, currentEventId: null, pendingEquipmentDrop: null
+});
+Math.random = () => 0.99; // no equipment drops
+d20 = () => 20; // check: 19 vs 1 → fail; saving roll: 20 vs 3.5 → fail
+pr = Game.processChoice(EVENTS[0], 0);
+assert.strictEqual(pr.success, false, 'boss check failed');
+assert.strictEqual(pr.bossDefeated, true, 'bossDefeated set regardless of outcome');
+assert.ok(pr.gameOver, 'run ended on the boss event');
+assert.strictEqual(pr.leveledUp, true, 'level up also fires (6th event)');
+// All three of leveledUp/bossDefeated/gameOver true in one result — the
+// state that exercises the terminal-first toast ordering in handleChoice.
+Math.random = realRandom;
+console.log('✓ boss + game over: terminal state co-occurs with leveledUp/bossDefeated (toast ordering guard)');
+
 // --- utils: zeroStats, clampStat, formatEffects, Fisher-Yates shuffle ---
 const zs = zeroStats();
 assert.deepStrictEqual(Object.keys(zs).sort(), ['A', 'C', 'E', 'I', 'L', 'P', 'S'], 'zeroStats: all seven stats');

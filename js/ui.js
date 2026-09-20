@@ -1023,8 +1023,20 @@ const UI = {
       }
     }
     
-    // Show toast notifications and play sounds for milestones
-    if (result.leveledUp) {
+    // Show toast notifications and play sounds for milestones.
+    // Terminal states first: a run can END on a boss event (bossDefeated
+    // is title-derived, gameOver is computed independently), and the level
+    // cadence can fire on the same event — celebration toasts must not
+    // clobber the death/retirement ones. Mirrors the continue-button chain.
+    if (result.gameOver) {
+      this.showToast('💀 Career Over', 'error');
+      this.playSound('gameover');
+      this.flashScreen('rgba(255, 0, 0, 0.4)');
+    } else if (result.victory) {
+      this.showToast('🏆 Retirement!', 'success');
+      this.playSound('victory');
+      this.flashScreen('rgba(255, 215, 0, 0.3)');
+    } else if (result.leveledUp) {
       this.showToast(`📈 Level Up! Now level ${state.level}`, 'success');
       this.playSound('levelup');
     } else if (result.bossDefeated) {
@@ -1034,14 +1046,6 @@ const UI = {
     } else if (result.itemDropped) {
       this.showToast(`🎁 Found: ${result.itemDropped.emoji} ${result.itemDropped.name}`, 'success');
       this.playSound('success');
-    } else if (result.gameOver) {
-      this.showToast('💀 Career Over', 'error');
-      this.playSound('gameover');
-      this.flashScreen('rgba(255, 0, 0, 0.4)');
-    } else if (result.victory) {
-      this.showToast('🏆 Retirement!', 'success');
-      this.playSound('victory');
-      this.flashScreen('rgba(255, 215, 0, 0.3)');
     } else {
       // Regular choice sound
       this.playSound(result.success ? 'success' : 'failure');
