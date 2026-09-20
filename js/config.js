@@ -25,5 +25,16 @@ const CONFIG = {
       obsolescenceDay: 365,
       redundancyDay: 400,
     },
+    // Inventory and carry-over caps
+    consumableCap: 2,          // consumables held in a run (and in the carry-over pool)
+    equipmentCarryOverCap: 1,  // equipment carried into the next run
+    // Days advanced per event (inclusive range)
+    dayAdvance: { min: 3, max: 7 },
+    // Extra equipment drop chance per LUCK point, added to dropRate
+    luckDropBonusPerPoint: 0.03,
+    // Consumables offered when choosing (level up, end of run)
+    randomConsumableChoices: 3,
+    // Career log: cap on stored entries, and how many each view shows
+    careerLog: { cap: 50, sidePanel: 20, recent: 3, popup: 50 },
   },
 };

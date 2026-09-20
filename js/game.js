@@ -9,10 +9,10 @@ const Game = {
     const now = Date.now();
     this.state = {
       stats: { ...statAlloc },
-      equipment: [...startingEquipment.slice(0, 1)], // carry-over equipment (max 1)
+      equipment: [...startingEquipment.slice(0, CONFIG.game.equipmentCarryOverCap)], // carry-over equipment
       // Carry-over consumables (max 2): the LAST 2 in the pool — the pool
       // grows by append, so most recent picks are granted, not the oldest
-      consumables: [...startingConsumables.slice(-2)],
+      consumables: [...startingConsumables.slice(-CONFIG.game.consumableCap)],
       level: 1,
       levelUpPoints: 0,
       day: 1,
@@ -99,7 +99,8 @@ const Game = {
     const itemDropped = this.checkForEquipmentDrop(checkResult.allSuccess);
     
     // Advance game state
-    state.day += Math.floor(Math.random() * 5) + 3;
+    const { min: dayMin, max: dayMax } = CONFIG.game.dayAdvance;
+    state.day += dayMin + Math.floor(Math.random() * (dayMax - dayMin + 1));
     state.eventsCompleted++;
     state.currentEventId = gameEvent.id;
     state.eventHistory.push(gameEvent.id);
@@ -279,7 +280,7 @@ const Game = {
   // Check for equipment drop and handle inventory
   /** @param {boolean} isSuccess @returns {Equipment | null} */
   checkForEquipmentDrop(isSuccess) {
-    if (!isSuccess || Math.random() >= Math.min(1, CONFIG.game.dropRate + SpecialSystem.stats.L * 0.03)) {
+    if (!isSuccess || Math.random() >= Math.min(1, CONFIG.game.dropRate + SpecialSystem.stats.L * CONFIG.game.luckDropBonusPerPoint)) {
       return null;
     }
     
@@ -393,13 +394,47 @@ const Game = {
     this.addLog(`Promoted to ${CONFIG.game.phaseNames[state.phase]}! 🎉`);
   },
   
+  // Pick the next event, advancing the phase first if needed. nextEvent is
+  // the single owner of phase advancement — the result screen's continue
+  // button relies on this instead of calling advancePhase itself.
+  /** @returns {GameEvent} */
+  nextEvent() {
+    const state = this.state;
+    if (!state) throw new Error('Game.nextEvent: no active run');
+    
+    // Boss already defeated — advance and pick again
+    if (state.bossCompleted) {
+      this.advancePhase();
+      return this.nextEvent();
+    }
+    
+    // Boss every N events (eventsCompleted is incremented AFTER the choice
+    // that completed the cycle is processed)
+    // 🚀 Fast Ship: bosses every 5 events instead of 6
+    if ((state.eventsCompleted + 1) % PerkSystem.bossInterval() === 0) {
+      const boss = getBossEvent(state.phase);
+      if (boss) return boss;
+    }
+    
+    const event = getRandomNonBossEvent(state.phase, state.eventHistory || []);
+    if (event) return event;
+    
+    // All non-boss events seen — fall back to the boss
+    const fallback = getBossEvent(state.phase);
+    if (fallback) return fallback;
+    
+    // No events at all for this phase — advance and pick again
+    this.advancePhase();
+    return this.nextEvent();
+  },
+  
   // Add to career log
   /** @param {string} message */
   addLog(message) {
     const state = this.state;
     if (!state) return;
     state.careerLog.unshift({ message, day: state.day, timestamp: Date.now() });
-    if (state.careerLog.length > 50) {
+    if (state.careerLog.length > CONFIG.game.careerLog.cap) {
       state.careerLog.pop();
     }
   },
@@ -470,6 +505,6 @@ const ConsumableManager = {
   getEndOfRunOptions() {
     const carried = MetaStore.carriedIds('startingConsumables');
     const pool = CONSUMABLES.filter(c => !carried.includes(c.id));
-    return shuffle(pool).slice(0, 3);
+    return shuffle(pool).slice(0, CONFIG.game.randomConsumableChoices);
   }
 };

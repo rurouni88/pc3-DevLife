@@ -755,7 +755,7 @@ const UI = {
     const container = document.getElementById('career-log');
     const state = Game.state;
     if (!container || !state) return;
-    const log = state.careerLog.slice(0, 20);
+    const log = state.careerLog.slice(0, CONFIG.game.careerLog.sidePanel);
     
     container.innerHTML = '';
     log.forEach((entry, i) => {
@@ -776,7 +776,7 @@ const UI = {
     const state = Game.state;
     if (!container || !state) return;
     
-    const recentEntries = state.careerLog.slice(0, 3);
+    const recentEntries = state.careerLog.slice(0, CONFIG.game.careerLog.recent);
     
     container.innerHTML = '';
     recentEntries.forEach((entry, i) => {
@@ -1211,40 +1211,15 @@ const UI = {
       return;
     }
     
-    const excludeIds = Game.state.eventHistory || [];
-    let event;
-    
-    // If boss already defeated, advance to next phase. nextEvent is the
-    // single owner of phase advancement — the result screen's continue
-    // button relies on this instead of calling advancePhase itself.
-    if (Game.state.bossCompleted) {
-      Game.advancePhase();
-      this.renderTopBar();
-      this.renderCareerLog(); // show the promotion entry in the side panel
-      this.nextEvent();
-      return;
-    }
-    
-    // Boss every N events (eventsCompleted is incremented AFTER this call)
-    // 🚀 Fast Ship: bosses every 5 events instead of 6
-    if ((Game.state.eventsCompleted + 1) % PerkSystem.bossInterval() === 0) {
-      event = getBossEvent(Game.state.phase);
-    } else {
-      event = getRandomNonBossEvent(Game.state.phase, excludeIds);
-      // Fallback to boss if we've seen all non-boss events
-      if (!event) {
-        event = getBossEvent(Game.state.phase);
-      }
-    }
-    
-    if (!event) {
-      Game.advancePhase();
+    // Event picking and phase advancement live in Game.nextEvent; the UI
+    // only renders. If the pick advanced a phase, refresh the top bar and
+    // career log so the promotion entry shows before the next event.
+    const phaseBefore = Game.state.phase;
+    const event = Game.nextEvent();
+    if (Game.state.phase !== phaseBefore) {
       this.renderTopBar();
       this.renderCareerLog();
-      this.nextEvent();
-      return;
     }
-    
     this.renderEvent(event);
   },
   
@@ -1328,7 +1303,7 @@ const UI = {
     const state = Game.state;
     if (!state) return;
     const options = state.pendingLevelUpConsumables;
-    const hasFullInventory = state.consumables.length >= 2;
+    const hasFullInventory = state.consumables.length >= CONFIG.game.consumableCap;
     
     // Show the level up screen first
     this.showScreen('levelup');
@@ -1491,7 +1466,7 @@ const continueBtn = /** @type {HTMLButtonElement} */ (document.getElementById('b
     const carried = MetaStore.carriedIds('startingConsumables')
       .map(/** @param {string} id */ (id) => CONSUMABLES.find(c => c.id === id))
       .filter(/** @returns {item is Consumable} */ (item) => Boolean(item));
-    const full = carried.length >= 2;
+    const full = carried.length >= CONFIG.game.consumableCap;
     
     /** @param {string} title @param {string} context @param {HTMLElement} container @param {HTMLElement | null} titleEl @param {HTMLElement | null} contextEl @param {HTMLButtonElement} continueBtn @param {(id: string, replaceIndex: number) => void} onPick */
     const render = (title, context, container, titleEl, contextEl, continueBtn, onPick) => {
@@ -1824,7 +1799,7 @@ const continueBtn = /** @type {HTMLButtonElement} */ (document.getElementById('b
     const container = document.getElementById('popup-career-log');
     const state = Game.state;
     if (!container || !state) return;
-    const log = state.careerLog.slice(0, 50);
+    const log = state.careerLog.slice(0, CONFIG.game.careerLog.popup);
     
     container.innerHTML = '';
     log.forEach((entry, i) => {

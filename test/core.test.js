@@ -7,8 +7,9 @@
 // (test/core.tests.js) runs in that same context and can touch game
 // internals directly. No framework, no build step.
 //
-// ui.js / app.js / events.js need the DOM/fetch and are NOT executed here,
-// but every JS file is still syntax-checked.
+// ui.js / app.js need the DOM and are NOT executed here, but every JS
+// file is still syntax-checked. events.js IS executed: its top-level
+// fetch is guarded by `typeof fetch`, and tests populate EVENTS directly.
 
 'use strict';
 
@@ -20,7 +21,7 @@ const assert = require('assert');
 const JS_DIR = path.join(__dirname, '..', 'js');
 
 // Executable in Node (no DOM/fetch at load time), in dependency order.
-const RUN_FILES = ['config', 'utils', 'archetypes', 'items', 'special', 'perks', 'meta', 'game', 'save'];
+const RUN_FILES = ['config', 'utils', 'events', 'archetypes', 'items', 'special', 'perks', 'meta', 'game', 'save'];
 
 // 1. Syntax-check every JS file (including the DOM-bound ones)
 for (const file of fs.readdirSync(JS_DIR).filter(f => f.endsWith('.js'))) {
@@ -44,21 +45,13 @@ const sandbox = {
 sandbox.window = sandbox;
 vm.createContext(sandbox);
 
-// events.js is not executed (it needs fetch), but game logic references
-// its load-time globals. Shim them with the same values events.js sets.
-const EVENTS_SHIM = `
-  let EVENTS = [];
-  const EVENTS_PER_BOSS = CONFIG.game.eventsPerBoss;
-  const BOSS_PREFIX = CONFIG.game.bossPrefix;
-`;
-
 const src = RUN_FILES
   .map(f => fs.readFileSync(path.join(JS_DIR, f + '.js'), 'utf8'))
   .join('\n;\n');
 const tests = fs.readFileSync(path.join(__dirname, 'core.tests.js'), 'utf8');
 
 try {
-  vm.runInContext(src + '\n;\n' + EVENTS_SHIM + '\n;\n' + tests, sandbox, { filename: 'core.tests.js' });
+  vm.runInContext(src + '\n;\n' + tests, sandbox, { filename: 'core.tests.js' });
   console.log('\n✓ all core tests passed');
 } catch (err) {
   console.error('\n✗ test failed:');
