@@ -36,7 +36,7 @@ const App = {
     bind('btn-start-career', () => this.startCareer());
     
     // Game screen - toolbar buttons
-    document.querySelectorAll('.toolbar-btn').forEach(/** @param {HTMLElement} btn */ (btn) => {
+    /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.toolbar-btn')).forEach(/** @param {HTMLElement} btn */ (btn) => {
       btn.addEventListener('click', () => {
         const panelName = btn.dataset.panel;
         if (panelName) UI.openPopup(panelName);
@@ -115,7 +115,7 @@ const App = {
   },
   
   initHelpTabs() {
-    document.querySelectorAll('.modal-tab').forEach(/** @param {HTMLElement} tab */ (tab) => {
+    /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.modal-tab')).forEach(/** @param {HTMLElement} tab */ (tab) => {
       tab.addEventListener('click', () => {
         if (tab.dataset.tab) UI.setHelpTab(tab.dataset.tab);
       });

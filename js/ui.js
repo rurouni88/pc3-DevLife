@@ -391,7 +391,7 @@ const UI = {
     };
     
     // Bind events
-    container.querySelectorAll('.stat-btn').forEach(/** @param {HTMLElement} btn */ (btn) => {
+    /** @type {NodeListOf<HTMLElement>} */ (container.querySelectorAll('.stat-btn')).forEach(/** @param {HTMLElement} btn */ (btn) => {
       btn.addEventListener('click', () => {
         const stat = btn.dataset.stat;
         const action = btn.dataset.action;
@@ -891,7 +891,7 @@ const UI = {
     container.appendChild(card);
     
     // Bind consumable buttons
-    card.querySelectorAll('.cons-btn').forEach(/** @param {HTMLElement} btn */ (btn) => {
+    /** @type {NodeListOf<HTMLElement>} */ (card.querySelectorAll('.cons-btn')).forEach(/** @param {HTMLElement} btn */ (btn) => {
       const infoBtn = /** @type {HTMLElement | null} */ (btn.querySelector('.cons-info'));
       if (infoBtn) {
         // Desktop: hover to show
@@ -922,7 +922,7 @@ const UI = {
     });
     
     // Bind choice buttons
-    card.querySelectorAll('.choice-btn').forEach(/** @param {HTMLElement} btn */ (btn) => {
+    /** @type {NodeListOf<HTMLElement>} */ (card.querySelectorAll('.choice-btn')).forEach(/** @param {HTMLElement} btn */ (btn) => {
       btn.addEventListener('click', () => {
         this.playSound('click');
         const choiceIndex = parseInt(btn.dataset.choice || '0', 10);
