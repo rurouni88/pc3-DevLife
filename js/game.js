@@ -67,6 +67,11 @@ const Game = {
     const choice = eventDef.choices[choiceIndex];
     if (!choice) return { error: 'Invalid choice' };
     
+    // A pending drop from a prior event that was never resolved (e.g. the
+    // run ended before the choice screen) must not leak into this result's
+    // equipmentDropped flag — checkForEquipmentDrop() re-sets it below
+    this.state.pendingEquipmentDrop = null;
+    
     // Resolve stat checks and apply consequences
     const checkResult = this.resolveStatChecks(choice);
     
