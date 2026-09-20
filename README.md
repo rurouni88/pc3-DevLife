@@ -7,6 +7,8 @@
 
 Will you reach retirement, or will your career end in burnout?
 
+Click [HERE]([https://www.example.com](https://rurouni88.github.io/pc3-DevLife)) to play. 
+
 ---
 
 ## 🎮 How to Play
