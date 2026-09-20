@@ -111,6 +111,17 @@ assert.deepStrictEqual(MetaStore.carriedIds('startingConsumables'), ['focus', 'e
 localStorage.removeItem('devlife_meta');
 console.log('✓ consumable carry-over: pick = most recent, pool capped at 2');
 
+// --- MetaStore: corrupted meta JSON is ignored, not fatal ---
+localStorage.setItem('devlife_meta', '{not json');
+assert.deepStrictEqual(MetaStore.load(), {}, 'corrupted meta ignored');
+assert.strictEqual(MetaStore.runCount(), 0, 'runCount falls back to 0');
+localStorage.setItem('devlife_meta', '42');
+assert.deepStrictEqual(MetaStore.load(), {}, 'non-object meta ignored');
+MetaStore.recordRunComplete(null); // still writable after corruption
+assert.strictEqual(MetaStore.runCount(), 1, 'meta usable after corruption fallback');
+localStorage.removeItem('devlife_meta');
+console.log('✓ meta store: corrupted data ignored, not fatal');
+
 // --- Stock Up swap: explicit replaceIndex swaps the chosen slot ---
 localStorage.setItem('devlife_meta', JSON.stringify({ totalRuns: 0, startingConsumables: ['coffee', 'focus'] }));
 MetaStore.addCarriedConsumable('espresso', 0); // swap slot 0

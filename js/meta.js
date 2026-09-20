@@ -5,9 +5,19 @@
 const MetaStore = {
   KEY: 'devlife_meta',
   
+  // Parse with a guard: a corrupted entry must not take the game down —
+  // same posture as SaveSystem.load (log and fall back to empty meta).
   /** @returns {MetaState} */
   load() {
-    return JSON.parse(localStorage.getItem(this.KEY) || '{}');
+    const raw = localStorage.getItem(this.KEY);
+    if (!raw) return {};
+    try {
+      const meta = JSON.parse(raw);
+      return meta && typeof meta === 'object' ? /** @type {MetaState} */ (meta) : {};
+    } catch (e) {
+      console.error('[DevLife] Meta data is corrupted; ignoring it', e);
+      return {};
+    }
   },
   
   save(meta) {
