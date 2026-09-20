@@ -1,6 +1,6 @@
 {
   "name": "devlife",
-  "version": "0.26",
+  "version": "0.27",
   "private": true,
   "description": "DevLife — a software engineering roguelike",
   "scripts": {
