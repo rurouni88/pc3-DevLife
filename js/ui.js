@@ -3,6 +3,7 @@ const UI = {
   currentScreen: 'title',
   
   // Audio context for sound effects
+  /** @type {AudioContext | null} */
   audioCtx: null,
   
   // Initialize audio (must be called after user interaction)
@@ -12,6 +13,7 @@ const UI = {
   },
   
   // Play a sound effect
+  /** @param {string} type */
   playSound(type) {
     if (!this.audioCtx) this.initAudio();
     if (!this.audioCtx) return;
@@ -110,6 +112,7 @@ const UI = {
   },
   
   // Flash screen with color
+  /** @param {string} color @param {number} [duration] */
   flashScreen(color, duration = 300) {
     const flash = document.createElement('div');
     flash.className = 'screen-flash';
@@ -120,6 +123,7 @@ const UI = {
   },
   
   // Show toast notification
+  /** @param {string} message @param {string} [type] */
   showToast(message, type = 'success') {
     const container = document.getElementById('toast-container');
     if (!container) return;
@@ -133,6 +137,7 @@ const UI = {
   },
   
   // Show item tooltip (consumables, equipment, perks)
+  /** @param {{ emoji?: string, name?: string, desc?: string, stat?: string, bonus?: number, multiplier?: number, effects?: Partial<Stats> }} item */
   showTooltip(item) {
     const tooltip = document.getElementById('item-tooltip');
     if (!tooltip) return;
@@ -144,11 +149,11 @@ const UI = {
     // Build effect text (only for consumables/equipment, not perks)
     let effectText = '';
     if (item.stat && item.bonus) {
-      effectText = `+${item.bonus} ${item.stat === 'any' ? 'ANY stat' : STAT_META[item.stat]?.name || item.stat}`;
+      effectText = `+${item.bonus} ${item.stat === 'any' ? 'ANY stat' : STAT_META[/** @type {StatKey} */ (item.stat)]?.name || item.stat}`;
     } else if (item.multiplier) {
       effectText = `${item.multiplier}× stat (risky)`;
     } else if (item.effects) {
-      effectText = Object.entries(item.effects).map(([s, v]) => `+${v} ${STAT_META[s]?.name || s}`).join(', ');
+      effectText = Object.entries(item.effects).map(([s, v]) => `+${v} ${STAT_META[/** @type {StatKey} */ (s)]?.name || s}`).join(', ');
     }
     const effectEl = /** @type {HTMLElement} */ (tooltip.querySelector('.tooltip-effect'));
     effectEl.textContent = effectText;
@@ -203,6 +208,7 @@ const UI = {
       ['lead: blockers?', 'you: none!', '(47 tabs, 1 coffee)', 'lead: great energy', 'you: ██████░░░░ 60%'],
       ['Junior ──────> Staff', 'promotion: pending', 'budget: -30%', 'you: still here??', '...legend.']
     ];
+    /** @param {number} ms */
     const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     (async () => {
       for (;;) {
@@ -238,6 +244,7 @@ const UI = {
     modal.style.display = 'none';
   },
   
+  /** @param {string} tab */
   setHelpTab(tab) {
     document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.modal-tab-content').forEach(c => c.classList.remove('active'));
@@ -246,6 +253,7 @@ const UI = {
   },
   
   // Show floating stat change
+  /** @param {string} stat @param {number} value */
   showStatFloat(stat, value) {
     const statEl = document.querySelector(`[data-stat="${stat}"]`);
     if (!statEl) return;
@@ -263,6 +271,7 @@ const UI = {
   },
   
   // Render a single consumable/selectable item
+  /** @param {Consumable} item @param {Record<string, string | number>} [datasetAttrs] */
   renderConsumableItem(item, datasetAttrs) {
     const element = document.createElement('div');
     element.className = 'consumable-select-item';
@@ -270,7 +279,7 @@ const UI = {
     // Add custom dataset attributes
     if (datasetAttrs) {
       Object.entries(datasetAttrs).forEach(([key, value]) => {
-        element.dataset[key] = value;
+        element.dataset[key] = String(value);
       });
     }
     
@@ -290,6 +299,7 @@ const UI = {
   },
   
   // Format stat info for consumable display
+  /** @param {Consumable} item @returns {string} */
   formatConsumableStat(item) {
     if (item.multiplier) {
       return `<span class="cs-multiplier" style="color: var(--accent-yellow)">${item.multiplier > 1 ? item.multiplier + '× stat' : Math.abs(item.multiplier) * 100 + '% stat'}</span>`;
@@ -297,13 +307,18 @@ const UI = {
     if (item.stat === 'any') {
       return `<span class="cs-stat-any" style="color: var(--accent-green)">+${item.bonus} to ANY stat</span>`;
     }
-    const statName = STAT_META[item.stat]?.name || item.stat;
-    return `<span class="cs-stat" style="color: ${STAT_META[item.stat]?.color || '#fff'}">+${item.bonus} ${statName}</span>`;
+    const statName = STAT_META[/** @type {StatKey} */ (item.stat)]?.name || item.stat;
+    return `<span class="cs-stat" style="color: ${STAT_META[/** @type {StatKey} */ (item.stat)]?.color || '#fff'}">+${item.bonus} ${statName}</span>`;
   },
+  /** @type {(() => void) | null} */
   _presetToggleHandler: null,
+  /** @type {((e: Event) => void) | null} */
   _presetCloseHandler: null,
+  /** @type {Archetype | null} */
+  _selectedPreset: null,
   
   // Show a screen
+  /** @param {string} screenId */
   showScreen(screenId) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     const screen = document.getElementById(`screen-${screenId}`);
@@ -337,7 +352,7 @@ const UI = {
     
     // Read stats directly from DOM — always in sync
     const getStats = () => {
-      const stats = {};
+      const stats = { S: 0, P: 0, E: 0, C: 0, I: 0, A: 0, L: 0 };
       STAT_KEYS.forEach(k => {
         const rows = container.querySelectorAll('.stat-row');
         for (const row of rows) {
@@ -434,7 +449,7 @@ const UI = {
     // Close dropdown when clicking outside
     this._presetCloseHandler = (e) => {
       const dropdown = document.getElementById('preset-dropdown');
-      if (!dropdown.contains(e.target)) {
+      if (!dropdown.contains(/** @type {Node} */ (e.target))) {
         container.classList.remove('open');
         toggle.classList.remove('open');
       }
@@ -443,6 +458,7 @@ const UI = {
   },
   
   // Apply an archetype preset to the stat allocation
+  /** @param {Stats} stats @param {Archetype | null} arch */
   applyArchetypePreset(stats, arch) {
     const container = document.getElementById('stat-allocation');
     const rows = container.querySelectorAll('.stat-row');
@@ -453,16 +469,16 @@ const UI = {
       const minusBtn = /** @type {HTMLButtonElement} */ (row.querySelector('.stat-btn.minus'));
       const plusBtn = /** @type {HTMLButtonElement} */ (row.querySelector('.stat-btn.plus'));
       
-      const value = stats[label];
-      valueEl.textContent = value;
+      const value = stats[/** @type {StatKey} */ (label)];
+      valueEl.textContent = String(value);
       
       minusBtn.disabled = value <= 1;
       plusBtn.disabled = value >= 10;
     });
     
-    const currentStats = {};
+    const currentStats = { S: 0, P: 0, E: 0, C: 0, I: 0, A: 0, L: 0 };
     rows.forEach(row => {
-      const label = row.querySelector('.stat-label').textContent;
+      const label = /** @type {StatKey} */ (row.querySelector('.stat-label').textContent);
       currentStats[label] = parseInt(row.querySelector('.stat-value').textContent);
     });
     
@@ -518,11 +534,11 @@ const UI = {
   // Update character creation UI state
   updateCharCreationUI() {
     const container = document.getElementById('stat-allocation');
-    const currentStats = {};
+    const currentStats = { S: 0, P: 0, E: 0, C: 0, I: 0, A: 0, L: 0 };
     
     const rows = container.querySelectorAll('.stat-row');
     rows.forEach(row => {
-      const label = row.querySelector('.stat-label').textContent;
+      const label = /** @type {StatKey} */ (row.querySelector('.stat-label').textContent);
       const valueEl = row.querySelector('.stat-value');
       currentStats[label] = parseInt(valueEl.textContent);
     });
@@ -539,7 +555,7 @@ const UI = {
       const label = row.querySelector('.stat-label').textContent;
       const minusBtn = /** @type {HTMLButtonElement} */ (row.querySelector('.stat-btn.minus'));
       const plusBtn = /** @type {HTMLButtonElement} */ (row.querySelector('.stat-btn.plus'));
-      const value = currentStats[label];
+      const value = currentStats[/** @type {StatKey} */ (label)];
       
       minusBtn.disabled = value <= 1;
       plusBtn.disabled = value >= 10 || total >= STARTING_POINTS;
@@ -550,10 +566,11 @@ const UI = {
   },
   
   // Update archetype preview based on current stats
+  /** @param {Stats} [currentStats] */
   updateArchetypePreview(currentStats) {
     if (!currentStats) {
       const container = document.getElementById('stat-allocation');
-      currentStats = {};
+      currentStats = { S: 0, P: 0, E: 0, C: 0, I: 0, A: 0, L: 0 };
       STAT_KEYS.forEach(k => {
         const rows = container.querySelectorAll('.stat-row');
         for (const row of rows) {
@@ -631,6 +648,7 @@ const UI = {
   // Render the seven SPECIAL stat bars into a container.
   // Shared by the side panel (renderSpecialStats) and the character popup
   // (renderPopupSpecial) so the bar markup has a single home.
+  /** @param {HTMLElement} container */
   renderStatBars(container) {
     container.innerHTML = '';
     
@@ -671,7 +689,7 @@ const UI = {
     
     container.innerHTML = '';
     equipment.forEach(item => {
-      const effectText = Object.entries(item.effects).map(([k,v]) => `+${v} ${STAT_META[k].name}`).join(', ');
+      const effectText = Object.entries(item.effects).map(([k,v]) => `+${v} ${STAT_META[/** @type {StatKey} */ (k)].name}`).join(', ');
       const el = document.createElement('span');
       el.className = 'equip-item';
       el.dataset.tooltip = `${item.name}: ${effectText}`;
@@ -756,7 +774,7 @@ const UI = {
     // Build consumable buttons if player has any
     let consumableHTML = '';
     if (Game.state.consumables.length > 0) {
-      const grouped = {};
+      const grouped = /** @type {Record<string, Consumable & { count: number }> } */ ({});
       Game.state.consumables.forEach(c => {
         if (!grouped[c.id]) grouped[c.id] = { ...c, count: 0 };
         grouped[c.id].count++;
@@ -796,7 +814,7 @@ const UI = {
                   const currentStat = SpecialSystem.effective(/** @type {StatKey} */ (stat));
                   const gate = (target - SpecialSystem.stats.L) * CONFIG.game.competenceGateFactor;
                   const success = currentStat >= gate;
-                  return `<span class="check ${success ? 'success' : 'fail'}">${STAT_META[stat].name}: ${target} ${success ? '✓' : '✗'}</span>`;
+                  return `<span class="check ${success ? 'success' : 'fail'}">${STAT_META[/** @type {StatKey} */ (stat)].name}: ${target} ${success ? '✓' : '✗'}</span>`;
                 }).join('')}</div>`
               : '';
             return `
@@ -999,7 +1017,7 @@ const UI = {
     const statChanges = [];
     for (const [stat, value] of Object.entries(result.effects)) {
       if (value !== 0) {
-        statChanges.push(`<span class="stat-change ${value > 0 ? 'positive' : 'negative'}">${STAT_META[stat].name}: ${value > 0 ? '+' : ''}${value}</span>`);
+        statChanges.push(`<span class="stat-change ${value > 0 ? 'positive' : 'negative'}">${STAT_META[/** @type {StatKey} */ (stat)].name}: ${value > 0 ? '+' : ''}${value}</span>`);
       }
     }
     if (statChanges.length > 0) {
@@ -1157,28 +1175,30 @@ const UI = {
     this.renderEvent(event);
   },
   
-  // Shared consumable pick-and-swap UI. Renders the new-consumable options
-  // and, when the stash is at capacity, the current stash (click one to
-  // replace it). Title and context are placeholders so each screen (level
-  // up, Stock Up, victory) reuses the same selection UI with its own copy.
-  // @param {Object} cfg
-  // @param {HTMLElement} cfg.container element to render options/stash into
-  // @param {HTMLElement} [cfg.titleEl] screen title placeholder
-  // @param {string} [cfg.title] e.g. '☕ Stock Up!'
-  // @param {HTMLElement} [cfg.contextEl] screen context-line placeholder
-  // @param {string} [cfg.context] e.g. 'Pick 1 consumable to carry into your next career.'
-  // @param {Consumable[]} cfg.options new consumables to pick from
-  // @param {Consumable[]} [cfg.current] current stash (swap targets)
-  // @param {boolean} [cfg.full] stash is at capacity
-  // @param {HTMLButtonElement} [cfg.continueBtn] enabled once a valid selection is made
-  // @param {boolean} [cfg.requireReplace] when full, a swap target must also be picked
-  // @returns {() => {newId: string | null, replaceIndex: number}} selection getter
+  /** Shared consumable pick-and-swap UI. Renders the new-consumable options
+   * and, when the stash is at capacity, the current stash (click one to
+   * replace it). Title and context are placeholders so each screen (level
+   * up, Stock Up, victory) reuses the same selection UI with its own copy.
+   * @param {Object} cfg
+   * @param {HTMLElement} cfg.container element to render options/stash into
+   * @param {HTMLElement} [cfg.titleEl] screen title placeholder
+   * @param {string} [cfg.title] e.g. '☕ Stock Up!'
+   * @param {HTMLElement} [cfg.contextEl] screen context-line placeholder
+   * @param {string} [cfg.context] e.g. 'Pick 1 consumable to carry into your next career.'
+   * @param {Consumable[]} cfg.options new consumables to pick from
+   * @param {Consumable[]} [cfg.current] current stash (swap targets)
+   * @param {boolean} [cfg.full] stash is at capacity
+   * @param {HTMLButtonElement} [cfg.continueBtn] enabled once a valid selection is made
+   * @param {boolean} [cfg.requireReplace] when full, a swap target must also be picked
+   * @returns {() => {newId: string | null, replaceIndex: number}} selection getter
+   */
   renderConsumableSwap(cfg) {
     if (cfg.titleEl && cfg.title) cfg.titleEl.textContent = cfg.title;
     if (cfg.contextEl && cfg.context) cfg.contextEl.innerHTML = cfg.context;
     
     const container = cfg.container;
     container.innerHTML = '';
+    /** @type {string | null} */
     let newId = null;
     let replaceIndex = -1;
     
@@ -1198,7 +1218,7 @@ const UI = {
     cfg.options.forEach((newConsumable) => {
       const itemElement = UI.renderConsumableItem(newConsumable, { id: newConsumable.id });
       itemElement.addEventListener('click', () => {
-        container.querySelectorAll('.consumable-select-item').forEach(s => s.classList.remove('selected'));
+        container.querySelectorAll('.consumable-select-item').forEach(/** @param {Element} s */ (s) => s.classList.remove('selected'));
         itemElement.classList.add('selected');
         newId = newConsumable.id;
         updateButton();
@@ -1217,7 +1237,7 @@ const UI = {
       cfg.current.forEach((currentConsumable, inventoryIndex) => {
         const itemElement = UI.renderConsumableItem(currentConsumable, { replaceIndex: inventoryIndex });
         itemElement.addEventListener('click', () => {
-          container.querySelectorAll('[data-replace-index]').forEach(s => s.classList.remove('selected'));
+          container.querySelectorAll('[data-replace-index]').forEach(/** @param {Element} s */ (s) => s.classList.remove('selected'));
           itemElement.classList.add('selected');
           replaceIndex = inventoryIndex;
           updateButton();
@@ -1364,6 +1384,7 @@ const UI = {
   },
   
   // Show game over screen
+  /** @param {string} reason */
   showGameOver(reason) {
     Game.saveRunComplete();
     
@@ -1374,6 +1395,7 @@ const UI = {
   
   // Show consumable selection at end of run — the shared pick-and-swap UI
   // ("Stock Up") with per-screen title/context placeholders
+  /** @param {string} type */
   showConsumableSelection(type) {
     const options = ConsumableManager.getEndOfRunOptions();
     // The carried stash: what the player already carries across runs. When
@@ -1503,6 +1525,7 @@ const UI = {
   },
   
   // Toggle side panel (mobile)
+  /** @param {boolean} open */
   togglePanel(open) {
     const panel = document.getElementById('side-panel');
     const overlay = document.getElementById('panel-overlay');
@@ -1522,6 +1545,7 @@ const UI = {
   },
   
   // Show equipment choice screen (when inventory is full)
+  /** @param {Equipment} newEquipment @param {Equipment[]} currentEquipment */
   showEquipmentChoice(newEquipment, currentEquipment) {
     const newContainer = document.getElementById('equipment-choice-new');
     const currentContainer = document.getElementById('equipment-choice-current');
@@ -1533,7 +1557,7 @@ const UI = {
     const newEl = document.createElement('div');
     newEl.className = 'consumable-select-item';
     newEl.style.borderColor = 'var(--accent-green)';
-    const statStr = Object.entries(newEquipment.effects).map(([k,v]) => `+${v} ${STAT_META[k].name}`).join(', ');
+    const statStr = Object.entries(newEquipment.effects).map(([k,v]) => `+${v} ${STAT_META[/** @type {StatKey} */ (k)].name}`).join(', ');
     newEl.innerHTML = `
       <span class="cs-emoji" style="font-size: 2em;">${newEquipment.emoji}</span>
       <div class="cs-details">
@@ -1552,8 +1576,8 @@ const UI = {
     currentEquipment.forEach((equip, i) => {
       const el = document.createElement('div');
       el.className = 'consumable-select-item';
-      el.dataset.index = i;
-      const statStr = Object.entries(equip.effects).map(([k,v]) => `+${v} ${STAT_META[k].name}`).join(', ');
+      el.dataset.index = String(i);
+      const statStr = Object.entries(equip.effects).map(([k,v]) => `+${v} ${STAT_META[/** @type {StatKey} */ (k)].name}`).join(', ');
       el.innerHTML = `
         <span class="cs-emoji">${equip.emoji}</span>
         <div class="cs-details">
@@ -1605,6 +1629,7 @@ const UI = {
   
   // --- Popup Panel Methods ---
   
+  /** @param {string} panelName */
   openPopup(panelName) {
     // Close any currently open popup
     this.closePopup();
@@ -1671,7 +1696,7 @@ const UI = {
       }[item.rarity] || 'var(--text-muted)';
       
       const effectsHTML = Object.entries(item.effects)
-        .map(([k, v]) => `+${v} ${STAT_META[k]?.name || k}`)
+        .map(([k, v]) => `+${v} ${STAT_META[/** @type {StatKey} */ (k)]?.name || k}`)
         .join(', ');
       
       el.innerHTML = `
