@@ -83,11 +83,14 @@ function validateEvents(events) {
   });
 }
 
-// Initialize event loading
-initEvents().catch(err => {
-  console.error('[DevLife] Failed to load events:', err);
-  showEventsLoadError();
-});
+// Initialize event loading (skipped in the test VM, which has no fetch —
+// tests populate EVENTS directly)
+if (typeof fetch !== 'undefined') {
+  initEvents().catch(err => {
+    console.error('[DevLife] Failed to load events:', err);
+    showEventsLoadError();
+  });
+}
 
 // Surface a load failure to the player. Without this, waitForEvents() never
 // resolves and the title screen freezes with no explanation (the usual cause

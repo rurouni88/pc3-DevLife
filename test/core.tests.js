@@ -492,6 +492,41 @@ assert.strictEqual(pr.leveledUp, true, 'level up also fires (6th event)');
 Math.random = realRandom;
 console.log('✓ boss + game over: terminal state co-occurs with leveledUp/bossDefeated (toast ordering guard)');
 
+// --- Game.nextEvent: event picking and phase advancement ---
+EVENTS = [
+  { id: 'p1a', title: 'P1 A', phase: 1, phaseLabel: 'Jr', narrative: 'n',
+    choices: [{ text: 'x', checks: {}, success: { text: 's', effects: {}, log: 's' }, failure: { text: 'f', effects: {}, log: 'f' } }] },
+  { id: 'p1b', title: 'P1 B', phase: 1, phaseLabel: 'Jr', narrative: 'n',
+    choices: [{ text: 'x', checks: {}, success: { text: 's', effects: {}, log: 's' }, failure: { text: 'f', effects: {}, log: 'f' } }] },
+  { id: 'p1boss', title: 'BOSS: One', phase: 1, phaseLabel: 'Jr', narrative: 'n',
+    choices: [{ text: 'x', checks: {}, success: { text: 's', effects: {}, log: 's' }, failure: { text: 'f', effects: {}, log: 'f' } }] },
+  { id: 'p2a', title: 'P2 A', phase: 2, phaseLabel: 'Mid', narrative: 'n',
+    choices: [{ text: 'x', checks: {}, success: { text: 's', effects: {}, log: 's' }, failure: { text: 'f', effects: {}, log: 'f' } }] },
+  { id: 'p2boss', title: 'BOSS: Two', phase: 2, phaseLabel: 'Mid', narrative: 'n',
+    choices: [{ text: 'x', checks: {}, success: { text: 's', effects: {}, log: 's' }, failure: { text: 'f', effects: {}, log: 'f' } }] }
+];
+freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+Object.assign(Game.state, {
+  level: 1, levelUpPoints: 0, phase: 1, eventsCompleted: 0,
+  equipment: [], consumables: [], eventHistory: [],
+  bossCompleted: false, currentEventId: null, pendingEquipmentDrop: null
+});
+let ne = Game.nextEvent();
+assert.ok(['p1a', 'p1b'].includes(ne.id), 'first event of cycle is a non-boss');
+Game.state.eventsCompleted = 5; // 6th event of the cycle
+assert.strictEqual(Game.nextEvent().id, 'p1boss', 'boss on the cycle boundary');
+Game.state.eventsCompleted = 0;
+Game.state.eventHistory = ['p1a', 'p1b'];
+assert.strictEqual(Game.nextEvent().id, 'p1boss', 'all non-boss events seen → boss fallback');
+Game.state.eventHistory = [];
+Game.state.eventsCompleted = 6; // past the boundary → non-boss cadence
+Game.state.bossCompleted = true;
+ne = Game.nextEvent();
+assert.strictEqual(Game.state.phase, 2, 'defeated boss advances the phase');
+assert.strictEqual(ne.id, 'p2a', 'next event picked from the new phase');
+assert.ok(Game.state.careerLog[0].message.includes('Promoted'), 'promotion logged');
+console.log('✓ Game.nextEvent: non-boss cadence, boss cycle, exclusion fallback, phase advancement');
+
 // --- utils: zeroStats, clampStat, formatEffects, Fisher-Yates shuffle ---
 const zs = zeroStats();
 assert.deepStrictEqual(Object.keys(zs).sort(), ['A', 'C', 'E', 'I', 'L', 'P', 'S'], 'zeroStats: all seven stats');
