@@ -859,18 +859,6 @@ const UI = {
     const result = ConsumableManager.use(id);
     if (!result) return;
     
-    // Determine which stat to boost
-    let stat = 'E';
-    for (const choice of event.choices) {
-      if (choice.checks) {
-        const entries = Object.entries(choice.checks);
-        if (entries.length > 0) {
-          stat = entries[0][0];
-          break;
-        }
-      }
-    }
-    
     // Handle multiplier (AI) consumables
     if (result.multiplier !== undefined) {
       SpecialSystem.applyMultiplier(result.multiplier);
