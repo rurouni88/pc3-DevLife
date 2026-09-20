@@ -129,6 +129,27 @@
           },
           "log": "No good alternative found."
         }
+      },
+      {
+        "text": "Audit the fork's code quality yourself",
+        "checks": {
+          "P": 8
+        },
+        "success": {
+          "text": "Before the board meets, you audit the library: 14,000 lines, one author, but clean tests and a sane architecture. Forking is viable — the legal minefield is real but navigable. You hand the board a one-page risk map with the actual exposure numbers. Option B goes from \"minefield\" to \"decision.\"",
+          "effects": {
+            "P": 1,
+            "I": 1
+          },
+          "log": "Audited the fork. The minefield became a map."
+        },
+        "failure": {
+          "text": "You audit the code and find the real problem: the license has a clause that makes an internal fork a legal event, not an engineering one. Your audit is airtight and useless — this is now a law firm's problem, at law firm prices.",
+          "effects": {
+            "E": -1
+          },
+          "log": "The code was fine. The license wasn't."
+        }
       }
     ]
   },
@@ -182,6 +203,27 @@
             "A": -1
           },
           "log": "Automation backfired (short term)."
+        }
+      },
+      {
+        "text": "Write the automation yourself",
+        "checks": {
+          "S": 9
+        },
+        "success": {
+          "text": "You spend two weeks building the pipeline that does the work of two of the missing ten: deploys, migrations, the weekly report. The team's load drops from impossible to merely heroic. The team lead says \"this is why you're the senior person,\" and you both know it's the only reason the office is still standing.",
+          "effects": {
+            "S": 1,
+            "A": 1
+          },
+          "log": "Built the automation. Load: impossible → heroic."
+        },
+        "failure": {
+          "text": "You build the automation, but it automates the process the PM is about to change. Two weeks of work becomes a cautionary tale about building before asking, and the team's load is still the work of ten.",
+          "effects": {
+            "E": -2
+          },
+          "log": "Automated a process that was about to change."
         }
       }
     ]
@@ -238,6 +280,28 @@
           },
           "log": "Built it but lost the timing."
         }
+      },
+      {
+        "text": "Show a working prototype",
+        "checks": {
+          "S": 8
+        },
+        "success": {
+          "text": "You come to the board meeting with a working prototype of the in-house path: the core feature, real data, real numbers on cost to scale. The 18-month estimate becomes a range with a floor. The board votes on evidence instead of vibes, and engineering's input is the tiebreaker.",
+          "effects": {
+            "S": 1,
+            "I": 1
+          },
+          "log": "The prototype became the tiebreaker."
+        },
+        "failure": {
+          "text": "You build the prototype, but the board meeting is now, not next week. You present a two-week-old demo against a competitor that shipped a new feature yesterday. The prototype proves the concept and loses the quarter.",
+          "effects": {
+            "E": -1,
+            "A": -1
+          },
+          "log": "The prototype was real. The timing wasn't."
+        }
       }
     ]
   },
@@ -292,6 +356,28 @@
             "E": -2
           },
           "log": "Should have stepped in."
+        }
+      },
+      {
+        "text": "Run the forensics — find how it happened",
+        "checks": {
+          "P": 9
+        },
+        "success": {
+          "text": "You pull the logs and trace the breach to the unpatched library — and to the config flag that disabled the patch. You find the exposure window: 6 hours, not the 6 days the first report claimed. The board's \"answers\" call becomes a containment story instead of a disaster story. The press gets a number, not a narrative.",
+          "effects": {
+            "P": 1,
+            "C": 1
+          },
+          "log": "6 hours, not 6 days. The story changed."
+        },
+        "failure": {
+          "text": "You trace the breach and find the real entry point was a second vulnerability, in code you reviewed. The forensics are flawless, which is exactly why they're devastating. The board's question is no longer \"what happened\" but \"what do we do about it.\"",
+          "effects": {
+            "E": -2,
+            "C": -1
+          },
+          "log": "The forensics pointed at your review."
         }
       }
     ]
@@ -403,6 +489,27 @@
           },
           "log": "No replacement found. Stuck."
         }
+      },
+      {
+        "text": "Start the rewrite yourself",
+        "checks": {
+          "S": 9
+        },
+        "success": {
+          "text": "You start the rewrite with a thin interface over the old library, so the product keeps running while the new core lands behind it. Ninety days later, the shutdown email is a non-event. The board asks what it cost. You tell them: one engineer, nine months of your reputation, and zero downtime.",
+          "effects": {
+            "S": 1,
+            "P": 1
+          },
+          "log": "Rewrote behind a facade. Zero downtime."
+        },
+        "failure": {
+          "text": "You start the rewrite, but the old library's edge cases take weeks to surface — the maintainer knew things that were never documented. You're at day 40 of 90 and the product has a feature that only works on Tuesdays. The board wants an update. You give them one.",
+          "effects": {
+            "E": -2
+          },
+          "log": "The edge cases were never documented. Day 40."
+        }
       }
     ]
   },
@@ -457,6 +564,27 @@
             "E": -2
           },
           "log": "Stack lost. Team devastated."
+        }
+      },
+      {
+        "text": "Map both codebases, find the real conflicts",
+        "checks": {
+          "P": 8
+        },
+        "success": {
+          "text": "You spend a week mapping both stacks: where they actually conflict, where they're compatible, where the \"conflict\" is political. You hand the new CEO a one-pager: 3 real integration points, 14 fake ones. The stack decision takes a meeting instead of a quarter, and both teams discover they disagree less than they thought.",
+          "effects": {
+            "P": 1,
+            "I": 1
+          },
+          "log": "3 real conflicts, 14 fake ones."
+        },
+        "failure": {
+          "text": "You map the codebases and find the real conflicts are in the data layer, which neither team wants to touch. Your map is perfect and the decision is postponed, because the honest answer is \"this is harder than either of us wanted.\"",
+          "effects": {
+            "E": -1
+          },
+          "log": "The real conflict is in the data layer."
         }
       }
     ]
@@ -513,6 +641,28 @@
           },
           "log": "Compatibility layer broke."
         }
+      },
+      {
+        "text": "Write the compatibility shim yourself",
+        "checks": {
+          "S": 8
+        },
+        "success": {
+          "text": "You ship the compatibility layer before the client's CTO gets a second call: the old response format, generated from the new one, with a deprecation header and a 90-day clock. The client's fury cools to grudging respect. Their CTO calls your CEO to ask who wrote it, so they can send a thank-you.",
+          "effects": {
+            "S": 1,
+            "C": 1
+          },
+          "log": "Shim shipped. Fury → grudging respect."
+        },
+        "failure": {
+          "text": "You write the shim, but the old format had an undocumented field the client's billing pipeline depends on. You find it in the shim's first week of logs. The client is saved, but now you own their billing edge cases, which is a new job you didn't apply for.",
+          "effects": {
+            "E": -1,
+            "S": -1
+          },
+          "log": "The undocumented field. You now own their billing edge cases."
+        }
       }
     ]
   },
@@ -568,6 +718,27 @@
           },
           "log": "Wrong bottleneck identified."
         }
+      },
+      {
+        "text": "Profile and find the actual bottleneck",
+        "checks": {
+          "P": 8
+        },
+        "success": {
+          "text": "You profile the 47 API calls and find 41 of them are the same data, fetched 41 times. You fix the data layer, not the frontend: 8 seconds becomes 1.2. The CEO asks what it cost. One engineer, one week, and a graph that goes the right way.",
+          "effects": {
+            "P": 1,
+            "A": 1
+          },
+          "log": "41 redundant calls → 1. Churn graph reversed."
+        },
+        "failure": {
+          "text": "You profile and find the real bottleneck is the third-party analytics SDK, which the growth team refuses to remove. Your fix is correct, measured, and blocked by a org chart. The page loads in 7.9 seconds.",
+          "effects": {
+            "E": -1
+          },
+          "log": "The bottleneck is a SDK the growth team worships."
+        }
       }
     ]
   },
@@ -621,6 +792,27 @@
             "A": -1
           },
           "log": "Automation backfired (short term)."
+        }
+      },
+      {
+        "text": "Write the automation yourself",
+        "checks": {
+          "S": 9
+        },
+        "success": {
+          "text": "You stop triaging and start building: the deploy pipeline, the migration runner, the status report that eats two meetings a week. The team's load drops from the work of ten to the work of six, which is still a lot, but people are smiling again.",
+          "effects": {
+            "S": 1,
+            "A": 1
+          },
+          "log": "Automated two meetings a week away."
+        },
+        "failure": {
+          "text": "You build the automation in two weeks. The \"right-sizing\" ends in three, and the company hires back four of the ten — including the person whose job your pipeline did. The automation stays. The awkwardness stays longer.",
+          "effects": {
+            "E": -1
+          },
+          "log": "The automation outlived the freeze."
         }
       }
     ]
