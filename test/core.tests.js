@@ -225,3 +225,234 @@ const cdLose = Game.resolveStatChecks({ checks: { S: 5 } });
 assert.strictEqual(cdLose.cleanDeployUsed, true, 'flag set even when the reroll fails');
 assert.strictEqual(cdLose.allSuccess, false, 'failed reroll stays a failure');
 console.log('✓ clean deploy: auto-reroll, flag reported for outcome toast');
+
+// ============================================================
+// Extended coverage
+// ============================================================
+
+// Earlier sections stubbed d20 — restore real rolls for range tests
+d20 = () => dRoll(20);
+const realRandom = Math.random;
+
+// --- utils: dice ranges and career-year conversion ---
+for (let i = 0; i < 1000; i++) {
+  assert.ok(dRoll(6) >= 1 && dRoll(6) <= 6, 'dRoll(6) in [1,6]');
+  assert.ok(d20() >= 1 && d20() <= 20, 'd20 in [1,20]');
+}
+assert.strictEqual(dayToCareerYear(1), 1, 'day 1 = year 1');
+assert.strictEqual(dayToCareerYear(12), 1, 'day 12 = year 1');
+assert.strictEqual(dayToCareerYear(13), 2, 'day 13 = year 2');
+console.log('✓ utils: dice ranges, career year conversion');
+
+// --- SpecialSystem: effective-stat math and lifecycle ---
+freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+assert.strictEqual(SpecialSystem.effective('S'), 5, 'base only');
+SpecialSystem.addEquipment('⌨️', { S: 2 });
+assert.strictEqual(SpecialSystem.effective('S'), 7, 'base + equipment');
+SpecialSystem.applyTempBonus('S', 1);
+assert.strictEqual(SpecialSystem.effective('S'), 8, 'base + equipment + temp');
+SpecialSystem.applyMultiplier(1.5);
+assert.strictEqual(SpecialSystem.effective('S'), 12, 'multiplier applies to the sum');
+SpecialSystem.clearTempBonuses();
+assert.strictEqual(SpecialSystem.effective('S'), 7, 'temp bonus and multiplier cleared');
+SpecialSystem.removeEquipment('⌨️', { S: 2 });
+assert.strictEqual(SpecialSystem.effective('S'), 5, 'equipment bonus removed');
+assert.ok(SpecialSystem.canIncrease('S'), 'can increase below max');
+SpecialSystem.stats.S = 10;
+assert.ok(!SpecialSystem.canIncrease('S'), 'cannot increase at max');
+assert.strictEqual(SpecialSystem.increase('S'), false, 'increase rejected at max');
+assert.strictEqual(SpecialSystem.stats.S, 10, 'stat unchanged after rejected increase');
+console.log('✓ special: effective stat math, temp/multiplier lifecycle, max clamping');
+
+// --- resolveStatChecks: roll math, Luck, competence gate, multi-check ---
+freshRun({ S: 10, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+d20 = () => 1; // 1 - 5 = -4
+let cr = Game.resolveStatChecks({ checks: { S: 5 } });
+assert.strictEqual(cr.allSuccess, true, 'low roll passes');
+d20 = () => 20; // 20 - 5 = 15
+cr = Game.resolveStatChecks({ checks: { S: 5 } });
+assert.strictEqual(cr.allSuccess, false, 'high roll fails');
+assert.strictEqual(cr.results[0].roll, 15, 'Luck subtracts from the roll');
+// Competence gate: the roll passes but the effective stat is too low
+freshRun({ S: 1, P: 5, E: 5, C: 5, I: 5, A: 5, L: 1 });
+d20 = () => 2; // roll 1 <= 5 — the roll itself passes
+cr = Game.resolveStatChecks({ checks: { S: 5 } });
+assert.strictEqual(cr.allSuccess, false, 'competence gate fails despite passing roll');
+// Multiple checks: one failure fails the whole choice
+freshRun({ S: 10, P: 1, E: 5, C: 5, I: 5, A: 5, L: 1 });
+d20 = () => 3; // roll 2: S (target 5) passes, P (target 1) fails
+cr = Game.resolveStatChecks({ checks: { S: 5, P: 1 } });
+assert.strictEqual(cr.allSuccess, false, 'one failed check fails the choice');
+assert.strictEqual(cr.results[0].success, true, 'S check passed');
+assert.strictEqual(cr.results[1].success, false, 'P check failed');
+console.log('✓ resolveStatChecks: roll math, Luck subtraction, competence gate, multi-check');
+
+// --- applyEffects: clamping at stat bounds ---
+freshRun({ S: 10, P: 1, E: 5, C: 5, I: 5, A: 5, L: 5 });
+Game.applyEffects({ S: 5 });
+assert.strictEqual(SpecialSystem.stats.S, 10, 'positive effect clamps at max');
+Game.applyEffects({ P: -5 });
+assert.strictEqual(SpecialSystem.stats.P, 1, 'negative effect clamps at min');
+assert.strictEqual(Game.applyEffects({ E: -2 }).hasNegativeEffects, true, 'negative effects flagged');
+assert.strictEqual(Game.applyEffects({ E: 2 }).hasNegativeEffects, false, 'positive effects not flagged');
+console.log('✓ applyEffects: clamping at min/max, hasNegativeEffects flag');
+
+// --- checkLevelUp: cadence, Rapid Learner, Fast Ship ---
+freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+Game.state.level = 1;
+Game.state.levelUpPoints = 0;
+Game.state.eventsCompleted = 5;
+assert.strictEqual(Game.checkLevelUp(), false, 'no level up before threshold');
+Game.state.eventsCompleted = 6; // level 1 * 6 events
+assert.strictEqual(Game.checkLevelUp(), true, 'level up at threshold');
+assert.strictEqual(Game.state.level, 2, 'level incremented');
+assert.strictEqual(Game.state.levelUpPoints, 1, 'one point granted');
+assert.strictEqual(Game.state.pendingLevelUpConsumables.length, 3, 'level-up consumable options generated');
+// Rapid Learner grants 2 points
+freshRun({ S: 5, P: 5, E: 5, C: 5, I: 10, A: 5, L: 5 });
+Game.state.level = 1;
+Game.state.levelUpPoints = 0;
+Game.state.eventsCompleted = 6;
+assert.strictEqual(Game.checkLevelUp(), true, 'level up (Rapid Learner build)');
+assert.strictEqual(Game.state.levelUpPoints, 2, 'Rapid Learner bonus point');
+// Fast Ship shortens the cadence to 5
+freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 10, L: 5 });
+Game.state.level = 1;
+Game.state.levelUpPoints = 0;
+Game.state.eventsCompleted = 5;
+assert.strictEqual(Game.checkLevelUp(), true, 'Fast Ship: level up after 5 events');
+console.log('✓ checkLevelUp: threshold cadence, Rapid Learner, Fast Ship');
+
+// --- checkForEquipmentDrop: rate roll, inventory fill, pending drop ---
+freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+Game.state.equipment = [];
+Math.random = () => 0.99; // above drop rate (0.15 + 5*0.03 = 0.30)
+assert.strictEqual(Game.checkForEquipmentDrop(true), null, 'no drop on high roll');
+Math.random = () => 0.01; // below drop rate → common rarity, first item
+const dropped = Game.checkForEquipmentDrop(true);
+assert.ok(dropped, 'drop on low roll');
+assert.strictEqual(dropped.id, 'keyboard', 'deterministic rarity pick');
+assert.strictEqual(Game.state.equipment.length, 1, 'added to inventory');
+assert.strictEqual(SpecialSystem.equipmentBonuses.S, 1, 'drop bonus applied');
+// Inventory full → held as a pending drop for the player to resolve
+Math.random = () => 0.01;
+assert.strictEqual(Game.checkForEquipmentDrop(true), null, 'nothing auto-added when inventory full');
+assert.ok(Game.state.pendingEquipmentDrop, 'pending drop flagged for player choice');
+Math.random = realRandom;
+console.log('✓ checkForEquipmentDrop: rate roll, inventory fill, pending drop');
+
+// --- ConsumableManager: use, removal, AI backfire threshold ---
+freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+const coffee = CONSUMABLES.find(c => c.id === 'coffee');
+const ai = CONSUMABLES.find(c => c.id === 'ai_copilot');
+Game.state.consumables = [coffee, ai];
+const used = ConsumableManager.use('coffee');
+assert.strictEqual(used.bonus, 2, 'bonus reported');
+assert.strictEqual(used.stat, 'E', 'stat reported');
+assert.strictEqual(Game.state.consumables.length, 1, 'consumed item removed from inventory');
+assert.strictEqual(ConsumableManager.use('nope'), null, 'unknown id returns null');
+Math.random = () => 0.5; // 0.5 > 0.30 → AI works
+const aiOk = ConsumableManager.use('ai_copilot');
+assert.strictEqual(aiOk.multiplier, 1.5, 'AI multiplier applied');
+assert.strictEqual(aiOk.backfired, false, 'no backfire above threshold');
+Math.random = () => 0.2; // 0.2 <= 0.30 → backfire
+Game.state.consumables = [ai];
+const aiBad = ConsumableManager.use('ai_copilot');
+assert.strictEqual(aiBad.multiplier, -0.5, 'backfire penalty multiplier');
+assert.strictEqual(aiBad.backfired, true, 'backfire flagged');
+Math.random = realRandom;
+console.log('✓ consumables: use/removal, unknown id, AI backfire threshold');
+
+// --- Item pools: rarity weighting and unique random consumables ---
+Math.random = () => 0.01;
+assert.strictEqual(getRandomEquipment().id, 'keyboard', 'low roll → common (first in pool)');
+Math.random = () => 0.99;
+assert.strictEqual(getRandomEquipment().id, 'homeoffice', 'high roll → epic (last in pool)');
+const three = get3RandomConsumables();
+assert.strictEqual(three.length, 3, '3 random consumables');
+assert.strictEqual(new Set(three.map(c => c.id)).size, 3, 'no duplicates');
+Math.random = realRandom;
+console.log('✓ item pools: rarity weighting, unique random consumables');
+
+// --- Game over: saving roll and probabilistic redundancy ---
+freshRun({ S: 1, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+// Saving roll target = L + 0.5*C = 5 + 2.5 = 7.5
+d20 = () => 7;
+assert.strictEqual(Game._checkDeterministicGameOver(), null, 'saving roll success survives');
+assert.strictEqual(SpecialSystem.stats.S, 2, 'floored stat clawed back to 2');
+freshRun({ S: 1, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+d20 = () => 8;
+const death = Game._checkDeterministicGameOver();
+assert.ok(death && death.reason.includes('Technical Collapse'), 'saving roll failure ends the run');
+// Probabilistic redundancy: phase >= 3, C <= 2, day > 400, risk = (3-C)*0.15
+freshRun({ S: 5, P: 5, E: 5, C: 1, I: 5, A: 5, L: 5 });
+Game.state.phase = 3;
+Game.state.day = 500;
+Math.random = () => 0.1; // 0.1 < 0.30 risk → redundant
+const red = Game._checkProbabilisticGameOver();
+assert.ok(red && red.reason.includes('Redundant'), 'redundancy death fires under risk');
+Math.random = () => 0.9; // 0.9 > 0.30 → survives
+assert.strictEqual(Game._checkProbabilisticGameOver(), null, 'redundancy roll can miss');
+Math.random = realRandom;
+console.log('✓ game over: saving roll survive/death, redundancy risk');
+
+// --- Phase progression: completion vs victory ---
+freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+Game.state.phase = 3;
+Game.state.bossCompleted = true;
+assert.strictEqual(Game.checkPhaseCompletion(), true, 'phase 3 boss → phase complete');
+assert.strictEqual(Game.checkVictory(), false, 'phase 3 boss is not victory');
+Game.state.phase = 4;
+assert.strictEqual(Game.checkPhaseCompletion(), false, 'phase 4 has no next phase');
+assert.strictEqual(Game.checkVictory(), true, 'phase 4 boss → victory');
+console.log('✓ phase progression: completion vs victory');
+
+// --- processChoice: full event processing (synthetic EVENTS) ---
+EVENTS = [
+  {
+    id: 'test_event', title: 'Test Event', phase: 1, phaseLabel: 'Test', narrative: 'n',
+    choices: [{
+      text: 'Try', checks: { S: 5 },
+      success: { text: 's', effects: { S: 1 }, log: 'won' },
+      failure: { text: 'f', effects: { S: -1 }, log: 'lost' }
+    }]
+  },
+  {
+    id: 'test_boss', title: 'BOSS: The Deadline', phase: 1, phaseLabel: 'Test', narrative: 'n',
+    choices: [{
+      text: 'Fight', checks: {},
+      success: { text: 's', effects: {}, log: 'boss down' },
+      failure: { text: 'f', effects: {}, log: 'boss wins' }
+    }]
+  }
+];
+freshRun({ S: 10, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+Object.assign(Game.state, {
+  level: 1, levelUpPoints: 0, phase: 1, eventsCompleted: 0,
+  equipment: [], consumables: [], eventHistory: [],
+  bossCompleted: false, currentEventId: null, pendingEquipmentDrop: null
+});
+Math.random = () => 0.99; // no equipment drops during this section
+d20 = () => 1; // roll -4 vs target 5 → success
+let pr = Game.processChoice(EVENTS[0], 0);
+assert.strictEqual(pr.success, true, 'choice succeeded');
+assert.strictEqual(pr.equipmentDropped, false, 'no stale pending drop reported');
+assert.strictEqual(SpecialSystem.stats.S, 10, 'success effect clamped at max');
+assert.ok(Game.state.day > 1, 'day advanced');
+assert.strictEqual(Game.state.eventsCompleted, 1, 'event counted');
+assert.strictEqual(Game.state.currentEventId, 'test_event', 'current event tracked');
+assert.deepStrictEqual(Game.state.eventHistory, ['test_event'], 'history appended');
+assert.strictEqual(Game.state.careerLog[0].message, 'won', 'success log entry');
+d20 = () => 20; // roll 15 vs target 5 → failure
+pr = Game.processChoice(EVENTS[0], 0);
+assert.strictEqual(pr.success, false, 'choice failed');
+assert.strictEqual(SpecialSystem.stats.S, 9, 'failure effect applied');
+assert.strictEqual(Game.state.careerLog[0].message, 'lost', 'failure log entry');
+pr = Game.processChoice(EVENTS[1], 0);
+assert.strictEqual(pr.bossDefeated, true, 'BOSS: prefix detected');
+assert.strictEqual(Game.state.bossCompleted, true, 'boss flag set');
+assert.strictEqual(pr.phaseComplete, true, 'phase 1 boss → phase complete');
+assert.ok(Game.processChoice({ id: 'nope' }, 0).error, 'unknown event → error result');
+assert.ok(Game.processChoice(EVENTS[0], 5).error, 'bad choice index → error result');
+Math.random = realRandom;
+console.log('✓ processChoice: success/failure paths, boss detection, day/history, error paths');
