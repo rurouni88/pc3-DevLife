@@ -9,10 +9,10 @@ const Game = {
     const now = Date.now();
     this.state = {
       stats: { ...statAlloc },
-      equipment: [...startingEquipment.slice(0, 1)], // carry-over equipment (max 1)
+      equipment: [...startingEquipment.slice(0, CONFIG.game.equipmentCarryOverCap)], // carry-over equipment
       // Carry-over consumables (max 2): the LAST 2 in the pool — the pool
       // grows by append, so most recent picks are granted, not the oldest
-      consumables: [...startingConsumables.slice(-2)],
+      consumables: [...startingConsumables.slice(-CONFIG.game.consumableCap)],
       level: 1,
       levelUpPoints: 0,
       day: 1,
@@ -99,7 +99,8 @@ const Game = {
     const itemDropped = this.checkForEquipmentDrop(checkResult.allSuccess);
     
     // Advance game state
-    state.day += Math.floor(Math.random() * 5) + 3;
+    const { min: dayMin, max: dayMax } = CONFIG.game.dayAdvance;
+    state.day += dayMin + Math.floor(Math.random() * (dayMax - dayMin + 1));
     state.eventsCompleted++;
     state.currentEventId = gameEvent.id;
     state.eventHistory.push(gameEvent.id);
@@ -279,7 +280,7 @@ const Game = {
   // Check for equipment drop and handle inventory
   /** @param {boolean} isSuccess @returns {Equipment | null} */
   checkForEquipmentDrop(isSuccess) {
-    if (!isSuccess || Math.random() >= Math.min(1, CONFIG.game.dropRate + SpecialSystem.stats.L * 0.03)) {
+    if (!isSuccess || Math.random() >= Math.min(1, CONFIG.game.dropRate + SpecialSystem.stats.L * CONFIG.game.luckDropBonusPerPoint)) {
       return null;
     }
     
@@ -433,7 +434,7 @@ const Game = {
     const state = this.state;
     if (!state) return;
     state.careerLog.unshift({ message, day: state.day, timestamp: Date.now() });
-    if (state.careerLog.length > 50) {
+    if (state.careerLog.length > CONFIG.game.careerLog.cap) {
       state.careerLog.pop();
     }
   },
@@ -504,6 +505,6 @@ const ConsumableManager = {
   getEndOfRunOptions() {
     const carried = MetaStore.carriedIds('startingConsumables');
     const pool = CONSUMABLES.filter(c => !carried.includes(c.id));
-    return shuffle(pool).slice(0, 3);
+    return shuffle(pool).slice(0, CONFIG.game.randomConsumableChoices);
   }
 };

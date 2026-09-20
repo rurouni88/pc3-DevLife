@@ -93,5 +93,5 @@ function getRandomEquipment() {
 // Get 3 random consumables for end-of-run selection
 /** @returns {Consumable[]} */
 function get3RandomConsumables() {
-  return shuffle(CONSUMABLES).slice(0, 3);
+  return shuffle(CONSUMABLES).slice(0, CONFIG.game.randomConsumableChoices);
 }

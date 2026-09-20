@@ -57,7 +57,7 @@ const MetaStore = {
     if (replaceIndex >= 0 && replaceIndex < pool.length) {
       meta.startingConsumables = pool.map((x, i) => (i === replaceIndex ? id : x));
     } else {
-      meta.startingConsumables = [...pool.filter(x => x !== id), id].slice(-2);
+      meta.startingConsumables = [...pool.filter(x => x !== id), id].slice(-CONFIG.game.consumableCap);
     }
     this.save(meta);
   },
