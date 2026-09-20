@@ -196,7 +196,7 @@ const UI = {
   
   // Satirical ASCII loop on the title screen (pauses while hidden)
   startAsciiLoop() {
-    const el = document.getElementById('ascii-terminal');
+    const el = document.getElementById('ascii-terminal-body');
     if (!el) return;
     const scenes = [
       ['$ deploy --friday', 'building... done', 'tests... skipped', 'prod: ON FIRE', 'you: "it\'s a feature"'],

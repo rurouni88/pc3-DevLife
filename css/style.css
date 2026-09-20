@@ -251,14 +251,49 @@ body {
 
 .ascii-terminal {
   font-family: var(--font-mono);
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto var(--spacing-lg);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.ascii-terminal-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.55rem;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.ascii-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+}
+
+.ascii-dot.red { background: var(--accent-red); }
+.ascii-dot.yellow { background: var(--accent-yellow); }
+.ascii-dot.green { background: var(--accent-green); }
+
+.ascii-terminal-title {
+  margin-left: 0.35rem;
+  font-size: 0.6rem;
+  color: var(--text-muted);
+}
+
+.ascii-terminal-body {
   font-size: 0.65rem;
   line-height: 1.6;
   color: var(--text-muted);
   height: 5.2rem; /* 5 lines — fixed so the buttons never jump */
-  margin: 0 auto var(--spacing-lg);
+  margin: 0;
+  padding: 0.4rem 0.6rem;
   text-align: left;
-  width: fit-content;
-  max-width: 100%;
   overflow: hidden;
 }
 
