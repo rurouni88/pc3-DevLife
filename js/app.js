@@ -155,11 +155,12 @@ const App = {
       return EQUIPMENT.find(e => e.id === id);
     }).filter(Boolean);
     
+    // Initialize SPECIAL system (before createCharacter — init() zeros
+    // equipmentBonuses, which createCharacter then fills from carry-over)
+    SpecialSystem.init(stats);
+    
     // Create game
     Game.createCharacter(stats, startingConsumables, startingEquipment);
-    
-    // Initialize SPECIAL system
-    SpecialSystem.init(stats);
     
     // Initialize perk system (a starting build may already have a stat at 10)
     PerkSystem.reset();
@@ -188,6 +189,19 @@ const App = {
     UI.renderEquipment();
     UI.renderCareerLog();
     UI.renderTopBar();
+    
+    // Resume an interrupted level-up instead of jumping to the next event:
+    // unspent points go back to stat selection, a pending consumable pick
+    // goes back to the pick screen (otherwise the points would be stranded
+    // and progressText() would show "LEVEL UP!" forever)
+    if ((Game.state.levelUpPoints || 0) > 0) {
+      UI.showLevelUpStats();
+      return;
+    }
+    if (Game.state.pendingLevelUpConsumables && Game.state.pendingLevelUpConsumables.length > 0) {
+      UI.showLevelUpConsumableSelection();
+      return;
+    }
     
     // Load last event or next event
     const lastEventId = Game.state.currentEventId;

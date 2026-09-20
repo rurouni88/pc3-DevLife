@@ -130,11 +130,12 @@
  * @property {Stats} stats 
  * @property {Stats} equipmentBonuses */
 
-/** The shape of a localStorage run save (SaveSystem). */
-/** @typedef {Object} SaveData 
- * @property {GameState} state 
- * @property {SpecialSnapshot} special 
- * @property {PerkSnapshot} perks 
+/** The shape of a localStorage run save (SaveSystem). The SaveData class
+ * in save.js validates this shape and wraps a valid instance. */
+/** @typedef {Object} SaveDataShape
+ * @property {GameState} state
+ * @property {SpecialSnapshot} special
+ * @property {PerkSnapshot} perks
  * @property {number} timestamp */
 
 /** The shape of the devlife_meta localStorage entry (MetaStore). */

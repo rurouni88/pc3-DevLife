@@ -790,8 +790,12 @@ const UI = {
             const checks = Object.entries(choice.checks || {});
             const checkHTML = checks.length > 0
               ? `<div class="choice-checks">${checks.map(([stat, target]) => {
+                  // Same competence gate as Game.resolveStatChecks — the d20
+                  // roll is unknown at preview time, so show whether the
+                  // effective stat clears the Luck-adjusted gate
                   const currentStat = SpecialSystem.effective(/** @type {StatKey} */ (stat));
-                  const success = currentStat >= target;
+                  const gate = (target - SpecialSystem.stats.L) * CONFIG.game.competenceGateFactor;
+                  const success = currentStat >= gate;
                   return `<span class="check ${success ? 'success' : 'fail'}">${STAT_META[stat].name}: ${target} ${success ? '✓' : '✗'}</span>`;
                 }).join('')}</div>`
               : '';
@@ -855,25 +859,13 @@ const UI = {
     const result = ConsumableManager.use(id);
     if (!result) return;
     
-    // Determine which stat to boost
-    let stat = 'E';
-    for (const choice of event.choices) {
-      if (choice.checks) {
-        const entries = Object.entries(choice.checks);
-        if (entries.length > 0) {
-          stat = entries[0][0];
-          break;
-        }
-      }
-    }
-    
     // Handle multiplier (AI) consumables
     if (result.multiplier !== undefined) {
       SpecialSystem.applyMultiplier(result.multiplier);
       this.renderSpecialStats();
       
-      // Show feedback
-      const container = document.getElementById('event-container');
+      // Build the feedback banner now, insert it AFTER the re-render —
+      // renderEvent replaces the card DOM and would wipe an earlier insert
       const feedback = document.createElement('div');
       feedback.className = 'consumable-feedback';
       
@@ -886,14 +878,8 @@ const UI = {
         feedback.innerHTML = `${result.emoji} ${result.name} activated! ${result.effective} — let's hope it works...`;
       }
       
-      const body = container.querySelector('.event-body');
-      const consumableBar = body.querySelector('.consumable-bar');
-      if (consumableBar) {
-        consumableBar.parentNode.insertBefore(feedback, consumableBar.nextSibling);
-        setTimeout(() => feedback.remove(), 3000);
-      }
-      
       this.renderEvent(event);
+      this.insertConsumableFeedback(feedback, 3000);
       return;
     }
     
@@ -906,21 +892,33 @@ const UI = {
     
     this.renderSpecialStats();
     
-    // Show feedback
-    const container = document.getElementById('event-container');
+    // Show feedback (inserted after the re-render — see insertConsumableFeedback)
     const feedback = document.createElement('div');
     feedback.className = 'consumable-feedback';
     const statName = result.stat === 'any' ? 'All Stats' : (STAT_META[result.stat]?.name || result.stat);
     feedback.innerHTML = `${result.emoji} ${result.name} used! +${result.bonus} ${statName}`;
     
-    const body = container.querySelector('.event-body');
+    this.renderEvent(event);
+    this.insertConsumableFeedback(feedback, 2000);
+  },
+  
+  // Insert a transient consumable feedback banner into the freshly
+  // re-rendered event card. Must run AFTER renderEvent, which replaces the
+  // card DOM. Auto-removes after `duration` ms.
+  /** @param {HTMLElement} feedback @param {number} duration */
+  insertConsumableFeedback(feedback, duration) {
+    const body = /** @type {HTMLElement | null} */ (document.querySelector('#event-card .event-body'));
+    if (!body) {
+      feedback.remove();
+      return;
+    }
     const consumableBar = body.querySelector('.consumable-bar');
     if (consumableBar) {
-      consumableBar.parentNode.insertBefore(feedback, consumableBar.nextSibling);
-      setTimeout(() => feedback.remove(), 2000);
+      consumableBar.insertAdjacentElement('afterend', feedback);
+    } else {
+      body.prepend(feedback);
     }
-    
-    this.renderEvent(event);
+    setTimeout(() => feedback.remove(), duration);
   },
   
   // Handle a choice selection
@@ -1105,12 +1103,9 @@ const UI = {
         this.showVictory();
       } else if (result.leveledUp) {
         this.showLevelUpStats();
-      } else if (result.phaseComplete) {
-        Game.advancePhase();
-        this.renderTopBar();
-        this.renderCareerLog();
-        this.nextEvent();
       } else {
+        // Plain continue, or phase complete: nextEvent() owns phase
+        // advancement (bossCompleted → advancePhase → recurse)
         this.nextEvent();
       }
     });
@@ -1128,10 +1123,13 @@ const UI = {
     const excludeIds = Game.state.eventHistory || [];
     let event;
     
-    // If boss already defeated, advance to next phase
+    // If boss already defeated, advance to next phase. nextEvent is the
+    // single owner of phase advancement — the result screen's continue
+    // button relies on this instead of calling advancePhase itself.
     if (Game.state.bossCompleted) {
       Game.advancePhase();
       this.renderTopBar();
+      this.renderCareerLog(); // show the promotion entry in the side panel
       this.nextEvent();
       return;
     }
@@ -1151,6 +1149,7 @@ const UI = {
     if (!event) {
       Game.advancePhase();
       this.renderTopBar();
+      this.renderCareerLog();
       this.nextEvent();
       return;
     }
