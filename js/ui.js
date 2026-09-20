@@ -194,6 +194,35 @@ const UI = {
     });
   },
   
+  // Satirical ASCII loop on the title screen (pauses while hidden)
+  startAsciiLoop() {
+    const el = document.getElementById('ascii-terminal');
+    if (!el) return;
+    const scenes = [
+      ['$ deploy --friday', 'building... done', 'tests... skipped', 'prod: ON FIRE', 'you: "it\'s a feature"'],
+      ['lead: blockers?', 'you: none!', '(47 tabs, 1 coffee)', 'lead: great energy', 'you: ██████░░░░ 60%'],
+      ['Junior ──────> Staff', 'promotion: pending', 'budget: -30%', 'you: still here??', '...legend.']
+    ];
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    (async () => {
+      for (;;) {
+        for (const scene of scenes) {
+          while (!el.offsetParent) await sleep(500);
+          el.textContent = '';
+          for (const line of scene) {
+            for (const ch of line) {
+              el.textContent += ch;
+              await sleep(18);
+            }
+            el.textContent += '\n';
+            await sleep(140);
+          }
+          await sleep(2600);
+        }
+      }
+    })();
+  },
+
   // Help modal
   openHelp() {
     const modal = document.getElementById('help-modal');

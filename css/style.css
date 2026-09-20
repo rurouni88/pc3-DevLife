@@ -246,7 +246,20 @@ body {
 .tagline {
   font-style: italic;
   color: var(--text-muted);
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+}
+
+.ascii-terminal {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  height: 5.2rem; /* 5 lines — fixed so the buttons never jump */
+  margin: 0 auto var(--spacing-lg);
+  text-align: left;
+  width: fit-content;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .version-badge {

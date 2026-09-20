@@ -4,6 +4,7 @@ const App = {
     this.bindEvents();
     this.checkForSave();
     UI.initTooltipClose();
+    UI.startAsciiLoop();
     this.initHelpTabs();
     UI.showScreen('title');
     const versionText = `v${CONFIG.version} ${CONFIG.versionLabel}`;
