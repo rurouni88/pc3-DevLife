@@ -8,7 +8,8 @@ const App = {
     this.initHelpTabs();
     UI.showScreen('title');
     const versionText = `v${CONFIG.version} ${CONFIG.versionLabel}`;
-    document.getElementById('version-badge').textContent = versionText;
+    const versionBadge = document.getElementById('version-badge');
+    if (versionBadge) versionBadge.textContent = versionText;
     const aboutVersion = document.getElementById('about-version');
     if (aboutVersion) aboutVersion.textContent = versionText;
   },
@@ -38,7 +39,7 @@ const App = {
     document.querySelectorAll('.toolbar-btn').forEach(/** @param {HTMLElement} btn */ (btn) => {
       btn.addEventListener('click', () => {
         const panelName = btn.dataset.panel;
-        UI.openPopup(panelName);
+        if (panelName) UI.openPopup(panelName);
       });
     });
     
@@ -59,6 +60,7 @@ const App = {
     bind('btn-menu-toggle-main', () => {
       const panel = document.getElementById('side-panel');
       const toggleBtn = document.getElementById('btn-menu-toggle-main');
+      if (!panel || !toggleBtn) return;
       const isOpen = panel.classList.contains('open');
       UI.togglePanel(!isOpen);
       toggleBtn.classList.toggle('open');
@@ -107,14 +109,15 @@ const App = {
   
   checkForSave() {
     if (SaveSystem.hasSave()) {
-      document.getElementById('btn-continue').style.display = 'block';
+      const btnContinue = document.getElementById('btn-continue');
+      if (btnContinue) btnContinue.style.display = 'block';
     }
   },
   
   initHelpTabs() {
     document.querySelectorAll('.modal-tab').forEach(/** @param {HTMLElement} tab */ (tab) => {
       tab.addEventListener('click', () => {
-        UI.setHelpTab(tab.dataset.tab);
+        if (tab.dataset.tab) UI.setHelpTab(tab.dataset.tab);
       });
     });
     // Close modal on overlay click
@@ -142,21 +145,23 @@ const App = {
     // All seven rows are present in the DOM; zeros are overwritten below
     const stats = zeroStats();
     const container = document.getElementById('stat-allocation');
+    if (!container) return;
     const rows = container.querySelectorAll('.stat-row');
     rows.forEach(row => {
-      const label = row.querySelector('.stat-label').textContent;
+      const labelEl = row.querySelector('.stat-label');
       const valueEl = row.querySelector('.stat-value');
+      if (!labelEl || !valueEl) return;
       // Row labels are the seven stat letters, in order
-      stats[/** @type {StatKey} */ (label)] = parseInt(valueEl.textContent);
+      stats[/** @type {StatKey} */ (labelEl.textContent)] = parseInt(valueEl.textContent);
     });
     
     // Get starting consumables and equipment from meta
     const startingConsumables = MetaStore.carriedIds('startingConsumables').map(id => {
       return CONSUMABLES.find(c => c.id === id);
-    }).filter(Boolean);
+    }).filter(/** @returns {item is Consumable} */ (item) => Boolean(item));
     const startingEquipment = MetaStore.carriedIds('startingEquipment').map(id => {
       return EQUIPMENT.find(e => e.id === id);
-    }).filter(Boolean);
+    }).filter(/** @returns {item is Equipment} */ (item) => Boolean(item));
     
     // Initialize SPECIAL system (before createCharacter — init() zeros
     // equipmentBonuses, which createCharacter then fills from carry-over)
@@ -184,6 +189,9 @@ const App = {
     const saveData = SaveSystem.load();
     if (!saveData) return;
     
+    const state = Game.state;
+    if (!state) return;
+    
     // Re-sync perks with loaded stats
     PerkSystem.refresh();
     
@@ -197,17 +205,17 @@ const App = {
     // unspent points go back to stat selection, a pending consumable pick
     // goes back to the pick screen (otherwise the points would be stranded
     // and progressText() would show "LEVEL UP!" forever)
-    if ((Game.state.levelUpPoints || 0) > 0) {
+    if ((state.levelUpPoints || 0) > 0) {
       UI.showLevelUpStats();
       return;
     }
-    if (Game.state.pendingLevelUpConsumables && Game.state.pendingLevelUpConsumables.length > 0) {
+    if (state.pendingLevelUpConsumables && state.pendingLevelUpConsumables.length > 0) {
       UI.showLevelUpConsumableSelection();
       return;
     }
     
     // Load last event or next event
-    const lastEventId = Game.state.currentEventId;
+    const lastEventId = state.currentEventId;
     if (lastEventId) {
       const event = EVENTS.find(e => e.id === lastEventId);
       if (event) {
@@ -221,11 +229,14 @@ const App = {
   },
   
   saveGame() {
-    SaveSystem.save(Game.state);
+    const state = Game.state;
+    if (!state) return;
+    SaveSystem.save(state);
     UI.closePopup();
     
     // Show brief feedback
     const btn = document.getElementById('btn-save');
+    if (!btn) return;
     const original = btn.textContent;
     btn.textContent = '✓';
     setTimeout(() => {
@@ -241,14 +252,16 @@ const App = {
       SpecialSystem.increase(stat);
     }
     
-    Game.state.levelUpPoints = Math.max(0, (Game.state.levelUpPoints || 1) - 1);
+    const state = Game.state;
+    if (!state) return;
+    state.levelUpPoints = Math.max(0, (state.levelUpPoints || 1) - 1);
     
     // A stat increase may unlock a perk (e.g. pushing a stat to 10)
     Game.refreshPerks();
     UI.renderPerks();
     
     // 🧠 Rapid Learner: spend remaining points one at a time
-    if (Game.state.levelUpPoints > 0) {
+    if (state.levelUpPoints > 0) {
       UI.showLevelUpStats();
       return;
     }

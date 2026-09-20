@@ -119,7 +119,7 @@
  * @property {boolean} won 
  * @property {number} startTime 
  * @property {number} runNumber 
- * @property {Consumable[]} [pendingLevelUpConsumables] 
+ * @property {Consumable[] | null} [pendingLevelUpConsumables] 
  * @property {Equipment | null} [pendingEquipmentDrop] */
 
 /** A predefined starting build (archetypes.js). */

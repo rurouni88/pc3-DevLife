@@ -40,21 +40,25 @@ const Game = {
   
   // Save run completion to meta
   saveRunComplete() {
-    const firstEquipment = this.state.equipment[0];
+    const state = this.state;
+    if (!state) return;
+    const firstEquipment = state.equipment[0];
     MetaStore.recordRunComplete(firstEquipment ? firstEquipment.id : null);
   },
   
   // Check if character can level up (every N events = 1 level)
   checkLevelUp() {
-    const eventsNeeded = this.state.level * PerkSystem.bossInterval();
-    if (this.state.eventsCompleted >= eventsNeeded && this.state.levelUpPoints === 0) {
-      this.state.level++;
+    const state = this.state;
+    if (!state) return false;
+    const eventsNeeded = state.level * PerkSystem.bossInterval();
+    if (state.eventsCompleted >= eventsNeeded && state.levelUpPoints === 0) {
+      state.level++;
       // 🧠 Rapid Learner: +1 bonus level up point
-      this.state.levelUpPoints = PerkSystem.levelUpPoints();
-      this.addLog(`Level up! Now level ${this.state.level}.`);
+      state.levelUpPoints = PerkSystem.levelUpPoints();
+      this.addLog(`Level up! Now level ${state.level}.`);
       
       // Generate 3 random consumables for selection
-      this.state.pendingLevelUpConsumables = get3RandomConsumables();
+      state.pendingLevelUpConsumables = get3RandomConsumables();
       
       return true;
     }
@@ -70,10 +74,13 @@ const Game = {
     const choice = eventDef.choices[choiceIndex];
     if (!choice) return { error: 'Invalid choice' };
     
+    const state = this.state;
+    if (!state) return { error: 'No active run' };
+    
     // A pending drop from a prior event that was never resolved (e.g. the
     // run ended before the choice screen) must not leak into this result's
     // equipmentDropped flag — checkForEquipmentDrop() re-sets it below
-    this.state.pendingEquipmentDrop = null;
+    state.pendingEquipmentDrop = null;
     
     // Resolve stat checks and apply consequences
     const checkResult = this.resolveStatChecks(choice);
@@ -92,16 +99,16 @@ const Game = {
     const itemDropped = this.checkForEquipmentDrop(checkResult.allSuccess);
     
     // Advance game state
-    this.state.day += Math.floor(Math.random() * 5) + 3;
-    this.state.eventsCompleted++;
-    this.state.currentEventId = gameEvent.id;
-    this.state.eventHistory.push(gameEvent.id);
+    state.day += Math.floor(Math.random() * 5) + 3;
+    state.eventsCompleted++;
+    state.currentEventId = gameEvent.id;
+    state.eventHistory.push(gameEvent.id);
     this.addLog(log);
     
     // Track boss defeat
     const isBoss = eventDef.title.startsWith(BOSS_PREFIX);
     if (isBoss) {
-      this.state.bossCompleted = true;
+      state.bossCompleted = true;
     }
     
     // Check progression milestones
@@ -116,7 +123,7 @@ const Game = {
       effects,
       log,
       itemDropped,
-      equipmentDropped: !!this.state.pendingEquipmentDrop,
+      equipmentDropped: !!state.pendingEquipmentDrop,
       leveledUp,
       gameOver,
       phaseComplete,
@@ -196,14 +203,15 @@ const Game = {
     if (PerkSystem.bruteForceUsed) return false;
     PerkSystem.useBruteForce();
     
-    (result.checkResults || []).forEach(cr => {
+    const checkResults = result.checkResults || [];
+    checkResults.forEach(cr => {
       if (cr.stat === 'S' && !cr.success) {
         cr.target = PerkSystem.applyBruteForce(cr.target);
         cr.success = cr.roll <= cr.target;
       }
     });
     
-    if (result.checkResults.length > 0 && result.checkResults.every(cr => cr.success)) {
+    if (checkResults.length > 0 && checkResults.every(cr => cr.success)) {
       result.success = true;
     }
     
@@ -275,17 +283,20 @@ const Game = {
       return null;
     }
     
+    const state = this.state;
+    if (!state) return null;
+    
     const droppedItem = getRandomEquipment();
     
-    if (this.state.equipment.length >= 1) {
+    if (state.equipment.length >= 1) {
       // Inventory full — flag for player choice
-      this.state.pendingEquipmentDrop = { ...droppedItem };
+      state.pendingEquipmentDrop = { ...droppedItem };
       return null;
     }
     
     // Add to inventory and apply bonuses. Store the full item — the
     // equipment popup renders rarity and desc.
-    this.state.equipment.push({ ...droppedItem });
+    state.equipment.push({ ...droppedItem });
     SpecialSystem.addEquipment(droppedItem.emoji, droppedItem.effects);
     
     return droppedItem;
@@ -293,12 +304,12 @@ const Game = {
   
   // Check if career phase is complete
   checkPhaseCompletion() {
-    return this.state.phase < 4 && this.state.bossCompleted;
+    return !!this.state && this.state.phase < 4 && this.state.bossCompleted;
   },
   
   // Check if player has reached victory condition
   checkVictory() {
-    return this.state.phase === 4 && this.state.bossCompleted;
+    return !!this.state && this.state.phase === 4 && this.state.bossCompleted;
   },
   
   // Check game over conditions
@@ -312,6 +323,7 @@ const Game = {
   // unless a saving roll (d20 vs LUCK + 0.5*CHARISMA) succeeds.
   _checkDeterministicGameOver() {
     const careerState = this.state;
+    if (!careerState) return null;
     const stats = SpecialSystem.stats;
     
     // Find the first deterministic death condition met (order preserved).
@@ -356,6 +368,7 @@ const Game = {
   // Probabilistic terminal conditions: chance-based deaths.
   _checkProbabilisticGameOver() {
     const careerState = this.state;
+    if (!careerState) return null;
     const stats = SpecialSystem.stats;
     
     // Redundancy risk scales with low Charisma in mid/late career
@@ -373,33 +386,40 @@ const Game = {
   
   // Advance to next phase
   advancePhase() {
-    this.state.phase++;
-    this.state.bossCompleted = false;
-    this.addLog(`Promoted to ${CONFIG.game.phaseNames[this.state.phase]}! 🎉`);
+    const state = this.state;
+    if (!state) return;
+    state.phase++;
+    state.bossCompleted = false;
+    this.addLog(`Promoted to ${CONFIG.game.phaseNames[state.phase]}! 🎉`);
   },
   
   // Add to career log
   /** @param {string} message */
   addLog(message) {
-    this.state.careerLog.unshift({ message, day: this.state.day, timestamp: Date.now() });
-    if (this.state.careerLog.length > 50) {
-      this.state.careerLog.pop();
+    const state = this.state;
+    if (!state) return;
+    state.careerLog.unshift({ message, day: state.day, timestamp: Date.now() });
+    if (state.careerLog.length > 50) {
+      state.careerLog.pop();
     }
   },
   
   // Get career summary
+  /** @returns {{ runNumber: number, level: number, phase: number, day: number, eventsCompleted: number, equipment: Equipment[], stats: Stats, duration: string } | null} */
   getSummary() {
-    const duration = Math.floor((Date.now() - this.state.startTime) / 1000);
+    const state = this.state;
+    if (!state) return null;
+    const duration = Math.floor((Date.now() - state.startTime) / 1000);
     const minutes = Math.floor(duration / 60);
     const hours = Math.floor(minutes / 60);
     
     return {
-      runNumber: this.state.runNumber,
-      level: this.state.level,
-      phase: this.state.phase,
-      day: this.state.day,
-      eventsCompleted: this.state.eventsCompleted,
-      equipment: this.state.equipment,
+      runNumber: state.runNumber,
+      level: state.level,
+      phase: state.phase,
+      day: state.day,
+      eventsCompleted: state.eventsCompleted,
+      equipment: state.equipment,
       stats: { ...SpecialSystem.stats },
       duration: `${hours}h ${minutes % 60}m`
     };
@@ -411,11 +431,13 @@ const Game = {
 const ConsumableManager = {
   /** @param {string} consumableId @returns {ConsumableUseResult | null} */
   use(consumableId) {
-    const inventoryIndex = Game.state.consumables.findIndex(c => c.id === consumableId);
+    const state = Game.state;
+    if (!state) return null;
+    const inventoryIndex = state.consumables.findIndex(c => c.id === consumableId);
     if (inventoryIndex === -1) return null;
     
-    const consumable = Game.state.consumables[inventoryIndex];
-    Game.state.consumables.splice(inventoryIndex, 1);
+    const consumable = state.consumables[inventoryIndex];
+    state.consumables.splice(inventoryIndex, 1);
     
     /** @type {ConsumableUseResult} */
     const effect = {
