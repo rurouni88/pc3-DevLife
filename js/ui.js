@@ -11,8 +11,10 @@ const setText = (id, text) => {
   if (el) el.textContent = text;
 };
 
-// UI Rendering
-const UI = {
+// UI — core: screens, toasts/audio, event & result rendering, popups.
+// Section files (ui-character, ui-levelup, ui-endofrun) load first; this
+// file composes them into UI at the bottom.
+const UICore = {
   currentScreen: 'title',
   
   // Audio context for sound effects
@@ -21,17 +23,17 @@ const UI = {
   
   // Initialize audio (must be called after user interaction)
   initAudio() {
-    if (this.audioCtx) return;
-    this.audioCtx = new (window.AudioContext || (/** @type {any} */ (window)).webkitAudioContext)();
+    if (UI.audioCtx) return;
+    UI.audioCtx = new (window.AudioContext || (/** @type {any} */ (window)).webkitAudioContext)();
   },
   
   // Play a sound effect
   /** @param {string} type */
   playSound(type) {
-    if (!this.audioCtx) this.initAudio();
-    if (!this.audioCtx) return;
+    if (!UI.audioCtx) UI.initAudio();
+    if (!UI.audioCtx) return;
     
-    const ctx = this.audioCtx;
+    const ctx = UI.audioCtx;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     
@@ -193,7 +195,7 @@ const UI = {
     // Close tooltip when clicking on it
     tooltip.addEventListener('click', (e) => {
       e.stopPropagation();
-      this.hideTooltip();
+      UI.hideTooltip();
     });
     
     // Close tooltip when clicking outside
@@ -202,17 +204,17 @@ const UI = {
       const target = /** @type {Element} */ (e.target);
       if (tooltip.contains(target)) return;
       if (target.classList.contains('cons-info')) return;
-      this.hideTooltip();
+      UI.hideTooltip();
     });
     
     // Close popup when clicking close button or overlay
     document.addEventListener('click', (e) => {
       if ((/** @type {Element} */ (e.target)).classList.contains('popup-close')) {
-        this.closePopup();
+        UI.closePopup();
       }
       const activePopup = document.querySelector('.popup-panel.active');
       if (activePopup && e.target === activePopup) {
-        this.closePopup();
+        UI.closePopup();
       }
     });
   },
@@ -252,7 +254,7 @@ const UI = {
     const modal = document.getElementById('help-modal');
     if (!modal) return;
     modal.style.display = 'flex';
-    this.setHelpTab('info');
+    UI.setHelpTab('info');
     const helpVersion = document.getElementById('help-version');
     if (helpVersion) helpVersion.textContent = `v${CONFIG.version} ${CONFIG.versionLabel}`;
   },
@@ -345,318 +347,10 @@ const UI = {
     const screen = document.getElementById(`screen-${screenId}`);
     if (screen) {
       screen.classList.add('active');
-      this.currentScreen = screenId;
+      UI.currentScreen = screenId;
     }
   },
   
-  // Render character creation screen
-  renderCharacterCreation() {
-    this._selectedPreset = null;
-    const container = document.getElementById('stat-allocation');
-    if (!container) return;
-    container.innerHTML = '';
-    
-    STAT_KEYS.forEach(key => {
-      const meta = STAT_META[key];
-      const row = document.createElement('div');
-      row.className = 'stat-row';
-      row.innerHTML = `
-        <span class="stat-label" style="color: ${meta.color}">${key}</span>
-        <span class="stat-name">${meta.name}</span>
-        <div class="stat-controls">
-          <button class="stat-btn minus" data-stat="${key}" data-action="minus">−</button>
-          <span class="stat-value" style="color: ${meta.color}">${SpecialSystem.stats[key]}</span>
-          <button class="stat-btn plus" data-stat="${key}" data-action="plus">+</button>
-        </div>
-      `;
-      container.appendChild(row);
-    });
-    
-    // Read stats directly from DOM — always in sync
-    const getStats = () => {
-      const stats = zeroStats();
-      STAT_KEYS.forEach(k => {
-        const rows = container.querySelectorAll('.stat-row');
-        for (const row of rows) {
-          const labelEl = row.querySelector('.stat-label');
-          const valueEl = row.querySelector('.stat-value');
-          if (!labelEl || !valueEl) continue;
-          if (labelEl.textContent === k) {
-            stats[k] = parseInt(valueEl.textContent);
-            break;
-          }
-        }
-      });
-      return stats;
-    };
-    
-    // Bind events
-    /** @type {NodeListOf<HTMLElement>} */ (container.querySelectorAll('.stat-btn')).forEach(/** @param {HTMLElement} btn */ (btn) => {
-      btn.addEventListener('click', () => {
-        const stat = btn.dataset.stat;
-        const action = btn.dataset.action;
-        const row = btn.closest('.stat-row');
-        const valueEl = row ? row.querySelector('.stat-value') : null;
-        if (!row || !valueEl) return;
-        const cur = parseInt(valueEl.textContent);
-        const stats = getStats();
-        const total = STAT_KEYS.reduce((s, k) => s + stats[k], 0);
-        
-        if (action === 'plus' && cur < 10 && total < STARTING_POINTS) {
-          valueEl.textContent = String(cur + 1);
-          this._selectedPreset = null;
-          this.updateCharCreationUI();
-        } else if (action === 'minus' && cur > 1) {
-          valueEl.textContent = String(cur - 1);
-          this._selectedPreset = null;
-          this.updateCharCreationUI();
-        }
-      });
-    });
-    
-    this.updateCharCreationUI();
-    this.renderArchetypePresets();
-    this.renderStatDescriptions();
-  },
-  
-  // Render archetype preset dropdown
-  renderArchetypePresets() {
-    const container = document.getElementById('preset-options');
-    const toggle = document.getElementById('preset-toggle');
-    const toggleText = document.getElementById('preset-toggle-text');
-    if (!container || !toggle || !toggleText) return;
-    container.innerHTML = '';
-    
-    // Remove old listeners to prevent duplicates on re-render
-    if (this._presetToggleHandler) toggle.removeEventListener('click', this._presetToggleHandler);
-    if (this._presetCloseHandler) document.removeEventListener('click', this._presetCloseHandler);
-    
-    // All archetypes are unlocked except Prototype King, which depends on the
-    // not-yet-implemented max-stat > 10 mechanic.
-    const UNLOCKED_KEYS = Object.keys(ARCHETYPES).filter(key => key !== 'prototype_king');
-    
-    Object.entries(ARCHETYPES).forEach(([key, arch]) => {
-      const btn = document.createElement('button');
-      btn.className = 'preset-option';
-      const unlocked = UNLOCKED_KEYS.includes(key);
-      
-      const statStr = STAT_KEYS.map(k => `${k}:${arch.stats[k]}`).join(' ');
-      
-      if (!unlocked) {
-        btn.classList.add('locked');
-        btn.innerHTML = `
-          <span class="preset-name">🔒 ${arch.name}</span>
-          <span class="preset-stats">Locked</span>
-        `;
-      } else {
-        btn.innerHTML = `
-          <span class="preset-name">${arch.name}</span>
-          <span class="preset-stats">${statStr}</span>
-        `;
-        btn.addEventListener('click', () => {
-          this.applyArchetypePreset(arch.stats, arch);
-          // Close dropdown and update toggle text
-          container.classList.remove('open');
-          toggle.classList.remove('open');
-          toggleText.textContent = arch.name;
-        });
-      }
-      
-      container.appendChild(btn);
-    });
-    
-    // Toggle dropdown
-    this._presetToggleHandler = () => {
-      const isOpen = container.classList.contains('open');
-      container.classList.toggle('open');
-      toggle.classList.toggle('open');
-    };
-    toggle.addEventListener('click', this._presetToggleHandler);
-    
-    // Close dropdown when clicking outside
-    this._presetCloseHandler = (e) => {
-      const dropdown = document.getElementById('preset-dropdown');
-      if (dropdown && !dropdown.contains(/** @type {Node} */ (e.target))) {
-        container.classList.remove('open');
-        toggle.classList.remove('open');
-      }
-    };
-    document.addEventListener('click', this._presetCloseHandler);
-  },
-  
-  // Apply an archetype preset to the stat allocation
-  /** @param {Stats} stats @param {Archetype | null} arch */
-  applyArchetypePreset(stats, arch) {
-    const container = document.getElementById('stat-allocation');
-    if (!container) return;
-    const rows = container.querySelectorAll('.stat-row');
-    
-    rows.forEach(row => {
-      const labelEl = row.querySelector('.stat-label');
-      const valueEl = row.querySelector('.stat-value');
-      if (!labelEl || !valueEl) return;
-      const minusBtn = /** @type {HTMLButtonElement} */ (row.querySelector('.stat-btn.minus'));
-      const plusBtn = /** @type {HTMLButtonElement} */ (row.querySelector('.stat-btn.plus'));
-      
-      const value = stats[/** @type {StatKey} */ (labelEl.textContent)];
-      valueEl.textContent = String(value);
-      
-      minusBtn.disabled = value <= 1;
-      plusBtn.disabled = value >= 10;
-    });
-    
-    const currentStats = zeroStats();
-    rows.forEach(row => {
-      const labelEl = row.querySelector('.stat-label');
-      const valueEl = row.querySelector('.stat-value');
-      if (!labelEl || !valueEl) return;
-      currentStats[/** @type {StatKey} */ (labelEl.textContent)] = parseInt(valueEl.textContent);
-    });
-    
-    // Remember which preset was chosen so the preview can show it directly
-    // (its stats may be too flat to classify uniquely).
-    this._selectedPreset = arch || null;
-    this.updateCharCreationUI();
-  },
-  
-  // Render stat descriptions
-  renderStatDescriptions() {
-    const container = document.getElementById('stat-descriptions');
-    if (!container) return;
-    
-    let html = `
-      <button class="desc-toggle" id="btn-toggle-descs">
-        <span id="desc-arrow">▶</span> What does each stat do?
-      </button>
-      <div class="desc-content" id="desc-content">
-    `;
-    
-    STAT_KEYS.forEach(key => {
-      const meta = STAT_META[key];
-      html += `
-        <div class="stat-desc-item" style="border-left-color: ${meta.color}">
-          <div class="desc-label" style="color: ${meta.color}">${key} — ${meta.short}</div>
-          <div class="desc-text">${meta.desc}</div>
-        </div>
-      `;
-    });
-    
-    html += '</div>';
-    container.innerHTML = html;
-    
-    // Toggle button
-    const toggleBtn = document.getElementById('btn-toggle-descs');
-    const content = document.getElementById('desc-content');
-    const arrow = document.getElementById('desc-arrow');
-    if (!toggleBtn || !content || !arrow) return;
-    
-    const toggleHandler = () => {
-      const isOpen = content.classList.contains('open');
-      if (isOpen) {
-        content.classList.remove('open');
-        arrow.textContent = '▶';
-      } else {
-        content.classList.add('open');
-        arrow.textContent = '▼';
-      }
-    };
-    toggleBtn.addEventListener('click', toggleHandler);
-  },
-  
-  // Update character creation UI state
-  updateCharCreationUI() {
-    const container = document.getElementById('stat-allocation');
-    if (!container) return;
-    const currentStats = zeroStats();
-    
-    const rows = container.querySelectorAll('.stat-row');
-    rows.forEach(row => {
-      const labelEl = row.querySelector('.stat-label');
-      const valueEl = row.querySelector('.stat-value');
-      if (!labelEl || !valueEl) return;
-      currentStats[/** @type {StatKey} */ (labelEl.textContent)] = parseInt(valueEl.textContent);
-    });
-    
-    const total = STAT_KEYS.reduce((sum, k) => sum + currentStats[k], 0);
-    const remaining = STARTING_POINTS - total;
-    const pointsEl = document.getElementById('points-remaining');
-    if (pointsEl) pointsEl.textContent = String(remaining);
-    
-    const startBtn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-start-career'));
-    startBtn.disabled = remaining !== 0;
-    
-    // Update button disabled states
-    rows.forEach(row => {
-      const labelEl = row.querySelector('.stat-label');
-      if (!labelEl) return;
-      const minusBtn = /** @type {HTMLButtonElement} */ (row.querySelector('.stat-btn.minus'));
-      const plusBtn = /** @type {HTMLButtonElement} */ (row.querySelector('.stat-btn.plus'));
-      const value = currentStats[/** @type {StatKey} */ (labelEl.textContent)];
-      
-      minusBtn.disabled = value <= 1;
-      plusBtn.disabled = value >= 10 || total >= STARTING_POINTS;
-    });
-    
-    // Update archetype preview
-    this.updateArchetypePreview(currentStats);
-  },
-  
-  // Update archetype preview based on current stats
-  /** @param {Stats} [currentStats] */
-  updateArchetypePreview(currentStats) {
-    if (!currentStats) {
-      const container = document.getElementById('stat-allocation');
-      if (!container) return;
-      const stats = zeroStats();
-      STAT_KEYS.forEach(k => {
-        const rows = container.querySelectorAll('.stat-row');
-        for (const row of rows) {
-          const labelEl = row.querySelector('.stat-label');
-          const valueEl = row.querySelector('.stat-value');
-          if (!labelEl || !valueEl) continue;
-          if (labelEl.textContent === k) {
-            stats[k] = parseInt(valueEl.textContent);
-            break;
-          }
-        }
-      });
-      currentStats = stats;
-    }
-    
-    const preview = document.getElementById('archetype-preview');
-    if (!preview) return;
-    
-    // If a preset was just selected, show that archetype directly. Some presets
-    // (e.g. Full-Stack Generalist) have stats too flat to classify uniquely, so
-    // the stats-based fallback below would mislabel them.
-    let archetype = this._selectedPreset || null;
-    
-    if (!archetype) {
-      // Determine archetype based on top 2 stats.
-      // Sort a copy — Array.prototype.sort mutates in place, which would
-      // permanently reorder the shared global STAT_KEYS and make the
-      // tie-breaking (and thus the preview) depend on prior calls.
-      const sorted = [...STAT_KEYS].sort((a, b) => currentStats[b] - currentStats[a]);
-      const top1 = sorted[0];
-      const top2 = sorted[1];
-    
-      if ((top1 === 'I' && top2 === 'C') || (top1 === 'C' && top2 === 'I')) archetype = ARCHETYPES.architect;
-      else if ((top1 === 'A' && top2 === 'E') || (top1 === 'E' && top2 === 'A')) archetype = ARCHETYPES.startup;
-      else if ((top1 === 'S' && top2 === 'P') || (top1 === 'P' && top2 === 'S')) archetype = ARCHETYPES.systems;
-      else if ((top1 === 'C' && top2 === 'A') || (top1 === 'A' && top2 === 'C')) archetype = ARCHETYPES.advocate;
-      else if ((top1 === 'P' && top2 === 'E') || (top1 === 'E' && top2 === 'P')) archetype = ARCHETYPES.sre;
-      else if ((top1 === 'P' && top2 === 'I') || (top1 === 'I' && top2 === 'P')) archetype = ARCHETYPES.pentester;
-      else if ((top1 === 'S' && top2 === 'E') || (top1 === 'E' && top2 === 'S')) archetype = ARCHETYPES.archeologist;
-      else if ((top1 === 'C' && top2 === 'E') || (top1 === 'E' && top2 === 'C')) archetype = ARCHETYPES.em;
-      else if ((top1 === 'A' && top2 === 'L') || (top1 === 'L' && top2 === 'A')) archetype = ARCHETYPES.prototype_king;
-      else archetype = ARCHETYPES.balanced;
-    }
-    
-    preview.innerHTML = `
-      <div class="archetype-name">${archetype.name}</div>
-      <div class="archetype-desc">${archetype.description}</div>
-    `;
-  },
   
   // Render active perks as chips
   renderPerks() {
@@ -716,8 +410,8 @@ const UI = {
   // Render SPECIAL stats in game
   renderSpecialStats() {
     const container = document.getElementById('special-stats');
-    if (container) this.renderStatBars(container);
-    this.renderPerks();
+    if (container) UI.renderStatBars(container);
+    UI.renderPerks();
   },
   
   // Render equipment
@@ -767,7 +461,7 @@ const UI = {
     });
     
     // Also update recent activity in main game area
-    this.renderRecentActivity();
+    UI.renderRecentActivity();
   },
   
   // Render recent activity (mobile-friendly)
@@ -802,7 +496,7 @@ const UI = {
     if (levelEl) levelEl.textContent = String(state.level);
     
     // Progress toward next boss (🚀 Fast Ship: 5 instead of 6)
-    const progressText = this.progressText();
+    const progressText = UI.progressText();
     const progressEl = document.getElementById('level-progress');
     if (progressEl) progressEl.textContent = progressText;
     const progressTopEl = document.getElementById('level-progress-top');
@@ -898,10 +592,10 @@ const UI = {
         infoBtn.addEventListener('mouseenter', () => {
           const id = infoBtn.dataset.id;
           const consumable = CONSUMABLES.find(c => c.id === id);
-          if (consumable) this.showTooltip(consumable);
+          if (consumable) UI.showTooltip(consumable);
         });
         infoBtn.addEventListener('mouseleave', () => {
-          this.hideTooltip();
+          UI.hideTooltip();
         });
         // Mobile: tap to show (stays until tapped elsewhere)
         infoBtn.addEventListener('click', (e) => {
@@ -909,14 +603,14 @@ const UI = {
           const id = /** @type {HTMLElement} */ (e.target).dataset.id;
           const consumable = CONSUMABLES.find(c => c.id === id);
           if (consumable) {
-            this.showTooltip(consumable);
+            UI.showTooltip(consumable);
           }
         });
       }
       btn.addEventListener('click', (e) => {
         if (!(/** @type {Element} */ (e.target)).classList.contains('cons-info')) {
           const id = btn.dataset.id;
-          if (id) this.useConsumable(id, event);
+          if (id) UI.useConsumable(id, event);
         }
       });
     });
@@ -924,9 +618,9 @@ const UI = {
     // Bind choice buttons
     /** @type {NodeListOf<HTMLElement>} */ (card.querySelectorAll('.choice-btn')).forEach(/** @param {HTMLElement} btn */ (btn) => {
       btn.addEventListener('click', () => {
-        this.playSound('click');
+        UI.playSound('click');
         const choiceIndex = parseInt(btn.dataset.choice || '0', 10);
-        this.handleChoice(event, choiceIndex);
+        UI.handleChoice(event, choiceIndex);
       });
     });
   },
@@ -940,7 +634,7 @@ const UI = {
     // Handle multiplier (AI) consumables
     if (result.multiplier !== undefined) {
       SpecialSystem.applyMultiplier(result.multiplier);
-      this.renderSpecialStats();
+      UI.renderSpecialStats();
       
       // Build the feedback banner now, insert it AFTER the re-render —
       // renderEvent replaces the card DOM and would wipe an earlier insert
@@ -956,8 +650,8 @@ const UI = {
         feedback.innerHTML = `${result.emoji} ${result.name} activated! ${result.effective} — let's hope it works...`;
       }
       
-      this.renderEvent(event);
-      this.insertConsumableFeedback(feedback, 3000);
+      UI.renderEvent(event);
+      UI.insertConsumableFeedback(feedback, 3000);
       return;
     }
     
@@ -968,7 +662,7 @@ const UI = {
       SpecialSystem.applyTempBonus(result.stat, result.bonus);
     }
     
-    this.renderSpecialStats();
+    UI.renderSpecialStats();
     
     // Show feedback (inserted after the re-render — see insertConsumableFeedback)
     const feedback = document.createElement('div');
@@ -976,8 +670,8 @@ const UI = {
     const statName = result.stat === 'any' ? 'All Stats' : (STAT_META[result.stat]?.name || result.stat);
     feedback.innerHTML = `${result.emoji} ${result.name} used! +${result.bonus} ${statName}`;
     
-    this.renderEvent(event);
-    this.insertConsumableFeedback(feedback, 2000);
+    UI.renderEvent(event);
+    UI.insertConsumableFeedback(feedback, 2000);
   },
   
   // Insert a transient consumable feedback banner into the freshly
@@ -1011,15 +705,15 @@ const UI = {
     if (!state) return;
     
     // Update UI elements
-    this.renderSpecialStats();
-    this.renderEquipment();
-    this.renderCareerLog();
-    this.renderTopBar();
+    UI.renderSpecialStats();
+    UI.renderEquipment();
+    UI.renderCareerLog();
+    UI.renderTopBar();
     
     // Show floating stat changes
     for (const [stat, value] of Object.entries(result.effects || {})) {
       if (value !== 0) {
-        this.showStatFloat(stat, value);
+        UI.showStatFloat(stat, value);
       }
     }
     
@@ -1029,29 +723,29 @@ const UI = {
     // cadence can fire on the same event — celebration toasts must not
     // clobber the death/retirement ones. Mirrors the continue-button chain.
     if (result.gameOver) {
-      this.showToast('💀 Career Over', 'error');
-      this.playSound('gameover');
-      this.flashScreen('rgba(255, 0, 0, 0.4)');
+      UI.showToast('💀 Career Over', 'error');
+      UI.playSound('gameover');
+      UI.flashScreen('rgba(255, 0, 0, 0.4)');
     } else if (result.victory) {
-      this.showToast('🏆 Retirement!', 'success');
-      this.playSound('victory');
-      this.flashScreen('rgba(255, 215, 0, 0.3)');
+      UI.showToast('🏆 Retirement!', 'success');
+      UI.playSound('victory');
+      UI.flashScreen('rgba(255, 215, 0, 0.3)');
     } else if (result.leveledUp) {
-      this.showToast(`📈 Level Up! Now level ${state.level}`, 'success');
-      this.playSound('levelup');
+      UI.showToast(`📈 Level Up! Now level ${state.level}`, 'success');
+      UI.playSound('levelup');
     } else if (result.bossDefeated) {
-      this.showToast('🏆 Boss Defeated!', 'success');
-      this.playSound('boss');
-      this.flashScreen('rgba(0, 255, 136, 0.3)');
+      UI.showToast('🏆 Boss Defeated!', 'success');
+      UI.playSound('boss');
+      UI.flashScreen('rgba(0, 255, 136, 0.3)');
     } else if (result.itemDropped) {
-      this.showToast(`🎁 Found: ${result.itemDropped.emoji} ${result.itemDropped.name}`, 'success');
-      this.playSound('success');
+      UI.showToast(`🎁 Found: ${result.itemDropped.emoji} ${result.itemDropped.name}`, 'success');
+      UI.playSound('success');
     } else {
       // Regular choice sound
-      this.playSound(result.success ? 'success' : 'failure');
+      UI.playSound(result.success ? 'success' : 'failure');
     }
     
-    this.renderResult(result);
+    UI.renderResult(result);
   },
   
   // Render the event result screen. Called after processChoice, and again
@@ -1074,8 +768,8 @@ const UI = {
     // below already shows the rerolled outcome
     if (result.cleanDeployUsed) {
       result.cleanDeployUsed = false;
-      this.showToast(`⚡ Clean Deploy: ${result.success ? 'SUCCESS' : 'FAILURE'}`, result.success ? 'success' : 'error');
-      this.playSound('perk');
+      UI.showToast(`⚡ Clean Deploy: ${result.success ? 'SUCCESS' : 'FAILURE'}`, result.success ? 'success' : 'error');
+      UI.playSound('perk');
     }
     
     const resultDiv = document.createElement('div');
@@ -1105,7 +799,7 @@ const UI = {
     } else if (result.itemDropped) {
       // Item already added to inventory by Game.checkForEquipmentDrop()
       resultHTML += `<div class="item-drop">🎁 Found: ${result.itemDropped.emoji} ${result.itemDropped.name}</div>`;
-      this.renderEquipment();
+      UI.renderEquipment();
     }
     
     // Show check results
@@ -1164,16 +858,16 @@ const UI = {
           if (useFn()) {
             result[flag] = false;
             const outcome = getOutcome();
-            this.showToast(`⚡ ${perkName}: ${outcome ? 'SUCCESS' : 'FAILURE'}`, outcome ? 'success' : 'error');
-            this.playSound('perk');
-            this.renderResult(result);
+            UI.showToast(`⚡ ${perkName}: ${outcome ? 'SUCCESS' : 'FAILURE'}`, outcome ? 'success' : 'error');
+            UI.playSound('perk');
+            UI.renderResult(result);
           }
         });
       }
       if (no) {
         no.addEventListener('click', () => {
           result[flag] = false;
-          this.renderResult(result);
+          UI.renderResult(result);
         });
       }
     };
@@ -1189,15 +883,15 @@ const UI = {
         const pending = state.pendingEquipmentDrop;
         if (pending) UI.showEquipmentChoice(pending, [...state.equipment]);
       } else if (result.gameOver) {
-        this.showGameOver(result.gameOver.reason);
+        UI.showGameOver(result.gameOver.reason);
       } else if (result.victory) {
-        this.showVictory();
+        UI.showVictory();
       } else if (result.leveledUp) {
-        this.showLevelUpStats();
+        UI.showLevelUpStats();
       } else {
         // Plain continue, or phase complete: nextEvent() owns phase
         // advancement (bossCompleted → advancePhase → recurse)
-        this.nextEvent();
+        UI.nextEvent();
       }
     });
   },
@@ -1217,492 +911,10 @@ const UI = {
     const phaseBefore = Game.state.phase;
     const event = Game.nextEvent();
     if (Game.state.phase !== phaseBefore) {
-      this.renderTopBar();
-      this.renderCareerLog();
+      UI.renderTopBar();
+      UI.renderCareerLog();
     }
-    this.renderEvent(event);
-  },
-  
-  /** Shared consumable pick-and-swap UI. Renders the new-consumable options
-   * and, when the stash is at capacity, the current stash (click one to
-   * replace it). Title and context are placeholders so each screen (level
-   * up, Stock Up, victory) reuses the same selection UI with its own copy.
-   * @param {Object} cfg
-   * @param {HTMLElement} cfg.container element to render options/stash into
-   * @param {HTMLElement | null} [cfg.titleEl] screen title placeholder
-   * @param {string} [cfg.title] e.g. '☕ Stock Up!'
-   * @param {HTMLElement | null} [cfg.contextEl] screen context-line placeholder
-   * @param {string} [cfg.context] e.g. 'Pick 1 consumable to carry into your next career.'
-   * @param {Consumable[]} cfg.options new consumables to pick from
-   * @param {Consumable[]} [cfg.current] current stash (swap targets)
-   * @param {boolean} [cfg.full] stash is at capacity
-   * @param {HTMLButtonElement} [cfg.continueBtn] enabled once a valid selection is made
-   * @param {boolean} [cfg.requireReplace] when full, a swap target must also be picked
-   * @returns {() => {newId: string | null, replaceIndex: number}} selection getter
-   */
-  renderConsumableSwap(cfg) {
-    if (cfg.titleEl && cfg.title) cfg.titleEl.textContent = cfg.title;
-    if (cfg.contextEl && cfg.context) cfg.contextEl.innerHTML = cfg.context;
-    
-    const container = cfg.container;
-    container.innerHTML = '';
-    /** @type {string | null} */
-    let newId = null;
-    let replaceIndex = -1;
-    
-    const updateButton = () => {
-      if (!cfg.continueBtn) return;
-      const needsReplace = cfg.full && cfg.requireReplace;
-      cfg.continueBtn.disabled = !(newId !== null && (!needsReplace || replaceIndex >= 0));
-    };
-    
-    // Show new consumable options
-    const optionsLabel = document.createElement('div');
-    optionsLabel.className = 'consumable-selection-label';
-    optionsLabel.textContent = cfg.full ? 'Choose a new consumable:' : 'Choose a consumable:';
-    optionsLabel.style.cssText = 'font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-green); margin-bottom: var(--spacing-sm); text-transform: uppercase;';
-    container.appendChild(optionsLabel);
-    
-    cfg.options.forEach((newConsumable) => {
-      const itemElement = UI.renderConsumableItem(newConsumable, { id: newConsumable.id });
-      itemElement.addEventListener('click', () => {
-        container.querySelectorAll('.consumable-select-item').forEach(/** @param {Element} s */ (s) => s.classList.remove('selected'));
-        itemElement.classList.add('selected');
-        newId = newConsumable.id;
-        updateButton();
-      });
-      container.appendChild(itemElement);
-    });
-    
-    // If the stash is full, show current consumables for swapping
-    if (cfg.full && cfg.current && cfg.current.length > 0) {
-      const currentLabel = document.createElement('div');
-      currentLabel.className = 'consumable-selection-label';
-      currentLabel.textContent = 'Your current stash (click to replace):';
-      currentLabel.style.cssText = 'font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-yellow); margin-top: var(--spacing-lg); margin-bottom: var(--spacing-sm); text-transform: uppercase;';
-      container.appendChild(currentLabel);
-      
-      cfg.current.forEach((currentConsumable, inventoryIndex) => {
-        const itemElement = UI.renderConsumableItem(currentConsumable, { replaceIndex: inventoryIndex });
-        itemElement.addEventListener('click', () => {
-          container.querySelectorAll('[data-replace-index]').forEach(/** @param {Element} s */ (s) => s.classList.remove('selected'));
-          itemElement.classList.add('selected');
-          replaceIndex = inventoryIndex;
-          updateButton();
-        });
-        container.appendChild(itemElement);
-      });
-    }
-    
-    updateButton();
-    return () => ({ newId, replaceIndex });
-  },
-  
-  // Show consumable selection screen after level up
-  showLevelUpConsumableSelection() {
-    const state = Game.state;
-    if (!state) return;
-    const options = state.pendingLevelUpConsumables;
-    const hasFullInventory = state.consumables.length >= CONFIG.game.consumableCap;
-    
-    // Show the level up screen first
-    this.showScreen('levelup');
-    
-    // Show consumables container
-    setDisplay('levelup-consumables', 'block');
-    setDisplay('levelup-stats-container', 'none');
-    setDisplay('btn-skip-levelup', 'block');
-    const continueBtn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-continue-levelup'));
-    continueBtn.style.display = 'block';
-    continueBtn.disabled = true;
-    
-    // Shared pick-and-swap UI with level-up title/context
-    const descNote = '<span style="font-size: 0.8rem; color: var(--text-muted);">(Consumables are one-time use for a single event — use them wisely!)</span>';
-    const context = hasFullInventory
-      ? `You've reached Level <span id="new-level">${state.level}</span>. Pick a consumable and choose which to replace. ${descNote}`
-      : `You've reached Level <span id="new-level">${state.level}</span>. Pick a consumable to add to your stash. ${descNote}`;
-    const container = document.getElementById('levelup-consumables');
-    const titleEl = document.getElementById('levelup-title');
-    const contextEl = document.getElementById('levelup-desc');
-    if (!container) return;
-    const getSelection = this.renderConsumableSwap({
-      container,
-      titleEl,
-      title: '🎉 Level Up!',
-      contextEl,
-      context,
-      options: options || [],
-      current: state.consumables,
-      full: hasFullInventory,
-      continueBtn,
-      // Level-up keeps its historical behavior: a new pick without a chosen
-      // replacement is discarded, so Continue only needs the new pick
-      requireReplace: false
-    });
-    
-    // Bind skip button — skip consumable, finish level up
-    const skipBtn = document.getElementById('btn-skip-levelup');
-    if (skipBtn) skipBtn.onclick = () => {
-      state.pendingLevelUpConsumables = null;
-      App.afterLevelUp();
-    };
-    
-    // Bind continue button
-    continueBtn.onclick = () => {
-      const { newId, replaceIndex } = getSelection();
-      if (!newId) return;
-      
-      const consumable = CONSUMABLES.find(c => c.id === newId);
-      if (!consumable) return;
-      
-      // Handle the consumable selection
-      if (hasFullInventory) {
-        // Inventory full — must replace a selected consumable
-        if (replaceIndex >= 0) {
-          state.consumables[replaceIndex] = { ...consumable };
-        }
-        // If replaceIndex is -1, don't add anything (user didn't pick what to replace)
-      } else {
-        // Add to inventory
-        state.consumables.push({ ...consumable });
-      }
-      
-      // Clear pending consumables
-      state.pendingLevelUpConsumables = null;
-      
-      // Finish level up
-      App.afterLevelUp();
-    };
-  },
-  
-  // Show stat selection screen
-  showLevelUpStats() {
-    const state = Game.state;
-    if (!state) return;
-    this.showScreen('levelup');
-    
-    // Update description (stat selection phase)
-    const descEl = document.getElementById('levelup-desc');
-    if (descEl) descEl.innerHTML = `You've reached Level <span id="new-level">${state.level}</span>. Choose a stat to increase.`;
-    
-    // Show remaining points (🧠 Rapid Learner can grant 2+)
-    const pointsEl = document.getElementById('levelup-points');
-    const points = state.levelUpPoints || 1;
-    if (pointsEl) {
-      pointsEl.textContent = points > 1 ? `You have ${points} points to spend — choose one at a time.` : '';
-      pointsEl.style.display = points > 1 ? 'block' : 'none';
-    }
-    
-    setDisplay('levelup-consumables', 'none');
-    setDisplay('levelup-stats-container', 'block');
-    setDisplay('btn-skip-levelup', 'none');
-    setDisplay('btn-continue-levelup', 'block');
-    
-    const container = document.getElementById('levelup-stats');
-    if (!container) return;
-    container.innerHTML = '';
-    
-    STAT_KEYS.forEach(key => {
-      const meta = STAT_META[key];
-      const canIncrease = SpecialSystem.canIncrease(key);
-      
-      const stat = document.createElement('div');
-      stat.className = `levelup-stat ${!canIncrease ? 'disabled' : ''}`;
-      stat.dataset.stat = key;
-      stat.innerHTML = `
-        <span class="stat-letter" style="color: ${meta.color}">${key}</span>
-        <div class="stat-details">
-          <div class="stat-name">${meta.name}</div>
-          <div class="stat-current">${SpecialSystem.stats[key]} ${canIncrease ? '→ ' + (SpecialSystem.stats[key] + 1) : '(MAX)'}</div>
-        </div>
-      `;
-      
-      if (canIncrease) {
-        stat.addEventListener('click', () => {
-          container.querySelectorAll('.levelup-stat').forEach(s => s.classList.remove('selected'));
-          stat.classList.add('selected');
-/** @type {HTMLButtonElement} */ (document.getElementById('btn-continue-levelup')).disabled = false;
-        });
-      }
-      
-      container.appendChild(stat);
-    });
-    
-const continueBtn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-continue-levelup'));
-    if (continueBtn) continueBtn.disabled = true;
-    
-    // Bind continue button — spend points one at a time; consumables come
-    // after the last point is spent, otherwise continue straight away.
-    if (continueBtn) continueBtn.onclick = () => {
-      const state = Game.state;
-      if (!state) return;
-      if ((state.levelUpPoints || 1) > 1) {
-        App.afterLevelUp();
-      } else if (state.pendingLevelUpConsumables && state.pendingLevelUpConsumables.length > 0) {
-        UI.showLevelUpConsumableSelection();
-      } else {
-        App.afterLevelUp();
-      }
-    };
-  },
-  
-  // Show game over screen
-  /** @param {string} reason */
-  showGameOver(reason) {
-    Game.saveRunComplete();
-    
-    // Show consumable selection first
-    this.showConsumableSelection('gameover');
-    setText('gameover-reason', reason);
-  },
-  
-  // Show consumable selection at end of run — the shared pick-and-swap UI
-  // ("Stock Up") with per-screen title/context placeholders
-  /** @param {string} type */
-  showConsumableSelection(type) {
-    const options = ConsumableManager.getEndOfRunOptions();
-    // The carried stash: what the player already carries across runs. When
-    // it's full, the swap section lets them replace one of the carried items
-    const carried = MetaStore.carriedIds('startingConsumables')
-      .map(/** @param {string} id */ (id) => CONSUMABLES.find(c => c.id === id))
-      .filter(/** @returns {item is Consumable} */ (item) => Boolean(item));
-    const full = carried.length >= CONFIG.game.consumableCap;
-    
-    /** @param {string} title @param {string} context @param {HTMLElement} container @param {HTMLElement | null} titleEl @param {HTMLElement | null} contextEl @param {HTMLButtonElement} continueBtn @param {(id: string, replaceIndex: number) => void} onPick */
-    const render = (title, context, container, titleEl, contextEl, continueBtn, onPick) => {
-      const getSelection = this.renderConsumableSwap({
-        container, titleEl, contextEl, title, context,
-        options, current: carried, full,
-        continueBtn, requireReplace: true
-      });
-      continueBtn.onclick = () => {
-        const { newId, replaceIndex } = getSelection();
-        if (newId) onPick(newId, replaceIndex);
-      };
-    };
-    
-    if (type === 'gameover') {
-      // Game over screen
-      const container = document.getElementById('gameover-cons-selection');
-      const continueBtn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-continue-gameover-cons'));
-      if (!container || !continueBtn) return;
-      render(
-        '☕ Stock Up!',
-        'Pick 1 consumable to carry into your next career.',
-        container,
-        document.getElementById('gameover-cons-title'),
-        document.getElementById('gameover-cons-desc'),
-        continueBtn,
-        (id, replaceIndex) => this.applyEndOfRunConsumable(id, replaceIndex)
-      );
-      // Skip: keep the carried stash as-is
-      const skipBtn = document.getElementById('btn-skip-gameover-cons');
-      if (skipBtn) skipBtn.onclick = () => {
-        this.applyEndOfRunConsumable(null);
-      };
-      this.showScreen('gameover-cons');
-    } else {
-      // Victory screen
-      const consContainer = document.getElementById('victory-consumables');
-      const summaryContainer = document.getElementById('victory-summary');
-      const continueBtn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-continue-victory-cons'));
-      const buttonsContainer = document.getElementById('victory-buttons');
-      if (!consContainer || !summaryContainer || !continueBtn || !buttonsContainer) return;
-      
-      consContainer.style.display = 'block';
-      summaryContainer.style.display = 'none';
-      setDisplay('victory-cons-buttons', 'flex');
-      continueBtn.disabled = true;
-      buttonsContainer.style.display = 'none';
-      
-      render(
-        '🏆 Retirement!',
-        'You\'ve completed your career. Pick 1 consumable to carry into your next career.',
-        consContainer,
-        document.getElementById('victory-title'),
-        document.getElementById('victory-desc'),
-        continueBtn,
-        (id, replaceIndex) => this.applyVictoryConsumable(id, replaceIndex)
-      );
-      // Skip: keep the carried stash as-is
-      const skipBtn = document.getElementById('btn-skip-victory-cons');
-      if (skipBtn) skipBtn.onclick = () => {
-        this.applyVictoryConsumable(null);
-      };
-      this.showScreen('victory');
-    }
-  },
-  
-  // Apply selected consumable and show game over. selectedId = null means
-  // the player skipped — the carried stash stays as-is
-  /** @param {string | null} selectedId @param {number} [replaceIndex] carried slot to swap, or -1 */
-  applyEndOfRunConsumable(selectedId, replaceIndex) {
-    // Carry this consumable into future runs (store ID only)
-    if (selectedId) MetaStore.addCarriedConsumable(selectedId, replaceIndex);
-    
-    // Show game over summary
-    SaveSystem.deleteSave();
-    this.showScreen('gameover');
-    
-    const summary = Game.getSummary();
-    const container = document.getElementById('gameover-summary');
-    if (!summary || !container) return;
-    container.innerHTML = `
-      <div class="summary-row"><span class="label">Run #</span><span class="value">${summary.runNumber}</span></div>
-      <div class="summary-row"><span class="label">Level Reached</span><span class="value">${summary.level}</span></div>
-      <div class="summary-row"><span class="label">Final Position</span><span class="value">${CONFIG.game.phaseNames[summary.phase] || summary.phase}</span></div>
-      <div class="summary-row"><span class="label">Career Length</span><span class="value">${(summary.day / CONFIG.game.daysPerCareerYear).toFixed(1)} years</span></div>
-      <div class="summary-row"><span class="label">Events Completed</span><span class="value">${summary.eventsCompleted}</span></div>
-      <div class="summary-row"><span class="label">Equipment</span><span class="value">${summary.equipment.length}</span></div>
-      <div class="summary-row"><span class="label">Stats</span><span class="value">${STAT_KEYS.map(k => `${k}:${SpecialSystem.stats[k]}`).join(' ')}</span></div>
-    `;
-  },
-  
-  // Apply selected consumable and show victory summary. selectedId = null
-  // means the player skipped — the carried stash stays as-is
-  /** @param {string | null} selectedId @param {number} [replaceIndex] carried slot to swap, or -1 */
-  applyVictoryConsumable(selectedId, replaceIndex) {
-    // Carry this consumable into future runs (store ID only)
-    if (selectedId) MetaStore.addCarriedConsumable(selectedId, replaceIndex);
-    
-    // Hide consumable selection, show summary
-    setDisplay('victory-consumables', 'none');
-    setDisplay('victory-cons-buttons', 'none');
-    // Restore the retirement context line (the pick screen overwrote it)
-    setText('victory-desc', "You've completed your career. Time to enjoy the beach (with WiFi).");
-    const summaryContainer = document.getElementById('victory-summary');
-    if (!summaryContainer) return;
-    summaryContainer.style.display = 'block';
-    setDisplay('victory-buttons', 'flex');
-    
-    SaveSystem.deleteSave();
-    
-    const summary = Game.getSummary();
-    if (!summary) return;
-    summaryContainer.innerHTML = `
-      <div class="summary-row"><span class="label">Run #</span><span class="value">${summary.runNumber}</span></div>
-      <div class="summary-row"><span class="label">Final Level</span><span class="value">${summary.level}</span></div>
-      <div class="summary-row"><span class="label">Final Position</span><span class="value">${CONFIG.game.phaseNames[summary.phase] || summary.phase} 🏆</span></div>
-      <div class="summary-row"><span class="label">Career Length</span><span class="value">${(summary.day / CONFIG.game.daysPerCareerYear).toFixed(1)} years</span></div>
-      <div class="summary-row"><span class="label">Events Completed</span><span class="value">${summary.eventsCompleted}</span></div>
-      <div class="summary-row"><span class="label">Equipment Collected</span><span class="value">${summary.equipment.length}</span></div>
-      <div class="summary-row"><span class="label">Final Stats</span><span class="value">${STAT_KEYS.map(k => `${k}:${SpecialSystem.stats[k]}`).join(' ')}</span></div>
-    `;
-  },
-  
-  // Show victory screen with consumable selection
-  showVictory() {
-    Game.saveRunComplete();
-    this.showConsumableSelection('victory');
-  },
-  
-  // Toggle side panel (mobile)
-  /** @param {boolean} open */
-  togglePanel(open) {
-    const panel = document.getElementById('side-panel');
-    const overlay = document.getElementById('panel-overlay');
-    if (!panel || !overlay) return;
-    
-    if (open) {
-      panel.classList.add('open');
-      overlay.classList.add('visible');
-    } else {
-      panel.classList.remove('open');
-      overlay.classList.remove('visible');
-    }
-  },
-  
-  // Close side panel
-  closePanel() {
-    this.togglePanel(false);
-  },
-  
-  // Show equipment choice screen (when inventory is full)
-  /** @param {Equipment} newEquipment @param {Equipment[]} currentEquipment */
-  showEquipmentChoice(newEquipment, currentEquipment) {
-    const newContainer = document.getElementById('equipment-choice-new');
-    const currentContainer = document.getElementById('equipment-choice-current');
-    const keepBtn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-keep-equipment'));
-    const skipBtn = document.getElementById('btn-skip-equipment');
-    if (!newContainer || !currentContainer || !keepBtn) return;
-    
-    // Show new equipment
-    newContainer.innerHTML = '';
-    const newEl = document.createElement('div');
-    newEl.className = 'consumable-select-item';
-    newEl.style.borderColor = 'var(--accent-green)';
-    const statStr = formatEffects(newEquipment.effects);
-    newEl.innerHTML = `
-      <span class="cs-emoji" style="font-size: 2em;">${newEquipment.emoji}</span>
-      <div class="cs-details">
-        <div class="cs-name">${newEquipment.name}</div>
-        <div class="cs-desc">${newEquipment.desc}</div>
-        <div class="cs-effect">${statStr}</div>
-      </div>
-      <div class="cs-badge">NEW</div>
-    `;
-    newContainer.appendChild(newEl);
-    
-    // Show current equipment as clickable options
-    currentContainer.innerHTML = '';
-    let selectedIndex = -1;
-    
-    currentEquipment.forEach((equip, i) => {
-      const el = document.createElement('div');
-      el.className = 'consumable-select-item';
-      el.dataset.index = String(i);
-      const statStr = formatEffects(equip.effects);
-      el.innerHTML = `
-        <span class="cs-emoji">${equip.emoji}</span>
-        <div class="cs-details">
-          <div class="cs-name">${equip.name}</div>
-          <div class="cs-desc">${equip.desc}</div>
-          <div class="cs-effect">${statStr}</div>
-        </div>
-      `;
-      el.addEventListener('click', () => {
-        currentContainer.querySelectorAll('.consumable-select-item').forEach(s => s.classList.remove('selected'));
-        el.classList.add('selected');
-        selectedIndex = i;
-        keepBtn.disabled = false;
-      });
-      currentContainer.appendChild(el);
-    });
-    
-    // Reset state
-    keepBtn.disabled = true;
-    selectedIndex = -1;
-    
-    // Skip (keep current)
-    if (skipBtn) skipBtn.onclick = () => {
-      const state = Game.state;
-      if (!state) return;
-      state.pendingEquipmentDrop = null;
-      UI.showScreen('game');
-      UI.nextEvent();
-    };
-    
-    // Swap: replace selected equipment with new one
-    keepBtn.onclick = () => {
-      const state = Game.state;
-      if (!state) return;
-      if (selectedIndex >= 0) {
-        // Remove old equipment bonuses
-        const oldEquip = state.equipment[selectedIndex];
-        SpecialSystem.removeEquipment(oldEquip.emoji, oldEquip.effects);
-        
-        // Replace with new equipment
-        state.equipment[selectedIndex] = { ...newEquipment };
-        SpecialSystem.addEquipment(newEquipment.emoji, newEquipment.effects);
-        state.pendingEquipmentDrop = null;
-        
-        UI.showScreen('game');
-        UI.renderEquipment();
-        UI.nextEvent();
-      }
-    };
-    
-    UI.showScreen('equipment-choice');
+    UI.renderEvent(event);
   },
   
   // --- Popup Panel Methods ---
@@ -1710,7 +922,7 @@ const continueBtn = /** @type {HTMLButtonElement} */ (document.getElementById('b
   /** @param {string} panelName */
   openPopup(panelName) {
     // Close any currently open popup
-    this.closePopup();
+    UI.closePopup();
     
     const panel = document.getElementById(`panel-${panelName}`);
     if (!panel) return;
@@ -1718,13 +930,13 @@ const continueBtn = /** @type {HTMLButtonElement} */ (document.getElementById('b
     // Render content based on panel type
     switch (panelName) {
       case 'special':
-        this.renderPopupSpecial();
+        UI.renderPopupSpecial();
         break;
       case 'equipment':
-        this.renderPopupEquipment();
+        UI.renderPopupEquipment();
         break;
       case 'log':
-        this.renderPopupCareerLog();
+        UI.renderPopupCareerLog();
         break;
       case 'save':
         // Save popup — no extra rendering needed
@@ -1742,10 +954,10 @@ const continueBtn = /** @type {HTMLButtonElement} */ (document.getElementById('b
     const state = Game.state;
     if (!state) return;
     const bars = document.getElementById('popup-special-stats');
-    if (bars) this.renderStatBars(bars);
+    if (bars) UI.renderStatBars(bars);
     
     setText('popup-player-level', String(state.level));
-    setText('popup-level-progress', this.progressText());
+    setText('popup-level-progress', UI.progressText());
   },
   
   renderPopupEquipment() {
@@ -1811,3 +1023,6 @@ const continueBtn = /** @type {HTMLButtonElement} */ (document.getElementById('b
     });
   }
 };
+
+// Compose the full UI object from the section files (loaded before this one).
+const UI = Object.assign({}, UICore, UICharacter, UILevelUp, UIEndOfRun);
