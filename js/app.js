@@ -131,7 +131,7 @@ const App = {
     STAT_KEYS.forEach(key => {
       SpecialSystem.stats[key] = 1;
     });
-    SpecialSystem.equipmentBonuses = { S: 0, P: 0, E: 0, C: 0, I: 0, A: 0, L: 0 };
+    SpecialSystem.equipmentBonuses = zeroStats();
     
     UI.showScreen('character');
     UI.renderCharacterCreation();
@@ -140,7 +140,7 @@ const App = {
   startCareer() {
     // Collect stats from character creation
     // All seven rows are present in the DOM; zeros are overwritten below
-    /** @type {Stats} */ const stats = { S: 0, P: 0, E: 0, C: 0, I: 0, A: 0, L: 0 };
+    const stats = zeroStats();
     const container = document.getElementById('stat-allocation');
     const rows = container.querySelectorAll('.stat-row');
     rows.forEach(row => {

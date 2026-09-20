@@ -456,3 +456,23 @@ assert.ok(Game.processChoice({ id: 'nope' }, 0).error, 'unknown event → error 
 assert.ok(Game.processChoice(EVENTS[0], 5).error, 'bad choice index → error result');
 Math.random = realRandom;
 console.log('✓ processChoice: success/failure paths, boss detection, day/history, error paths');
+
+// --- utils: zeroStats, clampStat, formatEffects, Fisher-Yates shuffle ---
+const zs = zeroStats();
+assert.deepStrictEqual(Object.keys(zs).sort(), ['A', 'C', 'E', 'I', 'L', 'P', 'S'], 'zeroStats: all seven stats');
+assert.ok(Object.values(zs).every(v => v === 0), 'zeroStats: all values zero');
+assert.notStrictEqual(zeroStats(), zs, 'zeroStats: fresh object each call');
+assert.strictEqual(clampStat(5), 5, 'clampStat: in-range unchanged');
+assert.strictEqual(clampStat(99), CONFIG.stats.max, 'clampStat: caps at max');
+assert.strictEqual(clampStat(-99), CONFIG.stats.min, 'clampStat: floors at min');
+assert.strictEqual(
+  formatEffects({ S: 2, C: 1 }),
+  `+2 ${STAT_META.S.name}, +1 ${STAT_META.C.name}`,
+  'formatEffects: named stats, comma-joined'
+);
+const input = [1, 2, 3, 4, 5];
+const sh = shuffle(input);
+assert.deepStrictEqual([...sh].sort((a, b) => a - b), input, 'shuffle: permutation of input');
+assert.deepStrictEqual(input, [1, 2, 3, 4, 5], 'shuffle: input not mutated');
+assert.deepStrictEqual(shuffle([]), [], 'shuffle: empty array');
+console.log('✓ utils: zeroStats, clampStat, formatEffects, Fisher-Yates shuffle');

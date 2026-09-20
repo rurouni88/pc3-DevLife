@@ -3,9 +3,9 @@ const SpecialSystem = {
   /** @type {Stats} */
   stats: { S: 1, P: 1, E: 1, C: 1, I: 1, A: 1, L: 1 },
   /** @type {Stats} */
-  equipmentBonuses: { S: 0, P: 0, E: 0, C: 0, I: 0, A: 0, L: 0 },
+  equipmentBonuses: zeroStats(),
   /** @type {Stats} */
-  temporaryBonuses: { S: 0, P: 0, E: 0, C: 0, I: 0, A: 0, L: 0 },
+  temporaryBonuses: zeroStats(),
   /** @type {number | null} */
   temporaryMultiplier: null,
   
@@ -13,7 +13,7 @@ const SpecialSystem = {
   /** @param {Stats} stats */
   init(stats) {
     this.stats = { ...stats };
-    this.equipmentBonuses = { S: 0, P: 0, E: 0, C: 0, I: 0, A: 0, L: 0 };
+    this.equipmentBonuses = zeroStats();
   },
   
   // Add equipment bonus
@@ -56,7 +56,7 @@ const SpecialSystem = {
   
   // Clear temporary bonuses after a check
   clearTempBonuses() {
-    this.temporaryBonuses = { S: 0, P: 0, E: 0, C: 0, I: 0, A: 0, L: 0 };
+    this.temporaryBonuses = zeroStats();
     this.temporaryMultiplier = null;
   },
   

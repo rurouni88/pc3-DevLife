@@ -153,7 +153,7 @@ const UI = {
     } else if (item.multiplier) {
       effectText = `${item.multiplier}× stat (risky)`;
     } else if (item.effects) {
-      effectText = Object.entries(item.effects).map(([s, v]) => `+${v} ${STAT_META[/** @type {StatKey} */ (s)]?.name || s}`).join(', ');
+      effectText = formatEffects(item.effects);
     }
     const effectEl = /** @type {HTMLElement} */ (tooltip.querySelector('.tooltip-effect'));
     effectEl.textContent = effectText;
@@ -352,7 +352,7 @@ const UI = {
     
     // Read stats directly from DOM — always in sync
     const getStats = () => {
-      const stats = { S: 0, P: 0, E: 0, C: 0, I: 0, A: 0, L: 0 };
+      const stats = zeroStats();
       STAT_KEYS.forEach(k => {
         const rows = container.querySelectorAll('.stat-row');
         for (const row of rows) {
@@ -476,7 +476,7 @@ const UI = {
       plusBtn.disabled = value >= 10;
     });
     
-    const currentStats = { S: 0, P: 0, E: 0, C: 0, I: 0, A: 0, L: 0 };
+    const currentStats = zeroStats();
     rows.forEach(row => {
       const label = /** @type {StatKey} */ (row.querySelector('.stat-label').textContent);
       currentStats[label] = parseInt(row.querySelector('.stat-value').textContent);
@@ -534,7 +534,7 @@ const UI = {
   // Update character creation UI state
   updateCharCreationUI() {
     const container = document.getElementById('stat-allocation');
-    const currentStats = { S: 0, P: 0, E: 0, C: 0, I: 0, A: 0, L: 0 };
+    const currentStats = zeroStats();
     
     const rows = container.querySelectorAll('.stat-row');
     rows.forEach(row => {
@@ -570,7 +570,7 @@ const UI = {
   updateArchetypePreview(currentStats) {
     if (!currentStats) {
       const container = document.getElementById('stat-allocation');
-      currentStats = { S: 0, P: 0, E: 0, C: 0, I: 0, A: 0, L: 0 };
+      currentStats = zeroStats();
       STAT_KEYS.forEach(k => {
         const rows = container.querySelectorAll('.stat-row');
         for (const row of rows) {
@@ -689,7 +689,7 @@ const UI = {
     
     container.innerHTML = '';
     equipment.forEach(item => {
-      const effectText = Object.entries(item.effects).map(([k,v]) => `+${v} ${STAT_META[/** @type {StatKey} */ (k)].name}`).join(', ');
+      const effectText = formatEffects(item.effects);
       const el = document.createElement('span');
       el.className = 'equip-item';
       el.dataset.tooltip = `${item.name}: ${effectText}`;
@@ -1557,7 +1557,7 @@ const UI = {
     const newEl = document.createElement('div');
     newEl.className = 'consumable-select-item';
     newEl.style.borderColor = 'var(--accent-green)';
-    const statStr = Object.entries(newEquipment.effects).map(([k,v]) => `+${v} ${STAT_META[/** @type {StatKey} */ (k)].name}`).join(', ');
+    const statStr = formatEffects(newEquipment.effects);
     newEl.innerHTML = `
       <span class="cs-emoji" style="font-size: 2em;">${newEquipment.emoji}</span>
       <div class="cs-details">
@@ -1577,7 +1577,7 @@ const UI = {
       const el = document.createElement('div');
       el.className = 'consumable-select-item';
       el.dataset.index = String(i);
-      const statStr = Object.entries(equip.effects).map(([k,v]) => `+${v} ${STAT_META[/** @type {StatKey} */ (k)].name}`).join(', ');
+      const statStr = formatEffects(equip.effects);
       el.innerHTML = `
         <span class="cs-emoji">${equip.emoji}</span>
         <div class="cs-details">

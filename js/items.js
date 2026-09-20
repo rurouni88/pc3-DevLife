@@ -93,7 +93,5 @@ function getRandomEquipment() {
 // Get 3 random consumables for end-of-run selection
 /** @returns {Consumable[]} */
 function get3RandomConsumables() {
-  const all = [...CONSUMABLES];
-  const shuffled = all.sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, 3);
+  return shuffle(CONSUMABLES).slice(0, 3);
 }

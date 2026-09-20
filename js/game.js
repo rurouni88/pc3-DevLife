@@ -223,7 +223,7 @@ const Game = {
     for (const [stat, value] of /** @type {Array<[StatKey, number]>} */ (Object.entries(result.effects))) {
       if (value < 0 && SpecialSystem.stats[stat] !== undefined) {
         const correction = PerkSystem.applyCodeReview(value) - value; // e.g. -2 - (-4) = +2
-        SpecialSystem.stats[stat] = Math.max(CONFIG.stats.min, Math.min(CONFIG.stats.max, SpecialSystem.stats[stat] + correction));
+        SpecialSystem.stats[stat] = clampStat(SpecialSystem.stats[stat] + correction);
       }
     }
     
@@ -241,7 +241,7 @@ const Game = {
     
     for (const [stat, value] of /** @type {Array<[StatKey, number]>} */ (Object.entries(effects))) {
       if (SpecialSystem.stats[stat] === undefined) continue;
-      SpecialSystem.stats[stat] = Math.max(CONFIG.stats.min, Math.min(CONFIG.stats.max, SpecialSystem.stats[stat] + value));
+      SpecialSystem.stats[stat] = clampStat(SpecialSystem.stats[stat] + value);
     }
     
     // Stat changes may unlock or revoke perks
@@ -448,7 +448,6 @@ const ConsumableManager = {
   getEndOfRunOptions() {
     const carried = MetaStore.carriedIds('startingConsumables');
     const pool = CONSUMABLES.filter(c => !carried.includes(c.id));
-    const shuffled = [...pool].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 3);
+    return shuffle(pool).slice(0, 3);
   }
 };
