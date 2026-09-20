@@ -1158,6 +1158,79 @@ const UI = {
     this.renderEvent(event);
   },
   
+  // Shared consumable pick-and-swap UI. Renders the new-consumable options
+  // and, when the stash is at capacity, the current stash (click one to
+  // replace it). Title and context are placeholders so each screen (level
+  // up, Stock Up, victory) reuses the same selection UI with its own copy.
+  // @param {Object} cfg
+  // @param {HTMLElement} cfg.container element to render options/stash into
+  // @param {HTMLElement} [cfg.titleEl] screen title placeholder
+  // @param {string} [cfg.title] e.g. '☕ Stock Up!'
+  // @param {HTMLElement} [cfg.contextEl] screen context-line placeholder
+  // @param {string} [cfg.context] e.g. 'Pick 1 consumable to carry into your next career.'
+  // @param {Consumable[]} cfg.options new consumables to pick from
+  // @param {Consumable[]} [cfg.current] current stash (swap targets)
+  // @param {boolean} [cfg.full] stash is at capacity
+  // @param {HTMLButtonElement} [cfg.continueBtn] enabled once a valid selection is made
+  // @param {boolean} [cfg.requireReplace] when full, a swap target must also be picked
+  // @returns {() => {newId: string | null, replaceIndex: number}} selection getter
+  renderConsumableSwap(cfg) {
+    if (cfg.titleEl && cfg.title) cfg.titleEl.textContent = cfg.title;
+    if (cfg.contextEl && cfg.context) cfg.contextEl.innerHTML = cfg.context;
+    
+    const container = cfg.container;
+    container.innerHTML = '';
+    let newId = null;
+    let replaceIndex = -1;
+    
+    const updateButton = () => {
+      if (!cfg.continueBtn) return;
+      const needsReplace = cfg.full && cfg.requireReplace;
+      cfg.continueBtn.disabled = !(newId !== null && (!needsReplace || replaceIndex >= 0));
+    };
+    
+    // Show new consumable options
+    const optionsLabel = document.createElement('div');
+    optionsLabel.className = 'consumable-selection-label';
+    optionsLabel.textContent = cfg.full ? 'Choose a new consumable:' : 'Choose a consumable:';
+    optionsLabel.style.cssText = 'font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-green); margin-bottom: var(--spacing-sm); text-transform: uppercase;';
+    container.appendChild(optionsLabel);
+    
+    cfg.options.forEach((newConsumable) => {
+      const itemElement = UI.renderConsumableItem(newConsumable, { id: newConsumable.id });
+      itemElement.addEventListener('click', () => {
+        container.querySelectorAll('.consumable-select-item').forEach(s => s.classList.remove('selected'));
+        itemElement.classList.add('selected');
+        newId = newConsumable.id;
+        updateButton();
+      });
+      container.appendChild(itemElement);
+    });
+    
+    // If the stash is full, show current consumables for swapping
+    if (cfg.full && cfg.current && cfg.current.length > 0) {
+      const currentLabel = document.createElement('div');
+      currentLabel.className = 'consumable-selection-label';
+      currentLabel.textContent = 'Your current stash (click to replace):';
+      currentLabel.style.cssText = 'font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-yellow); margin-top: var(--spacing-lg); margin-bottom: var(--spacing-sm); text-transform: uppercase;';
+      container.appendChild(currentLabel);
+      
+      cfg.current.forEach((currentConsumable, inventoryIndex) => {
+        const itemElement = UI.renderConsumableItem(currentConsumable, { replaceIndex: inventoryIndex });
+        itemElement.addEventListener('click', () => {
+          container.querySelectorAll('[data-replace-index]').forEach(s => s.classList.remove('selected'));
+          itemElement.classList.add('selected');
+          replaceIndex = inventoryIndex;
+          updateButton();
+        });
+        container.appendChild(itemElement);
+      });
+    }
+    
+    updateButton();
+    return () => ({ newId, replaceIndex });
+  },
+  
   // Show consumable selection screen after level up
   showLevelUpConsumableSelection() {
     const options = Game.state.pendingLevelUpConsumables;
@@ -1166,61 +1239,33 @@ const UI = {
     // Show the level up screen first
     this.showScreen('levelup');
     
-    // Update description
-    const descEl = document.getElementById('levelup-desc');
-    const descNote = '<span style="font-size: 0.8rem; color: var(--text-muted);">(Consumables are one-time use for a single event — use them wisely!)</span>';
-    if (hasFullInventory) {
-      descEl.innerHTML = `You've reached Level <span id="new-level">${Game.state.level}</span>. Pick a consumable and choose which to replace. ${descNote}`;
-    } else {
-      descEl.innerHTML = `You've reached Level <span id="new-level">${Game.state.level}</span>. Pick a consumable to add to your stash. ${descNote}`;
-    }
-    
     // Show consumables container
     document.getElementById('levelup-consumables').style.display = 'block';
     document.getElementById('levelup-stats-container').style.display = 'none';
     document.getElementById('btn-skip-levelup').style.display = 'block';
-    document.getElementById('btn-continue-levelup').style.display = 'block';
-/** @type {HTMLButtonElement} */ (document.getElementById('btn-continue-levelup')).disabled = true;
+    const continueBtn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-continue-levelup'));
+    continueBtn.style.display = 'block';
+    continueBtn.disabled = true;
     
-    const container = document.getElementById('levelup-consumables');
-    container.innerHTML = '';
-    
-    // Show new consumable options
-    const optionsLabel = document.createElement('div');
-    optionsLabel.className = 'consumable-selection-label';
-    optionsLabel.textContent = hasFullInventory ? 'Choose a new consumable:' : 'Choose a consumable:';
-    optionsLabel.style.cssText = 'font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-green); margin-bottom: var(--spacing-sm); text-transform: uppercase;';
-    container.appendChild(optionsLabel);
-    
-    options.forEach((newConsumable) => {
-      const itemElement = UI.renderConsumableItem(newConsumable, { id: newConsumable.id });
-      itemElement.addEventListener('click', () => {
-        container.querySelectorAll('.consumable-select-item').forEach(s => s.classList.remove('selected'));
-        itemElement.classList.add('selected');
-/** @type {HTMLButtonElement} */ (document.getElementById('btn-continue-levelup')).disabled = false;
-      });
-      container.appendChild(itemElement);
+    // Shared pick-and-swap UI with level-up title/context
+    const descNote = '<span style="font-size: 0.8rem; color: var(--text-muted);">(Consumables are one-time use for a single event — use them wisely!)</span>';
+    const context = hasFullInventory
+      ? `You've reached Level <span id="new-level">${Game.state.level}</span>. Pick a consumable and choose which to replace. ${descNote}`
+      : `You've reached Level <span id="new-level">${Game.state.level}</span>. Pick a consumable to add to your stash. ${descNote}`;
+    const getSelection = this.renderConsumableSwap({
+      container: document.getElementById('levelup-consumables'),
+      titleEl: document.getElementById('levelup-title'),
+      title: '🎉 Level Up!',
+      contextEl: document.getElementById('levelup-desc'),
+      context,
+      options,
+      current: Game.state.consumables,
+      full: hasFullInventory,
+      continueBtn,
+      // Level-up keeps its historical behavior: a new pick without a chosen
+      // replacement is discarded, so Continue only needs the new pick
+      requireReplace: false
     });
-    
-    // If inventory is full, show current consumables for swapping
-    let selectedIndex = -1;
-    if (hasFullInventory) {
-      const currentLabel = document.createElement('div');
-      currentLabel.className = 'consumable-selection-label';
-      currentLabel.textContent = 'Your current stash (click to replace):';
-      currentLabel.style.cssText = 'font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-yellow); margin-top: var(--spacing-lg); margin-bottom: var(--spacing-sm); text-transform: uppercase;';
-      container.appendChild(currentLabel);
-      
-      Game.state.consumables.forEach((currentConsumable, inventoryIndex) => {
-        const itemElement = UI.renderConsumableItem(currentConsumable, { replaceIndex: inventoryIndex });
-        itemElement.addEventListener('click', () => {
-          container.querySelectorAll('[data-replace-index]').forEach(s => s.classList.remove('selected'));
-          itemElement.classList.add('selected');
-          selectedIndex = inventoryIndex;
-        });
-        container.appendChild(itemElement);
-      });
-    }
     
     // Bind skip button — skip consumable, finish level up
     document.getElementById('btn-skip-levelup').onclick = () => {
@@ -1229,21 +1274,20 @@ const UI = {
     };
     
     // Bind continue button
-    document.getElementById('btn-continue-levelup').onclick = () => {
-      const selected = /** @type {HTMLElement | null} */ (container.querySelector('.consumable-select-item.selected'));
-      if (!selected) return;
+    continueBtn.onclick = () => {
+      const { newId, replaceIndex } = getSelection();
+      if (!newId) return;
       
-      const id = selected.dataset.id;
-      const consumable = CONSUMABLES.find(c => c.id === id);
+      const consumable = CONSUMABLES.find(c => c.id === newId);
       if (!consumable) return;
       
       // Handle the consumable selection
       if (hasFullInventory) {
         // Inventory full — must replace a selected consumable
-        if (selectedIndex >= 0) {
-          Game.state.consumables[selectedIndex] = { ...consumable };
+        if (replaceIndex >= 0) {
+          Game.state.consumables[replaceIndex] = { ...consumable };
         }
-        // If selectedIndex is -1, don't add anything (user didn't pick what to replace)
+        // If replaceIndex is -1, don't add anything (user didn't pick what to replace)
       } else {
         // Add to inventory
         Game.state.consumables.push({ ...consumable });
@@ -1329,34 +1373,41 @@ const UI = {
     document.getElementById('gameover-reason').textContent = reason;
   },
   
-  // Show consumable selection at end of run
+  // Show consumable selection at end of run — the shared pick-and-swap UI
+  // ("Stock Up") with per-screen title/context placeholders
   showConsumableSelection(type) {
     const options = ConsumableManager.getEndOfRunOptions();
+    // The carried stash: what the player already carries across runs. When
+    // it's full, the swap section lets them replace one of the carried items
+    const carried = MetaStore.carriedIds('startingConsumables')
+      .map(/** @param {string} id */ (id) => CONSUMABLES.find(c => c.id === id))
+      .filter(/** @returns {item is Consumable} */ (item) => Boolean(item));
+    const full = carried.length >= 2;
+    
+    /** @param {string} title @param {string} context @param {HTMLElement} container @param {HTMLElement} titleEl @param {HTMLElement} contextEl @param {HTMLButtonElement} continueBtn @param {(id: string, replaceIndex: number) => void} onPick */
+    const render = (title, context, container, titleEl, contextEl, continueBtn, onPick) => {
+      const getSelection = this.renderConsumableSwap({
+        container, titleEl, contextEl, title, context,
+        options, current: carried, full,
+        continueBtn, requireReplace: true
+      });
+      continueBtn.onclick = () => {
+        const { newId, replaceIndex } = getSelection();
+        if (newId) onPick(newId, replaceIndex);
+      };
+    };
     
     if (type === 'gameover') {
       // Game over screen
-      const container = document.getElementById('gameover-cons-selection');
-      const continueBtn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-continue-gameover-cons'));
-      container.innerHTML = '';
-      continueBtn.disabled = true;
-      options.forEach((item, i) => {
-        const el = document.createElement('div');
-        el.className = 'consumable-select-item';
-        el.dataset.id = item.id;
-        el.innerHTML = `
-          <span class="cs-emoji">${item.emoji}</span>
-          <div class="cs-details">
-            <div class="cs-name">${item.name}</div>
-            <div class="cs-desc">${item.desc}</div>
-          </div>
-        `;
-        el.addEventListener('click', () => {
-          container.querySelectorAll('.consumable-select-item').forEach(s => s.classList.remove('selected'));
-          el.classList.add('selected');
-          continueBtn.disabled = false;
-        });
-        container.appendChild(el);
-      });
+      render(
+        '☕ Stock Up!',
+        'Pick 1 consumable to carry into your next career.',
+        document.getElementById('gameover-cons-selection'),
+        document.getElementById('gameover-cons-title'),
+        document.getElementById('gameover-cons-desc'),
+        /** @type {HTMLButtonElement} */ (document.getElementById('btn-continue-gameover-cons')),
+        (id, replaceIndex) => this.applyEndOfRunConsumable(id, replaceIndex)
+      );
       this.showScreen('gameover-cons');
     } else {
       // Victory screen
@@ -1371,33 +1422,24 @@ const UI = {
       continueBtn.disabled = true;
       buttonsContainer.style.display = 'none';
       
-      consContainer.innerHTML = '';
-      options.forEach((item, i) => {
-        const el = document.createElement('div');
-        el.className = 'consumable-select-item';
-        el.dataset.id = item.id;
-        el.innerHTML = `
-          <span class="cs-emoji">${item.emoji}</span>
-          <div class="cs-details">
-            <div class="cs-name">${item.name}</div>
-            <div class="cs-desc">${item.desc}</div>
-          </div>
-        `;
-        el.addEventListener('click', () => {
-          consContainer.querySelectorAll('.consumable-select-item').forEach(s => s.classList.remove('selected'));
-          el.classList.add('selected');
-          continueBtn.disabled = false;
-        });
-        consContainer.appendChild(el);
-      });
+      render(
+        '🏆 Retirement!',
+        'You\'ve completed your career. Pick 1 consumable to carry into your next career.',
+        consContainer,
+        document.getElementById('victory-title'),
+        document.getElementById('victory-desc'),
+        continueBtn,
+        (id, replaceIndex) => this.applyVictoryConsumable(id, replaceIndex)
+      );
       this.showScreen('victory');
     }
   },
   
   // Apply selected consumable and show game over
-  applyEndOfRunConsumable(selectedId) {
+  /** @param {string} selectedId @param {number} [replaceIndex] carried slot to swap, or -1 */
+  applyEndOfRunConsumable(selectedId, replaceIndex) {
     // Carry this consumable into future runs (store ID only)
-    MetaStore.addCarriedConsumable(selectedId);
+    MetaStore.addCarriedConsumable(selectedId, replaceIndex);
     
     // Show game over summary
     SaveSystem.deleteSave();
@@ -1417,13 +1459,16 @@ const UI = {
   },
   
   // Apply selected consumable and show victory summary
-  applyVictoryConsumable(selectedId) {
+  /** @param {string} selectedId @param {number} [replaceIndex] carried slot to swap, or -1 */
+  applyVictoryConsumable(selectedId, replaceIndex) {
     // Carry this consumable into future runs (store ID only)
-    MetaStore.addCarriedConsumable(selectedId);
+    MetaStore.addCarriedConsumable(selectedId, replaceIndex);
     
     // Hide consumable selection, show summary
     document.getElementById('victory-consumables').style.display = 'none';
     document.getElementById('btn-continue-victory-cons').style.display = 'none';
+    // Restore the retirement context line (the pick screen overwrote it)
+    document.getElementById('victory-desc').textContent = "You've completed your career. Time to enjoy the beach (with WiFi).";
     const summaryContainer = document.getElementById('victory-summary');
     summaryContainer.style.display = 'block';
     document.getElementById('victory-buttons').style.display = 'flex';

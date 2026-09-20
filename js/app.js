@@ -99,22 +99,8 @@ const App = {
     bind('btn-help-title', () => UI.openHelp());
     bind('btn-close-help', () => UI.closeHelp());
     
-    // End-of-run consumable selection
-    bind('btn-continue-gameover-cons', () => {
-      const selected = /** @type {HTMLElement | null} */ (document.querySelector('#gameover-cons-selection .consumable-select-item.selected'));
-      if (selected) {
-        const id = selected.dataset.id;
-        UI.applyEndOfRunConsumable(id);
-      }
-    });
-    
-    bind('btn-continue-victory-cons', () => {
-      const selected = /** @type {HTMLElement | null} */ (document.querySelector('#victory-consumables .consumable-select-item.selected'));
-      if (selected) {
-        const id = selected.dataset.id;
-        UI.applyVictoryConsumable(id);
-      }
-    });
+    // End-of-run consumable selection (Stock Up) is bound inline by
+    // UI.showConsumableSelection, which owns the shared pick-and-swap UI
   },
   
   checkForSave() {

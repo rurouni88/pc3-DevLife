@@ -34,14 +34,20 @@ const MetaStore = {
     this.save(meta);
   },
   
-  // Carry a consumable into future runs. Selection = most recent: the pick
-  // moves to the end of the pool (re-picking an older entry refreshes it —
-  // the old skip-if-exists left stale entries winning via slice(-2)), and
-  // the pool is capped at the 2 slots that get granted.
-  addCarriedConsumable(id) {
+  // Carry a consumable into future runs. With a replaceIndex (Stock Up
+  // swap), the pick replaces that slot. Otherwise selection = most recent:
+  // the pick moves to the end of the pool (re-picking an older entry
+  // refreshes it — the old skip-if-exists left stale entries winning via
+  // slice(-2)), and the pool is capped at the 2 slots that get granted.
+  /** @param {string} id @param {number} [replaceIndex] slot to swap, or -1 for recency order */
+  addCarriedConsumable(id, replaceIndex = -1) {
     const meta = this.load();
-    const pool = (meta.startingConsumables || []).filter(x => x !== id);
-    meta.startingConsumables = [...pool, id].slice(-2);
+    const pool = meta.startingConsumables || [];
+    if (replaceIndex >= 0 && replaceIndex < pool.length) {
+      meta.startingConsumables = pool.map((x, i) => (i === replaceIndex ? id : x));
+    } else {
+      meta.startingConsumables = [...pool.filter(x => x !== id), id].slice(-2);
+    }
     this.save(meta);
   },
   

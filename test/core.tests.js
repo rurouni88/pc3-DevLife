@@ -111,6 +111,27 @@ assert.deepStrictEqual(MetaStore.carriedIds('startingConsumables'), ['focus', 'e
 localStorage.removeItem('devlife_meta');
 console.log('✓ consumable carry-over: pick = most recent, pool capped at 2');
 
+// --- Stock Up swap: explicit replaceIndex swaps the chosen slot ---
+localStorage.setItem('devlife_meta', JSON.stringify({ totalRuns: 0, startingConsumables: ['coffee', 'focus'] }));
+MetaStore.addCarriedConsumable('espresso', 0); // swap slot 0
+assert.deepStrictEqual(MetaStore.carriedIds('startingConsumables'), ['espresso', 'focus'], 'swap replaces the chosen slot');
+MetaStore.addCarriedConsumable('coffee', 1); // swap slot 1
+assert.deepStrictEqual(MetaStore.carriedIds('startingConsumables'), ['espresso', 'coffee'], 'swap replaces slot 1');
+MetaStore.addCarriedConsumable('matcha', 5); // out-of-range index falls back to recency order
+assert.deepStrictEqual(MetaStore.carriedIds('startingConsumables'), ['coffee', 'matcha'], 'bad index falls back to recency order');
+localStorage.removeItem('devlife_meta');
+console.log('✓ Stock Up swap: explicit replaceIndex swaps the chosen slot');
+
+// --- End-of-run options exclude carried consumables (a swap must be a real swap) ---
+localStorage.setItem('devlife_meta', JSON.stringify({ totalRuns: 0, startingConsumables: ['coffee', 'focus'] }));
+for (let i = 0; i < 20; i++) {
+  const opts = ConsumableManager.getEndOfRunOptions();
+  assert.strictEqual(opts.length, 3, '3 options offered');
+  assert.ok(opts.every(c => !['coffee', 'focus'].includes(c.id)), 'carried consumables are not offered');
+}
+localStorage.removeItem('devlife_meta');
+console.log('✓ end-of-run options exclude carried consumables');
+
 // --- Consumable carry-over: the last 2 in the pool are granted ---
 const conById = id => CONSUMABLES.find(c => c.id === id);
 const conStats = { S: 10, P: 10, E: 10, C: 10, I: 10, A: 10, L: 10 };
