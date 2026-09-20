@@ -1832,6 +1832,11 @@ body {
   width: 100%;
 }
 
+.result-actions {
+  display: flex;
+  justify-content: center;
+}
+
 /* --- Level Up Screen --- */
 .levelup-stats {
   display: flex;
