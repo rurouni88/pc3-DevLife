@@ -1,0 +1,312 @@
+// UI — character creation screen: presets, stat allocation, archetype preview.
+// Loaded before ui.js; its methods are composed into UI there.
+const UICharacter = {
+  // Render character creation screen
+  renderCharacterCreation() {
+    UI._selectedPreset = null;
+    const container = document.getElementById('stat-allocation');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    STAT_KEYS.forEach(key => {
+      const meta = STAT_META[key];
+      const row = document.createElement('div');
+      row.className = 'stat-row';
+      row.innerHTML = `
+        <span class="stat-label" style="color: ${meta.color}">${key}</span>
+        <span class="stat-name">${meta.name}</span>
+        <div class="stat-controls">
+          <button class="stat-btn minus" data-stat="${key}" data-action="minus">−</button>
+          <span class="stat-value" style="color: ${meta.color}">${SpecialSystem.stats[key]}</span>
+          <button class="stat-btn plus" data-stat="${key}" data-action="plus">+</button>
+        </div>
+      `;
+      container.appendChild(row);
+    });
+    
+    // Read stats directly from DOM — always in sync
+    const getStats = () => {
+      const stats = zeroStats();
+      STAT_KEYS.forEach(k => {
+        const rows = container.querySelectorAll('.stat-row');
+        for (const row of rows) {
+          const labelEl = row.querySelector('.stat-label');
+          const valueEl = row.querySelector('.stat-value');
+          if (!labelEl || !valueEl) continue;
+          if (labelEl.textContent === k) {
+            stats[k] = parseInt(valueEl.textContent);
+            break;
+          }
+        }
+      });
+      return stats;
+    };
+    
+    // Bind events
+    /** @type {NodeListOf<HTMLElement>} */ (container.querySelectorAll('.stat-btn')).forEach(/** @param {HTMLElement} btn */ (btn) => {
+      btn.addEventListener('click', () => {
+        const stat = btn.dataset.stat;
+        const action = btn.dataset.action;
+        const row = btn.closest('.stat-row');
+        const valueEl = row ? row.querySelector('.stat-value') : null;
+        if (!row || !valueEl) return;
+        const cur = parseInt(valueEl.textContent);
+        const stats = getStats();
+        const total = STAT_KEYS.reduce((s, k) => s + stats[k], 0);
+        
+        if (action === 'plus' && cur < 10 && total < STARTING_POINTS) {
+          valueEl.textContent = String(cur + 1);
+          UI._selectedPreset = null;
+          UI.updateCharCreationUI();
+        } else if (action === 'minus' && cur > 1) {
+          valueEl.textContent = String(cur - 1);
+          UI._selectedPreset = null;
+          UI.updateCharCreationUI();
+        }
+      });
+    });
+    
+    UI.updateCharCreationUI();
+    UI.renderArchetypePresets();
+    UI.renderStatDescriptions();
+  },
+  
+  // Render archetype preset dropdown
+  renderArchetypePresets() {
+    const container = document.getElementById('preset-options');
+    const toggle = document.getElementById('preset-toggle');
+    const toggleText = document.getElementById('preset-toggle-text');
+    if (!container || !toggle || !toggleText) return;
+    container.innerHTML = '';
+    
+    // Remove old listeners to prevent duplicates on re-render
+    if (UI._presetToggleHandler) toggle.removeEventListener('click', UI._presetToggleHandler);
+    if (UI._presetCloseHandler) document.removeEventListener('click', UI._presetCloseHandler);
+    
+    // All archetypes are unlocked except Prototype King, which depends on the
+    // not-yet-implemented max-stat > 10 mechanic.
+    const UNLOCKED_KEYS = Object.keys(ARCHETYPES).filter(key => key !== 'prototype_king');
+    
+    Object.entries(ARCHETYPES).forEach(([key, arch]) => {
+      const btn = document.createElement('button');
+      btn.className = 'preset-option';
+      const unlocked = UNLOCKED_KEYS.includes(key);
+      
+      const statStr = STAT_KEYS.map(k => `${k}:${arch.stats[k]}`).join(' ');
+      
+      if (!unlocked) {
+        btn.classList.add('locked');
+        btn.innerHTML = `
+          <span class="preset-name">🔒 ${arch.name}</span>
+          <span class="preset-stats">Locked</span>
+        `;
+      } else {
+        btn.innerHTML = `
+          <span class="preset-name">${arch.name}</span>
+          <span class="preset-stats">${statStr}</span>
+        `;
+        btn.addEventListener('click', () => {
+          UI.applyArchetypePreset(arch.stats, arch);
+          // Close dropdown and update toggle text
+          container.classList.remove('open');
+          toggle.classList.remove('open');
+          toggleText.textContent = arch.name;
+        });
+      }
+      
+      container.appendChild(btn);
+    });
+    
+    // Toggle dropdown
+    UI._presetToggleHandler = () => {
+      const isOpen = container.classList.contains('open');
+      container.classList.toggle('open');
+      toggle.classList.toggle('open');
+    };
+    toggle.addEventListener('click', UI._presetToggleHandler);
+    
+    // Close dropdown when clicking outside
+    UI._presetCloseHandler = /** @param {Event} e */ (e) => {
+      const dropdown = document.getElementById('preset-dropdown');
+      if (dropdown && !dropdown.contains(/** @type {Node} */ (e.target))) {
+        container.classList.remove('open');
+        toggle.classList.remove('open');
+      }
+    };
+    document.addEventListener('click', UI._presetCloseHandler);
+  },
+  
+  // Apply an archetype preset to the stat allocation
+  /** @param {Stats} stats @param {Archetype | null} arch */
+  applyArchetypePreset(stats, arch) {
+    const container = document.getElementById('stat-allocation');
+    if (!container) return;
+    const rows = container.querySelectorAll('.stat-row');
+    
+    rows.forEach(row => {
+      const labelEl = row.querySelector('.stat-label');
+      const valueEl = row.querySelector('.stat-value');
+      if (!labelEl || !valueEl) return;
+      const minusBtn = /** @type {HTMLButtonElement} */ (row.querySelector('.stat-btn.minus'));
+      const plusBtn = /** @type {HTMLButtonElement} */ (row.querySelector('.stat-btn.plus'));
+      
+      const value = stats[/** @type {StatKey} */ (labelEl.textContent)];
+      valueEl.textContent = String(value);
+      
+      minusBtn.disabled = value <= 1;
+      plusBtn.disabled = value >= 10;
+    });
+    
+    const currentStats = zeroStats();
+    rows.forEach(row => {
+      const labelEl = row.querySelector('.stat-label');
+      const valueEl = row.querySelector('.stat-value');
+      if (!labelEl || !valueEl) return;
+      currentStats[/** @type {StatKey} */ (labelEl.textContent)] = parseInt(valueEl.textContent);
+    });
+    
+    // Remember which preset was chosen so the preview can show it directly
+    // (its stats may be too flat to classify uniquely).
+    UI._selectedPreset = arch || null;
+    UI.updateCharCreationUI();
+  },
+  
+  // Render stat descriptions
+  renderStatDescriptions() {
+    const container = document.getElementById('stat-descriptions');
+    if (!container) return;
+    
+    let html = `
+      <button class="desc-toggle" id="btn-toggle-descs">
+        <span id="desc-arrow">▶</span> What does each stat do?
+      </button>
+      <div class="desc-content" id="desc-content">
+    `;
+    
+    STAT_KEYS.forEach(key => {
+      const meta = STAT_META[key];
+      html += `
+        <div class="stat-desc-item" style="border-left-color: ${meta.color}">
+          <div class="desc-label" style="color: ${meta.color}">${key} — ${meta.short}</div>
+          <div class="desc-text">${meta.desc}</div>
+        </div>
+      `;
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
+    
+    // Toggle button
+    const toggleBtn = document.getElementById('btn-toggle-descs');
+    const content = document.getElementById('desc-content');
+    const arrow = document.getElementById('desc-arrow');
+    if (!toggleBtn || !content || !arrow) return;
+    
+    const toggleHandler = () => {
+      const isOpen = content.classList.contains('open');
+      if (isOpen) {
+        content.classList.remove('open');
+        arrow.textContent = '▶';
+      } else {
+        content.classList.add('open');
+        arrow.textContent = '▼';
+      }
+    };
+    toggleBtn.addEventListener('click', toggleHandler);
+  },
+  
+  // Update character creation UI state
+  updateCharCreationUI() {
+    const container = document.getElementById('stat-allocation');
+    if (!container) return;
+    const currentStats = zeroStats();
+    
+    const rows = container.querySelectorAll('.stat-row');
+    rows.forEach(row => {
+      const labelEl = row.querySelector('.stat-label');
+      const valueEl = row.querySelector('.stat-value');
+      if (!labelEl || !valueEl) return;
+      currentStats[/** @type {StatKey} */ (labelEl.textContent)] = parseInt(valueEl.textContent);
+    });
+    
+    const total = STAT_KEYS.reduce((sum, k) => sum + currentStats[k], 0);
+    const remaining = STARTING_POINTS - total;
+    const pointsEl = document.getElementById('points-remaining');
+    if (pointsEl) pointsEl.textContent = String(remaining);
+    
+    const startBtn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-start-career'));
+    startBtn.disabled = remaining !== 0;
+    
+    // Update button disabled states
+    rows.forEach(row => {
+      const labelEl = row.querySelector('.stat-label');
+      if (!labelEl) return;
+      const minusBtn = /** @type {HTMLButtonElement} */ (row.querySelector('.stat-btn.minus'));
+      const plusBtn = /** @type {HTMLButtonElement} */ (row.querySelector('.stat-btn.plus'));
+      const value = currentStats[/** @type {StatKey} */ (labelEl.textContent)];
+      
+      minusBtn.disabled = value <= 1;
+      plusBtn.disabled = value >= 10 || total >= STARTING_POINTS;
+    });
+    
+    // Update archetype preview
+    UI.updateArchetypePreview(currentStats);
+  },
+  
+  // Update archetype preview based on current stats
+  /** @param {Stats} [currentStats] */
+  updateArchetypePreview(currentStats) {
+    if (!currentStats) {
+      const container = document.getElementById('stat-allocation');
+      if (!container) return;
+      const stats = zeroStats();
+      STAT_KEYS.forEach(k => {
+        const rows = container.querySelectorAll('.stat-row');
+        for (const row of rows) {
+          const labelEl = row.querySelector('.stat-label');
+          const valueEl = row.querySelector('.stat-value');
+          if (!labelEl || !valueEl) continue;
+          if (labelEl.textContent === k) {
+            stats[k] = parseInt(valueEl.textContent);
+            break;
+          }
+        }
+      });
+      currentStats = stats;
+    }
+    
+    const preview = document.getElementById('archetype-preview');
+    if (!preview) return;
+    
+    // If a preset was just selected, show that archetype directly. Some presets
+    // (e.g. Full-Stack Generalist) have stats too flat to classify uniquely, so
+    // the stats-based fallback below would mislabel them.
+    let archetype = UI._selectedPreset || null;
+    
+    if (!archetype) {
+      // Determine archetype based on top 2 stats.
+      // Sort a copy — Array.prototype.sort mutates in place, which would
+      // permanently reorder the shared global STAT_KEYS and make the
+      // tie-breaking (and thus the preview) depend on prior calls.
+      const sorted = [...STAT_KEYS].sort((a, b) => currentStats[b] - currentStats[a]);
+      const top1 = sorted[0];
+      const top2 = sorted[1];
+    
+      if ((top1 === 'I' && top2 === 'C') || (top1 === 'C' && top2 === 'I')) archetype = ARCHETYPES.architect;
+      else if ((top1 === 'A' && top2 === 'E') || (top1 === 'E' && top2 === 'A')) archetype = ARCHETYPES.startup;
+      else if ((top1 === 'S' && top2 === 'P') || (top1 === 'P' && top2 === 'S')) archetype = ARCHETYPES.systems;
+      else if ((top1 === 'C' && top2 === 'A') || (top1 === 'A' && top2 === 'C')) archetype = ARCHETYPES.advocate;
+      else if ((top1 === 'P' && top2 === 'E') || (top1 === 'E' && top2 === 'P')) archetype = ARCHETYPES.sre;
+      else if ((top1 === 'P' && top2 === 'I') || (top1 === 'I' && top2 === 'P')) archetype = ARCHETYPES.pentester;
+      else if ((top1 === 'S' && top2 === 'E') || (top1 === 'E' && top2 === 'S')) archetype = ARCHETYPES.archeologist;
+      else if ((top1 === 'C' && top2 === 'E') || (top1 === 'E' && top2 === 'C')) archetype = ARCHETYPES.em;
+      else if ((top1 === 'A' && top2 === 'L') || (top1 === 'L' && top2 === 'A')) archetype = ARCHETYPES.prototype_king;
+      else archetype = ARCHETYPES.balanced;
+    }
+    
+    preview.innerHTML = `
+      <div class="archetype-name">${archetype.name}</div>
+      <div class="archetype-desc">${archetype.description}</div>
+    `;
+  },
+};
