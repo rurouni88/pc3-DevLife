@@ -1,3 +1,16 @@
+// Shared DOM helpers — the UI is static HTML, but the type system
+// doesn't know that, so these narrow once and reuse.
+/** @param {string} id @param {string} display */
+const setDisplay = (id, display) => {
+  const el = document.getElementById(id);
+  if (el) el.style.display = display;
+};
+/** @param {string} id @param {string} text */
+const setText = (id, text) => {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text;
+};
+
 // UI Rendering
 const UI = {
   currentScreen: 'title',
@@ -142,9 +155,14 @@ const UI = {
     const tooltip = document.getElementById('item-tooltip');
     if (!tooltip) return;
     
-    tooltip.querySelector('.tooltip-emoji').textContent = item.emoji || '';
-    tooltip.querySelector('.tooltip-name').textContent = item.name || '';
-    tooltip.querySelector('.tooltip-desc').textContent = item.desc || '';
+    /** @param {string} sel @param {string} text */
+    const setTooltipText = (sel, text) => {
+      const el = tooltip.querySelector(sel);
+      if (el) el.textContent = text;
+    };
+    setTooltipText('.tooltip-emoji', item.emoji || '');
+    setTooltipText('.tooltip-name', item.name || '');
+    setTooltipText('.tooltip-desc', item.desc || '');
     
     // Build effect text (only for consumables/equipment, not perks)
     let effectText = '';
@@ -235,7 +253,8 @@ const UI = {
     if (!modal) return;
     modal.style.display = 'flex';
     this.setHelpTab('info');
-    document.getElementById('help-version').textContent = `v${CONFIG.version} ${CONFIG.versionLabel}`;
+    const helpVersion = document.getElementById('help-version');
+    if (helpVersion) helpVersion.textContent = `v${CONFIG.version} ${CONFIG.versionLabel}`;
   },
   
   closeHelp() {
@@ -248,8 +267,10 @@ const UI = {
   setHelpTab(tab) {
     document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.modal-tab-content').forEach(c => c.classList.remove('active'));
-    document.querySelector(`.modal-tab[data-tab="${tab}"]`).classList.add('active');
-    document.getElementById(`help-${tab}`).classList.add('active');
+    const tabBtn = document.querySelector(`.modal-tab[data-tab="${tab}"]`);
+    if (tabBtn) tabBtn.classList.add('active');
+    const tabContent = document.getElementById(`help-${tab}`);
+    if (tabContent) tabContent.classList.add('active');
   },
   
   // Show floating stat change
@@ -332,6 +353,7 @@ const UI = {
   renderCharacterCreation() {
     this._selectedPreset = null;
     const container = document.getElementById('stat-allocation');
+    if (!container) return;
     container.innerHTML = '';
     
     STAT_KEYS.forEach(key => {
@@ -356,8 +378,11 @@ const UI = {
       STAT_KEYS.forEach(k => {
         const rows = container.querySelectorAll('.stat-row');
         for (const row of rows) {
-          if (row.querySelector('.stat-label').textContent === k) {
-            stats[k] = parseInt(row.querySelector('.stat-value').textContent);
+          const labelEl = row.querySelector('.stat-label');
+          const valueEl = row.querySelector('.stat-value');
+          if (!labelEl || !valueEl) continue;
+          if (labelEl.textContent === k) {
+            stats[k] = parseInt(valueEl.textContent);
             break;
           }
         }
@@ -371,7 +396,8 @@ const UI = {
         const stat = btn.dataset.stat;
         const action = btn.dataset.action;
         const row = btn.closest('.stat-row');
-        const valueEl = row.querySelector('.stat-value');
+        const valueEl = row ? row.querySelector('.stat-value') : null;
+        if (!row || !valueEl) return;
         const cur = parseInt(valueEl.textContent);
         const stats = getStats();
         const total = STAT_KEYS.reduce((s, k) => s + stats[k], 0);
@@ -398,6 +424,7 @@ const UI = {
     const container = document.getElementById('preset-options');
     const toggle = document.getElementById('preset-toggle');
     const toggleText = document.getElementById('preset-toggle-text');
+    if (!container || !toggle || !toggleText) return;
     container.innerHTML = '';
     
     // Remove old listeners to prevent duplicates on re-render
@@ -449,7 +476,7 @@ const UI = {
     // Close dropdown when clicking outside
     this._presetCloseHandler = (e) => {
       const dropdown = document.getElementById('preset-dropdown');
-      if (!dropdown.contains(/** @type {Node} */ (e.target))) {
+      if (dropdown && !dropdown.contains(/** @type {Node} */ (e.target))) {
         container.classList.remove('open');
         toggle.classList.remove('open');
       }
@@ -461,15 +488,17 @@ const UI = {
   /** @param {Stats} stats @param {Archetype | null} arch */
   applyArchetypePreset(stats, arch) {
     const container = document.getElementById('stat-allocation');
+    if (!container) return;
     const rows = container.querySelectorAll('.stat-row');
     
     rows.forEach(row => {
-      const label = row.querySelector('.stat-label').textContent;
+      const labelEl = row.querySelector('.stat-label');
       const valueEl = row.querySelector('.stat-value');
+      if (!labelEl || !valueEl) return;
       const minusBtn = /** @type {HTMLButtonElement} */ (row.querySelector('.stat-btn.minus'));
       const plusBtn = /** @type {HTMLButtonElement} */ (row.querySelector('.stat-btn.plus'));
       
-      const value = stats[/** @type {StatKey} */ (label)];
+      const value = stats[/** @type {StatKey} */ (labelEl.textContent)];
       valueEl.textContent = String(value);
       
       minusBtn.disabled = value <= 1;
@@ -478,8 +507,10 @@ const UI = {
     
     const currentStats = zeroStats();
     rows.forEach(row => {
-      const label = /** @type {StatKey} */ (row.querySelector('.stat-label').textContent);
-      currentStats[label] = parseInt(row.querySelector('.stat-value').textContent);
+      const labelEl = row.querySelector('.stat-label');
+      const valueEl = row.querySelector('.stat-value');
+      if (!labelEl || !valueEl) return;
+      currentStats[/** @type {StatKey} */ (labelEl.textContent)] = parseInt(valueEl.textContent);
     });
     
     // Remember which preset was chosen so the preview can show it directly
@@ -517,6 +548,7 @@ const UI = {
     const toggleBtn = document.getElementById('btn-toggle-descs');
     const content = document.getElementById('desc-content');
     const arrow = document.getElementById('desc-arrow');
+    if (!toggleBtn || !content || !arrow) return;
     
     const toggleHandler = () => {
       const isOpen = content.classList.contains('open');
@@ -534,28 +566,32 @@ const UI = {
   // Update character creation UI state
   updateCharCreationUI() {
     const container = document.getElementById('stat-allocation');
+    if (!container) return;
     const currentStats = zeroStats();
     
     const rows = container.querySelectorAll('.stat-row');
     rows.forEach(row => {
-      const label = /** @type {StatKey} */ (row.querySelector('.stat-label').textContent);
+      const labelEl = row.querySelector('.stat-label');
       const valueEl = row.querySelector('.stat-value');
-      currentStats[label] = parseInt(valueEl.textContent);
+      if (!labelEl || !valueEl) return;
+      currentStats[/** @type {StatKey} */ (labelEl.textContent)] = parseInt(valueEl.textContent);
     });
     
     const total = STAT_KEYS.reduce((sum, k) => sum + currentStats[k], 0);
     const remaining = STARTING_POINTS - total;
-    document.getElementById('points-remaining').textContent = String(remaining);
+    const pointsEl = document.getElementById('points-remaining');
+    if (pointsEl) pointsEl.textContent = String(remaining);
     
     const startBtn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-start-career'));
     startBtn.disabled = remaining !== 0;
     
     // Update button disabled states
     rows.forEach(row => {
-      const label = row.querySelector('.stat-label').textContent;
+      const labelEl = row.querySelector('.stat-label');
+      if (!labelEl) return;
       const minusBtn = /** @type {HTMLButtonElement} */ (row.querySelector('.stat-btn.minus'));
       const plusBtn = /** @type {HTMLButtonElement} */ (row.querySelector('.stat-btn.plus'));
-      const value = currentStats[/** @type {StatKey} */ (label)];
+      const value = currentStats[/** @type {StatKey} */ (labelEl.textContent)];
       
       minusBtn.disabled = value <= 1;
       plusBtn.disabled = value >= 10 || total >= STARTING_POINTS;
@@ -570,19 +606,25 @@ const UI = {
   updateArchetypePreview(currentStats) {
     if (!currentStats) {
       const container = document.getElementById('stat-allocation');
-      currentStats = zeroStats();
+      if (!container) return;
+      const stats = zeroStats();
       STAT_KEYS.forEach(k => {
         const rows = container.querySelectorAll('.stat-row');
         for (const row of rows) {
-          if (row.querySelector('.stat-label').textContent === k) {
-            currentStats[k] = parseInt(row.querySelector('.stat-value').textContent);
+          const labelEl = row.querySelector('.stat-label');
+          const valueEl = row.querySelector('.stat-value');
+          if (!labelEl || !valueEl) continue;
+          if (labelEl.textContent === k) {
+            stats[k] = parseInt(valueEl.textContent);
             break;
           }
         }
       });
+      currentStats = stats;
     }
     
     const preview = document.getElementById('archetype-preview');
+    if (!preview) return;
     
     // If a preset was just selected, show that archetype directly. Some presets
     // (e.g. Full-Stack Generalist) have stats too flat to classify uniquely, so
@@ -673,14 +715,17 @@ const UI = {
   
   // Render SPECIAL stats in game
   renderSpecialStats() {
-    this.renderStatBars(document.getElementById('special-stats'));
+    const container = document.getElementById('special-stats');
+    if (container) this.renderStatBars(container);
     this.renderPerks();
   },
   
   // Render equipment
   renderEquipment() {
     const container = document.getElementById('equipment-list');
-    const equipment = Game.state.equipment;
+    const state = Game.state;
+    if (!container || !state) return;
+    const equipment = state.equipment;
     
     if (equipment.length === 0) {
       container.innerHTML = '<span class="empty-text">No equipment yet</span>';
@@ -708,7 +753,9 @@ const UI = {
   // Render career log
   renderCareerLog() {
     const container = document.getElementById('career-log');
-    const log = Game.state.careerLog.slice(0, 20);
+    const state = Game.state;
+    if (!container || !state) return;
+    const log = state.careerLog.slice(0, 20);
     
     container.innerHTML = '';
     log.forEach((entry, i) => {
@@ -726,9 +773,10 @@ const UI = {
   // Render recent activity (mobile-friendly)
   renderRecentActivity() {
     const container = document.getElementById('recent-log-entries');
-    if (!container) return;
+    const state = Game.state;
+    if (!container || !state) return;
     
-    const recentEntries = Game.state.careerLog.slice(0, 3);
+    const recentEntries = state.careerLog.slice(0, 3);
     
     container.innerHTML = '';
     recentEntries.forEach((entry, i) => {
@@ -742,29 +790,40 @@ const UI = {
   
   // Render top bar
   renderTopBar() {
-    document.getElementById('career-phase').textContent = CONFIG.game.phaseNames[Game.state.phase];
+    const state = Game.state;
+    if (!state) return;
+    const phaseEl = document.getElementById('career-phase');
+    if (phaseEl) phaseEl.textContent = CONFIG.game.phaseNames[state.phase];
     // Career spans ~8-10 years across ~24 events, each event ~0.4 years
-    const careerYear = dayToCareerYear(Game.state.day);
-    document.getElementById('career-day').textContent = `Year ${careerYear}`;
-    document.getElementById('player-level').textContent = String(Game.state.level);
+    const careerYear = dayToCareerYear(state.day);
+    const dayEl = document.getElementById('career-day');
+    if (dayEl) dayEl.textContent = `Year ${careerYear}`;
+    const levelEl = document.getElementById('player-level');
+    if (levelEl) levelEl.textContent = String(state.level);
     
     // Progress toward next boss (🚀 Fast Ship: 5 instead of 6)
     const progressText = this.progressText();
-    document.getElementById('level-progress').textContent = progressText;
-    document.getElementById('level-progress-top').textContent = `Level ${Game.state.level} · ${progressText}`;
+    const progressEl = document.getElementById('level-progress');
+    if (progressEl) progressEl.textContent = progressText;
+    const progressTopEl = document.getElementById('level-progress-top');
+    if (progressTopEl) progressTopEl.textContent = `Level ${state.level} · ${progressText}`;
   },
   
   // Progress text toward next boss (or level-up indicator)
   progressText() {
+    const state = Game.state;
+    if (!state) return '';
     const bossEvery = PerkSystem.bossInterval();
-    const eventsInCycle = Game.state.eventsCompleted % bossEvery;
-    return Game.state.levelUpPoints > 0 ? 'LEVEL UP!' : `${eventsInCycle}/${bossEvery}`;
+    const eventsInCycle = state.eventsCompleted % bossEvery;
+    return state.levelUpPoints > 0 ? 'LEVEL UP!' : `${eventsInCycle}/${bossEvery}`;
   },
   
   // Render an event
   /** @param {GameEvent} event */
   renderEvent(event) {
     const container = document.getElementById('event-container');
+    const state = Game.state;
+    if (!container || !state) return;
     const letters = ['A', 'B', 'C', 'D'];
     
     const card = document.createElement('div');
@@ -773,9 +832,9 @@ const UI = {
     
     // Build consumable buttons if player has any
     let consumableHTML = '';
-    if (Game.state.consumables.length > 0) {
+    if (state.consumables.length > 0) {
       const grouped = /** @type {Record<string, Consumable & { count: number }> } */ ({});
-      Game.state.consumables.forEach(c => {
+      state.consumables.forEach(c => {
         if (!grouped[c.id]) grouped[c.id] = { ...c, count: 0 };
         grouped[c.id].count++;
       });
@@ -856,7 +915,8 @@ const UI = {
       }
       btn.addEventListener('click', (e) => {
         if (!(/** @type {Element} */ (e.target)).classList.contains('cons-info')) {
-          this.useConsumable(btn.dataset.id, event);
+          const id = btn.dataset.id;
+          if (id) this.useConsumable(id, event);
         }
       });
     });
@@ -865,7 +925,7 @@ const UI = {
     card.querySelectorAll('.choice-btn').forEach(/** @param {HTMLElement} btn */ (btn) => {
       btn.addEventListener('click', () => {
         this.playSound('click');
-        const choiceIndex = parseInt(btn.dataset.choice);
+        const choiceIndex = parseInt(btn.dataset.choice || '0', 10);
         this.handleChoice(event, choiceIndex);
       });
     });
@@ -947,6 +1007,8 @@ const UI = {
       console.error(result.error);
       return;
     }
+    const state = Game.state;
+    if (!state) return;
     
     // Update UI elements
     this.renderSpecialStats();
@@ -955,7 +1017,7 @@ const UI = {
     this.renderTopBar();
     
     // Show floating stat changes
-    for (const [stat, value] of Object.entries(result.effects)) {
+    for (const [stat, value] of Object.entries(result.effects || {})) {
       if (value !== 0) {
         this.showStatFloat(stat, value);
       }
@@ -963,7 +1025,7 @@ const UI = {
     
     // Show toast notifications and play sounds for milestones
     if (result.leveledUp) {
-      this.showToast(`📈 Level Up! Now level ${Game.state.level}`, 'success');
+      this.showToast(`📈 Level Up! Now level ${state.level}`, 'success');
       this.playSound('levelup');
     } else if (result.bossDefeated) {
       this.showToast('🏆 Boss Defeated!', 'success');
@@ -993,8 +1055,12 @@ const UI = {
   /** @param {ProcessResult} result */
   renderResult(result) {
     const card = document.getElementById('event-card');
-    const body = card.querySelector('.event-body');
-    /** @type {HTMLElement} */ (body.querySelector('.event-choices')).style.display = 'none';
+    const body = card ? card.querySelector('.event-body') : null;
+    const state = Game.state;
+    if (!body || !state) return;
+    
+    const choices = /** @type {HTMLElement | null} */ (body.querySelector('.event-choices'));
+    if (choices) choices.style.display = 'none';
     
     // Re-renders (after perk prompts) replace the previous result
     const existingResult = body.querySelector('.event-result');
@@ -1015,7 +1081,7 @@ const UI = {
     
     // Show stat changes
     const statChanges = [];
-    for (const [stat, value] of Object.entries(result.effects)) {
+    for (const [stat, value] of Object.entries(result.effects || {})) {
       if (value !== 0) {
         statChanges.push(`<span class="stat-change ${value > 0 ? 'positive' : 'negative'}">${STAT_META[/** @type {StatKey} */ (stat)].name}: ${value > 0 ? '+' : ''}${value}</span>`);
       }
@@ -1028,7 +1094,8 @@ const UI = {
     let showEquipmentChoice = false;
     if (result.equipmentDropped) {
       // Inventory full — the item is held in pendingEquipmentDrop; show choice screen
-      const pending = Game.state.pendingEquipmentDrop;
+      const pending = state.pendingEquipmentDrop;
+      if (!pending) return;
       resultHTML += `<div class="item-drop">🎁 Found: ${pending.emoji} ${pending.name} — inventory full!</div>`;
       showEquipmentChoice = true;
     } else if (result.itemDropped) {
@@ -1112,9 +1179,11 @@ const UI = {
     bindPerkPrompt('btn-codereview-yes', 'btn-codereview-no', 'hasCodeReview', () => Game.useCodeReview(result), 'Code Review', '🐛', () => true);
     
     // Bind continue button
-    document.getElementById('btn-continue-event').addEventListener('click', () => {
+    const continueBtn = document.getElementById('btn-continue-event');
+    if (continueBtn) continueBtn.addEventListener('click', () => {
       if (showEquipmentChoice) {
-        UI.showEquipmentChoice(Game.state.pendingEquipmentDrop, [...Game.state.equipment]);
+        const pending = state.pendingEquipmentDrop;
+        if (pending) UI.showEquipmentChoice(pending, [...state.equipment]);
       } else if (result.gameOver) {
         this.showGameOver(result.gameOver.reason);
       } else if (result.victory) {
@@ -1134,7 +1203,7 @@ const UI = {
     if (!Game.state) {
       console.error('[DevLife] Game.state is null');
       const container = document.getElementById('event-container');
-      container.innerHTML = '<div class="event-card"><div class="event-body"><p style="color: var(--accent-red)">Error: Game state not initialized</p></div></div>';
+      if (container) container.innerHTML = '<div class="event-card"><div class="event-body"><p style="color: var(--accent-red)">Error: Game state not initialized</p></div></div>';
       return;
     }
     
@@ -1181,9 +1250,9 @@ const UI = {
    * up, Stock Up, victory) reuses the same selection UI with its own copy.
    * @param {Object} cfg
    * @param {HTMLElement} cfg.container element to render options/stash into
-   * @param {HTMLElement} [cfg.titleEl] screen title placeholder
+   * @param {HTMLElement | null} [cfg.titleEl] screen title placeholder
    * @param {string} [cfg.title] e.g. '☕ Stock Up!'
-   * @param {HTMLElement} [cfg.contextEl] screen context-line placeholder
+   * @param {HTMLElement | null} [cfg.contextEl] screen context-line placeholder
    * @param {string} [cfg.context] e.g. 'Pick 1 consumable to carry into your next career.'
    * @param {Consumable[]} cfg.options new consumables to pick from
    * @param {Consumable[]} [cfg.current] current stash (swap targets)
@@ -1252,16 +1321,18 @@ const UI = {
   
   // Show consumable selection screen after level up
   showLevelUpConsumableSelection() {
-    const options = Game.state.pendingLevelUpConsumables;
-    const hasFullInventory = Game.state.consumables.length >= 2;
+    const state = Game.state;
+    if (!state) return;
+    const options = state.pendingLevelUpConsumables;
+    const hasFullInventory = state.consumables.length >= 2;
     
     // Show the level up screen first
     this.showScreen('levelup');
     
     // Show consumables container
-    document.getElementById('levelup-consumables').style.display = 'block';
-    document.getElementById('levelup-stats-container').style.display = 'none';
-    document.getElementById('btn-skip-levelup').style.display = 'block';
+    setDisplay('levelup-consumables', 'block');
+    setDisplay('levelup-stats-container', 'none');
+    setDisplay('btn-skip-levelup', 'block');
     const continueBtn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-continue-levelup'));
     continueBtn.style.display = 'block';
     continueBtn.disabled = true;
@@ -1269,16 +1340,20 @@ const UI = {
     // Shared pick-and-swap UI with level-up title/context
     const descNote = '<span style="font-size: 0.8rem; color: var(--text-muted);">(Consumables are one-time use for a single event — use them wisely!)</span>';
     const context = hasFullInventory
-      ? `You've reached Level <span id="new-level">${Game.state.level}</span>. Pick a consumable and choose which to replace. ${descNote}`
-      : `You've reached Level <span id="new-level">${Game.state.level}</span>. Pick a consumable to add to your stash. ${descNote}`;
+      ? `You've reached Level <span id="new-level">${state.level}</span>. Pick a consumable and choose which to replace. ${descNote}`
+      : `You've reached Level <span id="new-level">${state.level}</span>. Pick a consumable to add to your stash. ${descNote}`;
+    const container = document.getElementById('levelup-consumables');
+    const titleEl = document.getElementById('levelup-title');
+    const contextEl = document.getElementById('levelup-desc');
+    if (!container) return;
     const getSelection = this.renderConsumableSwap({
-      container: document.getElementById('levelup-consumables'),
-      titleEl: document.getElementById('levelup-title'),
+      container,
+      titleEl,
       title: '🎉 Level Up!',
-      contextEl: document.getElementById('levelup-desc'),
+      contextEl,
       context,
-      options,
-      current: Game.state.consumables,
+      options: options || [],
+      current: state.consumables,
       full: hasFullInventory,
       continueBtn,
       // Level-up keeps its historical behavior: a new pick without a chosen
@@ -1287,8 +1362,9 @@ const UI = {
     });
     
     // Bind skip button — skip consumable, finish level up
-    document.getElementById('btn-skip-levelup').onclick = () => {
-      Game.state.pendingLevelUpConsumables = null;
+    const skipBtn = document.getElementById('btn-skip-levelup');
+    if (skipBtn) skipBtn.onclick = () => {
+      state.pendingLevelUpConsumables = null;
       App.afterLevelUp();
     };
     
@@ -1304,16 +1380,16 @@ const UI = {
       if (hasFullInventory) {
         // Inventory full — must replace a selected consumable
         if (replaceIndex >= 0) {
-          Game.state.consumables[replaceIndex] = { ...consumable };
+          state.consumables[replaceIndex] = { ...consumable };
         }
         // If replaceIndex is -1, don't add anything (user didn't pick what to replace)
       } else {
         // Add to inventory
-        Game.state.consumables.push({ ...consumable });
+        state.consumables.push({ ...consumable });
       }
       
       // Clear pending consumables
-      Game.state.pendingLevelUpConsumables = null;
+      state.pendingLevelUpConsumables = null;
       
       // Finish level up
       App.afterLevelUp();
@@ -1322,24 +1398,29 @@ const UI = {
   
   // Show stat selection screen
   showLevelUpStats() {
+    const state = Game.state;
+    if (!state) return;
     this.showScreen('levelup');
     
     // Update description (stat selection phase)
     const descEl = document.getElementById('levelup-desc');
-    descEl.innerHTML = `You've reached Level <span id="new-level">${Game.state.level}</span>. Choose a stat to increase.`;
+    if (descEl) descEl.innerHTML = `You've reached Level <span id="new-level">${state.level}</span>. Choose a stat to increase.`;
     
     // Show remaining points (🧠 Rapid Learner can grant 2+)
     const pointsEl = document.getElementById('levelup-points');
-    const points = Game.state.levelUpPoints || 1;
-    pointsEl.textContent = points > 1 ? `You have ${points} points to spend — choose one at a time.` : '';
-    pointsEl.style.display = points > 1 ? 'block' : 'none';
+    const points = state.levelUpPoints || 1;
+    if (pointsEl) {
+      pointsEl.textContent = points > 1 ? `You have ${points} points to spend — choose one at a time.` : '';
+      pointsEl.style.display = points > 1 ? 'block' : 'none';
+    }
     
-    document.getElementById('levelup-consumables').style.display = 'none';
-    document.getElementById('levelup-stats-container').style.display = 'block';
-    document.getElementById('btn-skip-levelup').style.display = 'none';
-    document.getElementById('btn-continue-levelup').style.display = 'block';
+    setDisplay('levelup-consumables', 'none');
+    setDisplay('levelup-stats-container', 'block');
+    setDisplay('btn-skip-levelup', 'none');
+    setDisplay('btn-continue-levelup', 'block');
     
     const container = document.getElementById('levelup-stats');
+    if (!container) return;
     container.innerHTML = '';
     
     STAT_KEYS.forEach(key => {
@@ -1368,14 +1449,17 @@ const UI = {
       container.appendChild(stat);
     });
     
-/** @type {HTMLButtonElement} */ (document.getElementById('btn-continue-levelup')).disabled = true;
+const continueBtn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-continue-levelup'));
+    if (continueBtn) continueBtn.disabled = true;
     
     // Bind continue button — spend points one at a time; consumables come
     // after the last point is spent, otherwise continue straight away.
-    document.getElementById('btn-continue-levelup').onclick = () => {
-      if ((Game.state.levelUpPoints || 1) > 1) {
+    if (continueBtn) continueBtn.onclick = () => {
+      const state = Game.state;
+      if (!state) return;
+      if ((state.levelUpPoints || 1) > 1) {
         App.afterLevelUp();
-      } else if (Game.state.pendingLevelUpConsumables && Game.state.pendingLevelUpConsumables.length > 0) {
+      } else if (state.pendingLevelUpConsumables && state.pendingLevelUpConsumables.length > 0) {
         UI.showLevelUpConsumableSelection();
       } else {
         App.afterLevelUp();
@@ -1390,7 +1474,7 @@ const UI = {
     
     // Show consumable selection first
     this.showConsumableSelection('gameover');
-    document.getElementById('gameover-reason').textContent = reason;
+    setText('gameover-reason', reason);
   },
   
   // Show consumable selection at end of run — the shared pick-and-swap UI
@@ -1405,7 +1489,7 @@ const UI = {
       .filter(/** @returns {item is Consumable} */ (item) => Boolean(item));
     const full = carried.length >= 2;
     
-    /** @param {string} title @param {string} context @param {HTMLElement} container @param {HTMLElement} titleEl @param {HTMLElement} contextEl @param {HTMLButtonElement} continueBtn @param {(id: string, replaceIndex: number) => void} onPick */
+    /** @param {string} title @param {string} context @param {HTMLElement} container @param {HTMLElement | null} titleEl @param {HTMLElement | null} contextEl @param {HTMLButtonElement} continueBtn @param {(id: string, replaceIndex: number) => void} onPick */
     const render = (title, context, container, titleEl, contextEl, continueBtn, onPick) => {
       const getSelection = this.renderConsumableSwap({
         container, titleEl, contextEl, title, context,
@@ -1420,17 +1504,21 @@ const UI = {
     
     if (type === 'gameover') {
       // Game over screen
+      const container = document.getElementById('gameover-cons-selection');
+      const continueBtn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-continue-gameover-cons'));
+      if (!container || !continueBtn) return;
       render(
         '☕ Stock Up!',
         'Pick 1 consumable to carry into your next career.',
-        document.getElementById('gameover-cons-selection'),
+        container,
         document.getElementById('gameover-cons-title'),
         document.getElementById('gameover-cons-desc'),
-        /** @type {HTMLButtonElement} */ (document.getElementById('btn-continue-gameover-cons')),
+        continueBtn,
         (id, replaceIndex) => this.applyEndOfRunConsumable(id, replaceIndex)
       );
       // Skip: keep the carried stash as-is
-      document.getElementById('btn-skip-gameover-cons').onclick = () => {
+      const skipBtn = document.getElementById('btn-skip-gameover-cons');
+      if (skipBtn) skipBtn.onclick = () => {
         this.applyEndOfRunConsumable(null);
       };
       this.showScreen('gameover-cons');
@@ -1440,10 +1528,11 @@ const UI = {
       const summaryContainer = document.getElementById('victory-summary');
       const continueBtn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-continue-victory-cons'));
       const buttonsContainer = document.getElementById('victory-buttons');
+      if (!consContainer || !summaryContainer || !continueBtn || !buttonsContainer) return;
       
       consContainer.style.display = 'block';
       summaryContainer.style.display = 'none';
-      document.getElementById('victory-cons-buttons').style.display = 'flex';
+      setDisplay('victory-cons-buttons', 'flex');
       continueBtn.disabled = true;
       buttonsContainer.style.display = 'none';
       
@@ -1457,7 +1546,8 @@ const UI = {
         (id, replaceIndex) => this.applyVictoryConsumable(id, replaceIndex)
       );
       // Skip: keep the carried stash as-is
-      document.getElementById('btn-skip-victory-cons').onclick = () => {
+      const skipBtn = document.getElementById('btn-skip-victory-cons');
+      if (skipBtn) skipBtn.onclick = () => {
         this.applyVictoryConsumable(null);
       };
       this.showScreen('victory');
@@ -1477,6 +1567,7 @@ const UI = {
     
     const summary = Game.getSummary();
     const container = document.getElementById('gameover-summary');
+    if (!summary || !container) return;
     container.innerHTML = `
       <div class="summary-row"><span class="label">Run #</span><span class="value">${summary.runNumber}</span></div>
       <div class="summary-row"><span class="label">Level Reached</span><span class="value">${summary.level}</span></div>
@@ -1496,17 +1587,19 @@ const UI = {
     if (selectedId) MetaStore.addCarriedConsumable(selectedId, replaceIndex);
     
     // Hide consumable selection, show summary
-    document.getElementById('victory-consumables').style.display = 'none';
-    document.getElementById('victory-cons-buttons').style.display = 'none';
+    setDisplay('victory-consumables', 'none');
+    setDisplay('victory-cons-buttons', 'none');
     // Restore the retirement context line (the pick screen overwrote it)
-    document.getElementById('victory-desc').textContent = "You've completed your career. Time to enjoy the beach (with WiFi).";
+    setText('victory-desc', "You've completed your career. Time to enjoy the beach (with WiFi).");
     const summaryContainer = document.getElementById('victory-summary');
+    if (!summaryContainer) return;
     summaryContainer.style.display = 'block';
-    document.getElementById('victory-buttons').style.display = 'flex';
+    setDisplay('victory-buttons', 'flex');
     
     SaveSystem.deleteSave();
     
     const summary = Game.getSummary();
+    if (!summary) return;
     summaryContainer.innerHTML = `
       <div class="summary-row"><span class="label">Run #</span><span class="value">${summary.runNumber}</span></div>
       <div class="summary-row"><span class="label">Final Level</span><span class="value">${summary.level}</span></div>
@@ -1529,6 +1622,7 @@ const UI = {
   togglePanel(open) {
     const panel = document.getElementById('side-panel');
     const overlay = document.getElementById('panel-overlay');
+    if (!panel || !overlay) return;
     
     if (open) {
       panel.classList.add('open');
@@ -1551,6 +1645,7 @@ const UI = {
     const currentContainer = document.getElementById('equipment-choice-current');
     const keepBtn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-keep-equipment'));
     const skipBtn = document.getElementById('btn-skip-equipment');
+    if (!newContainer || !currentContainer || !keepBtn) return;
     
     // Show new equipment
     newContainer.innerHTML = '';
@@ -1600,23 +1695,27 @@ const UI = {
     selectedIndex = -1;
     
     // Skip (keep current)
-    skipBtn.onclick = () => {
-      Game.state.pendingEquipmentDrop = null;
+    if (skipBtn) skipBtn.onclick = () => {
+      const state = Game.state;
+      if (!state) return;
+      state.pendingEquipmentDrop = null;
       UI.showScreen('game');
       UI.nextEvent();
     };
     
     // Swap: replace selected equipment with new one
     keepBtn.onclick = () => {
+      const state = Game.state;
+      if (!state) return;
       if (selectedIndex >= 0) {
         // Remove old equipment bonuses
-        const oldEquip = Game.state.equipment[selectedIndex];
+        const oldEquip = state.equipment[selectedIndex];
         SpecialSystem.removeEquipment(oldEquip.emoji, oldEquip.effects);
         
         // Replace with new equipment
-        Game.state.equipment[selectedIndex] = { ...newEquipment };
+        state.equipment[selectedIndex] = { ...newEquipment };
         SpecialSystem.addEquipment(newEquipment.emoji, newEquipment.effects);
-        Game.state.pendingEquipmentDrop = null;
+        state.pendingEquipmentDrop = null;
         
         UI.showScreen('game');
         UI.renderEquipment();
@@ -1661,15 +1760,20 @@ const UI = {
   },
   
   renderPopupSpecial() {
-    this.renderStatBars(document.getElementById('popup-special-stats'));
+    const state = Game.state;
+    if (!state) return;
+    const bars = document.getElementById('popup-special-stats');
+    if (bars) this.renderStatBars(bars);
     
-    document.getElementById('popup-player-level').textContent = String(Game.state.level);
-    document.getElementById('popup-level-progress').textContent = this.progressText();
+    setText('popup-player-level', String(state.level));
+    setText('popup-level-progress', this.progressText());
   },
   
   renderPopupEquipment() {
     const container = document.getElementById('popup-equipment-list');
-    const equipment = Game.state.equipment;
+    const state = Game.state;
+    if (!container || !state) return;
+    const equipment = state.equipment;
     
     if (equipment.length === 0) {
       container.innerHTML = '<span class="empty-text">No equipment yet</span>';
@@ -1714,7 +1818,9 @@ const UI = {
   
   renderPopupCareerLog() {
     const container = document.getElementById('popup-career-log');
-    const log = Game.state.careerLog.slice(0, 50);
+    const state = Game.state;
+    if (!container || !state) return;
+    const log = state.careerLog.slice(0, 50);
     
     container.innerHTML = '';
     log.forEach((entry, i) => {
