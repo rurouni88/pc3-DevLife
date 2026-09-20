@@ -19,7 +19,7 @@ const PERK_BY_ID = {};
 Object.values(PERKS).forEach(perk => { PERK_BY_ID[perk.id] = perk; });
 
 const PerkSystem = {
-  active: [],              // perk ids currently active
+  /** @type {string[]} */ active: [],              // perk ids currently active
   bruteForceUsed: false,   // Brute Force is once per run
   codeReviewUsed: false,   // Code Review is once per run
   negotiateUsed: false,    // Negotiate is once per run
@@ -48,6 +48,7 @@ const PerkSystem = {
     return { gained, lost };
   },
   
+  /** @param {string} perkId @returns {boolean} */
   has(perkId) {
     return this.active.includes(perkId);
   },
@@ -99,11 +100,13 @@ const PerkSystem = {
   },
   
   // Helper: apply brute force to a check target
+  /** @param {number} target @returns {number} */
   applyBruteForce(target) {
     return target + 2;
   },
   
   // Helper: apply code review to an effect value
+  /** @param {number} value @returns {number} */
   applyCodeReview(value) {
     return -Math.ceil(Math.abs(value) / 2);
   },

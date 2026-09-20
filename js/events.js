@@ -14,6 +14,7 @@ const PHASE_FILES = {
 /** @type {GameEvent[]} */
 let EVENTS = [];
 let _eventsLoaded = false;
+/** @type {(() => void) | null} */
 let _resolveEvents = null;
 
 // Load all phases and populate EVENTS

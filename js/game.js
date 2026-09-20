@@ -220,10 +220,10 @@ const Game = {
     if (PerkSystem.codeReviewUsed || !result.effects) return false;
     PerkSystem.useCodeReview();
     
-    for (const [stat, value] of Object.entries(result.effects)) {
+    for (const [stat, value] of /** @type {Array<[StatKey, number]>} */ (Object.entries(result.effects))) {
       if (value < 0 && SpecialSystem.stats[stat] !== undefined) {
         const correction = PerkSystem.applyCodeReview(value) - value; // e.g. -2 - (-4) = +2
-        SpecialSystem.stats[stat] = Math.max(CONFIG.stats.min, Math.min(CONFIG.stats.max, SpecialSystem.stats[stat] + correction));
+        SpecialSystem.stats[stat] = clampStat(SpecialSystem.stats[stat] + correction);
       }
     }
     
@@ -239,9 +239,9 @@ const Game = {
   applyEffects(effects) {
     const hasNegativeEffects = Object.entries(effects).some(([_, v]) => v < 0);
     
-    for (const [stat, value] of Object.entries(effects)) {
+    for (const [stat, value] of /** @type {Array<[StatKey, number]>} */ (Object.entries(effects))) {
       if (SpecialSystem.stats[stat] === undefined) continue;
-      SpecialSystem.stats[stat] = Math.max(CONFIG.stats.min, Math.min(CONFIG.stats.max, SpecialSystem.stats[stat] + value));
+      SpecialSystem.stats[stat] = clampStat(SpecialSystem.stats[stat] + value);
     }
     
     // Stat changes may unlock or revoke perks
@@ -269,6 +269,7 @@ const Game = {
   },
   
   // Check for equipment drop and handle inventory
+  /** @param {boolean} isSuccess @returns {Equipment | null} */
   checkForEquipmentDrop(isSuccess) {
     if (!isSuccess || Math.random() >= Math.min(1, CONFIG.game.dropRate + SpecialSystem.stats.L * 0.03)) {
       return null;
@@ -408,6 +409,7 @@ const Game = {
 
 // Consumable management
 const ConsumableManager = {
+  /** @param {string} consumableId @returns {ConsumableUseResult | null} */
   use(consumableId) {
     const inventoryIndex = Game.state.consumables.findIndex(c => c.id === consumableId);
     if (inventoryIndex === -1) return null;
@@ -415,6 +417,7 @@ const ConsumableManager = {
     const consumable = Game.state.consumables[inventoryIndex];
     Game.state.consumables.splice(inventoryIndex, 1);
     
+    /** @type {ConsumableUseResult} */
     const effect = {
       id: consumable.id,
       name: consumable.name,
@@ -445,7 +448,6 @@ const ConsumableManager = {
   getEndOfRunOptions() {
     const carried = MetaStore.carriedIds('startingConsumables');
     const pool = CONSUMABLES.filter(c => !carried.includes(c.id));
-    const shuffled = [...pool].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 3);
+    return shuffle(pool).slice(0, 3);
   }
 };

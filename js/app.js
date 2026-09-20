@@ -16,6 +16,7 @@ const App = {
   bindEvents() {
     // Safely bind a click handler; skip (with a warning) if the element
     // is missing so one absent element can't break all later bindings.
+    /** @param {string} id @param {() => void} handler */
     const bind = (id, handler) => {
       const el = document.getElementById(id);
       if (el) {
@@ -75,6 +76,7 @@ const App = {
     });
 
     // Collapsible Info / About sections in the side panel
+    /** @param {string} btnId @param {string} contentId @param {string} arrowId */
     const bindInfoToggle = (btnId, contentId, arrowId) => {
       const btn = document.getElementById(btnId);
       const content = document.getElementById(contentId);
@@ -129,7 +131,7 @@ const App = {
     STAT_KEYS.forEach(key => {
       SpecialSystem.stats[key] = 1;
     });
-    SpecialSystem.equipmentBonuses = { S: 0, P: 0, E: 0, C: 0, I: 0, A: 0, L: 0 };
+    SpecialSystem.equipmentBonuses = zeroStats();
     
     UI.showScreen('character');
     UI.renderCharacterCreation();
@@ -138,13 +140,14 @@ const App = {
   startCareer() {
     // Collect stats from character creation
     // All seven rows are present in the DOM; zeros are overwritten below
-    /** @type {Stats} */ const stats = { S: 0, P: 0, E: 0, C: 0, I: 0, A: 0, L: 0 };
+    const stats = zeroStats();
     const container = document.getElementById('stat-allocation');
     const rows = container.querySelectorAll('.stat-row');
     rows.forEach(row => {
       const label = row.querySelector('.stat-label').textContent;
       const valueEl = row.querySelector('.stat-value');
-      stats[label] = parseInt(valueEl.textContent);
+      // Row labels are the seven stat letters, in order
+      stats[/** @type {StatKey} */ (label)] = parseInt(valueEl.textContent);
     });
     
     // Get starting consumables and equipment from meta
