@@ -187,6 +187,19 @@ Defeat the **4 phase bosses** (24 events total — 20 with Fast Ship) to retire 
 
 See [`GAME_DESIGN.md`](GAME_DESIGN.md) for the full game design document, including event examples, stat check mechanics, and development roadmap.
 
+There is no traditional hit points (HP) bar. This is a deliberate decision inspired by the things me and some colleagues say:
+> My Intelligence just went down after that conversation/decision.
+
+> I no longer have the Will/Endurance for this crap.
+
+> We are going to see a decline in Agility because of XXX.
+
+> Ivory Tower Architects. Too high from the front lines. They don't see what it's like down here. (Implies Perception loss)
+
+If anyone is genuinely offended or butt-hurt by this, I will go on record and say:
+
+> Too bad, too sad. I apologise to absolutely nobody. This is my personal lived-in experience in this industry.
+
 ---
 
 ## 🧑‍💻 Development
