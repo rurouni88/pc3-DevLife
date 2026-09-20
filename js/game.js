@@ -432,7 +432,12 @@ const ConsumableManager = {
     return effect;
   },
   
+  // End-of-run options: 3 random consumables the player does NOT already
+  // carry — offering a carried item would make the swap a no-op
   getEndOfRunOptions() {
-    return get3RandomConsumables();
+    const carried = MetaStore.carriedIds('startingConsumables');
+    const pool = CONSUMABLES.filter(c => !carried.includes(c.id));
+    const shuffled = [...pool].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 3);
   }
 };

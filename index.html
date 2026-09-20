@@ -237,7 +237,7 @@
     <!-- SCREEN: Level Up -->
     <div id="screen-levelup" class="screen">
       <div class="screen-content">
-        <h2>🎉 Level Up!</h2>
+        <h2 id="levelup-title">🎉 Level Up!</h2>
         <p class="screen-desc" id="levelup-desc">You've reached Level <span id="new-level">2</span>. Choose a stat to increase.</p>
         <p class="screen-desc" id="levelup-points" style="display:none;"></p>
         
@@ -275,12 +275,15 @@
     <!-- SCREEN: Victory -->
     <div id="screen-victory" class="screen">
       <div class="screen-content">
-        <h2 class="victory-title">🏆 Retirement!</h2>
-        <p class="screen-desc">You've completed your career. Time to enjoy the beach (with WiFi).</p>
+        <h2 class="victory-title" id="victory-title">🏆 Retirement!</h2>
+        <p class="screen-desc" id="victory-desc">You've completed your career. Time to enjoy the beach (with WiFi).</p>
         <div id="victory-consumables" class="consumable-selection">
           <!-- End-of-run consumable selection -->
         </div>
-        <button id="btn-continue-victory-cons" class="btn btn-primary" disabled style="display:none;">Continue →</button>
+        <div class="menu-buttons" id="victory-cons-buttons" style="display:none;">
+          <button id="btn-skip-victory-cons" class="btn btn-secondary">Skip →</button>
+          <button id="btn-continue-victory-cons" class="btn btn-primary" disabled>Continue →</button>
+        </div>
         <div id="victory-summary" class="gameover-summary" style="display:none;">
           <!-- Stats summary -->
         </div>
@@ -293,12 +296,13 @@
     <!-- SCREEN: Game Over Consumables -->
     <div id="screen-gameover-cons" class="screen">
       <div class="screen-content">
-        <h2>☕ Stock Up!</h2>
-        <p class="screen-desc">Pick 1 consumable to carry into your next career.</p>
+        <h2 id="gameover-cons-title">☕ Stock Up!</h2>
+        <p class="screen-desc" id="gameover-cons-desc">Pick 1 consumable to carry into your next career.</p>
         <div id="gameover-cons-selection" class="consumable-selection">
           <!-- End-of-run consumable selection -->
         </div>
         <div class="menu-buttons">
+          <button id="btn-skip-gameover-cons" class="btn btn-secondary">Skip →</button>
           <button id="btn-continue-gameover-cons" class="btn btn-primary" disabled>Continue →</button>
         </div>
       </div>

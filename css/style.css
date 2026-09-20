@@ -172,6 +172,15 @@ body {
   padding: var(--spacing-md) 0;
 }
 
+/* Side-by-side buttons (e.g. Skip + Continue) to save vertical space */
+.menu-buttons.row {
+  flex-direction: row;
+}
+
+.menu-buttons.row .btn {
+  flex: 1;
+}
+
 /* --- Title Screen --- */
 #screen-title {
   justify-content: center;
@@ -1821,6 +1830,11 @@ body {
 
 .btn-continue {
   width: 100%;
+}
+
+.result-actions {
+  display: flex;
+  justify-content: center;
 }
 
 /* --- Level Up Screen --- */
