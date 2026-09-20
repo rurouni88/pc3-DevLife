@@ -256,6 +256,10 @@ body {
   margin-top: var(--spacing-lg);
 }
 
+.version-badge.copyright {
+  margin-top: 0.25rem;
+}
+
 /* --- Help Modal --- */
 .modal-overlay {
   position: fixed;
