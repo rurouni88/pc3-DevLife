@@ -27,6 +27,9 @@ const Game = {
       startTime: now,
       runNumber: this.getRunNumber() + 1
     };
+    // Carry-over equipment grants its bonuses from day 1 (mid-run drops
+    // and swaps apply their own — see checkForEquipmentDrop / UI)
+    this.state.equipment.forEach(item => SpecialSystem.addEquipment(item.emoji, item.effects));
     return this.state;
   },
   

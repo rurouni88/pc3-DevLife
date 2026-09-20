@@ -152,6 +152,17 @@ const conRun1 = Game.createCharacter(conStats, ['coffee'].map(conById), []);
 assert.deepStrictEqual(conRun1.consumables.map(c => c.id), ['coffee'], 'single carried consumable granted');
 console.log('✓ consumable carry-over: last 2 in pool granted');
 
+// --- Carry-over equipment: bonuses active from day 1 ---
+SpecialSystem.init({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+const kb = EQUIPMENT.find(e => e.id === 'keyboard'); // +1 S
+Game.createCharacter({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 }, [], [kb]);
+assert.strictEqual(SpecialSystem.equipmentBonuses.S, 1, 'carry-over bonus applied at run start');
+assert.strictEqual(SpecialSystem.effective('S'), 6, 'effective stat includes carry-over bonus');
+SpecialSystem.init({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+Game.createCharacter({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 }, [], []);
+assert.strictEqual(SpecialSystem.equipmentBonuses.S, 0, 'no phantom bonuses without equipment');
+console.log('✓ carry-over equipment: bonuses active from day 1');
+
 // --- Equipment carry-over: most recent equipment wins (issue #4) ---
 localStorage.setItem('devlife_meta', JSON.stringify({ totalRuns: 0, startingEquipment: ['mech_keyboard'] }));
 MetaStore.recordRunComplete('standing_desk'); // swapped mid-run; ended with the new item

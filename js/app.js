@@ -155,11 +155,12 @@ const App = {
       return EQUIPMENT.find(e => e.id === id);
     }).filter(Boolean);
     
+    // Initialize SPECIAL system (before createCharacter — init() zeros
+    // equipmentBonuses, which createCharacter then fills from carry-over)
+    SpecialSystem.init(stats);
+    
     // Create game
     Game.createCharacter(stats, startingConsumables, startingEquipment);
-    
-    // Initialize SPECIAL system
-    SpecialSystem.init(stats);
     
     // Initialize perk system (a starting build may already have a stat at 10)
     PerkSystem.reset();
