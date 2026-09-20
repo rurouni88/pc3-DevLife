@@ -50,6 +50,27 @@
           },
           "log": "Burned out trying to fix everything."
         }
+      },
+      {
+        "text": "Profile the system, find the real bottleneck",
+        "checks": {
+          "P": 8
+        },
+        "success": {
+          "text": "You profile the deploy pipeline and find 31 of the 45 minutes is one untested step that could be cached. You fix that first, with zero feature impact. Now when you make the case for a debt sprint, you lead with \"I already cut deploy time by 70%.\"",
+          "effects": {
+            "P": 1,
+            "A": 1
+          },
+          "log": "Cut deploy time 70%. Now the case writes itself."
+        },
+        "failure": {
+          "text": "You profile for a week and find the real bottleneck: the database, which is owned by another team with a six-week queue. Your findings are correct, actionable, and entirely outside your control.",
+          "effects": {
+            "E": -1
+          },
+          "log": "Found the bottleneck. It's someone else's database."
+        }
       }
     ]
   },
@@ -104,6 +125,27 @@
             "E": -1
           },
           "log": "Interview process was chaotic."
+        }
+      },
+      {
+        "text": "Solve the problem yourself, on the spot",
+        "checks": {
+          "S": 7
+        },
+        "success": {
+          "text": "Before the candidate arrives, you solve the standard problem — and it takes 40 minutes of genuine work, not the 15 the rubric assumes. You show the panel where the problem breaks. The panel lead quietly swaps in a better question. The candidate gets a fair interview. Engineering gets a better hire.",
+          "effects": {
+            "S": 1,
+            "I": 1
+          },
+          "log": "Solved the problem, exposed the rubric."
+        },
+        "failure": {
+          "text": "You solve it in 40 minutes and present your findings, but the panel lead insists the problem is \"fine as designed.\" You interview with a bad question and a bad feeling, and the candidate tells everyone about it.",
+          "effects": {
+            "E": -1
+          },
+          "log": "Proved the problem was broken. Nobody cared."
         }
       }
     ]
@@ -236,6 +278,27 @@
           },
           "log": "Feedback was demoralizing."
         }
+      },
+      {
+        "text": "Bring the bugs you caught before shipping",
+        "checks": {
+          "P": 7
+        },
+        "success": {
+          "text": "You bring a one-pager: 14 production incidents avoided this year, each with the PR where you caught it. The \"however\" in the manager's document loses its momentum. \"These are great,\" they say, \"let's make sure they're visible to the whole org.\" You've turned a review into a promotion artifact.",
+          "effects": {
+            "P": 1,
+            "C": 1
+          },
+          "log": "14 incidents avoided. The \"however\" died."
+        },
+        "failure": {
+          "text": "You bring the list, but three of the 14 were caught by CI, not you, and the manager knows it. The review proceeds, and you've learned to double-check your authorship claims.",
+          "effects": {
+            "E": -1
+          },
+          "log": "Three of the 14 were CI's, not yours."
+        }
       }
     ]
   },
@@ -287,6 +350,28 @@
             "C": -1
           },
           "log": "Coworker took the spotlight."
+        }
+      },
+      {
+        "text": "Do a live coding demo instead of slides",
+        "checks": {
+          "S": 6
+        },
+        "success": {
+          "text": "You skip the slides and build the feature live on stage, in front of 5,000 people. It compiles on the first try. The room goes quiet in the best way. A maintainer from a major framework DMs you after: \"How did you do that?\"",
+          "effects": {
+            "S": 1,
+            "C": 1
+          },
+          "log": "Live demo. Compiled first try. Legend status."
+        },
+        "failure": {
+          "text": "You go live coding. Of course it doesn't compile. You debug on stage for six minutes while 5,000 people watch, and the talk becomes a story everyone tells — but not the way you'd tell it.",
+          "effects": {
+            "E": -1,
+            "C": -1
+          },
+          "log": "Live demo. Six minutes of on-stage debugging."
         }
       }
     ]
@@ -342,6 +427,27 @@
           },
           "log": "Talk had 3 attendees. Ouch."
         }
+      },
+      {
+        "text": "Document the incidents you led",
+        "checks": {
+          "P": 7
+        },
+        "success": {
+          "text": "You write the postmortems nobody else wanted to write: what broke, why, what you changed. Six months of invisible work becomes a portfolio. Your manager forwards the stack to the Staff committee with one line: \"This is why.\" The visibility problem solves itself.",
+          "effects": {
+            "P": 1,
+            "I": 1
+          },
+          "log": "Six months of invisible work, documented."
+        },
+        "failure": {
+          "text": "You write the docs, but they're accurate to a fault — including the incident where your fix made things worse for a week. The Staff committee reads all of it. The promotion is \"next cycle.\"",
+          "effects": {
+            "E": -1
+          },
+          "log": "Honest docs. \"Next cycle.\""
+        }
       }
     ]
   },
@@ -396,6 +502,27 @@
           },
           "log": "Excuse didn't work. In trouble."
         }
+      },
+      {
+        "text": "Find and fix the vulnerabilities yourself",
+        "checks": {
+          "P": 8
+        },
+        "success": {
+          "text": "You triage all 237 before the CISO's meeting: 12 critical, 141 that are misconfigured scanners, 84 that are \"theoretical.\" You rotate the API keys in an hour and walk the CISO through the real list. \"237\" becomes \"12,\" and the meeting goes from tribunal to work session.",
+          "effects": {
+            "P": 1,
+            "A": 1
+          },
+          "log": "237 became 12. Keys rotated."
+        },
+        "failure": {
+          "text": "You triage the list and find the scanner missed the real problem: a second set of keys, in a config file, public for two years. You fix it, but the CISO's meeting is now about why the audit missed it, and the audit was your team's process.",
+          "effects": {
+            "E": -2
+          },
+          "log": "Found the keys the scanner missed. Two years old."
+        }
       }
     ]
   },
@@ -449,6 +576,28 @@
             "C": -1
           },
           "log": "Speaker coach was a scam. 💀"
+        }
+      },
+      {
+        "text": "Write the demo code so it actually works",
+        "checks": {
+          "S": 7
+        },
+        "success": {
+          "text": "You build the scaling demo end-to-end, run it 40 times, and record it as a fallback. On stage, the live version works. When you say \"10 million users,\" the graph behind you is real. The Q&A is the best of your career, because every answer is grounded in code you've actually written.",
+          "effects": {
+            "S": 1,
+            "C": 1
+          },
+          "log": "The demo was real. The Q&A carried you."
+        },
+        "failure": {
+          "text": "You build the demo, but it needs a 47-step setup that only works on your machine. On stage, step 31 fails. You fall back to the recording, which is fine, until the venue's playback system decides it wants to be a video conference.",
+          "effects": {
+            "E": -1,
+            "A": -1
+          },
+          "log": "The demo needed 47 steps. Step 31 had other plans."
         }
       }
     ]
@@ -505,6 +654,27 @@
           },
           "log": "Caught gaming KPIs."
         }
+      },
+      {
+        "text": "Instrument the system, measure the real numbers",
+        "checks": {
+          "P": 7
+        },
+        "success": {
+          "text": "You build a dashboard that measures what actually matters: change lead time, failure rate, recovery time. You don't argue with the KPIs — you just make them visible. Two sprints later, the CEO asks why the spaghetti coder's \"output\" correlates with the incident channel. The KPIs quietly evolve.",
+          "effects": {
+            "P": 1,
+            "I": 1
+          },
+          "log": "Instrumented the real metrics. The KPIs evolved."
+        },
+        "failure": {
+          "text": "You build the dashboard, but the CEO's favorite metric — PRs per week — lives on a different dashboard, in a different tool, that you don't have admin access to. Your truth is now a side project.",
+          "effects": {
+            "E": -1
+          },
+          "log": "Your dashboard lost to the CEO's dashboard."
+        }
       }
     ]
   },
@@ -559,6 +729,27 @@
           },
           "log": "DBA team asleep. CEO furious."
         }
+      },
+      {
+        "text": "Find the bug and fix it yourself",
+        "checks": {
+          "S": 8
+        },
+        "success": {
+          "text": "You stop diagnosing and start reading: the failing node is running a config from last year's deploy. You roll it back, the cluster heals in 20 minutes, and the CEO's call goes to voicemail. You write the postmortem before your coffee gets cold.",
+          "effects": {
+            "S": 1,
+            "P": 1
+          },
+          "log": "Stale config. Rolled back. 20 minutes."
+        },
+        "failure": {
+          "text": "You find the failing node and fix it, but the cluster fails over to a second node with the same stale config. You're now in hour three, and the CEO has stopped calling because the support queue has started numbering the requests.",
+          "effects": {
+            "E": -2
+          },
+          "log": "Fixed one node. The cluster had two."
+        }
       }
     ]
   },
@@ -612,6 +803,27 @@
             "E": -1
           },
           "log": "Coworker called you out."
+        }
+      },
+      {
+        "text": "Present the postmortem with the data",
+        "checks": {
+          "P": 7
+        },
+        "success": {
+          "text": "You open the postmortem: the deploy timeline, the test that should have caught it, the monitoring gap. No names, all facts. The room shifts from \"whose fault\" to \"which of these do we fix first.\" You leave with three action items assigned before the coffee's done.",
+          "effects": {
+            "P": 1,
+            "C": 1
+          },
+          "log": "Data-first postmortem. Three fixes assigned."
+        },
+        "failure": {
+          "text": "You present the data, but the monitoring gap turns out to be a budget item, not a process item. The retro ends with \"we'll look into it,\" and you've spent your credibility on a fix that needs a purchase order.",
+          "effects": {
+            "E": -1
+          },
+          "log": "The fix needs a budget, not a process."
         }
       }
     ]
@@ -668,6 +880,28 @@
           },
           "log": "Data was weak. Delayed."
         }
+      },
+      {
+        "text": "Show the actual benchmarks",
+        "checks": {
+          "P": 7
+        },
+        "success": {
+          "text": "You pause the Q&A: \"Give me an hour. I'll benchmark it.\" You do. At 4 PM you're back with numbers: latency, cost, and migration effort for each concern. The team's objections don't disappear, but they become decisions instead of vibes. The architecture ships with a risk table attached.",
+          "effects": {
+            "P": 1,
+            "I": 1
+          },
+          "log": "Benchmarked the objections into decisions."
+        },
+        "failure": {
+          "text": "You spend the hour benchmarking, but the test environment doesn't match production, and your numbers are off by 2x. The team trusts the process, not the numbers, and the architecture review is scheduled again. Next time you bring a recording.",
+          "effects": {
+            "E": -1,
+            "A": -1
+          },
+          "log": "The benchmarks were 2x off. Review rescheduled."
+        }
       }
     ]
   },
@@ -723,6 +957,27 @@
           },
           "log": "PRD rejected. Stuck in review."
         }
+      },
+      {
+        "text": "Pilot the model on your own team first",
+        "checks": {
+          "S": 8
+        },
+        "success": {
+          "text": "You take one small feature and run the full SVPG gauntlet on it: PRD, metrics framework, GTM alignment. It takes three weeks for a two-week feature — and the doc is so good that product stops arguing with engineering about scope for a month. You've made the bureaucracy legible, and legible things get fixed.",
+          "effects": {
+            "S": 1,
+            "I": 1
+          },
+          "log": "Ran the gauntlet. Made the bureaucracy legible."
+        },
+        "failure": {
+          "text": "You run the pilot, but the \"Success Metrics Framework\" requires 90 days of data to be meaningful. Your pilot is now a quarter-long project with a 10-page doc and no feature to show for it.",
+          "effects": {
+            "E": -2
+          },
+          "log": "The framework needs 90 days. The feature needed 2 weeks."
+        }
       }
     ]
   },
@@ -777,6 +1032,27 @@
             "C": -1
           },
           "log": "Late, buggy, expensive."
+        }
+      },
+      {
+        "text": "Show the failure modes with real examples",
+        "checks": {
+          "P": 7
+        },
+        "success": {
+          "text": "You pull three past projects where \"fast and good\" was chosen: the launch that slipped 6 weeks, the one that shipped with a data migration bug, the one that quietly died. You put the actual numbers on the wall. The VP of Product is quiet for a long time. \"Okay,\" they say. \"What do you need?\" The budget comes back at 20%.",
+          "effects": {
+            "P": 1,
+            "C": 1
+          },
+          "log": "Three failure modes, real numbers. Budget back at 20%."
+        },
+        "failure": {
+          "text": "You present the failure modes, but the CEO heard one in the hallway and asks for \"a version of that energy in the roadmap.\" The triangle survives. The budget doesn't. The team learns that data is a suggestion.",
+          "effects": {
+            "E": -1
+          },
+          "log": "The data became \"energy.\""
         }
       }
     ]

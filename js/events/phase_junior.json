@@ -212,6 +212,27 @@
           },
           "log": "Overcommitted. Sprint struggling."
         }
+      },
+      {
+        "text": "Break down the scope yourself",
+        "checks": {
+          "I": 5
+        },
+        "success": {
+          "text": "You break the 47 points into real tasks after the meeting. Twelve of them are padded. You bring the team a realistic plan. The PM is quiet for a moment, then says, \"Okay. That works.\"",
+          "effects": {
+            "I": 1,
+            "A": 1
+          },
+          "log": "Broke the scope down into a realistic plan."
+        },
+        "failure": {
+          "text": "You spend two days breaking down tasks, but your estimates are wrong — the \"simple\" integration is a three-week project. The sprint is overcommitted anyway.",
+          "effects": {
+            "E": -1
+          },
+          "log": "Your estimates were off. The sprint is still overcommitted."
+        }
       }
     ]
   },
@@ -410,6 +431,27 @@
           },
           "log": "Silence was interpreted as commitment."
         }
+      },
+      {
+        "text": "Build a quick prototype showing why it won't work",
+        "checks": {
+          "S": 6
+        },
+        "success": {
+          "text": "Before the meeting, you build a 200-line prototype. It fails in exactly the way you predicted. You walk the CTO through it. \"Ah,\" he says, and changes the subject. Working code is a powerful verb.",
+          "effects": {
+            "S": 1,
+            "A": 1
+          },
+          "log": "Debunked the 3 AM idea with a working prototype."
+        },
+        "failure": {
+          "text": "The prototype takes all day and still doesn't quite work. In the meeting the CTO says, \"See, it's possible, you just need more resources.\" The AI project now has a budget.",
+          "effects": {
+            "E": -2
+          },
+          "log": "The prototype backfired. The AI project has a budget now."
+        }
       }
     ]
   },
@@ -460,6 +502,28 @@
             "E": -1
           },
           "log": "Couldn't delegate. Fix dragged on."
+        }
+      },
+      {
+        "text": "Just grind through it and ship",
+        "checks": {
+          "S": 6
+        },
+        "success": {
+          "text": "You read all 47 imports, write the fix, and run the full test suite three times. It holds. You add a comment: \"MODIFIED BY [you]. TESTED. DO NOT MODIFY (AGAIN).\"",
+          "effects": {
+            "S": 1,
+            "A": 1
+          },
+          "log": "Shipped the \"quick fix\" without breaking anything."
+        },
+        "failure": {
+          "text": "You ship the fix. It works. Two days later, three services start failing in ways nobody can explain. Your change is in every stack trace.",
+          "effects": {
+            "E": -1,
+            "S": -1
+          },
+          "log": "The \"quick fix\" broke three services."
         }
       }
     ]
@@ -514,6 +578,27 @@
             "E": -1
           },
           "log": "Bluff failed. Cringe."
+        }
+      },
+      {
+        "text": "Fix the blocker overnight before standup",
+        "checks": {
+          "S": 5
+        },
+        "success": {
+          "text": "You stay until 9 PM, stare at the code until it confesses, and find the bug. At standup: \"Done. Moving on.\" Your team lead looks at you like you're a wizard. You are not a wizard. You are tired.",
+          "effects": {
+            "S": 1,
+            "E": -1
+          },
+          "log": "Fixed the blocker overnight. Standup: \"Done.\""
+        },
+        "failure": {
+          "text": "You work all night and find... a different bug. The original blocker is still there, and now you have a second one, plus dark circles under your eyes.",
+          "effects": {
+            "E": -2
+          },
+          "log": "The all-nighter found a new bug, not the old one."
         }
       }
     ]
@@ -624,6 +709,27 @@
           },
           "log": "Didn't buy it. Embarrassed."
         }
+      },
+      {
+        "text": "Stay late, fix the crash, and re-demo",
+        "checks": {
+          "S": 6
+        },
+        "success": {
+          "text": "You stay until the office is empty, find the staging config bug, and re-run the demo for the product team alone. It works. The CEO's assistant sends: \"He asked me to say good work.\" You screenshot it. It's the closest thing to a trophy you own.",
+          "effects": {
+            "S": 1,
+            "A": 1
+          },
+          "log": "Fixed the demo and re-ran it. Quiet win."
+        },
+        "failure": {
+          "text": "You fix the crash, but the re-demo reveals two more bugs. By 2 AM you've learned more about the staging environment than anyone alive, and you're still not done.",
+          "effects": {
+            "E": -2
+          },
+          "log": "The re-demo revealed two more bugs."
+        }
       }
     ]
   },
@@ -677,6 +783,27 @@
           },
           "log": "Ambitious but unfinished."
         }
+      },
+      {
+        "text": "Skip the slides — build something that works",
+        "checks": {
+          "S": 6
+        },
+        "success": {
+          "text": "While the chatbot hallucinates and the blockchain todo app runs out of funding, you build a small internal tool that fixes a real annoyance. At the demo, it just... works. Your manager asks if it can be \"rolled out to the team.\" Innovation Day has produced its first actual deliverable.",
+          "effects": {
+            "S": 1,
+            "A": 1
+          },
+          "log": "Built a small tool that actually works."
+        },
+        "failure": {
+          "text": "You spend 24 hours making it work, and it works — but the demo slot went to the blockchain todo app. Your tool gets the last ten minutes, right as the lights dim for dinner.",
+          "effects": {
+            "E": -1
+          },
+          "log": "It worked. The demo slot didn't."
+        }
       }
     ]
   },
@@ -729,6 +856,27 @@
             "C": -1
           },
           "log": "Caught off guard."
+        }
+      },
+      {
+        "text": "Quietly fix the top complaint first",
+        "checks": {
+          "S": 5
+        },
+        "success": {
+          "text": "You say little, but by the next sprint the flakiest test in the suite is fixed, the build is half as slow, and nobody can quite explain why the team is in a better mood. The next retro starts with \"what changed?\"",
+          "effects": {
+            "S": 1,
+            "A": 1
+          },
+          "log": "Fixed the top complaint before the next retro."
+        },
+        "failure": {
+          "text": "You spend the sprint fixing the build, but the team's real complaint was the requirements churn. The build is faster now. The requirements changed six times.",
+          "effects": {
+            "E": -1
+          },
+          "log": "Fixed the wrong complaint."
         }
       }
     ]

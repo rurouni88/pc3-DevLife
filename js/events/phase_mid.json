@@ -47,6 +47,27 @@
           },
           "log": "Nobody answered the call."
         }
+      },
+      {
+        "text": "Find the root cause, not just the patch",
+        "checks": {
+          "P": 7
+        },
+        "success": {
+          "text": "You skip the BBQ, trace the login failure to a certificate that expired at noon, and fix it at the source. When the team lead calls, you're already typing the postmortem. The burgers can wait. They do.",
+          "effects": {
+            "P": 1,
+            "A": 1
+          },
+          "log": "Found and fixed the root cause over the BBQ."
+        },
+        "failure": {
+          "text": "You trace the issue for six hours and find the root cause — a config change made by a contractor in 2023. You fix it, but the postmortem has a section titled \"why this took so long,\" and it's all about you.",
+          "effects": {
+            "E": -2
+          },
+          "log": "Found the root cause. Six hours too late."
+        }
       }
     ]
   },
@@ -99,6 +120,27 @@
             "C": -1
           },
           "log": "Docs weren't enough."
+        }
+      },
+      {
+        "text": "Debug their code together, live",
+        "checks": {
+          "P": 6
+        },
+        "success": {
+          "text": "You pair on the 800-line PR, find the N+1 query on line 47, and make them fix it themselves while you watch. \"Oh,\" they say, quietly, like they've seen a ghost. Next week their PR is 200 lines.",
+          "effects": {
+            "P": 1,
+            "C": 1
+          },
+          "log": "Found the N+1 query together. They got it."
+        },
+        "failure": {
+          "text": "You pair for three hours and fix the query, but the real problem is that they don't understand the data model. You've bought them three more weeks of 800-line PRs.",
+          "effects": {
+            "E": -1
+          },
+          "log": "Fixed the symptom, not the gap."
         }
       }
     ]
@@ -458,6 +500,28 @@
           },
           "log": "Senior dev was asleep. Too late."
         }
+      },
+      {
+        "text": "Rewrite the broken module properly",
+        "checks": {
+          "S": 7
+        },
+        "success": {
+          "text": "You remote in, read the module, and realize the one-line fix is a trap. You rewrite the 40-line function cleanly, add the missing test, and ship it. Production recovers in 40 minutes. The on-call channel goes quiet, which is the best sound in the world.",
+          "effects": {
+            "S": 1,
+            "P": 1
+          },
+          "log": "Rewrote the module. Production back in 40 minutes."
+        },
+        "failure": {
+          "text": "You rewrite the module at 1 AM with the focus of a poet. It ships. It works. It also changes a field name that another service depends on, and now two teams are down instead of one.",
+          "effects": {
+            "E": -1,
+            "S": -1
+          },
+          "log": "The rewrite fixed it and broke a neighbor."
+        }
       }
     ]
   },
@@ -513,6 +577,28 @@
           },
           "log": "Refactor went wrong."
         }
+      },
+      {
+        "text": "Replace the core module yourself",
+        "checks": {
+          "S": 7
+        },
+        "success": {
+          "text": "You spend three days replacing the 3-year-old module with something you can actually read. The feature lands on time, and for the first time in years someone can say \"I understand this code\" without sarcasm.",
+          "effects": {
+            "S": 1,
+            "I": 1
+          },
+          "log": "Replaced the dead module. The feature landed on time."
+        },
+        "failure": {
+          "text": "You refactor for a week. The feature is now three days from the deadline, and the rewrite introduced a subtle bug that only appears in production. You've traded 47 TODOs for one incident.",
+          "effects": {
+            "E": -2,
+            "A": -1
+          },
+          "log": "The rewrite ate the deadline and shipped a bug."
+        }
       }
     ]
   },
@@ -566,6 +652,27 @@
             "E": -1
           },
           "log": "Docs weren't enough."
+        }
+      },
+      {
+        "text": "Trace the bug to the real problem",
+        "checks": {
+          "P": 6
+        },
+        "success": {
+          "text": "You sit down with their broken PR and trace it: the bug isn't a coding mistake, it's a misunderstanding of how the auth middleware works. You walk through the actual request flow once. They never make the mistake again. The performance review writes itself.",
+          "effects": {
+            "P": 1,
+            "C": 1
+          },
+          "log": "Found the real gap: the auth middleware."
+        },
+        "failure": {
+          "text": "You trace the bug and find the real problem — but explaining it requires a two-hour deep dive they're not ready for. They nod, say \"got it,\" and break it again on Monday.",
+          "effects": {
+            "E": -1
+          },
+          "log": "Found it. They weren't ready for it."
         }
       }
     ]
@@ -675,6 +782,27 @@
           },
           "log": "Hacked feature broke prod."
         }
+      },
+      {
+        "text": "Refactor it yourself, module by module",
+        "checks": {
+          "S": 7
+        },
+        "success": {
+          "text": "You split the 2,000-line function into twelve small ones, one commit at a time, with tests after each. It takes a week. The feature lands in week two. Future you sends a thank-you card (metaphorically; future you is just less angry).",
+          "effects": {
+            "S": 1,
+            "I": 1
+          },
+          "log": "Refactored module by module. The feature shipped."
+        },
+        "failure": {
+          "text": "You're on function eight of twelve when the manager's deadline hits. The code is now half-refactored, which is somehow worse than fully terrible, and the feature ships with the refactor still open.",
+          "effects": {
+            "E": -2
+          },
+          "log": "Half-refactored. Worse than fully terrible."
+        }
       }
     ]
   },
@@ -728,6 +856,28 @@
             "E": -1
           },
           "log": "Coin flip offended everyone."
+        }
+      },
+      {
+        "text": "Benchmark both with a real prototype",
+        "checks": {
+          "S": 7
+        },
+        "success": {
+          "text": "You build the same endpoint in both frameworks, run it through a replay of production traffic, and post the numbers. Framework X is 2.3x faster but 4x the memory. The argument ends. The silence in the channel is beautiful.",
+          "effects": {
+            "S": 1,
+            "A": 1
+          },
+          "log": "Ended the stack war with real numbers."
+        },
+        "failure": {
+          "text": "You build both prototypes, but your benchmark harness has a bug — you forgot to warm the caches. Framework Y \"wins\" by 3x, and the team ships it. Six months later, everyone remembers your name in the postmortem.",
+          "effects": {
+            "E": -1,
+            "S": -1
+          },
+          "log": "The benchmark had a bug. The wrong framework won."
         }
       }
     ]
@@ -784,6 +934,27 @@
           },
           "log": "Caught sneaking away."
         }
+      },
+      {
+        "text": "Keep your head down and ship the feature",
+        "checks": {
+          "S": 7
+        },
+        "success": {
+          "text": "While the workshop produces 40 sticky notes and a vision board, you ship the feature on Monday. The consultant calls your approach \"resistance to change.\" The PM calls it \"great.\" You take the PM's word.",
+          "effects": {
+            "S": 1,
+            "A": 1
+          },
+          "log": "Shipped through the Agile workshop."
+        },
+        "failure": {
+          "text": "You ship the feature, but the \"Agile\" process now requires a retro you missed, a story point audit, and a \"re-estimation.\" Your feature is done. Your paperwork isn't.",
+          "effects": {
+            "E": -1
+          },
+          "log": "Feature shipped. Paperwork never ends."
+        }
       }
     ]
   },
@@ -837,6 +1008,27 @@
           },
           "log": "Sprint failed. More ceremonies."
         }
+      },
+      {
+        "text": "Show the metrics from what you've shipped",
+        "checks": {
+          "S": 6
+        },
+        "success": {
+          "text": "You pull the last four sprints: 80 committed, 31 shipped, 9 hours average overtime. The Scrum Master's \"if we believe\" fades. The PM quietly re-scopes to 40 points. The team lead gives you a look that means \"don't do that again.\" You will absolutely do that again.",
+          "effects": {
+            "S": 1,
+            "C": 1
+          },
+          "log": "Showed the real numbers. The scope halved."
+        },
+        "failure": {
+          "text": "You present the metrics, but the PM already committed 80 points to the roadmap in the all-hands. Your data is now \"aspirational,\" and the sprint proceeds as planned.",
+          "effects": {
+            "E": -2
+          },
+          "log": "The data arrived after the commitment."
+        }
       }
     ]
   },
@@ -889,6 +1081,28 @@
             "L": -1
           },
           "log": "Library stopped working. Chaos."
+        }
+      },
+      {
+        "text": "Start the migration work yourself",
+        "checks": {
+          "S": 7
+        },
+        "success": {
+          "text": "You spend two weekends building a thin adapter layer over the old library. The deprecation date is now a non-event, and when the team finally gets around to it, the migration is a weekend, not a quarter.",
+          "effects": {
+            "S": 1,
+            "A": 1
+          },
+          "log": "Built the adapter. The deprecation is neutralized."
+        },
+        "failure": {
+          "text": "You build the adapter, but you pick the wrong replacement API — the new library changed its semantics between versions. The adapter works perfectly for a library nobody ships with.",
+          "effects": {
+            "E": -1,
+            "S": -1
+          },
+          "log": "The adapter targeted the wrong version."
         }
       }
     ]
