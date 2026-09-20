@@ -287,10 +287,10 @@ body {
 }
 
 .ascii-terminal-body {
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   line-height: 1.6;
   color: var(--text-muted);
-  height: 5.2rem; /* 5 lines — fixed so the buttons never jump */
+  height: 6.8rem; /* 5 lines (5 × 0.75 × 1.6) + 0.8rem padding — fixed so the buttons never jump */
   margin: 0;
   padding: 0.4rem 0.6rem;
   text-align: left;
