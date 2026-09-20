@@ -1408,6 +1408,10 @@ const UI = {
         /** @type {HTMLButtonElement} */ (document.getElementById('btn-continue-gameover-cons')),
         (id, replaceIndex) => this.applyEndOfRunConsumable(id, replaceIndex)
       );
+      // Skip: keep the carried stash as-is
+      document.getElementById('btn-skip-gameover-cons').onclick = () => {
+        this.applyEndOfRunConsumable(null);
+      };
       this.showScreen('gameover-cons');
     } else {
       // Victory screen
@@ -1418,7 +1422,7 @@ const UI = {
       
       consContainer.style.display = 'block';
       summaryContainer.style.display = 'none';
-      continueBtn.style.display = 'block';
+      document.getElementById('victory-cons-buttons').style.display = 'flex';
       continueBtn.disabled = true;
       buttonsContainer.style.display = 'none';
       
@@ -1431,15 +1435,20 @@ const UI = {
         continueBtn,
         (id, replaceIndex) => this.applyVictoryConsumable(id, replaceIndex)
       );
+      // Skip: keep the carried stash as-is
+      document.getElementById('btn-skip-victory-cons').onclick = () => {
+        this.applyVictoryConsumable(null);
+      };
       this.showScreen('victory');
     }
   },
   
-  // Apply selected consumable and show game over
-  /** @param {string} selectedId @param {number} [replaceIndex] carried slot to swap, or -1 */
+  // Apply selected consumable and show game over. selectedId = null means
+  // the player skipped — the carried stash stays as-is
+  /** @param {string | null} selectedId @param {number} [replaceIndex] carried slot to swap, or -1 */
   applyEndOfRunConsumable(selectedId, replaceIndex) {
     // Carry this consumable into future runs (store ID only)
-    MetaStore.addCarriedConsumable(selectedId, replaceIndex);
+    if (selectedId) MetaStore.addCarriedConsumable(selectedId, replaceIndex);
     
     // Show game over summary
     SaveSystem.deleteSave();
@@ -1458,15 +1467,16 @@ const UI = {
     `;
   },
   
-  // Apply selected consumable and show victory summary
-  /** @param {string} selectedId @param {number} [replaceIndex] carried slot to swap, or -1 */
+  // Apply selected consumable and show victory summary. selectedId = null
+  // means the player skipped — the carried stash stays as-is
+  /** @param {string | null} selectedId @param {number} [replaceIndex] carried slot to swap, or -1 */
   applyVictoryConsumable(selectedId, replaceIndex) {
     // Carry this consumable into future runs (store ID only)
-    MetaStore.addCarriedConsumable(selectedId, replaceIndex);
+    if (selectedId) MetaStore.addCarriedConsumable(selectedId, replaceIndex);
     
     // Hide consumable selection, show summary
     document.getElementById('victory-consumables').style.display = 'none';
-    document.getElementById('btn-continue-victory-cons').style.display = 'none';
+    document.getElementById('victory-cons-buttons').style.display = 'none';
     // Restore the retirement context line (the pick screen overwrote it)
     document.getElementById('victory-desc').textContent = "You've completed your career. Time to enjoy the beach (with WiFi).";
     const summaryContainer = document.getElementById('victory-summary');
