@@ -20,6 +20,12 @@ const assert = require('assert');
 
 const JS_DIR = path.join(__dirname, '..', 'js');
 
+// The game shows CONFIG.version in its badge; package.json carries the same
+// number for npm/CI. They must agree — injected so the test body can compare.
+const PACKAGE_VERSION = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8')
+).version;
+
 // Executable in Node (no DOM/fetch at load time), in dependency order.
 const RUN_FILES = ['config', 'utils', 'events', 'archetypes', 'items', 'special', 'perks', 'meta', 'game', 'save'];
 
@@ -33,6 +39,7 @@ console.log('✓ syntax: all js files parse');
 const sandbox = {
   console,
   assert,
+  PACKAGE_VERSION,
   localStorage: {
     _data: {},
     getItem(k) { return Object.hasOwn(this._data, k) ? this._data[k] : null; },

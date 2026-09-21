@@ -24,42 +24,21 @@ const UICharacter = {
       container.appendChild(row);
     });
     
-    // Read stats directly from DOM — always in sync
-    const getStats = () => {
-      const stats = zeroStats();
-      STAT_KEYS.forEach(k => {
-        const rows = container.querySelectorAll('.stat-row');
-        for (const row of rows) {
-          const labelEl = row.querySelector('.stat-label');
-          const valueEl = row.querySelector('.stat-value');
-          if (!labelEl || !valueEl) continue;
-          if (labelEl.textContent === k) {
-            stats[k] = parseInt(valueEl.textContent);
-            break;
-          }
-        }
-      });
-      return stats;
-    };
-    
-    // Bind events
+    // The allocation lives in SpecialSystem.stats (startNewGame seeds it
+    // with 1s); the rows are a view. updateCharCreationUI() syncs the
+    // value spans and button states from the stats after every change.
     /** @type {NodeListOf<HTMLElement>} */ (container.querySelectorAll('.stat-btn')).forEach(/** @param {HTMLElement} btn */ (btn) => {
       btn.addEventListener('click', () => {
-        const stat = btn.dataset.stat;
+        const stat = /** @type {StatKey} */ (btn.dataset.stat);
         const action = btn.dataset.action;
-        const row = btn.closest('.stat-row');
-        const valueEl = row ? row.querySelector('.stat-value') : null;
-        if (!row || !valueEl) return;
-        const cur = parseInt(valueEl.textContent);
-        const stats = getStats();
-        const total = STAT_KEYS.reduce((s, k) => s + stats[k], 0);
+        const total = STAT_KEYS.reduce((s, k) => s + SpecialSystem.stats[k], 0);
         
-        if (action === 'plus' && cur < 10 && total < STARTING_POINTS) {
-          valueEl.textContent = String(cur + 1);
+        if (action === 'plus' && SpecialSystem.stats[stat] < 10 && total < STARTING_POINTS) {
+          SpecialSystem.stats[stat]++;
           UI._selectedPreset = null;
           UI.updateCharCreationUI();
-        } else if (action === 'minus' && cur > 1) {
-          valueEl.textContent = String(cur - 1);
+        } else if (action === 'minus' && SpecialSystem.stats[stat] > 1) {
+          SpecialSystem.stats[stat]--;
           UI._selectedPreset = null;
           UI.updateCharCreationUI();
         }
@@ -139,31 +118,8 @@ const UICharacter = {
   // Apply an archetype preset to the stat allocation
   /** @param {Stats} stats @param {Archetype | null} arch */
   applyArchetypePreset(stats, arch) {
-    const container = document.getElementById('stat-allocation');
-    if (!container) return;
-    const rows = container.querySelectorAll('.stat-row');
-    
-    rows.forEach(row => {
-      const labelEl = row.querySelector('.stat-label');
-      const valueEl = row.querySelector('.stat-value');
-      if (!labelEl || !valueEl) return;
-      const minusBtn = /** @type {HTMLButtonElement} */ (row.querySelector('.stat-btn.minus'));
-      const plusBtn = /** @type {HTMLButtonElement} */ (row.querySelector('.stat-btn.plus'));
-      
-      const value = stats[/** @type {StatKey} */ (labelEl.textContent)];
-      valueEl.textContent = String(value);
-      
-      minusBtn.disabled = value <= 1;
-      plusBtn.disabled = value >= 10;
-    });
-    
-    const currentStats = zeroStats();
-    rows.forEach(row => {
-      const labelEl = row.querySelector('.stat-label');
-      const valueEl = row.querySelector('.stat-value');
-      if (!labelEl || !valueEl) return;
-      currentStats[/** @type {StatKey} */ (labelEl.textContent)] = parseInt(valueEl.textContent);
-    });
+    // Replace the allocation; updateCharCreationUI() syncs the rows
+    STAT_KEYS.forEach(key => { SpecialSystem.stats[key] = stats[key]; });
     
     // Remember which preset was chosen so the preview can show it directly
     // (its stats may be too flat to classify uniquely).
@@ -215,18 +171,19 @@ const UICharacter = {
     toggleBtn.addEventListener('click', toggleHandler);
   },
   
-  // Update character creation UI state
+  // Update character creation UI state — syncs the rows (value spans and
+  // button states) from SpecialSystem.stats, the single source of truth
   updateCharCreationUI() {
     const container = document.getElementById('stat-allocation');
     if (!container) return;
-    const currentStats = zeroStats();
+    const currentStats = SpecialSystem.stats;
     
     const rows = container.querySelectorAll('.stat-row');
     rows.forEach(row => {
       const labelEl = row.querySelector('.stat-label');
       const valueEl = row.querySelector('.stat-value');
       if (!labelEl || !valueEl) return;
-      currentStats[/** @type {StatKey} */ (labelEl.textContent)] = parseInt(valueEl.textContent);
+      valueEl.textContent = String(currentStats[/** @type {StatKey} */ (labelEl.textContent)]);
     });
     
     const total = STAT_KEYS.reduce((sum, k) => sum + currentStats[k], 0);
@@ -250,30 +207,12 @@ const UICharacter = {
     });
     
     // Update archetype preview
-    UI.updateArchetypePreview(currentStats);
+    UI.updateArchetypePreview();
   },
   
-  // Update archetype preview based on current stats
-  /** @param {Stats} [currentStats] */
-  updateArchetypePreview(currentStats) {
-    if (!currentStats) {
-      const container = document.getElementById('stat-allocation');
-      if (!container) return;
-      const stats = zeroStats();
-      STAT_KEYS.forEach(k => {
-        const rows = container.querySelectorAll('.stat-row');
-        for (const row of rows) {
-          const labelEl = row.querySelector('.stat-label');
-          const valueEl = row.querySelector('.stat-value');
-          if (!labelEl || !valueEl) continue;
-          if (labelEl.textContent === k) {
-            stats[k] = parseInt(valueEl.textContent);
-            break;
-          }
-        }
-      });
-      currentStats = stats;
-    }
+  // Update archetype preview based on the current allocation
+  updateArchetypePreview() {
+    const currentStats = SpecialSystem.stats;
     
     const preview = document.getElementById('archetype-preview');
     if (!preview) return;

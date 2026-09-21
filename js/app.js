@@ -141,19 +141,9 @@ const App = {
   },
   
   startCareer() {
-    // Collect stats from character creation
-    // All seven rows are present in the DOM; zeros are overwritten below
-    const stats = zeroStats();
-    const container = document.getElementById('stat-allocation');
-    if (!container) return;
-    const rows = container.querySelectorAll('.stat-row');
-    rows.forEach(row => {
-      const labelEl = row.querySelector('.stat-label');
-      const valueEl = row.querySelector('.stat-value');
-      if (!labelEl || !valueEl) return;
-      // Row labels are the seven stat letters, in order
-      stats[/** @type {StatKey} */ (labelEl.textContent)] = parseInt(valueEl.textContent);
-    });
+    // The allocation screen's +/− buttons mutate SpecialSystem.stats
+    // directly — the DOM rows are just a view, so read the state
+    const stats = { ...SpecialSystem.stats };
     
     // Get starting consumables and equipment from meta
     const startingConsumables = MetaStore.carriedIds('startingConsumables').map(id => {
