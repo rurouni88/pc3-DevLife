@@ -1,13 +1,19 @@
 // UI — character creation screen: presets, stat allocation, archetype preview.
 // Loaded before ui.js; its methods are composed into UI there.
 const UICharacter = {
+  // Internal state (read/written via the composed UI object). Declared here
+  // so the Object.assign composition in ui.js carries their types into UI.
+  _selectedPreset: null as Archetype | null,
+  _presetToggleHandler: null as (() => void) | null,
+  _presetCloseHandler: null as ((e: Event) => void) | null,
+
   // Render character creation screen
-  renderCharacterCreation() {
+  renderCharacterCreation(): void {
     UI._selectedPreset = null;
     const container = document.getElementById('stat-allocation');
     if (!container) return;
     container.innerHTML = '';
-    
+
     STAT_KEYS.forEach(key => {
       const meta = STAT_META[key];
       const row = document.createElement('div');
@@ -23,16 +29,16 @@ const UICharacter = {
       `;
       container.appendChild(row);
     });
-    
+
     // The allocation lives in SpecialSystem.stats (startNewGame seeds it
     // with 1s); the rows are a view. updateCharCreationUI() syncs the
     // value spans and button states from the stats after every change.
-    /** @type {NodeListOf<HTMLElement>} */ (container.querySelectorAll('.stat-btn')).forEach(/** @param {HTMLElement} btn */ (btn) => {
+    container.querySelectorAll<HTMLElement>('.stat-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const stat = /** @type {StatKey} */ (btn.dataset.stat);
+        const stat = btn.dataset.stat as StatKey;
         const action = btn.dataset.action;
         const total = STAT_KEYS.reduce((s, k) => s + SpecialSystem.stats[k], 0);
-        
+
         if (action === 'plus' && SpecialSystem.stats[stat] < 10 && total < STARTING_POINTS) {
           SpecialSystem.stats[stat]++;
           UI._selectedPreset = null;
@@ -44,35 +50,35 @@ const UICharacter = {
         }
       });
     });
-    
+
     UI.updateCharCreationUI();
     UI.renderArchetypePresets();
     UI.renderStatDescriptions();
   },
-  
+
   // Render archetype preset dropdown
-  renderArchetypePresets() {
+  renderArchetypePresets(): void {
     const container = document.getElementById('preset-options');
     const toggle = document.getElementById('preset-toggle');
     const toggleText = document.getElementById('preset-toggle-text');
     if (!container || !toggle || !toggleText) return;
     container.innerHTML = '';
-    
+
     // Remove old listeners to prevent duplicates on re-render
     if (UI._presetToggleHandler) toggle.removeEventListener('click', UI._presetToggleHandler);
     if (UI._presetCloseHandler) document.removeEventListener('click', UI._presetCloseHandler);
-    
+
     // All archetypes are unlocked except Prototype King, which depends on the
     // not-yet-implemented max-stat > 10 mechanic.
     const UNLOCKED_KEYS = Object.keys(ARCHETYPES).filter(key => key !== 'prototype_king');
-    
+
     Object.entries(ARCHETYPES).forEach(([key, arch]) => {
       const btn = document.createElement('button');
       btn.className = 'preset-option';
       const unlocked = UNLOCKED_KEYS.includes(key);
-      
+
       const statStr = STAT_KEYS.map(k => `${k}:${arch.stats[k]}`).join(' ');
-      
+
       if (!unlocked) {
         btn.classList.add('locked');
         btn.innerHTML = `
@@ -92,10 +98,10 @@ const UICharacter = {
           toggleText.textContent = arch.name;
         });
       }
-      
+
       container.appendChild(btn);
     });
-    
+
     // Toggle dropdown
     UI._presetToggleHandler = () => {
       const isOpen = container.classList.contains('open');
@@ -103,42 +109,41 @@ const UICharacter = {
       toggle.classList.toggle('open');
     };
     toggle.addEventListener('click', UI._presetToggleHandler);
-    
+
     // Close dropdown when clicking outside
-    UI._presetCloseHandler = /** @param {Event} e */ (e) => {
+    UI._presetCloseHandler = (e: Event) => {
       const dropdown = document.getElementById('preset-dropdown');
-      if (dropdown && !dropdown.contains(/** @type {Node} */ (e.target))) {
+      if (dropdown && !dropdown.contains(e.target as Node)) {
         container.classList.remove('open');
         toggle.classList.remove('open');
       }
     };
     document.addEventListener('click', UI._presetCloseHandler);
   },
-  
+
   // Apply an archetype preset to the stat allocation
-  /** @param {Stats} stats @param {Archetype | null} arch */
-  applyArchetypePreset(stats, arch) {
+  applyArchetypePreset(stats: Stats, arch: Archetype | null): void {
     // Replace the allocation; updateCharCreationUI() syncs the rows
     STAT_KEYS.forEach(key => { SpecialSystem.stats[key] = stats[key]; });
-    
+
     // Remember which preset was chosen so the preview can show it directly
     // (its stats may be too flat to classify uniquely).
     UI._selectedPreset = arch || null;
     UI.updateCharCreationUI();
   },
-  
+
   // Render stat descriptions
-  renderStatDescriptions() {
+  renderStatDescriptions(): void {
     const container = document.getElementById('stat-descriptions');
     if (!container) return;
-    
+
     let html = `
       <button class="desc-toggle" id="btn-toggle-descs">
         <span id="desc-arrow">▶</span> What does each stat do?
       </button>
       <div class="desc-content" id="desc-content">
     `;
-    
+
     STAT_KEYS.forEach(key => {
       const meta = STAT_META[key];
       html += `
@@ -148,16 +153,16 @@ const UICharacter = {
         </div>
       `;
     });
-    
+
     html += '</div>';
     container.innerHTML = html;
-    
+
     // Toggle button
     const toggleBtn = document.getElementById('btn-toggle-descs');
     const content = document.getElementById('desc-content');
     const arrow = document.getElementById('desc-arrow');
     if (!toggleBtn || !content || !arrow) return;
-    
+
     const toggleHandler = () => {
       const isOpen = content.classList.contains('open');
       if (isOpen) {
@@ -170,58 +175,58 @@ const UICharacter = {
     };
     toggleBtn.addEventListener('click', toggleHandler);
   },
-  
+
   // Update character creation UI state — syncs the rows (value spans and
   // button states) from SpecialSystem.stats, the single source of truth
-  updateCharCreationUI() {
+  updateCharCreationUI(): void {
     const container = document.getElementById('stat-allocation');
     if (!container) return;
     const currentStats = SpecialSystem.stats;
-    
+
     const rows = container.querySelectorAll('.stat-row');
     rows.forEach(row => {
       const labelEl = row.querySelector('.stat-label');
       const valueEl = row.querySelector('.stat-value');
       if (!labelEl || !valueEl) return;
-      valueEl.textContent = String(currentStats[/** @type {StatKey} */ (labelEl.textContent)]);
+      valueEl.textContent = String(currentStats[labelEl.textContent as StatKey]);
     });
-    
+
     const total = STAT_KEYS.reduce((sum, k) => sum + currentStats[k], 0);
     const remaining = STARTING_POINTS - total;
     const pointsEl = document.getElementById('points-remaining');
     if (pointsEl) pointsEl.textContent = String(remaining);
-    
-    const startBtn = /** @type {HTMLButtonElement} */ (document.getElementById('btn-start-career'));
+
+    const startBtn = document.getElementById('btn-start-career') as HTMLButtonElement;
     startBtn.disabled = remaining !== 0;
-    
+
     // Update button disabled states
     rows.forEach(row => {
       const labelEl = row.querySelector('.stat-label');
       if (!labelEl) return;
-      const minusBtn = /** @type {HTMLButtonElement} */ (row.querySelector('.stat-btn.minus'));
-      const plusBtn = /** @type {HTMLButtonElement} */ (row.querySelector('.stat-btn.plus'));
-      const value = currentStats[/** @type {StatKey} */ (labelEl.textContent)];
-      
+      const minusBtn = row.querySelector('.stat-btn.minus') as HTMLButtonElement;
+      const plusBtn = row.querySelector('.stat-btn.plus') as HTMLButtonElement;
+      const value = currentStats[labelEl.textContent as StatKey];
+
       minusBtn.disabled = value <= 1;
       plusBtn.disabled = value >= 10 || total >= STARTING_POINTS;
     });
-    
+
     // Update archetype preview
     UI.updateArchetypePreview();
   },
-  
+
   // Update archetype preview based on the current allocation
-  updateArchetypePreview() {
+  updateArchetypePreview(): void {
     const currentStats = SpecialSystem.stats;
-    
+
     const preview = document.getElementById('archetype-preview');
     if (!preview) return;
-    
+
     // If a preset was just selected, show that archetype directly. Some presets
     // (e.g. Full-Stack Generalist) have stats too flat to classify uniquely, so
     // the stats-based fallback below would mislabel them.
     let archetype = UI._selectedPreset || null;
-    
+
     if (!archetype) {
       // Determine archetype based on top 2 stats.
       // Sort a copy — Array.prototype.sort mutates in place, which would
@@ -230,7 +235,7 @@ const UICharacter = {
       const sorted = [...STAT_KEYS].sort((a, b) => currentStats[b] - currentStats[a]);
       const top1 = sorted[0];
       const top2 = sorted[1];
-    
+
       if ((top1 === 'I' && top2 === 'C') || (top1 === 'C' && top2 === 'I')) archetype = ARCHETYPES.architect;
       else if ((top1 === 'A' && top2 === 'E') || (top1 === 'E' && top2 === 'A')) archetype = ARCHETYPES.startup;
       else if ((top1 === 'S' && top2 === 'P') || (top1 === 'P' && top2 === 'S')) archetype = ARCHETYPES.systems;
@@ -242,7 +247,7 @@ const UICharacter = {
       else if ((top1 === 'A' && top2 === 'L') || (top1 === 'L' && top2 === 'A')) archetype = ARCHETYPES.prototype_king;
       else archetype = ARCHETYPES.balanced;
     }
-    
+
     preview.innerHTML = `
       <div class="archetype-name">${archetype.name}</div>
       <div class="archetype-desc">${archetype.description}</div>

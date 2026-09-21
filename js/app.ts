@@ -1,6 +1,6 @@
 // Main application entry point
 const App = {
-  init() {
+  init(): void {
     this.bindEvents();
     this.checkForSave();
     UI.initTooltipClose();
@@ -13,12 +13,11 @@ const App = {
     const aboutVersion = document.getElementById('about-version');
     if (aboutVersion) aboutVersion.textContent = versionText;
   },
-  
-  bindEvents() {
+
+  bindEvents(): void {
     // Safely bind a click handler; skip (with a warning) if the element
     // is missing so one absent element can't break all later bindings.
-    /** @param {string} id @param {() => void} handler */
-    const bind = (id, handler) => {
+    const bind = (id: string, handler: () => void): void => {
       const el = document.getElementById(id);
       if (el) {
         el.addEventListener('click', handler);
@@ -26,28 +25,28 @@ const App = {
         console.warn(`[DevLife] bindEvents: #${id} not found, skipping binding`);
       }
     };
-    
+
     // Title screen
     bind('btn-new-game', () => this.startNewGame());
     bind('btn-continue', () => this.continueGame());
-    
+
     // Character creation
     bind('btn-back-char', () => UI.showScreen('title'));
     bind('btn-start-career', () => this.startCareer());
-    
+
     // Game screen - toolbar buttons
-    /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.toolbar-btn')).forEach(/** @param {HTMLElement} btn */ (btn) => {
+    document.querySelectorAll<HTMLElement>('.toolbar-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const panelName = btn.dataset.panel;
         if (panelName) UI.openPopup(panelName);
       });
     });
-    
+
     // Popup close buttons
     document.querySelectorAll('.popup-close').forEach(btn => {
       btn.addEventListener('click', () => UI.closePopup());
     });
-    
+
     // Popup save confirm/cancel
     bind('btn-popup-save-confirm', () => {
       this.saveGame();
@@ -55,7 +54,7 @@ const App = {
     bind('btn-popup-save-cancel', () => {
       UI.closePopup();
     });
-    
+
     // Hamburger menu toggle (mobile)
     bind('btn-menu-toggle-main', () => {
       const panel = document.getElementById('side-panel');
@@ -78,8 +77,7 @@ const App = {
     });
 
     // Collapsible Info / About sections in the side panel
-    /** @param {string} btnId @param {string} contentId @param {string} arrowId */
-    const bindInfoToggle = (btnId, contentId, arrowId) => {
+    const bindInfoToggle = (btnId: string, contentId: string, arrowId: string): void => {
       const btn = document.getElementById(btnId);
       const content = document.getElementById(contentId);
       const arrow = document.getElementById(arrowId);
@@ -94,28 +92,28 @@ const App = {
     bindInfoToggle('btn-toggle-about', 'about-content', 'about-arrow');
 
     bind('btn-save', () => UI.openPopup('save'));
-    
+
     // Game over / Victory
     bind('btn-new-career', () => this.startNewGame());
     bind('btn-new-victory', () => this.startNewGame());
-    
+
     // Help modal
     bind('btn-help-title', () => UI.openHelp());
     bind('btn-close-help', () => UI.closeHelp());
-    
+
     // End-of-run consumable selection (Stock Up) is bound inline by
     // UI.showConsumableSelection, which owns the shared pick-and-swap UI
   },
-  
-  checkForSave() {
+
+  checkForSave(): void {
     if (SaveSystem.hasSave()) {
       const btnContinue = document.getElementById('btn-continue');
       if (btnContinue) btnContinue.style.display = 'block';
     }
   },
-  
-  initHelpTabs() {
-    /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.modal-tab')).forEach(/** @param {HTMLElement} tab */ (tab) => {
+
+  initHelpTabs(): void {
+    document.querySelectorAll<HTMLElement>('.modal-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         if (tab.dataset.tab) UI.setHelpTab(tab.dataset.tab);
       });
@@ -128,69 +126,69 @@ const App = {
       });
     }
   },
-  
-  startNewGame() {
+
+  startNewGame(): void {
     // Reset SPECIAL system
     STAT_KEYS.forEach(key => {
       SpecialSystem.stats[key] = 1;
     });
     SpecialSystem.equipmentBonuses = zeroStats();
-    
+
     UI.showScreen('character');
     UI.renderCharacterCreation();
   },
-  
-  startCareer() {
+
+  startCareer(): void {
     // The allocation screen's +/− buttons mutate SpecialSystem.stats
     // directly — the DOM rows are just a view, so read the state
     const stats = { ...SpecialSystem.stats };
-    
+
     // Get starting consumables and equipment from meta
     const startingConsumables = MetaStore.carriedIds('startingConsumables').map(id => {
       return CONSUMABLES.find(c => c.id === id);
-    }).filter(/** @returns {item is Consumable} */ (item) => Boolean(item));
+    }).filter((item): item is Consumable => Boolean(item));
     const startingEquipment = MetaStore.carriedIds('startingEquipment').map(id => {
       return EQUIPMENT.find(e => e.id === id);
-    }).filter(/** @returns {item is Equipment} */ (item) => Boolean(item));
-    
+    }).filter((item): item is Equipment => Boolean(item));
+
     // Initialize SPECIAL system (before createCharacter — init() zeros
     // equipmentBonuses, which createCharacter then fills from carry-over)
     SpecialSystem.init(stats);
-    
+
     // Create game
     Game.createCharacter(stats, startingConsumables, startingEquipment);
-    
+
     // Initialize perk system (a starting build may already have a stat at 10)
     PerkSystem.reset();
     PerkSystem.refresh();
-    
+
     // Show game screen
     UI.showScreen('game');
     UI.renderSpecialStats();
     UI.renderEquipment();
     UI.renderCareerLog();
     UI.renderTopBar();
-    
+
     // Load first event
     UI.nextEvent();
   },
-  
-  continueGame() {
+
+  continueGame(): void {
     const saveData = SaveSystem.load();
     if (!saveData) return;
-    
+
     const state = Game.state;
     if (!state) return;
-    
+
     // Re-sync perks with loaded stats
     PerkSystem.refresh();
-    
+
     UI.showScreen('game');
     UI.renderSpecialStats();
     UI.renderEquipment();
     UI.renderCareerLog();
     UI.renderTopBar();
-    
+
     // Resume an interrupted level-up instead of jumping to the next event:
     // unspent points go back to stat selection, a pending consumable pick
     // goes back to the pick screen (otherwise the points would be stranded
@@ -203,7 +201,7 @@ const App = {
       UI.showLevelUpConsumableSelection();
       return;
     }
-    
+
     // Load last event or next event
     const lastEventId = state.currentEventId;
     if (lastEventId) {
@@ -217,13 +215,13 @@ const App = {
       UI.nextEvent();
     }
   },
-  
-  saveGame() {
+
+  saveGame(): void {
     const state = Game.state;
     if (!state) return;
     SaveSystem.save(state);
     UI.closePopup();
-    
+
     // Show brief feedback
     const btn = document.getElementById('btn-save');
     if (!btn) return;
@@ -233,29 +231,29 @@ const App = {
       btn.textContent = original;
     }, 1000);
   },
-  
-  afterLevelUp() {
+
+  afterLevelUp(): void {
     // Apply level up
-    const selected = /** @type {HTMLElement | null} */ (document.querySelector('.levelup-stat.selected'));
+    const selected = document.querySelector<HTMLElement>('.levelup-stat.selected');
     if (selected) {
-      const stat = /** @type {StatKey} */ (selected.dataset.stat);
+      const stat = selected.dataset.stat as StatKey;
       SpecialSystem.increase(stat);
     }
-    
+
     const state = Game.state;
     if (!state) return;
     state.levelUpPoints = Math.max(0, (state.levelUpPoints || 1) - 1);
-    
+
     // A stat increase may unlock a perk (e.g. pushing a stat to 10)
     Game.refreshPerks();
     UI.renderPerks();
-    
+
     // 🧠 Rapid Learner: spend remaining points one at a time
     if (state.levelUpPoints > 0) {
       UI.showLevelUpStats();
       return;
     }
-    
+
     UI.showScreen('game');
     UI.renderSpecialStats();
     UI.renderTopBar();
