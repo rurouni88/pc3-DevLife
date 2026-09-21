@@ -26,6 +26,13 @@ const PACKAGE_VERSION = JSON.parse(
   fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8')
 ).version;
 
+// Cache-busting: every asset tag in index.html carries ?v=<version>. A stale
+// cached file is a classic static-site bug (new code calling a function the
+// old cached file lacks), so the test body verifies coverage and agreement.
+const indexHtml = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+const INDEX_ASSET_COUNT = (indexHtml.match(/(?:src|href)="(?:js|css)\/[^"]+?[^"?]/g) || []).length;
+const INDEX_VERSIONS = [...indexHtml.matchAll(/[?&]v=([\d.]+)/g)].map(m => m[1]);
+
 // Executable in Node (no DOM/fetch at load time), in dependency order.
 const RUN_FILES = ['config', 'utils', 'events', 'archetypes', 'items', 'special', 'perks', 'meta', 'game', 'save'];
 
@@ -40,6 +47,8 @@ const sandbox = {
   console,
   assert,
   PACKAGE_VERSION,
+  INDEX_ASSET_COUNT,
+  INDEX_VERSIONS,
   localStorage: {
     _data: {},
     getItem(k) { return Object.hasOwn(this._data, k) ? this._data[k] : null; },
