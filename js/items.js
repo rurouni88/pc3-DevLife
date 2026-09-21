@@ -16,6 +16,7 @@ const EQUIPMENT = [
   { id: 'macbook', name: 'MacBook Pro M5', emoji: '💻', rarity: 'rare', effects: { I: 1, A: 1 }, desc: '+1 Intelligence, +1 Agility — It just works. Mostly.' },
   { id: 'aws', name: 'AWS Certification', emoji: '☁️', rarity: 'rare', effects: { I: 1, S: 1 }, desc: '+1 Intelligence, +1 Strength' },
   { id: 'standing', name: 'Standing Desk', emoji: '🪑', rarity: 'rare', effects: { E: 2 }, desc: '+2 Endurance' },
+  { id: 'backpack', name: 'Backpack', emoji: '🎒', rarity: 'rare', effects: {}, consumableSlots: 1, desc: '+1 consumable slot' },
   
   // Epic
   { id: 'chair', name: 'Custom Ergonomic Chair', emoji: '💺', rarity: 'epic', effects: { E: 3 }, desc: '+3 Endurance' },
@@ -53,7 +54,7 @@ const CONSUMABLES = [
   // Epic — food & substances
   { id: 'flow_state', name: 'Flow State', emoji: '⚡', rarity: 'epic', stat: 'any', bonus: 5, desc: '+5 to ANY stat on next check' },
   { id: 'perfect_meal', name: 'The Perfect Meal', emoji: '🍱', rarity: 'epic', stat: 'any', bonus: 5, desc: '+5 to ANY stat — Home-cooked. Made by someone who cares. Everything clicks.' },
-  { id: 'survival_rations', name: 'Survival Rations', emoji: '🎒', rarity: 'epic', stat: 'any', bonus: 3, desc: '+3 to ALL stats on next check — MREs from 1998. They taste like betrayal.' },
+  { id: 'survival_rations', name: 'Fried Chicken', emoji: '🍗', rarity: 'epic', stat: 'any', bonus: 3, desc: '+3 to ALL stats on next check — Putting the kids working in KFC through higher education.' },
   
   // AI — risky multiplier
   { id: 'ai_copilot', name: 'AI Copilot', emoji: '🤖', rarity: 'uncommon', stat: 'any', bonus: 0, multiplier: 1.5, desc: '1.5× your stat... or does it?' },

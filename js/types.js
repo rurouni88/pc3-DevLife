@@ -12,14 +12,15 @@
 /** Item rarity tiers (see RARITY_WEIGHTS in items.js). */
 /** @typedef {'common' | 'uncommon' | 'rare' | 'epic'} Rarity */
 
-/** Equipment — passive item with permanent stat bonuses. */
+/** Equipment — passive item with permanent stat bonuses and/or slot bonuses. */
 /** @typedef {Object} Equipment 
  * @property {string} id 
  * @property {string} name 
  * @property {string} emoji 
  * @property {Rarity} rarity 
  * @property {Partial<Stats>} effects 
- * @property {string} desc */
+ * @property {string} desc 
+ * @property {number} [consumableSlots] bonus consumable slots while carried */
 
 /** Consumable — one-time use stat boost (or risky multiplier). */
 /** @typedef {Object} Consumable 

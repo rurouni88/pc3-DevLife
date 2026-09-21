@@ -21,7 +21,7 @@ const UIEndOfRun = {
     const carried = MetaStore.carriedIds('startingConsumables')
       .map(/** @param {string} id */ (id) => CONSUMABLES.find(c => c.id === id))
       .filter(/** @returns {item is Consumable} */ (item) => Boolean(item));
-    const full = carried.length >= CONFIG.game.consumableCap;
+    const full = carried.length >= Game.consumableCap();
     
     /** @param {string} title @param {string} context @param {HTMLElement} container @param {HTMLElement | null} titleEl @param {HTMLElement | null} contextEl @param {HTMLButtonElement} continueBtn @param {(id: string, replaceIndex: number) => void} onPick */
     const render = (title, context, container, titleEl, contextEl, continueBtn, onPick) => {
@@ -186,7 +186,7 @@ const UIEndOfRun = {
     const newEl = document.createElement('div');
     newEl.className = 'consumable-select-item';
     newEl.style.borderColor = 'var(--accent-green)';
-    const statStr = formatEffects(newEquipment.effects);
+    const statStr = equipmentEffectText(newEquipment);
     newEl.innerHTML = `
       <span class="cs-emoji" style="font-size: 2em;">${newEquipment.emoji}</span>
       <div class="cs-details">
@@ -206,7 +206,7 @@ const UIEndOfRun = {
       const el = document.createElement('div');
       el.className = 'consumable-select-item';
       el.dataset.index = String(i);
-      const statStr = formatEffects(equip.effects);
+      const statStr = equipmentEffectText(equip);
       el.innerHTML = `
         <span class="cs-emoji">${equip.emoji}</span>
         <div class="cs-details">

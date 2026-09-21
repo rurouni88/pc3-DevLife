@@ -3,6 +3,15 @@ const Game = {
   /** @type {GameState | null} */
   state: null,
   
+  // Consumable slot cap: base cap + slot bonuses from carried equipment
+  // (the Backpack). A run's ending equipment carries over as-is, so this
+  // is also the right cap for the next run's starting stash.
+  /** @param {Equipment[]} [equipment] @returns {number} */
+  consumableCap(equipment) {
+    const items = equipment || (this.state ? this.state.equipment : []);
+    return CONFIG.game.consumableCap + items.reduce((sum, item) => sum + (item.consumableSlots || 0), 0);
+  },
+  
   // Initialize a new game
   /** @param {Stats} statAlloc @param {Consumable[]} [startingConsumables] @param {Equipment[]} [startingEquipment] @returns {GameState} */
   createCharacter(statAlloc, startingConsumables = [], startingEquipment = []) {
@@ -10,9 +19,10 @@ const Game = {
     this.state = {
       stats: { ...statAlloc },
       equipment: [...startingEquipment.slice(0, CONFIG.game.equipmentCarryOverCap)], // carry-over equipment
-      // Carry-over consumables (max 2): the LAST 2 in the pool — the pool
-      // grows by append, so most recent picks are granted, not the oldest
-      consumables: [...startingConsumables.slice(-CONFIG.game.consumableCap)],
+      // Carry-over consumables: the LAST `cap` in the pool — the pool grows
+      // by append, so most recent picks are granted, not the oldest. The cap
+      // includes slot bonuses from the carried equipment (Backpack).
+      consumables: [...startingConsumables.slice(-this.consumableCap(startingEquipment))],
       level: 1,
       levelUpPoints: 0,
       day: 1,

@@ -120,6 +120,7 @@ Passive items that give permanent stat bonuses. **Max 1 equipped at a time.**
 | MacBook Pro M5 | 💻 | +1 Intelligence, +1 Agility | It just works. Mostly. |
 | AWS Certification | ☁️ | +1 Intelligence, +1 Strength | Cloud-native. Lift heavy things into the sky. |
 | Standing Desk | 🪑 | +2 Endurance | Your legs thank you. Your back agrees. |
+| Backpack | 🎒 | +1 consumable slot | Room for more coffee. And snacks. And the second keyboard. |
 
 #### Epic
 | Item | Emoji | Effect | Description |
@@ -134,7 +135,7 @@ One-time stat boosts for a single event check. **Max 2 in inventory.** Earned on
 **How they work:**
 - You activate a consumable **before making the choice** on an event card.
 - It boosts the stat(s) it targets for that one check only — temporary bonuses are cleared after the check resolves.
-- **"any" consumables** (Flow State, Perfect Meal, Survival Rations) boost **all** stats.
+- **"any" consumables** (Flow State, Perfect Meal, Fried Chicken) boost **all** stats.
 - **AI/multiplier consumables** multiply the effective stat total for the check (1.5× or 2×). There's a **30% chance they backfire**, applying **−50%** instead.
 - Up to 2 consumables can be carried into the next run via meta progression (see §4).
 
@@ -179,7 +180,7 @@ One-time stat boosts for a single event check. **Max 2 in inventory.** Earned on
 |------------|-------|--------|-------------|
 | Flow State | ⚡ | +5 ALL stats | Everything clicks |
 | The Perfect Meal | 🍱 | +5 ALL stats | Home-cooked. Made by someone who cares. Everything clicks. |
-| Survival Rations | 🎒 | +3 ALL stats | MREs from 1998. They taste like betrayal. |
+| Fried Chicken | 🍗 | +3 ALL stats | Putting the kids working in KFC through higher education. |
 
 ### 2.6 Perks (Stat Mastery)
 
@@ -272,7 +273,7 @@ Defeat all **4 phase bosses** (24 events, 20 with Fast Ship) to reach **Retireme
 3. **Multiple Archetypes:** 9 selectable predefined stat distributions (+1 locked easter egg), or build your own
 4. **Perks:** Different stat-mastery builds play like different classes
 5. **Permadeath:** Each run is a new career
-6. **Meta Progression (implemented):** Your **end-of-run equipment** carries into the next run (most recent wins — a mid-run swap carries the new item), and at the end of each run you **pick 1 of 3 random consumables** to carry (pool of 2, most recent pick wins). A run counter tracks your attempts. *(Unlocking new event types, items, and archetypes — planned.)*
+6. **Meta Progression (implemented):** Your **end-of-run equipment** carries into the next run (most recent wins — a mid-run swap carries the new item), and at the end of each run you **pick 1 of 3 random consumables** to carry (pool of 2, most recent pick wins — 3 if you end the run carrying a **Backpack**, which adds +1 consumable slot). A run counter tracks your attempts. *(Unlocking new event types, items, and archetypes — planned.)*
 7. **Career Summary:** Detailed stats at end of each run (like roguelike leaderboards)
 
 ---
