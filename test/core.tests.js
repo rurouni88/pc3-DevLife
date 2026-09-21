@@ -68,7 +68,17 @@ assert.strictEqual(
   CONFIG.version, PACKAGE_VERSION,
   `CONFIG.version (${CONFIG.version}) must match package.json (${PACKAGE_VERSION})`
 );
-console.log('✓ version: CONFIG.version matches package.json');
+// Cache-busting: every asset tag in index.html carries a ?v= string, and
+// they all match package.json — an unversioned or stale tag means the
+// browser can serve old JS alongside new.
+assert.strictEqual(
+  INDEX_VERSIONS.length, INDEX_ASSET_COUNT,
+  `every asset tag in index.html must carry a ?v= cache-buster (${INDEX_VERSIONS.length}/${INDEX_ASSET_COUNT})`
+);
+for (const v of INDEX_VERSIONS) {
+  assert.strictEqual(v, PACKAGE_VERSION, `index.html ?v=${v} must match package.json (${PACKAGE_VERSION})`);
+}
+console.log('✓ version: CONFIG, package.json, and index.html cache-busters agree');
 
 // --- Perk activation: stats at 10 unlock, dropping below revokes ---
 freshRun({ S: 10, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
