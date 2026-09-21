@@ -78,6 +78,10 @@ class SaveData {
       for (const flag of ['bruteForceUsed', 'codeReviewUsed', 'negotiateUsed', 'cleanDeployUsed']) {
         if (typeof perks[flag] !== 'boolean') errors.push(`perks.${flag} is not a boolean`);
       }
+      // Optional: saves from before v0.31 have no ironNervesUsed
+      if (perks.ironNervesUsed !== undefined && typeof perks.ironNervesUsed !== 'boolean') {
+        errors.push('perks.ironNervesUsed is not a boolean');
+      }
     }
     
     return errors;

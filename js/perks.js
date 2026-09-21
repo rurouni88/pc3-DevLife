@@ -6,7 +6,7 @@
 const PERKS = {
   S: { id: 'brute_force',   name: 'Brute Force',   emoji: '💪', desc: 'Once per run: +2 to a failed Strength check target' },
   P: { id: 'code_review',   name: 'Code Review',   emoji: '🐛', desc: 'Once per run: halve a negative stat effect (round up)' },
-  E: { id: 'iron_nerves',   name: 'Iron Nerves',   emoji: '🧘', desc: 'Immune to burnout death from low Endurance' },
+  E: { id: 'iron_nerves',   name: 'Iron Nerves',   emoji: '🧘', desc: 'Once per run: a hit that would drop Endurance to the floor (1) stops it at 3 instead' },
   C: { id: 'negotiate',     name: 'Negotiate',     emoji: '🤝', desc: 'Once per run: a failed stat check is converted to a success' },
   I: { id: 'rapid_learner', name: 'Rapid Learner', emoji: '🧠', desc: '+1 bonus point on every level up' },
   A: { id: 'fast_ship',     name: 'Fast Ship',     emoji: '🚀', desc: 'Bosses appear every 5 events instead of 6' },
@@ -24,6 +24,7 @@ const PerkSystem = {
   codeReviewUsed: false,   // Code Review is once per run
   negotiateUsed: false,    // Negotiate is once per run
   cleanDeployUsed: false,  // Clean Deploy reroll is once per run
+  ironNervesUsed: false,   // Iron Nerves burnout save is once per run
   
   // Reset for a new run
   reset() {
@@ -32,6 +33,7 @@ const PerkSystem = {
     this.codeReviewUsed = false;
     this.negotiateUsed = false;
     this.cleanDeployUsed = false;
+    this.ironNervesUsed = false;
   },
   
   // Recompute active perks from base stats.
@@ -99,6 +101,18 @@ const PerkSystem = {
     this.cleanDeployUsed = true;
   },
   
+  // 🧘 Iron Nerves: once per run, a hit that would floor Endurance stops
+  // it at 3 instead. Judged in applyChoice BEFORE effects are applied —
+  // the perk was active when the blow landed, even though the effect
+  // itself revokes it (E lands at 3, below the 10 perk gate).
+  canUseIronNerves() {
+    return this.has('iron_nerves') && !this.ironNervesUsed;
+  },
+  
+  useIronNerves() {
+    this.ironNervesUsed = true;
+  },
+  
   // Helper: apply brute force to a check target
   /** @param {number} target @returns {number} */
   applyBruteForce(target) {
@@ -119,7 +133,8 @@ const PerkSystem = {
       bruteForceUsed: this.bruteForceUsed,
       codeReviewUsed: this.codeReviewUsed,
       negotiateUsed: this.negotiateUsed,
-      cleanDeployUsed: this.cleanDeployUsed
+      cleanDeployUsed: this.cleanDeployUsed,
+      ironNervesUsed: this.ironNervesUsed
     };
   },
   
@@ -135,5 +150,7 @@ const PerkSystem = {
     this.codeReviewUsed = !!data.codeReviewUsed;
     this.negotiateUsed = !!data.negotiateUsed;
     this.cleanDeployUsed = !!data.cleanDeployUsed;
+    // Saves from before v0.31 have no ironNervesUsed — treat as unused
+    this.ironNervesUsed = !!data.ironNervesUsed;
   }
 };

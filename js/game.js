@@ -151,6 +151,22 @@ const Game = {
       effects = halved;
       this.addLog('🐛 Code Review! Negative effects halved.');
     }
+    
+    // 🧘 Iron Nerves: once per run, a hit that would floor Endurance stops
+    // it at 3 instead. Judged on the final effects (after Code Review),
+    // BEFORE anything is applied — the perk was active when the blow
+    // landed, even though the effect itself would revoke it. Copies the
+    // effects object so the shared event definition is never mutated.
+    let ironNervesUsed = false;
+    if (PerkSystem.canUseIronNerves()) {
+      const eDelta = effects.E || 0;
+      if (eDelta < 0 && SpecialSystem.stats.E + eDelta <= 1) {
+        effects = { ...effects, E: 3 - SpecialSystem.stats.E };
+        PerkSystem.useIronNerves();
+        ironNervesUsed = true;
+        this.addLog('🧘 Iron Nerves! You push through the collapse.');
+      }
+    }
     const log = success ? resolved.choice.success.log : resolved.choice.failure.log;
     this.applyEffects(effects);
     
@@ -188,7 +204,8 @@ const Game = {
       phaseComplete,
       victory,
       bossDefeated: resolved.isBoss,
-      cleanDeployUsed: resolved.cleanDeployUsed
+      cleanDeployUsed: resolved.cleanDeployUsed,
+      ironNervesUsed
     };
   },
   
