@@ -134,7 +134,7 @@ One-time stat boosts for a single event check. **Max 2 in inventory.** Earned on
 **How they work:**
 - You activate a consumable **before making the choice** on an event card.
 - It boosts the stat(s) it targets for that one check only — temporary bonuses are cleared after the check resolves.
-- **"any" consumables** (Flow State, Perfect Meal, Survival Rations) boost **all** stats.
+- **"any" consumables** (Flow State, Perfect Meal, Fried Chicken) boost **all** stats.
 - **AI/multiplier consumables** multiply the effective stat total for the check (1.5× or 2×). There's a **30% chance they backfire**, applying **−50%** instead.
 - Up to 2 consumables can be carried into the next run via meta progression (see §4).
 
@@ -179,7 +179,7 @@ One-time stat boosts for a single event check. **Max 2 in inventory.** Earned on
 |------------|-------|--------|-------------|
 | Flow State | ⚡ | +5 ALL stats | Everything clicks |
 | The Perfect Meal | 🍱 | +5 ALL stats | Home-cooked. Made by someone who cares. Everything clicks. |
-| Survival Rations | 🎒 | +3 ALL stats | MREs from 1998. They taste like betrayal. |
+| Fried Chicken | 🍗 | +3 ALL stats | Putting the kids working in KFC through higher education. |
 
 ### 2.6 Perks (Stat Mastery)
 

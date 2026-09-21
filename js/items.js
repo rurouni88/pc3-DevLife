@@ -53,7 +53,7 @@ const CONSUMABLES = [
   // Epic — food & substances
   { id: 'flow_state', name: 'Flow State', emoji: '⚡', rarity: 'epic', stat: 'any', bonus: 5, desc: '+5 to ANY stat on next check' },
   { id: 'perfect_meal', name: 'The Perfect Meal', emoji: '🍱', rarity: 'epic', stat: 'any', bonus: 5, desc: '+5 to ANY stat — Home-cooked. Made by someone who cares. Everything clicks.' },
-  { id: 'survival_rations', name: 'Survival Rations', emoji: '🎒', rarity: 'epic', stat: 'any', bonus: 3, desc: '+3 to ALL stats on next check — MREs from 1998. They taste like betrayal.' },
+  { id: 'survival_rations', name: 'Fried Chicken', emoji: '🍗', rarity: 'epic', stat: 'any', bonus: 3, desc: '+3 to ALL stats on next check — Putting the kids working in KFC through higher education.' },
   
   // AI — risky multiplier
   { id: 'ai_copilot', name: 'AI Copilot', emoji: '🤖', rarity: 'uncommon', stat: 'any', bonus: 0, multiplier: 1.5, desc: '1.5× your stat... or does it?' },
