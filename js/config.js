@@ -1,6 +1,6 @@
 // Game configuration — all tunable constants in one place
 const CONFIG = {
-  version: '0.31',
+  version: '0.32',
   versionLabel: 'Prototype',
 
   stats: {
@@ -25,6 +25,8 @@ const CONFIG = {
       obsolescenceDay: 365,
       redundancyDay: 400,
     },
+    // A stat at or below this is one negative hit from the saving-roll floor
+    dangerThreshold: 2,
     // Inventory and carry-over caps
     consumableCap: 2,          // consumables held in a run (and in the carry-over pool)
     equipmentCarryOverCap: 1,  // equipment carried into the next run

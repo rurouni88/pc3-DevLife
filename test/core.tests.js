@@ -540,6 +540,18 @@ assert.strictEqual(Game._checkProbabilisticGameOver(), null, 'redundancy roll ca
 Math.random = realRandom;
 console.log('✓ game over: saving roll survive/death, redundancy risk');
 
+// --- dangerStats: one hit from the saving-roll floor ---
+freshRun({ S: 2, P: 3, E: 2, C: 5, I: 5, A: 5, L: 5 });
+assert.deepStrictEqual(Game.dangerStats(), ['S', 'E'], 'warns at 2, not at 3');
+SpecialSystem.equipmentBonuses.S = 5; // effective 7 — the floor doesn't care
+assert.deepStrictEqual(Game.dangerStats(), ['S', 'E'], 'equipment does not suppress the warning');
+SpecialSystem.equipmentBonuses = zeroStats();
+SpecialSystem.stats.S = 3;
+assert.deepStrictEqual(Game.dangerStats(), ['E'], 'recovered stat drops off');
+SpecialSystem.stats.E = 3;
+assert.deepStrictEqual(Game.dangerStats(), [], 'no danger when all stats are safe');
+console.log('✓ dangerStats: base stats at the threshold, equipment irrelevant');
+
 // --- Phase progression: completion vs victory ---
 freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
 Game.state.phase = 3;
