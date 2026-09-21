@@ -63,6 +63,13 @@ assert.strictEqual(Game.state.phase, 2, 'phase advanced');
 assert.ok(Game.state.careerLog[0].message.includes('Mid-Level Developer'), 'promotion log uses CONFIG phase name');
 console.log('✓ phase names: single CONFIG source, promotion log correct');
 
+// --- Version: the in-game badge and package.json must agree ---
+assert.strictEqual(
+  CONFIG.version, PACKAGE_VERSION,
+  `CONFIG.version (${CONFIG.version}) must match package.json (${PACKAGE_VERSION})`
+);
+console.log('✓ version: CONFIG.version matches package.json');
+
 // --- Perk activation: stats at 10 unlock, dropping below revokes ---
 freshRun({ S: 10, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
 assert.ok(PerkSystem.has('brute_force'), 'S=10 activates Brute Force');
