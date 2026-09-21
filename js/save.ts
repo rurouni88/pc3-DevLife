@@ -5,50 +5,49 @@
 // the shape rules in one place; validate() reports ALL problems at once
 // so a bad save is diagnosable from the log, not just "rejected".
 class SaveData {
-  /**
-   * @param {GameState} state
-   * @param {SpecialSnapshot} special
-   * @param {PerkSnapshot} perks
-   * @param {number} timestamp
-   */
-  constructor(state, special, perks, timestamp) {
+  state: GameState;
+  special: SpecialSnapshot;
+  perks: PerkSnapshot;
+  timestamp: number;
+
+  constructor(state: GameState, special: SpecialSnapshot, perks: PerkSnapshot, timestamp: number) {
     this.state = state;
     this.special = special;
     this.perks = perks;
     this.timestamp = timestamp;
   }
-  
-  // Parse and validate raw localStorage JSON.
-  /** @param {unknown} data @returns {SaveData | null} null (with logged reasons) when invalid */
-  static parse(data) {
+
+  // Parse and validate raw localStorage JSON. Returns null (with logged
+  // reasons) when invalid.
+  static parse(data: unknown): SaveData | null {
     const errors = SaveData.validate(data);
     if (errors.length > 0) {
       console.error('[DevLife] Save data is invalid:', errors.join('; '));
       return null;
     }
-    const save = /** @type {SaveDataShape} */ (data);
+    const save = data as SaveDataShape;
     return new SaveData(save.state, save.special, save.perks, save.timestamp);
   }
-  
-  // Validate a raw save against the schema.
-  /** @param {unknown} data @returns {string[]} human-readable problems (empty when valid) */
-  static validate(data) {
+
+  // Validate a raw save against the schema. Returns human-readable problems
+  // (empty when valid).
+  static validate(data: unknown): string[] {
     if (!data || typeof data !== 'object' || Array.isArray(data)) {
       return ['save is not an object'];
     }
-    const save = /** @type {Record<string, unknown>} */ (data);
-    const errors = [];
-    
+    const save = data as Record<string, unknown>;
+    const errors: string[] = [];
+
     if (typeof save.timestamp !== 'number') errors.push('timestamp is not a number');
-    
-    const state = /** @type {Record<string, unknown> | undefined} */ (save.state);
+
+    const state = save.state as Record<string, unknown> | undefined;
     if (!state || typeof state !== 'object') {
       errors.push('state is missing');
     } else {
       for (const field of ['level', 'day', 'phase']) {
         if (typeof state[field] !== 'number') errors.push(`state.${field} is not a number`);
       }
-      const stats = /** @type {Record<string, unknown> | undefined} */ (state.stats);
+      const stats = state.stats as Record<string, unknown> | undefined;
       if (!stats || typeof stats !== 'object') {
         errors.push('state.stats is missing');
       } else {
@@ -60,8 +59,8 @@ class SaveData {
       if (!Array.isArray(state.equipment)) errors.push('state.equipment is not an array');
       if (!Array.isArray(state.consumables)) errors.push('state.consumables is not an array');
     }
-    
-    const special = /** @type {Record<string, unknown> | undefined} */ (save.special);
+
+    const special = save.special as Record<string, unknown> | undefined;
     if (!special || typeof special !== 'object') {
       errors.push('special is missing');
     } else {
@@ -69,8 +68,8 @@ class SaveData {
         if (!special[field] || typeof special[field] !== 'object') errors.push(`special.${field} is missing`);
       }
     }
-    
-    const perks = /** @type {Record<string, unknown> | undefined} */ (save.perks);
+
+    const perks = save.perks as Record<string, unknown> | undefined;
     if (!perks || typeof perks !== 'object') {
       errors.push('perks is missing');
     } else {
@@ -83,16 +82,15 @@ class SaveData {
         errors.push('perks.ironNervesUsed is not a boolean');
       }
     }
-    
+
     return errors;
   }
 }
 
 const SaveSystem = {
   SAVE_KEY: 'devlife_save',
-  
-  /** @param {GameState} state */
-  save(state) {
+
+  save(state: GameState): void {
     const saveData = {
       state: { ...state },
       special: SpecialSystem.clone(),
@@ -101,38 +99,37 @@ const SaveSystem = {
     };
     localStorage.setItem(this.SAVE_KEY, JSON.stringify(saveData));
   },
-  
-  /** @returns {SaveData | null} */
-  load() {
+
+  load(): SaveData | null {
     const data = localStorage.getItem(this.SAVE_KEY);
     if (!data) return null;
-    
+
     try {
       const saveData = SaveData.parse(JSON.parse(data));
       if (!saveData) return null;
-      
+
       // Restore game state
       Game.state = saveData.state;
-      
+
       // Restore SPECIAL system
       SpecialSystem.restore(saveData.special);
-      
+
       // Restore perk system (negotiate-used flag; active perks re-sync from stats)
       PerkSystem.restore(saveData.perks);
       PerkSystem.refresh();
-      
+
       return saveData;
     } catch (e) {
       console.error('Failed to load save:', e);
       return null;
     }
   },
-  
-  hasSave() {
+
+  hasSave(): boolean {
     return localStorage.getItem(this.SAVE_KEY) !== null;
   },
-  
-  deleteSave() {
+
+  deleteSave(): void {
     localStorage.removeItem(this.SAVE_KEY);
   }
 };
