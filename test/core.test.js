@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 // Core game logic tests — `npm test`.
 //
-// The game is a static site (no modules, no bundler), so the pure-logic
-// files are concatenated in dependency order and executed in a single Node
-// VM context with stubbed browser globals. The test body
-// (test/core.tests.js) runs in that same context and can touch game
-// internals directly. No framework, no build step.
+// The game ships as plain scripts (no modules, no bundler). This harness
+// runs against the BUILT output (dist/js/) so it tests exactly what the
+// browser loads. `npm test` builds first, then concatenates the pure-logic
+// files in dependency order into a single Node VM context with stubbed
+// browser globals. The test body (test/core.tests.js) runs in that same
+// context and can touch game internals directly.
 //
 // ui.js / app.js need the DOM and are NOT executed here, but every JS
 // file is still syntax-checked. events.js IS executed: its top-level
@@ -18,7 +19,7 @@ const path = require('path');
 const vm = require('vm');
 const assert = require('assert');
 
-const JS_DIR = path.join(__dirname, '..', 'js');
+const JS_DIR = path.join(__dirname, '..', 'dist', 'js');
 
 // The game shows CONFIG.version in its badge; package.json carries the same
 // number for npm/CI. They must agree — injected so the test body can compare.

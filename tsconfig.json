@@ -8,5 +8,5 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["js/**/*.js"]
+  "include": ["js/**/*.ts", "js/**/*.js"]
 }
