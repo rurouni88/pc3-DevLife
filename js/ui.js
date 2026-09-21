@@ -886,6 +886,14 @@ const UICore = {
       UI.playSound('perk');
     }
     
+    // 🧘 Iron Nerves saved the run from a burnout floor — announce it;
+    // the stat changes below already show E landing at 3
+    if (result.ironNervesUsed) {
+      result.ironNervesUsed = false;
+      UI.showToast('🧘 Iron Nerves: you pushed through the collapse', 'success');
+      UI.playSound('perk');
+    }
+    
     const resultDiv = document.createElement('div');
     resultDiv.className = 'event-result';
     

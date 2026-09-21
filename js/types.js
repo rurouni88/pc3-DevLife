@@ -112,7 +112,8 @@
  * @property {boolean} [phaseComplete]
  * @property {boolean} [victory]
  * @property {boolean} [bossDefeated]
- * @property {boolean} [cleanDeployUsed] */
+ * @property {boolean} [cleanDeployUsed]
+ * @property {boolean} [ironNervesUsed] */
 
 /** A career log entry (most recent first). */
 /** @typedef {Object} CareerLogEntry 
@@ -153,7 +154,8 @@
  * @property {boolean} bruteForceUsed 
  * @property {boolean} codeReviewUsed 
  * @property {boolean} negotiateUsed 
- * @property {boolean} cleanDeployUsed */
+ * @property {boolean} cleanDeployUsed 
+ * @property {boolean} [ironNervesUsed] */
 
 /** SpecialSystem snapshot for save/load. */
 /** @typedef {Object} SpecialSnapshot 

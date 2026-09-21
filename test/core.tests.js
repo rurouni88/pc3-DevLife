@@ -173,6 +173,71 @@ assert.strictEqual(out.success, true, 'intervenes despite the effect that would 
 assert.strictEqual(SpecialSystem.stats.C, 10, 'failure never applied; success effect clamped at max');
 console.log('✓ grace: availability frozen at resolve time');
 
+// --- Iron Nerves: once per run, a hit that would floor E stops it at 3 ---
+EVENTS.push(
+  {
+    id: 't_floor', title: 'Floor Test', phase: 1, phaseLabel: 'Test', narrative: 'n',
+    choices: [{
+      text: 'Grind', checks: { S: 5 },
+      success: { text: 's', effects: { S: 1 }, log: 'held on' },
+      failure: { text: 'f', effects: { E: -9 }, log: 'collapsed' }
+    }]
+  },
+  {
+    id: 't_shallow', title: 'Shallow Test', phase: 1, phaseLabel: 'Test', narrative: 'n',
+    choices: [{
+      text: 'Push', checks: { S: 5 },
+      success: { text: 's', effects: { S: 1 }, log: 'held on' },
+      failure: { text: 'f', effects: { E: -8 }, log: 'wobbled' }
+    }]
+  }
+);
+// The save fires: E 10 → would be 1 → lands exactly at 3
+fullRun({ S: 5, P: 5, E: 10, C: 5, I: 5, A: 5, L: 5 });
+Math.random = () => 0.99;
+d20 = () => 20; // S check: 15 vs 5 → fail
+rc = Game.resolveChoice(EVENTS[3], 0);
+out = Game.applyChoice(rc, NO_USE);
+assert.strictEqual(out.success, false, 'failure stands');
+assert.strictEqual(SpecialSystem.stats.E, 3, 'E lands at 3, not the floor');
+assert.ok(!out.gameOver, 'no burnout death');
+assert.ok(PerkSystem.ironNervesUsed, 'perk consumed');
+assert.ok(out.ironNervesUsed, 'result flags the save for the toast');
+assert.ok(Game.state.careerLog.some(e => e.message.includes('Iron Nerves')), 'save logged');
+assert.strictEqual(EVENTS[3].choices[0].failure.effects.E, -9, 'shared event definition untouched');
+// Once per run: the next floor hit kills (perk consumed AND revoked at E=3)
+d20 = () => 20; // check fails; saving roll 20 vs 7.5 → fails → death
+rc = Game.resolveChoice(EVENTS[3], 0);
+out = Game.applyChoice(rc, NO_USE);
+assert.ok(out.gameOver, 'second floor hit ends the run');
+assert.strictEqual(SpecialSystem.stats.E, 1, 'E on the floor');
+// No trigger when the hit lands above the floor: E 10 - 8 = 2
+fullRun({ S: 5, P: 5, E: 10, C: 5, I: 5, A: 5, L: 5 });
+d20 = () => 20;
+rc = Game.resolveChoice(EVENTS[4], 0);
+out = Game.applyChoice(rc, NO_USE);
+assert.strictEqual(SpecialSystem.stats.E, 2, 'E lands at 2 — above the floor');
+assert.ok(!PerkSystem.ironNervesUsed, 'save not spent');
+assert.ok(!out.gameOver, 'no death at E=2');
+// Code Review first: halving -9 to -5 lands E at 5 — save not needed, not spent
+fullRun({ S: 5, P: 10, E: 10, C: 5, I: 5, A: 5, L: 5 });
+d20 = () => 20;
+rc = Game.resolveChoice(EVENTS[3], 0);
+out = Game.applyChoice(rc, { negotiate: false, bruteForce: false, codeReview: true });
+assert.strictEqual(SpecialSystem.stats.E, 5, 'halved -5 lands E at 5');
+assert.ok(PerkSystem.codeReviewUsed, 'CR consumed');
+assert.ok(!PerkSystem.ironNervesUsed, 'save not needed, not spent');
+// Snapshot round-trip + old-save tolerance
+PerkSystem.useIronNerves();
+const snap = PerkSystem.clone();
+assert.strictEqual(snap.ironNervesUsed, true, 'clone carries the flag');
+PerkSystem.reset();
+PerkSystem.restore(snap);
+assert.strictEqual(PerkSystem.ironNervesUsed, true, 'restore brings the flag back');
+PerkSystem.restore({ active: [], bruteForceUsed: false, codeReviewUsed: false, negotiateUsed: false, cleanDeployUsed: false });
+assert.strictEqual(PerkSystem.ironNervesUsed, false, 'old-format snapshot (no field) → unused');
+console.log('✓ iron nerves: once-per-run burnout save, lands at 3, not wasted');
+
 // --- Consumable carry-over: pick = most recent, pool capped at 2 ---
 localStorage.setItem('devlife_meta', JSON.stringify({ totalRuns: 0, startingConsumables: ['coffee', 'focus'] }));
 MetaStore.addCarriedConsumable('espresso'); // new pick
