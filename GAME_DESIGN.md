@@ -198,7 +198,7 @@ Maxing a stat (**base value of 10**) unlocks a **Perk** — a boon for the durat
 |------|------|------|--------|
 | **S**trength | 💪 **Brute Force** | Intervention | Once per run: when you **fail a Strength check**, opt in to **+2 to that check's target** (retroactive) |
 | **P**erception | 🐛 **Code Review** | Intervention | Once per run: when an outcome has **negative stat effects**, opt in to **halve them** (round up) — a −3 hit becomes −2 |
-| **E**ndurance | 🧘 **Iron Nerves** | Passive | Burnout death (E ≤ 1) is prevented — Endurance can still reach 1, but it won't end the run |
+| **E**ndurance | 🧘 **Iron Nerves** | Intervention (auto) | Once per run: a hit that would drop **Endurance to the floor (1)** stops it at **3** instead — you push through the collapse. Judged before effects apply, so the blow that would revoke the perk still triggers it; not spent if the hit lands above the floor |
 | **C**harisma | 🤝 **Negotiate** | Intervention | Once per run: **convert a failed stat check into a success** (you talk your way out) |
 | **I**ntelligence | 🧠 **Rapid Learner** | Passive | +1 bonus point on **every level up** (spend them one at a time) |
 | **A**gility | 🚀 **Fast Ship** | Passive | Bosses appear every **5 events instead of 6** — and level-ups come on the same faster cadence |
@@ -250,7 +250,7 @@ END
 |------|-----------|--------|
 | **S**trength | S ≤ 1 | 💀 Technical Obsolescence |
 | **P**erception | P ≤ 1 | 🐛 Debugging Burnout |
-| **E**ndurance | E ≤ 1 | 🔥 Burnout *(the **Iron Nerves** perk prevents this death)* |
+| **E**ndurance | E ≤ 1 | 🔥 Burnout *(**Iron Nerves**, once per run, can stop E at 3 instead)* |
 | **C**harisma | C ≤ 1 | 📉 Career Stagnation |
 | **I**ntelligence | I ≤ 1 *and day > 365* | 📚 Knowledge Decay |
 | **A**gility | A ≤ 1 | 🐌 Productivity Cliff |

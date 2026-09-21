@@ -50,7 +50,7 @@ Click [HERE](https://rurouni88.github.io/pc3-DevLife) to play.
 
 - **d20 Stat Checks** — Every choice rolls a d20 (modified by Luck) against a target, gated by a competence check so low stats can't muscle past checks far above them
 
-- **Perks (Stat Mastery)** — Max a stat to 10 to unlock a perk: once-per-run interventions (Negotiate, Brute Force, Code Review, Clean Deploy) and passive boons (Iron Nerves, Rapid Learner, Fast Ship)
+- **Perks (Stat Mastery)** — Max a stat to 10 to unlock a perk: once-per-run interventions (Negotiate, Brute Force, Code Review, Clean Deploy, Iron Nerves) and passive boons (Rapid Learner, Fast Ship)
 
 - **Archetype Presets** — Start as a Principal Architect, Startup Rockstar, SRE Specialist, Penetration Tester, and more
 
@@ -168,7 +168,7 @@ Stats have a floor of **1**. When a stat hits its floor you make a **saving roll
 |-----------|-------|
 | 💀 **Technical Obsolescence** | Strength hits 1 |
 | 🐛 **Debugging Burnout** | Perception hits 1 |
-| 🔥 **Burnout** | Endurance hits 1 (the **Iron Nerves** perk prevents this) |
+| 🔥 **Burnout** | Endurance hits 1 (**Iron Nerves**, once per run, can stop it at 3 instead) |
 | 📉 **Career Stagnation** | Charisma hits 1 |
 | 📚 **Knowledge Decay** | Intelligence hits 1 after day 365 |
 | 🐌 **Productivity Cliff** | Agility hits 1 |
