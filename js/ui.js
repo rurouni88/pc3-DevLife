@@ -11,6 +11,30 @@ const setText = (id, text) => {
   if (el) el.textContent = text;
 };
 
+// Perk intervention prompts — one per available perk. Shared by the
+// pending decision screen (renderPerkDecision).
+/** @param {string} perkId @param {string} yesId @param {string} noId @param {string} useLabel @returns {string} */
+const perkPromptBox = (perkId, yesId, noId, useLabel) => {
+  const perk = PERK_BY_ID[perkId];
+  return `
+    <div class="perk-prompt-box">
+      <div class="perk-prompt-title">⚡ Intervene with Perk</div>
+      <div class="perk-prompt-desc">${perk.emoji} <strong>${perk.name}</strong> — ${perk.desc}</div>
+      <div class="perk-prompt-actions">
+        <button class="btn btn-primary" id="${yesId}">${useLabel}</button>
+        <button class="btn btn-ghost" id="${noId}">No, thanks</button>
+      </div>
+    </div>
+  `;
+};
+
+// Intervention key → perk id (PERK_BY_ID) and prompt label
+const INTERVENTION_META = {
+  negotiate: { perkId: 'negotiate', label: '🤝 Use Negotiate' },
+  bruteForce: { perkId: 'brute_force', label: '💪 Use Brute Force' },
+  codeReview: { perkId: 'code_review', label: '🐛 Use Code Review' }
+};
+
 // UI — core: screens, toasts/audio, event & result rendering, popups.
 // Section files (ui-character, ui-levelup, ui-endofrun) load first; this
 // file composes them into UI at the bottom.
@@ -693,14 +717,103 @@ const UICore = {
     setTimeout(() => feedback.remove(), duration);
   },
   
-  // Handle a choice selection
+  // Handle a choice selection: resolve the checks, let the player decide
+  // on any available perk interventions, then apply and show the outcome.
   /** @param {GameEvent} event @param {number} choiceIndex */
   handleChoice(event, choiceIndex) {
-    const result = Game.processChoice(event, choiceIndex);
-    if (result.error) {
-      console.error(result.error);
+    const resolved = Game.resolveChoice(event, choiceIndex);
+    if ('error' in resolved) {
+      console.error(resolved.error);
       return;
     }
+    
+    const available = Object.keys(resolved.interventions)
+      .filter(k => resolved.interventions[/** @type {keyof PerkInterventions} */ (k)]);
+    
+    // No interventions available — apply immediately (the common case)
+    if (available.length === 0) {
+      UI.showOutcome(Game.applyChoice(resolved));
+      return;
+    }
+    
+    // Interventions available — pending screen; nothing is applied until
+    // the player has decided on every prompt
+    /** @type {Record<string, boolean | null>} */ const decisions = {};
+    available.forEach(k => { decisions[k] = null; });
+    UI.renderPerkDecision(resolved, decisions, available);
+  },
+  
+  // Pending result screen: the checks are resolved but NOTHING is applied
+  // yet. The player decides on each available perk intervention; once all
+  // are decided, the outcome is applied (showOutcome). Re-renders after
+  // each decision, so decided prompts drop away.
+  /** @param {ResolvedChoice} resolved @param {Record<string, boolean | null>} decisions @param {string[]} available */
+  renderPerkDecision(resolved, decisions, available) {
+    const card = document.getElementById('event-card');
+    const body = card ? card.querySelector('.event-body') : null;
+    if (!body) return;
+    
+    const choices = /** @type {HTMLElement | null} */ (body.querySelector('.event-choices'));
+    if (choices) choices.style.display = 'none';
+    const existingResult = body.querySelector('.event-result');
+    if (existingResult) existingResult.remove();
+    
+    const resultDiv = document.createElement('div');
+    resultDiv.className = 'event-result';
+    
+    const pending = available.filter(k => decisions[k] === null);
+    const decided = available.filter(k => decisions[k] !== null);
+    
+    let html = `<div class="result-text failure">⚡ The check failed — you can intervene:</div>`;
+    
+    // The rolled checks, so the player can weigh the intervention
+    if (resolved.checkResults.length > 0) {
+      const checkHTML = resolved.checkResults.map(cr =>
+        `<span class="stat-change ${cr.success ? 'positive' : 'negative'}">${cr.stat}: rolled ${cr.roll} vs ${cr.target} ${cr.success ? '✓' : '✗'}</span>`
+      ).join('');
+      html += `<div class="stat-changes">${checkHTML}</div>`;
+    }
+    
+    // Decided prompts (dimmed, in decision order)
+    for (const k of decided) {
+      const meta = INTERVENTION_META[/** @type {keyof typeof INTERVENTION_META} */ (k)];
+      const perk = PERK_BY_ID[meta.perkId];
+      html += `<div class="perk-prompt-box decided">${perk.emoji} <strong>${perk.name}</strong> — ${decisions[k] ? 'used' : 'declined'}</div>`;
+    }
+    
+    // Pending prompts
+    for (const k of pending) {
+      const meta = INTERVENTION_META[/** @type {keyof typeof INTERVENTION_META} */ (k)];
+      html += perkPromptBox(meta.perkId, `btn-intervene-yes-${k}`, `btn-intervene-no-${k}`, meta.label);
+    }
+    
+    resultDiv.innerHTML = html;
+    body.appendChild(resultDiv);
+    
+    /** @param {string} k @param {boolean} used */
+    const decide = (k, used) => {
+      decisions[k] = used;
+      if (available.every(key => decisions[key] !== null)) {
+        /** @type {PerkDecisions} */ const use = { negotiate: false, bruteForce: false, codeReview: false };
+        for (const key of available) use[/** @type {keyof PerkDecisions} */ (key)] = !!decisions[key];
+        UI.showOutcome(Game.applyChoice(resolved, use));
+      } else {
+        UI.renderPerkDecision(resolved, decisions, available);
+      }
+    };
+    
+    for (const k of pending) {
+      const yes = document.getElementById(`btn-intervene-yes-${k}`);
+      const no = document.getElementById(`btn-intervene-no-${k}`);
+      if (yes) yes.addEventListener('click', () => decide(k, true));
+      if (no) no.addEventListener('click', () => decide(k, false));
+    }
+  },
+  
+  // Show an applied outcome: refresh panels, float the stat changes, toast
+  // the milestones, render the result screen.
+  /** @param {ProcessResult} result */
+  showOutcome(result) {
     const state = Game.state;
     if (!state) return;
     
@@ -748,8 +861,8 @@ const UICore = {
     UI.renderResult(result);
   },
   
-  // Render the event result screen. Called after processChoice, and again
-  // after perk prompts resolve so the updated state is shown.
+  // Render the event result screen. Called from showOutcome once the
+  // outcome has been fully applied (interventions decided).
   /** @param {ProcessResult} result */
   renderResult(result) {
     const card = document.getElementById('event-card');
@@ -810,28 +923,6 @@ const UICore = {
       resultHTML += `<div class="stat-changes">${checkHTML}</div>`;
     }
     
-    // Perk intervention prompts — styled boxes (like item drops), one per
-    // available active perk
-    /** @param {string} perkId @param {string} yesId @param {string} noId @param {string} useLabel @returns {string} */
-    const perkPromptBox = (perkId, yesId, noId, useLabel) => {
-      const perk = PERK_BY_ID[perkId];
-      return `
-        <div class="perk-prompt-box">
-          <div class="perk-prompt-title">⚡ Intervene with Perk</div>
-          <div class="perk-prompt-desc">${perk.emoji} <strong>${perk.name}</strong> — ${perk.desc}</div>
-          <div class="perk-prompt-actions">
-            <button class="btn btn-primary" id="${yesId}">${useLabel}</button>
-            <button class="btn btn-ghost" id="${noId}">No, thanks</button>
-          </div>
-        </div>
-      `;
-    };
-    
-    let perkPromptsHTML = '';
-    if (result.hasNegotiate) perkPromptsHTML += perkPromptBox('negotiate', 'btn-negotiate-yes', 'btn-negotiate-no', '🤝 Use Negotiate');
-    if (result.hasBruteForce) perkPromptsHTML += perkPromptBox('brute_force', 'btn-bruteforce-yes', 'btn-bruteforce-no', '💪 Use Brute Force');
-    if (result.hasCodeReview) perkPromptsHTML += perkPromptBox('code_review', 'btn-codereview-yes', 'btn-codereview-no', '🐛 Use Code Review');
-    
     // Continue button
     let continueText = 'Continue →';
     if (result.gameOver) continueText = 'View Results →';
@@ -840,41 +931,10 @@ const UICore = {
     else if (result.phaseComplete) continueText = 'Continue →';
     else if (result.bossDefeated) continueText = 'Boss Defeated — Continue →';
     
-    resultHTML += perkPromptsHTML;
     resultHTML += `<div class="result-actions"><button class="btn btn-primary btn-continue" id="btn-continue-event">${continueText}</button></div>`;
     
     resultDiv.innerHTML = resultHTML;
     body.appendChild(resultDiv);
-    
-    // Bind perk prompt buttons — unified pattern:
-    //   Use     → apply perk, toast the outcome, re-render result
-    //   Decline → re-render result (other prompts stay available)
-    /** @param {string} yesId @param {string} noId @param {'hasNegotiate' | 'hasBruteForce' | 'hasCodeReview'} flag @param {() => boolean} useFn @param {string} perkName @param {string} emoji @param {() => boolean} getOutcome */
-    const bindPerkPrompt = (yesId, noId, flag, useFn, perkName, emoji, getOutcome) => {
-      const yes = document.getElementById(yesId);
-      const no = document.getElementById(noId);
-      if (yes) {
-        yes.addEventListener('click', () => {
-          if (useFn()) {
-            result[flag] = false;
-            const outcome = getOutcome();
-            UI.showToast(`⚡ ${perkName}: ${outcome ? 'SUCCESS' : 'FAILURE'}`, outcome ? 'success' : 'error');
-            UI.playSound('perk');
-            UI.renderResult(result);
-          }
-        });
-      }
-      if (no) {
-        no.addEventListener('click', () => {
-          result[flag] = false;
-          UI.renderResult(result);
-        });
-      }
-    };
-    
-    bindPerkPrompt('btn-negotiate-yes', 'btn-negotiate-no', 'hasNegotiate', () => Game.useNegotiate(result), 'Negotiate', '🤝', () => true);
-    bindPerkPrompt('btn-bruteforce-yes', 'btn-bruteforce-no', 'hasBruteForce', () => Game.useBruteForce(result), 'Brute Force', '💪', () => (result.checkResults || []).some(cr => cr.stat === 'S' && cr.success));
-    bindPerkPrompt('btn-codereview-yes', 'btn-codereview-no', 'hasCodeReview', () => Game.useCodeReview(result), 'Code Review', '🐛', () => true);
     
     // Bind continue button
     const continueBtn = document.getElementById('btn-continue-event');

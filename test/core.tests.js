@@ -11,6 +11,49 @@ function freshRun(stats) {
   Game.state = { careerLog: [], day: 1 };
 }
 
+// Full run state for choice tests (resolve/apply touch log/meta paths)
+function fullRun(stats) {
+  freshRun(stats);
+  Object.assign(Game.state, {
+    level: 1, levelUpPoints: 0, phase: 1, eventsCompleted: 0,
+    equipment: [], consumables: [], eventHistory: [],
+    bossCompleted: false, currentEventId: null, pendingEquipmentDrop: null,
+    alive: true, won: false, startTime: 0, runNumber: 1
+  });
+}
+
+// Synthetic events for the intervention tests. t_bf's check (S: 9) sits at
+// the edge where Brute Force's +2 target can save it; t_grace's failure
+// effect revokes Negotiate (C-2) but the intervention was earned at
+// resolve time.
+EVENTS = [
+  {
+    id: 't_intervene', title: 'Intervene Test', phase: 1, phaseLabel: 'Test', narrative: 'n',
+    choices: [{
+      text: 'Try', checks: { S: 5 },
+      success: { text: 's', effects: { S: 1 }, log: 'won' },
+      failure: { text: 'f', effects: { E: -4 }, log: 'lost' }
+    }]
+  },
+  {
+    id: 't_bf', title: 'BF Test', phase: 1, phaseLabel: 'Test', narrative: 'n',
+    choices: [{
+      text: 'Lift', checks: { S: 9 },
+      success: { text: 's', effects: { S: 1 }, log: 'lifted' },
+      failure: { text: 'f', effects: { E: -4 }, log: 'crushed' }
+    }]
+  },
+  {
+    id: 't_grace', title: 'Grace Test', phase: 1, phaseLabel: 'Test', narrative: 'n',
+    choices: [{
+      text: 'Talk', checks: { C: 5 },
+      success: { text: 's', effects: { C: 1 }, log: 'talked' },
+      failure: { text: 'f', effects: { C: -2 }, log: 'argued' }
+    }]
+  }
+];
+const NO_USE = { negotiate: false, bruteForce: false, codeReview: false };
+
 // --- Phase names: single source in CONFIG ---
 assert.strictEqual(CONFIG.game.phaseNames.length, 5, 'phase names indexed 0-4');
 freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
@@ -28,78 +71,107 @@ PerkSystem.refresh();
 assert.ok(!PerkSystem.has('brute_force'), 'S=9 revokes Brute Force');
 console.log('✓ perk activation: unlock at 10, revoke below');
 
-// --- Code Review (active, once per run) ---
-freshRun({ S: 5, P: 10, E: 5, C: 5, I: 5, A: 5, L: 5 });
-assert.ok(PerkSystem.has('code_review'), 'P=10 activates Code Review');
-const crResult = { effects: { E: -4 } };
-Game.applyEffects(crResult.effects);
-assert.strictEqual(SpecialSystem.stats.E, 1, 'full -4 applied before player choice');
-assert.ok(PerkSystem.canUseCodeReview(), 'perk still available on the result screen');
-assert.ok(Game.useCodeReview(crResult), 'useCodeReview succeeds');
-assert.strictEqual(SpecialSystem.stats.E, 3, 'negative effect halved retroactively');
-assert.ok(PerkSystem.codeReviewUsed, 'perk consumed');
-assert.ok(!Game.useCodeReview(crResult), 'second use rejected');
-assert.strictEqual(SpecialSystem.stats.E, 3, 'no double correction');
-console.log('✓ code review: active prompt, halves once, consumed');
+// --- resolveChoice: pure — no effects, no days, no history ---
+fullRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+Math.random = () => 0.99; // no equipment drops, no redundancy/obsolescence
+d20 = () => 20; // roll 20-5 = 15 vs 5 → fail
+let rc = Game.resolveChoice(EVENTS[0], 0);
+assert.strictEqual(rc.allSuccess, false, 'check failed');
+assert.strictEqual(SpecialSystem.stats.E, 5, 'resolveChoice applies no effects');
+assert.strictEqual(Game.state.day, 1, 'resolveChoice advances no days');
+assert.strictEqual(Game.state.eventHistory.length, 0, 'resolveChoice logs no history');
+assert.strictEqual(rc.interventions.negotiate, false, 'no C=10 → no negotiate');
+assert.strictEqual(rc.interventions.bruteForce, false, 'no S=10 → no brute force');
+assert.strictEqual(rc.interventions.codeReview, false, 'no P=10 → no code review');
+// Declined: the full failure stands
+let out = Game.applyChoice(rc, NO_USE);
+assert.strictEqual(out.success, false, 'failure stands');
+assert.strictEqual(SpecialSystem.stats.E, 1, 'full -4 E applied on apply');
+assert.ok(Game.state.day > 1, 'day advanced on apply');
+assert.strictEqual(Game.state.eventHistory.length, 1, 'history appended on apply');
+console.log('✓ resolveChoice: pure phase — nothing applied until applyChoice');
 
-// --- Negotiate (mutates the result) ---
-freshRun({ S: 5, P: 5, E: 5, C: 10, I: 5, A: 5, L: 5 });
-const nResult = { success: false, checkResults: [{ stat: 'C', roll: 9, target: 5, effective: 5, success: false }] };
-assert.ok(Game.useNegotiate(nResult), 'useNegotiate succeeds');
-assert.strictEqual(nResult.success, true, 'result flips to success');
-assert.strictEqual(nResult.checkResults[0].negotiated, true, 'check marked negotiated');
-assert.ok(!Game.useNegotiate(nResult), 'second use rejected');
-console.log('✓ negotiate: flips result, consumed');
+// --- Negotiate: converts a fatal failure to a success (no death, no
+//     failure effects, success effects apply) ---
+fullRun({ S: 5, P: 5, E: 5, C: 10, I: 5, A: 5, L: 1 });
+d20 = () => 20; // S check: 20-1 = 19 vs 5 → fail
+rc = Game.resolveChoice(EVENTS[0], 0);
+assert.strictEqual(rc.interventions.negotiate, true, 'negotiate offered (C=10)');
+// Declined: the failure is fatal (E 5→1, saving roll 20-1 = 19 vs
+// L+0.5C = 6 → fails the save)
+let seq = [20, 20];
+d20 = () => seq.shift();
+rc = Game.resolveChoice(EVENTS[0], 0);
+out = Game.applyChoice(rc, NO_USE);
+assert.ok(out.gameOver, 'without negotiate the fatal failure kills');
+assert.strictEqual(SpecialSystem.stats.E, 1, 'failure effects applied');
+// Negotiated: the fatal failure never happens. (L=1 still trips the
+// "luck ran out" death check — saving roll 1 vs L+0.5C = 6 survives.)
+seq = [20, 1];
+d20 = () => seq.shift();
+fullRun({ S: 5, P: 5, E: 5, C: 10, I: 5, A: 5, L: 1 });
+rc = Game.resolveChoice(EVENTS[0], 0);
+out = Game.applyChoice(rc, { negotiate: true, bruteForce: false, codeReview: false });
+assert.strictEqual(out.success, true, 'negotiate flips to success');
+assert.ok(!out.gameOver, 'no death — the fatal failure never happened');
+assert.strictEqual(SpecialSystem.stats.E, 5, 'failure effects never applied');
+assert.strictEqual(SpecialSystem.stats.S, 6, 'success effect applied');
+assert.ok(PerkSystem.negotiateUsed, 'perk consumed');
+assert.strictEqual(out.checkResults[0].negotiated, true, 'check marked negotiated');
+console.log('✓ negotiate: fatal failure converted to success, no death');
 
-// --- Brute Force (re-evaluates a failed Strength check) ---
-freshRun({ S: 10, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
-const bfWin = { success: false, checkResults: [{ stat: 'S', roll: 7, target: 5, effective: 5, success: false }] };
-assert.ok(Game.useBruteForce(bfWin), 'useBruteForce succeeds');
-assert.strictEqual(bfWin.checkResults[0].target, 7, 'target +2');
-assert.strictEqual(bfWin.success, true, 'roll 7 vs 7 flips to success');
+// --- Brute Force: +2 to the failed S check target, flips when it saves ---
+fullRun({ S: 10, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+d20 = () => 15; // roll 15-5 = 10 vs 9 → fail; +2 target → 10 vs 11 → pass
+rc = Game.resolveChoice(EVENTS[1], 0);
+assert.strictEqual(rc.interventions.bruteForce, true, 'BF offered (S=10, failed S check)');
+out = Game.applyChoice(rc, { negotiate: false, bruteForce: true, codeReview: false });
+assert.strictEqual(out.success, true, 'BF flips to success');
+assert.strictEqual(SpecialSystem.stats.E, 5, 'failure effects never applied');
+assert.strictEqual(SpecialSystem.stats.S, 10, 'success effect clamped at max');
+assert.ok(PerkSystem.bruteForceUsed, 'consumed');
+// BF that cannot save: failure stands, perk still consumed
+fullRun({ S: 10, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+d20 = () => 17; // roll 17-5 = 12 vs 9 → fail; +2 → 12 vs 11 → still fail
+rc = Game.resolveChoice(EVENTS[1], 0);
+out = Game.applyChoice(rc, { negotiate: false, bruteForce: true, codeReview: false });
+assert.strictEqual(out.success, false, 'BF could not save it');
+assert.strictEqual(SpecialSystem.stats.E, 1, 'failure effects applied');
+assert.ok(PerkSystem.bruteForceUsed, 'consumed even when it failed');
+console.log('✓ brute force: +2 target, flips when it saves, consumed either way');
 
-freshRun({ S: 10, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
-const bfLose = { success: false, checkResults: [{ stat: 'S', roll: 8, target: 3, effective: 5, success: false }] };
-assert.ok(Game.useBruteForce(bfLose), 'useBruteForce succeeds (fresh run)');
-assert.strictEqual(bfLose.checkResults[0].target, 5, 'target +2');
-assert.strictEqual(bfLose.success, false, 'roll 8 vs 5 still fails');
-assert.ok(!Game.useBruteForce({ success: false, checkResults: [] }), 'third use rejected (once per run)');
-console.log('✓ brute force: +2 target, flips when it saves, consumed');
+// --- Code Review: halves the negative effects AT APPLY TIME ---
+fullRun({ S: 5, P: 10, E: 5, C: 5, I: 5, A: 5, L: 5 });
+d20 = () => 20; // roll 20-5 = 15 vs 5 → fail
+rc = Game.resolveChoice(EVENTS[0], 0);
+assert.strictEqual(rc.interventions.codeReview, true, 'CR offered (P=10, negative failure effects)');
+out = Game.applyChoice(rc, { negotiate: false, bruteForce: false, codeReview: true });
+assert.strictEqual(out.success, false, 'still a failure');
+assert.strictEqual(SpecialSystem.stats.E, 3, 'halved at apply time: 5 - 2 = 3');
+assert.deepStrictEqual(out.effects, { E: -2 }, 'result reports the halved effects');
+assert.ok(PerkSystem.codeReviewUsed, 'consumed');
+// Not spent when Negotiate already won (nothing to halve)
+fullRun({ S: 5, P: 10, E: 5, C: 10, I: 5, A: 5, L: 5 });
+d20 = () => 20;
+rc = Game.resolveChoice(EVENTS[0], 0);
+assert.strictEqual(rc.interventions.negotiate, true, 'both offered');
+assert.strictEqual(rc.interventions.codeReview, true, 'both offered (CR)');
+out = Game.applyChoice(rc, { negotiate: true, bruteForce: false, codeReview: true });
+assert.strictEqual(out.success, true, 'negotiate wins');
+assert.ok(!PerkSystem.codeReviewUsed, 'code review not spent (nothing to halve)');
+assert.ok(PerkSystem.negotiateUsed, 'negotiate consumed');
+console.log('✓ code review: halves at apply time, not wasted on a won event');
 
-// --- Grace: the failure's own effects may revoke the perk, but the
-//     intervention was earned when the check resolved, so it still fires ---
-
-// Negotiate: C=10, failed C check, failure effect C-2 revokes the perk
-freshRun({ S: 5, P: 5, E: 5, C: 10, I: 5, A: 5, L: 5 });
-d20 = () => 20; // fail the C check
-const graceNCheck = Game.resolveStatChecks({ checks: { C: 1 } });
-assert.ok(graceNCheck.hasNegotiate, 'prompt offered while perk active at roll time');
-Game.applyEffects({ C: -2 }); // failure effect drops C to 8 → perk revoked
-assert.ok(!PerkSystem.has('negotiate'), 'negotiate revoked by the failure effect');
-const graceN = { success: false, checkResults: graceNCheck.results };
-assert.ok(Game.useNegotiate(graceN), 'intervention still fires (earned at roll time)');
-assert.strictEqual(graceN.success, true, 'result flips to success');
-
-// Code Review: P=10, effects P-2/E-4 revoke the perk, halving still applies
-freshRun({ S: 5, P: 10, E: 5, C: 5, I: 5, A: 5, L: 5 });
-const graceCR = { effects: { P: -2, E: -4 } };
-Game.applyEffects(graceCR.effects); // P: 10→8 (perk revoked), E: 5→1
-assert.ok(!PerkSystem.has('code_review'), 'code review revoked by the failure effects');
-assert.ok(Game.useCodeReview(graceCR), 'halving still fires');
-assert.strictEqual(SpecialSystem.stats.P, 9, 'P corrected to the halved outcome (10-1)');
-assert.strictEqual(SpecialSystem.stats.E, 3, 'E corrected to the halved outcome (5-2)');
-
-// Brute Force: S=10, failed S check, effect S-2 revokes the perk, +2 still applies
-freshRun({ S: 10, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
-d20 = () => 20; // fail the S check
-const graceBFCheck = Game.resolveStatChecks({ checks: { S: 1 } });
-assert.ok(graceBFCheck.hasBruteForce, 'prompt offered while perk active at roll time');
-Game.applyEffects({ S: -2 }); // S: 10→8 → perk revoked
-assert.ok(!PerkSystem.has('brute_force'), 'brute force revoked by the failure effect');
-const graceBF = { success: false, checkResults: graceBFCheck.results };
-assert.ok(Game.useBruteForce(graceBF), '+2 still fires');
-assert.strictEqual(graceBF.checkResults[0].target, 3, 'target +2 applied');
-console.log('✓ grace: perk revoked by the failure itself can still intervene');
+// --- Grace: the failure's own effect revokes the perk, but the
+//     intervention was earned at resolve time (availability is frozen) ---
+fullRun({ S: 5, P: 5, E: 5, C: 10, I: 5, A: 5, L: 5 });
+d20 = () => 20; // roll 16 vs C 10 → fail
+rc = Game.resolveChoice(EVENTS[2], 0);
+assert.strictEqual(rc.interventions.negotiate, true, 'offered at resolve (C=10)');
+out = Game.applyChoice(rc, { negotiate: true, bruteForce: false, codeReview: false });
+assert.strictEqual(out.success, true, 'intervenes despite the effect that would revoke it');
+assert.strictEqual(SpecialSystem.stats.C, 10, 'failure never applied; success effect clamped at max');
+console.log('✓ grace: availability frozen at resolve time');
 
 // --- Consumable carry-over: pick = most recent, pool capped at 2 ---
 localStorage.setItem('devlife_meta', JSON.stringify({ totalRuns: 0, startingConsumables: ['coffee', 'focus'] }));
@@ -407,7 +479,7 @@ assert.strictEqual(Game.checkPhaseCompletion(), false, 'phase 4 has no next phas
 assert.strictEqual(Game.checkVictory(), true, 'phase 4 boss → victory');
 console.log('✓ phase progression: completion vs victory');
 
-// --- processChoice: full event processing (synthetic EVENTS) ---
+// --- resolveChoice + applyChoice: full event processing (synthetic EVENTS) ---
 EVENTS = [
   {
     id: 'test_event', title: 'Test Event', phase: 1, phaseLabel: 'Test', narrative: 'n',
@@ -426,15 +498,10 @@ EVENTS = [
     }]
   }
 ];
-freshRun({ S: 10, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
-Object.assign(Game.state, {
-  level: 1, levelUpPoints: 0, phase: 1, eventsCompleted: 0,
-  equipment: [], consumables: [], eventHistory: [],
-  bossCompleted: false, currentEventId: null, pendingEquipmentDrop: null
-});
+fullRun({ S: 10, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
 Math.random = () => 0.99; // no equipment drops during this section
 d20 = () => 1; // roll -4 vs target 5 → success
-let pr = Game.processChoice(EVENTS[0], 0);
+let pr = Game.applyChoice(Game.resolveChoice(EVENTS[0], 0));
 assert.strictEqual(pr.success, true, 'choice succeeded');
 assert.strictEqual(pr.equipmentDropped, false, 'no stale pending drop reported');
 assert.strictEqual(SpecialSystem.stats.S, 10, 'success effect clamped at max');
@@ -444,21 +511,21 @@ assert.strictEqual(Game.state.currentEventId, 'test_event', 'current event track
 assert.deepStrictEqual(Game.state.eventHistory, ['test_event'], 'history appended');
 assert.strictEqual(Game.state.careerLog[0].message, 'won', 'success log entry');
 d20 = () => 20; // roll 15 vs target 5 → failure
-pr = Game.processChoice(EVENTS[0], 0);
+pr = Game.applyChoice(Game.resolveChoice(EVENTS[0], 0));
 assert.strictEqual(pr.success, false, 'choice failed');
 assert.strictEqual(SpecialSystem.stats.S, 9, 'failure effect applied');
 assert.strictEqual(Game.state.careerLog[0].message, 'lost', 'failure log entry');
-pr = Game.processChoice(EVENTS[1], 0);
+pr = Game.applyChoice(Game.resolveChoice(EVENTS[1], 0));
 assert.strictEqual(pr.bossDefeated, true, 'BOSS: prefix detected');
 assert.strictEqual(Game.state.bossCompleted, true, 'boss flag set');
 assert.strictEqual(pr.phaseComplete, true, 'phase 1 boss → phase complete');
-assert.ok(Game.processChoice({ id: 'nope' }, 0).error, 'unknown event → error result');
-assert.ok(Game.processChoice(EVENTS[0], 5).error, 'bad choice index → error result');
+assert.ok(Game.resolveChoice({ id: 'nope' }, 0).error, 'unknown event → error result');
+assert.ok(Game.resolveChoice(EVENTS[0], 5).error, 'bad choice index → error result');
 Math.random = realRandom;
-console.log('✓ processChoice: success/failure paths, boss detection, day/history, error paths');
+console.log('✓ resolve/apply: success/failure paths, boss detection, day/history, error paths');
 
 // --- Boss event + run end: terminal flags co-occur (toast clobber guard) ---
-// processChoice sets bossDefeated from the event title alone, so a run
+// applyChoice sets bossDefeated from the event title alone, so a run
 // that ENDS on a boss event reports bossDefeated AND gameOver (AND
 // leveledUp, if the event count lines up). handleChoice must toast
 // terminal states FIRST (gameOver → victory → ...) or the death toast is
@@ -482,7 +549,7 @@ Object.assign(Game.state, {
 });
 Math.random = () => 0.99; // no equipment drops
 d20 = () => 20; // check: 19 vs 1 → fail; saving roll: 20 vs 3.5 → fail
-pr = Game.processChoice(EVENTS[0], 0);
+pr = Game.applyChoice(Game.resolveChoice(EVENTS[0], 0));
 assert.strictEqual(pr.success, false, 'boss check failed');
 assert.strictEqual(pr.bossDefeated, true, 'bossDefeated set regardless of outcome');
 assert.ok(pr.gameOver, 'run ended on the boss event');

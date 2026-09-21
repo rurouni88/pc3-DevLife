@@ -74,8 +74,30 @@
  * @property {boolean} success 
  * @property {boolean} [negotiated] */
 
-/** The return value of Game.processChoice.
- * On failure (unknown event/choice) only `error` is set.
+/** Phase 1 of choice processing (Game.resolveChoice): the stat checks are
+ * resolved and the available perk interventions determined, but NOTHING is
+ * applied yet — effects, loot, days, and milestones all happen in
+ * Game.applyChoice, after the player has decided.
+ * @typedef {Object} ResolvedChoice
+ * @property {GameEvent} gameEvent
+ * @property {EventChoice} choice
+ * @property {boolean} isBoss
+ * @property {CheckResult[]} checkResults
+ * @property {boolean} allSuccess
+ * @property {boolean} cleanDeployUsed
+ * @property {PerkInterventions} interventions */
+
+/** Which perk interventions are available for a resolved choice. */
+/** @typedef {Object} PerkInterventions
+ * @property {boolean} negotiate
+ * @property {boolean} bruteForce
+ * @property {boolean} codeReview */
+
+/** The player's decisions on the available interventions (applyChoice input). */
+/** @typedef {PerkInterventions} PerkDecisions */
+
+/** The return value of Game.applyChoice (the final, applied outcome).
+ * On failure (no active run) only `error` is set.
  * `gameOver` is the death reason object, or null when the run continues.
  * @typedef {Object} ProcessResult
  * @property {string} [error]
@@ -90,9 +112,6 @@
  * @property {boolean} [phaseComplete]
  * @property {boolean} [victory]
  * @property {boolean} [bossDefeated]
- * @property {boolean} [hasNegotiate]
- * @property {boolean} [hasBruteForce]
- * @property {boolean} [hasCodeReview]
  * @property {boolean} [cleanDeployUsed] */
 
 /** A career log entry (most recent first). */

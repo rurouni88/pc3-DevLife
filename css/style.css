@@ -1793,7 +1793,7 @@ body {
   margin-bottom: var(--spacing-md);
 }
 
-/* Perk intervention prompt box (active perks on the result screen) */
+/* Perk intervention prompt box (active perks on the decision screen) */
 .perk-prompt-box {
   font-family: var(--font-mono);
   font-size: 0.85rem;
@@ -1802,6 +1802,12 @@ body {
   border: 1px solid var(--accent-purple);
   border-radius: var(--radius-sm);
   margin-bottom: var(--spacing-md);
+}
+
+/* A prompt that has already been decided (used/declined) */
+.perk-prompt-box.decided {
+  opacity: 0.55;
+  border-color: var(--border, #333);
 }
 
 .perk-prompt-title {
