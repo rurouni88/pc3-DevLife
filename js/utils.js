@@ -49,3 +49,13 @@ function formatEffects(effects) {
     .join(', ');
 }
 
+// Full effect text for an equipment item: stat bonuses + slot bonuses
+// (the Backpack has no stat effects, only a slot bonus).
+/** @param {{ effects?: Partial<Stats>, consumableSlots?: number }} item @returns {string} */
+function equipmentEffectText(item) {
+  const parts = [];
+  if (item.effects && Object.keys(item.effects).length > 0) parts.push(formatEffects(item.effects));
+  if (item.consumableSlots) parts.push(`+${item.consumableSlots} consumable slot`);
+  return parts.join(', ');
+}
+

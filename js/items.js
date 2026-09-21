@@ -16,6 +16,7 @@ const EQUIPMENT = [
   { id: 'macbook', name: 'MacBook Pro M5', emoji: '💻', rarity: 'rare', effects: { I: 1, A: 1 }, desc: '+1 Intelligence, +1 Agility — It just works. Mostly.' },
   { id: 'aws', name: 'AWS Certification', emoji: '☁️', rarity: 'rare', effects: { I: 1, S: 1 }, desc: '+1 Intelligence, +1 Strength' },
   { id: 'standing', name: 'Standing Desk', emoji: '🪑', rarity: 'rare', effects: { E: 2 }, desc: '+2 Endurance' },
+  { id: 'backpack', name: 'Backpack', emoji: '🎒', rarity: 'rare', effects: {}, consumableSlots: 1, desc: '+1 consumable slot' },
   
   // Epic
   { id: 'chair', name: 'Custom Ergonomic Chair', emoji: '💺', rarity: 'epic', effects: { E: 3 }, desc: '+3 Endurance' },

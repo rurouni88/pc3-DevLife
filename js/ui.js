@@ -176,7 +176,7 @@ const UICore = {
   },
   
   // Show item tooltip (consumables, equipment, perks)
-  /** @param {{ emoji?: string, name?: string, desc?: string, stat?: string, bonus?: number, multiplier?: number, effects?: Partial<Stats> }} item */
+  /** @param {{ emoji?: string, name?: string, desc?: string, stat?: string, bonus?: number, multiplier?: number, effects?: Partial<Stats>, consumableSlots?: number }} item */
   showTooltip(item) {
     const tooltip = document.getElementById('item-tooltip');
     if (!tooltip) return;
@@ -196,8 +196,8 @@ const UICore = {
       effectText = `+${item.bonus} ${item.stat === 'any' ? 'ANY stat' : STAT_META[/** @type {StatKey} */ (item.stat)]?.name || item.stat}`;
     } else if (item.multiplier) {
       effectText = `${item.multiplier}× stat (risky)`;
-    } else if (item.effects) {
-      effectText = formatEffects(item.effects);
+    } else if (item.effects || item.consumableSlots) {
+      effectText = equipmentEffectText(item);
     }
     const effectEl = /** @type {HTMLElement} */ (tooltip.querySelector('.tooltip-effect'));
     effectEl.textContent = effectText;
@@ -452,7 +452,7 @@ const UICore = {
     
     container.innerHTML = '';
     equipment.forEach(item => {
-      const effectText = formatEffects(item.effects);
+      const effectText = equipmentEffectText(item);
       const el = document.createElement('span');
       el.className = 'equip-item';
       el.dataset.tooltip = `${item.name}: ${effectText}`;

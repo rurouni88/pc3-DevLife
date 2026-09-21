@@ -120,6 +120,7 @@ Passive items that give permanent stat bonuses. **Max 1 equipped at a time.**
 | MacBook Pro M5 | 💻 | +1 Intelligence, +1 Agility | It just works. Mostly. |
 | AWS Certification | ☁️ | +1 Intelligence, +1 Strength | Cloud-native. Lift heavy things into the sky. |
 | Standing Desk | 🪑 | +2 Endurance | Your legs thank you. Your back agrees. |
+| Backpack | 🎒 | +1 consumable slot | Room for more coffee. And snacks. And the second keyboard. |
 
 #### Epic
 | Item | Emoji | Effect | Description |
@@ -272,7 +273,7 @@ Defeat all **4 phase bosses** (24 events, 20 with Fast Ship) to reach **Retireme
 3. **Multiple Archetypes:** 9 selectable predefined stat distributions (+1 locked easter egg), or build your own
 4. **Perks:** Different stat-mastery builds play like different classes
 5. **Permadeath:** Each run is a new career
-6. **Meta Progression (implemented):** Your **end-of-run equipment** carries into the next run (most recent wins — a mid-run swap carries the new item), and at the end of each run you **pick 1 of 3 random consumables** to carry (pool of 2, most recent pick wins). A run counter tracks your attempts. *(Unlocking new event types, items, and archetypes — planned.)*
+6. **Meta Progression (implemented):** Your **end-of-run equipment** carries into the next run (most recent wins — a mid-run swap carries the new item), and at the end of each run you **pick 1 of 3 random consumables** to carry (pool of 2, most recent pick wins — 3 if you end the run carrying a **Backpack**, which adds +1 consumable slot). A run counter tracks your attempts. *(Unlocking new event types, items, and archetypes — planned.)*
 7. **Career Summary:** Detailed stats at end of each run (like roguelike leaderboards)
 
 ---

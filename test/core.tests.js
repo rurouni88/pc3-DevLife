@@ -552,6 +552,25 @@ SpecialSystem.stats.E = 3;
 assert.deepStrictEqual(Game.dangerStats(), [], 'no danger when all stats are safe');
 console.log('✓ dangerStats: base stats at the threshold, equipment irrelevant');
 
+// --- Backpack: +1 consumable slot while carried ---
+const backpack = EQUIPMENT.find(e => e.id === 'backpack');
+assert.ok(backpack, 'backpack is in the equipment pool');
+assert.strictEqual(equipmentEffectText(backpack), '+1 consumable slot', 'effect text shows the slot bonus');
+assert.strictEqual(equipmentEffectText(EQUIPMENT.find(e => e.id === 'keyboard')), '+1 Strength', 'stat-only equipment unchanged');
+fullRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+assert.strictEqual(Game.consumableCap(), 2, 'base cap without equipment');
+Game.state.equipment = [backpack];
+assert.strictEqual(Game.consumableCap(), 3, 'backpack raises the cap');
+Game.state.equipment = [EQUIPMENT.find(e => e.id === 'keyboard')];
+assert.strictEqual(Game.consumableCap(), 2, 'stat equipment does not');
+// A new run grants the extra slot from the carried backpack
+const stash = [CONSUMABLES[0], CONSUMABLES[1], CONSUMABLES[2]];
+const withPack = Game.createCharacter(zeroStats(), stash, [backpack]);
+assert.strictEqual(withPack.consumables.length, 3, '3 starting consumables with backpack');
+const noPack = Game.createCharacter(zeroStats(), stash, []);
+assert.strictEqual(noPack.consumables.length, 2, '2 without');
+console.log('✓ backpack: +1 consumable slot, granted at run start');
+
 // --- Phase progression: completion vs victory ---
 freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
 Game.state.phase = 3;

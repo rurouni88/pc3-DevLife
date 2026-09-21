@@ -81,7 +81,7 @@ const UILevelUp = {
     const state = Game.state;
     if (!state) return;
     const options = state.pendingLevelUpConsumables;
-    const hasFullInventory = state.consumables.length >= CONFIG.game.consumableCap;
+    const hasFullInventory = state.consumables.length >= Game.consumableCap();
     
     // Show the level up screen first
     UI.showScreen('levelup');
