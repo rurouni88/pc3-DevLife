@@ -79,8 +79,8 @@ const SpecialSystem = {
   },
 
   // Restore from clone
-  restore(data: SpecialSnapshot): void {
-    this.stats = { ...data.stats };
-    this.equipmentBonuses = { ...data.equipmentBonuses };
+  restore(snapshot: SpecialSnapshot): void {
+    this.stats = { ...snapshot.stats };
+    this.equipmentBonuses = { ...snapshot.equipmentBonuses };
   }
 };

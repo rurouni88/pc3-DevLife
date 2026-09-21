@@ -134,17 +134,17 @@ const PerkSystem = {
   },
 
   // Restore from clone
-  restore(data: PerkSnapshot | null): void {
-    if (!data) {
+  restore(snapshot: PerkSnapshot | null): void {
+    if (!snapshot) {
       this.reset();
       return;
     }
-    this.active = [...(data.active || [])];
-    this.bruteForceUsed = !!data.bruteForceUsed;
-    this.codeReviewUsed = !!data.codeReviewUsed;
-    this.negotiateUsed = !!data.negotiateUsed;
-    this.cleanDeployUsed = !!data.cleanDeployUsed;
+    this.active = [...(snapshot.active || [])];
+    this.bruteForceUsed = !!snapshot.bruteForceUsed;
+    this.codeReviewUsed = !!snapshot.codeReviewUsed;
+    this.negotiateUsed = !!snapshot.negotiateUsed;
+    this.cleanDeployUsed = !!snapshot.cleanDeployUsed;
     // Saves from before v0.31 have no ironNervesUsed — treat as unused
-    this.ironNervesUsed = !!data.ironNervesUsed;
+    this.ironNervesUsed = !!snapshot.ironNervesUsed;
   }
 };
