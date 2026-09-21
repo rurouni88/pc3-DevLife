@@ -572,11 +572,20 @@ const UICore = {
       `;
     }
     
+    // Low-stat warning for mobile, where the SPECIAL bar is a hidden drawer:
+    // any stat at or below the danger threshold is one hit from a saving roll.
+    // Hidden on desktop (≥900px) where the bar is always visible (CSS).
+    const danger = Game.dangerStats();
+    const dangerHTML = danger.length > 0
+      ? `<div class="stat-danger-strip">⚠️ Danger: ${danger.map(k => STAT_META[k].name).join(', ')}</div>`
+      : '';
+    
     card.innerHTML = `
       <div class="event-header">
         <div class="event-phase">${event.phaseLabel}</div>
         <div class="event-title">${event.title}</div>
       </div>
+      ${dangerHTML}
       <div class="event-body">
         <div class="event-narrative">${event.narrative}</div>
         ${consumableHTML}

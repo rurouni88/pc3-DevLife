@@ -1646,6 +1646,19 @@ body {
   background: var(--bg-tertiary);
 }
 
+/* Low-stat warning strip — mobile only: below 900px the SPECIAL bar is a
+   hidden drawer, so the event card says which stats are one hit from
+   the saving-roll floor. Desktop always shows the bar, so hide it. */
+.stat-danger-strip {
+  padding: var(--spacing-xs) var(--spacing-md);
+  background: rgba(255, 82, 82, 0.12);
+  border-bottom: 1px solid var(--accent-red);
+  color: var(--accent-red);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+}
+
 .event-phase {
   font-family: var(--font-mono);
   font-size: 0.7rem;
@@ -1964,6 +1977,11 @@ body {
   #screen-game {
     flex-direction: row;
     overflow: hidden;
+  }
+  
+  .stat-danger-strip {
+    /* the SPECIAL bar is always visible on desktop */
+    display: none;
   }
   
   .game-layout {

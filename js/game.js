@@ -323,6 +323,18 @@ const Game = {
     return !!this.state && this.state.phase === 4 && this.state.bossCompleted;
   },
   
+  // Stats in immediate danger: at or below the danger threshold, i.e. one
+  // negative hit from the saving-roll floor. Uses base stats — equipment
+  // bonuses do not protect against the floor (the death check doesn't either).
+  /** @returns {StatKey[]} */
+  dangerStats() {
+    /** @type {StatKey[]} */ const out = [];
+    for (const key of STAT_KEYS) {
+      if (SpecialSystem.stats[key] <= CONFIG.game.dangerThreshold) out.push(key);
+    }
+    return out;
+  },
+  
   // Check game over conditions
   checkGameOver() {
     // Deterministic checks first; fall back to probabilistic ones only if
