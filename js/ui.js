@@ -585,12 +585,13 @@ const UICore = {
             const checks = Object.entries(choice.checks || {});
             const checkHTML = checks.length > 0
               ? `<div class="choice-checks">${checks.map(([stat, target]) => {
-                  // Same competence gate as Game.resolveStatChecks — the d20
-                  // roll is unknown at preview time, so show whether the
-                  // effective stat clears the Luck-adjusted gate
+                  // Simple preview: effective stat (includes equipment and
+                  // consumable bonuses) vs the full target. Below target =
+                  // red (a good roll is your only hope), at/above = green.
+                  // Luck stays a hidden factor — it is not shown in the
+                  // preview.
                   const currentStat = SpecialSystem.effective(/** @type {StatKey} */ (stat));
-                  const gate = (target - SpecialSystem.stats.L) * CONFIG.game.competenceGateFactor;
-                  const success = currentStat >= gate;
+                  const success = currentStat >= /** @type {number} */ (target);
                   return `<span class="check ${success ? 'success' : 'fail'}">${STAT_META[/** @type {StatKey} */ (stat)].name}: ${target} ${success ? '✓' : '✗'}</span>`;
                 }).join('')}</div>`
               : '';
