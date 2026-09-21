@@ -5,7 +5,9 @@
   "description": "DevLife — a software engineering roguelike",
   "scripts": {
     "typecheck": "tsc",
-    "test": "node test/core.test.js"
+    "test": "node test/core.test.js",
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch"
   },
   "devDependencies": {
     "typescript": "^5.5.0"
