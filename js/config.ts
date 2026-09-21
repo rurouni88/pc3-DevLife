@@ -6,7 +6,7 @@ const CONFIG = {
   stats: {
     min: 1,
     max: 10,
-    keys: ['S', 'P', 'E', 'C', 'I', 'A', 'L'],
+    keys: ['S', 'P', 'E', 'C', 'I', 'A', 'L'] as StatKey[],
     startingPoints: 40,
   },
 
