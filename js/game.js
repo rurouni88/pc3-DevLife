@@ -65,15 +65,52 @@ const Game = {
     return false;
   },
   
-  // Process an event choice
-  /** @param {GameEvent} gameEvent @param {number} choiceIndex @returns {ProcessResult} */
-  processChoice(gameEvent, choiceIndex) {
+  // Phase 1 of choice processing: resolve the stat checks and determine
+  // which perk interventions the player may choose. No persistent side
+  // effects — effects, loot, days, and milestones all happen in
+  // applyChoice(), AFTER the player has decided. (Clean Deploy is the
+  // exception: it is automatic and fires here, at roll time.)
+  /** @param {GameEvent} gameEvent @param {number} choiceIndex @returns {ResolvedChoice | { error: string }} */
+  resolveChoice(gameEvent, choiceIndex) {
     const eventDef = EVENTS.find(e => e.id === gameEvent.id);
     if (!eventDef) return { error: 'Event not found' };
     
     const choice = eventDef.choices[choiceIndex];
     if (!choice) return { error: 'Invalid choice' };
     
+    if (!this.state) return { error: 'No active run' };
+    
+    const checkResult = this.resolveStatChecks(choice);
+    
+    // Intervention availability is frozen here, before any effects are
+    // applied — applyChoice() is what applies them, so a failure's own
+    // effects (which may drop a stat and revoke the perk) cannot steal the
+    // intervention that was earned when the check resolved.
+    const failureHasNegatives = Object.values(choice.failure.effects).some(v => (v || 0) < 0);
+    
+    return {
+      gameEvent,
+      choice,
+      isBoss: eventDef.title.startsWith(BOSS_PREFIX),
+      checkResults: checkResult.results,
+      allSuccess: checkResult.allSuccess,
+      cleanDeployUsed: checkResult.cleanDeployUsed,
+      interventions: {
+        negotiate: checkResult.hasNegotiate,
+        bruteForce: checkResult.hasBruteForce,
+        codeReview: !checkResult.allSuccess && failureHasNegatives && PerkSystem.canUseCodeReview()
+      }
+    };
+  },
+  
+  // Phase 2: apply the outcome with the player's intervention decisions.
+  // Negotiate converts the failure to a success; Brute Force re-evaluates
+  // the failed Strength check at +2 (success if all checks now pass);
+  // Code Review halves the negative effects at apply time — no retroactive
+  // refund. A perk is consumed only if its intervention actually applies
+  // (e.g. Code Review is not spent when Negotiate already won the event).
+  /** @param {ResolvedChoice} resolved @param {PerkDecisions} [use] @returns {ProcessResult} */
+  applyChoice(resolved, use = { negotiate: false, bruteForce: false, codeReview: false }) {
     const state = this.state;
     if (!state) return { error: 'No active run' };
     
@@ -82,33 +119,54 @@ const Game = {
     // equipmentDropped flag — checkForEquipmentDrop() re-sets it below
     state.pendingEquipmentDrop = null;
     
-    // Resolve stat checks and apply consequences
-    const checkResult = this.resolveStatChecks(choice);
+    // Final outcome: interventions may convert the failure
+    const checkResults = resolved.checkResults.map(cr => ({ ...cr }));
+    let success = resolved.allSuccess;
     
-    // Perk availability is judged BEFORE effects: the failure's own effects
-    // may drop a stat and revoke the perk, but the intervention for this
-    // event is still offered (and usable) — see useNegotiate() etc.
-    const codeReviewAvailable = PerkSystem.canUseCodeReview();
+    if (!success && use.negotiate && resolved.interventions.negotiate) {
+      PerkSystem.useNegotiate();
+      success = true;
+      checkResults.forEach(cr => { cr.negotiated = true; });
+      this.addLog('🤝 Negotiate! You talked your way out of it.');
+    } else if (!success && use.bruteForce && resolved.interventions.bruteForce) {
+      PerkSystem.useBruteForce();
+      checkResults.forEach(cr => {
+        if (cr.stat === 'S' && !cr.success) {
+          cr.target = PerkSystem.applyBruteForce(cr.target);
+          cr.success = cr.roll <= cr.target;
+        }
+      });
+      if (checkResults.every(cr => cr.success)) success = true;
+      this.addLog('💪 Brute Force! +2 to the Strength check target.');
+    }
     
-    // Apply stat effects and log the outcome
-    const effects = checkResult.allSuccess ? choice.success.effects : choice.failure.effects;
-    const log = checkResult.allSuccess ? choice.success.log : choice.failure.log;
-    const effectResult = this.applyEffects(effects);
+    // Effects for the final outcome; Code Review halves the negatives now
+    let effects = success ? resolved.choice.success.effects : resolved.choice.failure.effects;
+    if (!success && use.codeReview && resolved.interventions.codeReview) {
+      PerkSystem.useCodeReview();
+      /** @type {Partial<Stats>} */ const halved = {};
+      for (const [stat, value] of /** @type {Array<[StatKey, number]>} */ (Object.entries(effects))) {
+        halved[stat] = value < 0 ? PerkSystem.applyCodeReview(value) : value;
+      }
+      effects = halved;
+      this.addLog('🐛 Code Review! Negative effects halved.');
+    }
+    const log = success ? resolved.choice.success.log : resolved.choice.failure.log;
+    this.applyEffects(effects);
     
     // Award loot if successful
-    const itemDropped = this.checkForEquipmentDrop(checkResult.allSuccess);
+    const itemDropped = this.checkForEquipmentDrop(success);
     
     // Advance game state
     const { min: dayMin, max: dayMax } = CONFIG.game.dayAdvance;
     state.day += dayMin + Math.floor(Math.random() * (dayMax - dayMin + 1));
     state.eventsCompleted++;
-    state.currentEventId = gameEvent.id;
-    state.eventHistory.push(gameEvent.id);
+    state.currentEventId = resolved.gameEvent.id;
+    state.eventHistory.push(resolved.gameEvent.id);
     this.addLog(log);
     
     // Track boss defeat
-    const isBoss = eventDef.title.startsWith(BOSS_PREFIX);
-    if (isBoss) {
+    if (resolved.isBoss) {
       state.bossCompleted = true;
     }
     
@@ -119,8 +177,8 @@ const Game = {
     const victory = this.checkVictory();
     
     return {
-      success: checkResult.allSuccess,
-      checkResults: checkResult.results,
+      success,
+      checkResults,
       effects,
       log,
       itemDropped,
@@ -129,11 +187,8 @@ const Game = {
       gameOver,
       phaseComplete,
       victory,
-      bossDefeated: isBoss,
-      hasNegotiate: checkResult.hasNegotiate,
-      hasBruteForce: checkResult.hasBruteForce,
-      hasCodeReview: effectResult.hasNegativeEffects && codeReviewAvailable,
-      cleanDeployUsed: checkResult.cleanDeployUsed
+      bossDefeated: resolved.isBoss,
+      cleanDeployUsed: resolved.cleanDeployUsed
     };
   },
   
@@ -181,69 +236,7 @@ const Game = {
     return { allSuccess, results, hasNegotiate, hasBruteForce, cleanDeployUsed };
   },
   
-  // Use Negotiate perk after event result. Cosmetic: effects were already
-  // applied, but the displayed result flips to success.
-  // Gate is "not yet spent this run", NOT "perk still active": the
-  // failure's own effects may have dropped C below 10 and revoked the
-  // perk, but the intervention was earned when the check resolved.
-  /** @param {ProcessResult} result @returns {boolean} */
-  useNegotiate(result) {
-    if (PerkSystem.negotiateUsed) return false;
-    PerkSystem.useNegotiate();
-    result.success = true;
-    (result.checkResults || []).forEach(cr => { cr.negotiated = true; });
-    this.addLog('🤝 Negotiate! You talked your way out of it.');
-    return true;
-  },
-  
-  // 💪 Brute Force: re-evaluate the failed Strength check with a +2 target.
-  // Cosmetic: effects were already applied, but the displayed check (and
-  // success state, if all checks now pass) is updated.
-  /** @param {ProcessResult} result @returns {boolean} */
-  useBruteForce(result) {
-    if (PerkSystem.bruteForceUsed) return false;
-    PerkSystem.useBruteForce();
-    
-    const checkResults = result.checkResults || [];
-    checkResults.forEach(cr => {
-      if (cr.stat === 'S' && !cr.success) {
-        cr.target = PerkSystem.applyBruteForce(cr.target);
-        cr.success = cr.roll <= cr.target;
-      }
-    });
-    
-    if (checkResults.length > 0 && checkResults.every(cr => cr.success)) {
-      result.success = true;
-    }
-    
-    this.addLog('💪 Brute Force! +2 to the Strength check target.');
-    return true;
-  },
-  
-  // 🐛 Code Review: retroactively halve this outcome's negative effects
-  // (the full effects were already applied by applyEffects). Edge case:
-  // if a stat was clamped at the min, the correction may over-restore by
-  // the clamped amount — accepted as rare.
-  /** @param {ProcessResult} result @returns {boolean} */
-  useCodeReview(result) {
-    if (PerkSystem.codeReviewUsed || !result.effects) return false;
-    PerkSystem.useCodeReview();
-    
-    for (const [stat, value] of /** @type {Array<[StatKey, number]>} */ (Object.entries(result.effects))) {
-      if (value < 0 && SpecialSystem.stats[stat] !== undefined) {
-        const correction = PerkSystem.applyCodeReview(value) - value; // e.g. -2 - (-4) = +2
-        SpecialSystem.stats[stat] = clampStat(SpecialSystem.stats[stat] + correction);
-      }
-    }
-    
-    this.refreshPerks();
-    this.addLog('🐛 Code Review! Negative effects halved.');
-    return true;
-  },
-  
-  // Apply stat effects from choice outcome. Negative effects are applied in
-  // full — Code Review (player choice) may retroactively halve them via
-  // useCodeReview().
+  // Apply stat effects from choice outcome.
   /** @param {Partial<Stats>} effects @returns {{ hasNegativeEffects: boolean }} */
   applyEffects(effects) {
     const hasNegativeEffects = Object.entries(effects).some(([_, v]) => v < 0);
