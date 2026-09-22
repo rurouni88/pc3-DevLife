@@ -64,7 +64,7 @@ interface EventChoice {
   failure: EventOutcome;
 }
 
-/** A game event as defined in js/events/phase_*.json. */
+/** A game event as defined in data/events/phase_*.json. */
 interface GameEvent {
   id: string;
   title: string;

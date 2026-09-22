@@ -1,14 +1,14 @@
 // Events — loaded from per-phase JSON files
-// Source files: js/events/phase_*.json
+// Source files: data/events/phase_*.json
 
 const EVENTS_PER_BOSS = CONFIG.game.eventsPerBoss;
 const BOSS_PREFIX = CONFIG.game.bossPrefix;
 
 const PHASE_FILES: Record<number, string> = {
-  1: 'js/events/phase_junior.json',
-  2: 'js/events/phase_mid.json',
-  3: 'js/events/phase_senior.json',
-  4: 'js/events/phase_staff.json',
+  1: 'data/events/phase_junior.json',
+  2: 'data/events/phase_mid.json',
+  3: 'data/events/phase_senior.json',
+  4: 'data/events/phase_staff.json',
 };
 
 let EVENTS: GameEvent[] = [];

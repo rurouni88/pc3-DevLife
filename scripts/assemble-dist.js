@@ -6,14 +6,14 @@
 // tsc:
 //   - src/index.html              (the page itself)
 //   - src/css/style.css           (the theme)
-//   - src/js/events/phase_*.json  (event content, fetched at runtime)
+//   - src/data/                   (game content: events, future achievements — fetched at runtime)
 //
 // This script copies those into dist/ so it becomes a self-contained site root
 // for GitHub Pages:
 //   dist/index.html
 //   dist/css/style.css
 //   dist/js/*.js                  (from the build)
-//   dist/js/events/phase_*.json
+//   dist/data/                    (game content: events, future achievements)
 //
 // index.html already references its assets relative to the site root (js/,
 // css/), so it is copied as-is — no path rewriting needed.
@@ -46,9 +46,9 @@ console.log('[assemble] src/index.html -> dist/index.html');
 copyDir(path.join(srcDir, 'css'), path.join(dist, 'css'));
 console.log('[assemble] src/css/ -> dist/css/');
 
-// 3. src/js/events/ -> dist/js/events/ (event content, fetched at runtime)
-copyDir(path.join(srcDir, 'js', 'events'), path.join(dist, 'js', 'events'));
-console.log('[assemble] src/js/events/ -> dist/js/events/');
+// 3. src/data/ -> dist/data/ (game content: events, future achievements — fetched at runtime)
+copyDir(path.join(srcDir, 'data'), path.join(dist, 'data'));
+console.log('[assemble] src/data/ -> dist/data/');
 
 console.log('[assemble] done — dist/ is ready to deploy.');
 
