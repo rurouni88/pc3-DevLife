@@ -485,7 +485,7 @@ const Game = {
   },
 
   // Get career summary
-  getSummary(): { runNumber: number; level: number; phase: number; day: number; eventsCompleted: number; equipment: Equipment[]; stats: Stats; duration: string } | null {
+  getSummary(): { runNumber: number; level: number; phase: number; day: number; eventsCompleted: number; equipment: Equipment[]; stats: Stats; duration: string; difficulty: Difficulty } | null {
     const state = this.state;
     if (!state) return null;
     const duration = Math.floor((Date.now() - state.startTime) / 1000);
@@ -500,7 +500,9 @@ const Game = {
       eventsCompleted: state.eventsCompleted,
       equipment: state.equipment,
       stats: { ...SpecialSystem.stats },
-      duration: `${hours}h ${minutes % 60}m`
+      duration: `${hours}h ${minutes % 60}m`,
+      // Old saves may predate the difficulty field — treat those as Easy
+      difficulty: state.difficulty ?? 'easy'
     };
   },
 };

@@ -100,6 +100,7 @@ const UIEndOfRun = {
     if (!summary || !container) return;
     container.innerHTML = `
       <div class="summary-row"><span class="label">Run #</span><span class="value">${summary.runNumber}</span></div>
+      <div class="summary-row"><span class="label">Difficulty</span><span class="value">${CONFIG.game.difficulty[summary.difficulty].emoji} ${CONFIG.game.difficulty[summary.difficulty].label}</span></div>
       <div class="summary-row"><span class="label">Level Reached</span><span class="value">${summary.level}</span></div>
       <div class="summary-row"><span class="label">Final Position</span><span class="value">${CONFIG.game.phaseNames[summary.phase] || summary.phase}</span></div>
       <div class="summary-row"><span class="label">Career Length</span><span class="value">${(summary.day / CONFIG.game.daysPerCareerYear).toFixed(1)} years</span></div>
@@ -131,6 +132,7 @@ const UIEndOfRun = {
     if (!summary) return;
     summaryContainer.innerHTML = `
       <div class="summary-row"><span class="label">Run #</span><span class="value">${summary.runNumber}</span></div>
+      <div class="summary-row"><span class="label">Difficulty</span><span class="value">${CONFIG.game.difficulty[summary.difficulty].emoji} ${CONFIG.game.difficulty[summary.difficulty].label}</span></div>
       <div class="summary-row"><span class="label">Final Level</span><span class="value">${summary.level}</span></div>
       <div class="summary-row"><span class="label">Final Position</span><span class="value">${CONFIG.game.phaseNames[summary.phase] || summary.phase} 🏆</span></div>
       <div class="summary-row"><span class="label">Career Length</span><span class="value">${(summary.day / CONFIG.game.daysPerCareerYear).toFixed(1)} years</span></div>
