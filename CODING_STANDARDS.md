@@ -1,10 +1,10 @@
-# OS Coding Standards
+# Coding Standards
 
 **Owner:** PC3 and AI invoked for coding 
 **Applies to:** All code produced by AI Agents for ANY codebase, repo — scripts, hooks, tests, and guides  
 **Principle:** Consistency over cleverness. Read before writing. Follow what exists.
-i
-> **Scope note:** These standards are language-agnostic and are universally applicable. However, when the AI Agent works in a CBA code repository, that repo's own coding standards and conventions take precedence — read the repo's `CONTRIBUTING.md`, `.editorconfig`, linter config, or equivalent before writing a single line.
+
+> **Scope note:** These standards are language-agnostic and are universally applicable. However, when the AI Agent works in an existing code repository, that repo's own coding standards and conventions take precedence — read the repo's `CONTRIBUTING.md`, `.editorconfig`, linter config, or equivalent before writing a single line.
 
 ---
 
@@ -160,4 +160,4 @@ In all three cases: state the reason before introducing the change.
 
 These standards apply to every task any Agent executes. During self-review before handoff, the AI Agent checks each principle against the output and flags any deliberate deviation with a rationale. Deviations without rationale are defects.
 
-When working in a CBA code repository, the AI Agent reads and follows that repo's own standards — these OS standards do not apply.
+When working in an existing code repository, the AI Agent reads and follows that repo's own standards. If there is conflict with one of these standards, surface to a human user and/or make a decision if it's minor.
