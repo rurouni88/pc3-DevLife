@@ -30,7 +30,7 @@ const PACKAGE_VERSION = JSON.parse(
 // Cache-busting: every asset tag in index.html carries ?v=<version>. A stale
 // cached file is a classic static-site bug (new code calling a function the
 // old cached file lacks), so the test body verifies coverage and agreement.
-const indexHtml = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+const indexHtml = fs.readFileSync(path.join(__dirname, '..', 'src', 'index.html'), 'utf8');
 // Path-agnostic (assets may live in js/ or dist/js/ after a build) but still
 // anchored to src=/href= so the "ui.js" mention in a comment isn't counted.
 const INDEX_ASSET_COUNT = (indexHtml.match(/(?:src|href)="[^"]*\.(?:js|css)(?:\?[^"]*)?"/g) || []).length;

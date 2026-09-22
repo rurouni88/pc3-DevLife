@@ -2,18 +2,21 @@
 // Assemble the deployable site into dist/.
 //
 // The tsc build (npm run build) emits the compiled JS into dist/js/. But the
-// runtime also loads three things that live at the repo root and are NOT
-// emitted by tsc:
-//   - index.html              (the page itself)
-//   - css/style.css           (the theme)
-//   - js/events/phase_*.json  (event content, fetched at runtime)
+// runtime also loads three things that live under src/ and are NOT emitted by
+// tsc:
+//   - src/index.html              (the page itself)
+//   - src/css/style.css           (the theme)
+//   - src/js/events/phase_*.json  (event content, fetched at runtime)
 //
-// This script copies those into dist/ so it becomes a self-contained site
-// root for GitHub Pages:
-//   dist/index.html          (script srcs rewritten from dist/js/ to js/)
+// This script copies those into dist/ so it becomes a self-contained site root
+// for GitHub Pages:
+//   dist/index.html
 //   dist/css/style.css
-//   dist/js/*.js             (from the build)
+//   dist/js/*.js                  (from the build)
 //   dist/js/events/phase_*.json
+//
+// index.html already references its assets relative to the site root (js/,
+// css/), so it is copied as-is — no path rewriting needed.
 //
 // Run after `npm run build`.
 
@@ -21,6 +24,7 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
+const srcDir = path.join(root, 'src');
 const dist = path.join(root, 'dist');
 
 function fail(message) {
@@ -33,20 +37,18 @@ if (!fs.existsSync(path.join(dist, 'js'))) {
   fail('dist/js/ not found — run "npm run build" first.');
 }
 
-// 1. index.html -> dist/index.html, rewriting dist/js/ -> js/ so the built
-//    site's script tags point at the site root.
-const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-const rewritten = html.replace(/dist\/js\//g, 'js/');
-fs.writeFileSync(path.join(dist, 'index.html'), rewritten);
-console.log('[assemble] index.html -> dist/index.html (dist/js/ -> js/)');
+// 1. src/index.html -> dist/index.html (copied as-is; it already references
+//    js/ and css/ relative to the site root).
+fs.copyFileSync(path.join(srcDir, 'index.html'), path.join(dist, 'index.html'));
+console.log('[assemble] src/index.html -> dist/index.html');
 
-// 2. css/ -> dist/css/
-copyDir(path.join(root, 'css'), path.join(dist, 'css'));
-console.log('[assemble] css/ -> dist/css/');
+// 2. src/css/ -> dist/css/
+copyDir(path.join(srcDir, 'css'), path.join(dist, 'css'));
+console.log('[assemble] src/css/ -> dist/css/');
 
-// 3. js/events/ -> dist/js/events/ (event content, fetched at runtime)
-copyDir(path.join(root, 'js', 'events'), path.join(dist, 'js', 'events'));
-console.log('[assemble] js/events/ -> dist/js/events/');
+// 3. src/js/events/ -> dist/js/events/ (event content, fetched at runtime)
+copyDir(path.join(srcDir, 'js', 'events'), path.join(dist, 'js', 'events'));
+console.log('[assemble] src/js/events/ -> dist/js/events/');
 
 console.log('[assemble] done — dist/ is ready to deploy.');
 
