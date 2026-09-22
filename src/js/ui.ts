@@ -54,7 +54,6 @@ const UICore = {
       lozenge.setAttribute('role', 'radio');
       lozenge.setAttribute('aria-checked', key === selected ? 'true' : 'false');
       lozenge.disabled = !!cfg.locked;
-      lozenge.title = cfg.desc;
       lozenge.innerHTML = `<span class="difficulty-label">${cfg.label}</span>` +
         (cfg.locked ? '<span class="difficulty-lock">🔒</span>' : '<span class="cons-info difficulty-help" data-help="' + key + '" aria-label="About ' + cfg.label + '">?</span>');
 
@@ -68,16 +67,17 @@ const UICore = {
       container.appendChild(lozenge);
     });
 
-    // "?" info buttons: reuse the item tooltip (hover on desktop, tap on mobile)
+    // "?" info buttons: tap/click to show the tooltip — the same interaction
+    // on mobile and desktop. Hover (mouseenter/mouseleave) fires unreliable
+    // synthetic events on mobile, so it is intentionally not used here. The
+    // global "click outside" handler (initTooltipClose) closes the tooltip.
     container.querySelectorAll<HTMLElement>('.difficulty-help').forEach(btn => {
-      const show = () => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
         const key = btn.dataset.help as Difficulty;
         const cfg = CONFIG.game.difficulty[key];
         if (cfg) UI.showTooltip({ emoji: cfg.emoji, name: cfg.label, desc: cfg.desc });
-      };
-      btn.addEventListener('mouseenter', show);
-      btn.addEventListener('mouseleave', () => UI.hideTooltip());
-      btn.addEventListener('click', (e) => { e.stopPropagation(); show(); });
+      });
     });
   },
 
