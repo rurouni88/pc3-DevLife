@@ -1116,46 +1116,10 @@ body {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  cursor: help;
 }
 
 .perk-chip:hover {
   border-color: var(--accent-yellow);
-}
-
-/* Desktop: hover tooltip */
-@media (hover: hover) {
-  .perk-chip {
-    position: relative;
-  }
-  
-  .perk-chip::after {
-    content: attr(data-desc);
-    position: absolute;
-    bottom: calc(100% + 8px);
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 8px 12px;
-    background: var(--bg-primary);
-    border: 1px solid var(--accent-yellow);
-    border-radius: var(--radius-md);
-    color: var(--text-primary);
-    font-size: 0.75rem;
-    font-family: var(--font-mono);
-    white-space: normal;
-    max-width: 220px;
-    white-space: normal;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.15s ease, visibility 0.15s ease;
-    pointer-events: none;
-    z-index: 200;
-  }
-  
-  .perk-chip:hover::after {
-    opacity: 1;
-    visibility: visible;
-  }
 }
 
 .consumables-list {
@@ -1357,6 +1321,7 @@ body {
   font-size: 0.7rem;
   font-weight: 700;
   flex-shrink: 0;
+  cursor: pointer;
   transition: all var(--transition-fast);
 }
 
@@ -1390,46 +1355,13 @@ body {
   background: var(--bg-tertiary);
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-color);
-  cursor: help;
-  position: relative;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
-/* Desktop: hover tooltip */
-@media (hover: hover) {
-  .equip-item:hover::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: calc(100% + 8px);
-    left: 50%;
-    transform: translateX(-50%);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    white-space: nowrap;
-    z-index: 1000;
-    color: var(--text-primary);
-    pointer-events: none;
-  }
-}
-
-.equip-item[data-tooltip]:hover::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: var(--spacing-xs) var(--spacing-sm);
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  font-size: 0.7rem;
-  white-space: nowrap;
-  z-index: 10;
-  color: var(--text-primary);
+.equip-item:hover {
+  border-color: var(--accent-yellow);
 }
 
 .empty-text {

@@ -4,6 +4,7 @@ const App = {
     this.bindEvents();
     this.checkForSave();
     UI.initTooltipClose();
+    UI.initPopupClose();
     UI.startAsciiLoop();
     this.initHelpTabs();
     UI.showScreen('title');
