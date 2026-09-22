@@ -349,7 +349,7 @@ The project layout has changed since the initial commit, so this document no lon
 
 ### Phase 2: Content Expansion — ✅ done
 - All 4 career phases
-- 57 events (12–16 per phase)
+- 75 events (15–20 per phase)
 - Item system (equipment + consumables, rarity-weighted)
 - 9 selectable archetypes (+1 locked)
 - Game over / victory conditions (incl. saving rolls)

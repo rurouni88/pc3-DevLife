@@ -49,7 +49,7 @@
             "C": -2,
             "E": -2
           },
-          "log": "Overpromised and underdelivered. 💀"
+          "log": "Overpromised and underdelivered. \ud83d\udc80"
         }
       },
       {
@@ -63,15 +63,15 @@
             "C": 1,
             "L": 2
           },
-          "log": "Cried in the boardroom. Consultancy saved the day? 🤷"
+          "log": "Cried in the boardroom. Consultancy saved the day? \ud83e\udd37"
         },
         "failure": {
-          "text": "You start crying. It's not even a dramatic cry — just a quiet, confused weeping. The VP of Sales offers you a tissue and asks if you're okay. The CEO assumes you're having a medical episode and calls HR. The meeting is adjourned for 20 minutes while someone finds you a blanket. Nobody talks about it again.",
+          "text": "You start crying. It's not even a dramatic cry \u2014 just a quiet, confused weeping. The VP of Sales offers you a tissue and asks if you're okay. The CEO assumes you're having a medical episode and calls HR. The meeting is adjourned for 20 minutes while someone finds you a blanket. Nobody talks about it again.",
           "effects": {
             "E": -1,
             "C": -1
           },
-          "log": "Cried in the boardroom. HR was called. 😭"
+          "log": "Cried in the boardroom. HR was called. \ud83d\ude2d"
         }
       }
     ]
@@ -90,7 +90,7 @@
           "I": 7
         },
         "success": {
-          "text": "You propose sponsoring the maintainer. The company agrees. The library gets a proper governance model. Everyone wins — including the entire open-source community.",
+          "text": "You propose sponsoring the maintainer. The company agrees. The library gets a proper governance model. Everyone wins \u2014 including the entire open-source community.",
           "effects": {
             "C": 2,
             "I": 2,
@@ -136,7 +136,7 @@
           "P": 8
         },
         "success": {
-          "text": "Before the board meets, you audit the library: 14,000 lines, one author, but clean tests and a sane architecture. Forking is viable — the legal minefield is real but navigable. You hand the board a one-page risk map with the actual exposure numbers. Option B goes from \"minefield\" to \"decision.\"",
+          "text": "Before the board meets, you audit the library: 14,000 lines, one author, but clean tests and a sane architecture. Forking is viable \u2014 the legal minefield is real but navigable. You hand the board a one-page risk map with the actual exposure numbers. Option B goes from \"minefield\" to \"decision.\"",
           "effects": {
             "P": 1,
             "I": 1
@@ -144,7 +144,7 @@
           "log": "Audited the fork. The minefield became a map."
         },
         "failure": {
-          "text": "You audit the code and find the real problem: the license has a clause that makes an internal fork a legal event, not an engineering one. Your audit is airtight and useless — this is now a law firm's problem, at law firm prices.",
+          "text": "You audit the code and find the real problem: the license has a clause that makes an internal fork a legal event, not an engineering one. Your audit is airtight and useless \u2014 this is now a law firm's problem, at law firm prices.",
           "effects": {
             "E": -1
           },
@@ -216,7 +216,7 @@
             "S": 1,
             "A": 1
           },
-          "log": "Built the automation. Load: impossible → heroic."
+          "log": "Built the automation. Load: impossible \u2192 heroic."
         },
         "failure": {
           "text": "You build the automation, but it automates the process the PM is about to change. Two weeks of work becomes a cautionary tale about building before asking, and the team's load is still the work of ten.",
@@ -236,7 +236,7 @@
     "narrative": "For the first time, you're invited to the executive strategy meeting. The board wants engineering's input on a major business decision: acquire a competitor or build the features in-house.\n\nThe competitor has 50 engineers and a mature product. Building in-house would take 18 months and cost $5M.\n\nThe CEO asks: \"What would you recommend?\"",
     "choices": [
       {
-        "text": "Recommend acquisition — the tech is superior",
+        "text": "Recommend acquisition \u2014 the tech is superior",
         "checks": {
           "I": 8,
           "C": 8
@@ -259,7 +259,7 @@
         }
       },
       {
-        "text": "Recommend building in-house — full control",
+        "text": "Recommend building in-house \u2014 full control",
         "checks": {
           "I": 9,
           "A": 7
@@ -359,12 +359,12 @@
         }
       },
       {
-        "text": "Run the forensics — find how it happened",
+        "text": "Run the forensics \u2014 find how it happened",
         "checks": {
           "P": 9
         },
         "success": {
-          "text": "You pull the logs and trace the breach to the unpatched library — and to the config flag that disabled the patch. You find the exposure window: 6 hours, not the 6 days the first report claimed. The board's \"answers\" call becomes a containment story instead of a disaster story. The press gets a number, not a narrative.",
+          "text": "You pull the logs and trace the breach to the unpatched library \u2014 and to the config flag that disabled the patch. You find the exposure window: 6 hours, not the 6 days the first report claimed. The board's \"answers\" call becomes a containment story instead of a disaster story. The press gets a number, not a narrative.",
           "effects": {
             "P": 1,
             "C": 1
@@ -432,7 +432,29 @@
             "C": -2,
             "E": -2
           },
-          "log": "Board fell asleep. 💀"
+          "log": "Board fell asleep. \ud83d\udc80"
+        }
+      },
+      {
+        "text": "Show a demo of the new platform in action",
+        "checks": {
+          "A": 7
+        },
+        "success": {
+          "text": "The demo wows them. The new platform is fast, reliable, and visually impressive. The board is convinced.",
+          "effects": {
+            "A": 2,
+            "I": 1
+          },
+          "log": "Demo won them over!"
+        },
+        "failure": {
+          "text": "The demo crashes. The board sees the new platform as risky. They want the old system.",
+          "effects": {
+            "A": -1,
+            "E": -1
+          },
+          "log": "Demo crashed. Back to square one."
         }
       }
     ]
@@ -504,7 +526,7 @@
           "log": "Rewrote behind a facade. Zero downtime."
         },
         "failure": {
-          "text": "You start the rewrite, but the old library's edge cases take weeks to surface — the maintainer knew things that were never documented. You're at day 40 of 90 and the product has a feature that only works on Tuesdays. The board wants an update. You give them one.",
+          "text": "You start the rewrite, but the old library's edge cases take weeks to surface \u2014 the maintainer knew things that were never documented. You're at day 40 of 90 and the product has a feature that only works on Tuesdays. The board wants an update. You give them one.",
           "effects": {
             "E": -2
           },
@@ -616,7 +638,7 @@
             "C": -2,
             "E": -2
           },
-          "log": "Lost the client. 💀"
+          "log": "Lost the client. \ud83d\udc80"
         }
       },
       {
@@ -653,7 +675,7 @@
             "S": 1,
             "C": 1
           },
-          "log": "Shim shipped. Fury → grudging respect."
+          "log": "Shim shipped. Fury \u2192 grudging respect."
         },
         "failure": {
           "text": "You write the shim, but the old format had an undocumented field the client's billing pipeline depends on. You find it in the shim's first week of logs. The client is saved, but now you own their billing edge cases, which is a new job you didn't apply for.",
@@ -667,152 +689,488 @@
     ]
   },
   {
-    "id": "the_performance_crisis_2",
-    "title": "The Performance Crisis II",
+    "id": "the_key_engineer_departure",
+    "title": "The Key Engineer Departure",
     "phase": 4,
     "phaseLabel": "Staff/Principal",
-    "narrative": "Your platform is slow. Really slow. Average page load: 8 seconds. Users are complaining. Churn is up 15%.\n\nYou've been asked to \"make it fast.\" No specifics. The CEO wants it \"fixed by next sprint.\"\n\nYou open the profiler. The app makes 47 API calls per page load. Forty. Seven.\n\nThis is your final boss-level challenge.",
+    "narrative": "Your best engineer just resigned. They're leaving for a competitor. They've been with the company for 5 years and know more about the system than anyone else.\n\nThey're taking 3 months of institutional knowledge with them. The team is demoralized. The CEO wants to know if you can 'just hire someone better.'\n\nYou have 2 weeks to plan the transition. The engineer is cooperative but won't sign a non-compete.",
     "choices": [
       {
-        "text": "Implement aggressive caching",
+        "text": "Negotiate a longer notice period \u2014 keep them for 3 months",
         "checks": {
-          "I": 8,
+          "C": 8
+        },
+        "success": {
+          "text": "You negotiate a 3-month notice. They stay and mentor the team. The transition is smooth. You keep the knowledge.",
+          "effects": {
+            "C": 2,
+            "I": 1
+          },
+          "log": "Negotiated the transition!"
+        },
+        "failure": {
+          "text": "They refuse. They're leaving in 2 weeks. You're stuck.",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "Negotiation failed."
+        }
+      },
+      {
+        "text": "Document everything they know before they leave",
+        "checks": {
+          "S": 8
+        },
+        "success": {
+          "text": "You spend 2 weeks documenting. It's painful but you capture 80% of their knowledge. The team can function without them.",
+          "effects": {
+            "S": 2,
+            "P": 1
+          },
+          "log": "Documented the knowledge!"
+        },
+        "failure": {
+          "text": "You try to document but the knowledge is too scattered. You capture 30% at best.",
+          "effects": {
+            "S": -1,
+            "E": -1
+          },
+          "log": "Documentation incomplete."
+        }
+      },
+      {
+        "text": "Hire a contractor to fill the gap immediately",
+        "checks": {
           "A": 7
         },
         "success": {
-          "text": "You add Redis caching and reduce API calls from 47 to 3. Page load drops to 800ms. The CEO is thrilled.",
+          "text": "You hire a contractor. They ramp up quickly and fill the gap. The team adapts.",
           "effects": {
-            "I": 2,
-            "A": 1
+            "A": 2,
+            "I": 1
           },
-          "log": "Caching solved the crisis!"
+          "log": "Contractor filled the gap!"
         },
         "failure": {
-          "text": "You cache aggressively but introduce stale data bugs. Now you have TWO problems.",
+          "text": "The contractor is expensive and doesn't know the system. You're worse off.",
           "effects": {
-            "I": -1,
-            "E": -2
-          },
-          "log": "Cache caused new bugs."
-        }
-      },
-      {
-        "text": "Rewrite the frontend",
-        "checks": {
-          "S": 7,
-          "A": 8
-        },
-        "success": {
-          "text": "You identify the rendering bottleneck and optimize it. Performance improves 5x.",
-          "effects": {
-            "S": 1,
-            "A": 2
-          },
-          "log": "Frontend optimization succeeded!"
-        },
-        "failure": {
-          "text": "The bottleneck wasn't the frontend — it was the backend. You've optimized nothing.",
-          "effects": {
-            "E": -2,
-            "P": -1
-          },
-          "log": "Wrong bottleneck identified."
-        }
-      },
-      {
-        "text": "Profile and find the actual bottleneck",
-        "checks": {
-          "P": 8
-        },
-        "success": {
-          "text": "You profile the 47 API calls and find 41 of them are the same data, fetched 41 times. You fix the data layer, not the frontend: 8 seconds becomes 1.2. The CEO asks what it cost. One engineer, one week, and a graph that goes the right way.",
-          "effects": {
-            "P": 1,
-            "A": 1
-          },
-          "log": "41 redundant calls → 1. Churn graph reversed."
-        },
-        "failure": {
-          "text": "You profile and find the real bottleneck is the third-party analytics SDK, which the growth team refuses to remove. Your fix is correct, measured, and blocked by a org chart. The page loads in 7.9 seconds.",
-          "effects": {
+            "A": -1,
             "E": -1
           },
-          "log": "The bottleneck is a SDK the growth team worships."
+          "log": "Contractor was a waste."
+        }
+      },
+      {
+        "text": "Accept the loss \u2014 focus on rebuilding the team",
+        "checks": {
+          "L": 9
+        },
+        "success": {
+          "text": "You accept the loss. You hire 2 junior engineers who grow into the role faster than expected. The team is stronger.",
+          "effects": {
+            "L": 2,
+            "C": 1
+          },
+          "log": "Lucky break \u2014 team grew!"
+        },
+        "failure": {
+          "text": "You accept the loss. The team struggles. Projects are delayed. The CEO is unhappy.",
+          "effects": {
+            "L": -2,
+            "E": -2
+          },
+          "log": "Team struggled."
         }
       }
     ]
   },
   {
-    "id": "the_hiring_freeze_2",
-    "title": "The Hiring Freeze II",
+    "id": "the_cio_vendor_scam",
+    "title": "The CIO Vendor Scam",
     "phase": 4,
     "phaseLabel": "Staff/Principal",
-    "narrative": "The company is \"right-sizing.\" There's a hiring freeze. But your team's workload just doubled.\n\nYou have 5 people doing the work of 10. Deadlines are unrealistic. Morale is at an all-time low.\n\nYour team lead asks: \"How are we going to handle this?\"\n\nYou're the senior person. They're looking to you.",
+    "narrative": "You discover something disturbing: your CIO is receiving consulting fees from a vendor that provides your company with a SaaS tool you know is terrible.\n\nThe tool costs $2M/year, has 47 open support tickets, and your engineers hate it. But the CIO insists it's 'strategically important.'\n\nYou have two choices: expose the scam and risk a career-limiting move, or stay quiet and let the company bleed money.\n\nYour source is anonymous. You can't prove everything. But you know enough to be dangerous.",
     "choices": [
       {
-        "text": "Prioritize ruthlessly and say no to everything else",
-        "checks": {
-          "C": 8,
-          "I": 7
-        },
-        "success": {
-          "text": "You work with product to cut the scope in half. You protect your team from distraction. They deliver on the priorities.",
-          "effects": {
-            "C": 2,
-            "I": 1
-          },
-          "log": "Protected the team through the freeze!"
-        },
-        "failure": {
-          "text": "You try to do everything and so does your team. Everyone works weekends. Productivity drops.",
-          "effects": {
-            "E": -3
-          },
-          "log": "Tried to do everything. Failed."
-        }
-      },
-      {
-        "text": "Automate the boring stuff",
-        "checks": {
-          "I": 9,
-          "A": 7
-        },
-        "success": {
-          "text": "You identify automation opportunities. CI/CD improvements, automated testing, better tooling. The team becomes 2x more efficient.",
-          "effects": {
-            "I": 2,
-            "A": 2
-          },
-          "log": "Automation saved the team!"
-        },
-        "failure": {
-          "text": "Automation projects take time to build. In the short term, productivity drops.",
-          "effects": {
-            "E": -2,
-            "A": -1
-          },
-          "log": "Automation backfired (short term)."
-        }
-      },
-      {
-        "text": "Write the automation yourself",
+        "text": "Go to war \u2014 report to the board with what you know",
         "checks": {
           "S": 9
         },
         "success": {
-          "text": "You stop triaging and start building: the deploy pipeline, the migration runner, the status report that eats two meetings a week. The team's load drops from the work of ten to the work of six, which is still a lot, but people are smiling again.",
+          "text": "You present your findings to the board. The CIO is fired. The vendor contract is terminated. You save the company $2M/year. But you've made enemies.",
           "effects": {
-            "S": 1,
-            "A": 1
+            "S": 2,
+            "C": -1
           },
-          "log": "Automated two meetings a week away."
+          "log": "Warrior. Saved the company. Made enemies."
         },
         "failure": {
-          "text": "You build the automation in two weeks. The \"right-sizing\" ends in three, and the company hires back four of the ten — including the person whose job your pipeline did. The automation stays. The awkwardness stays longer.",
+          "text": "The board doesn't have enough proof. The CIO denies everything. You're labeled a troublemaker.",
           "effects": {
+            "S": -1,
+            "E": -2,
+            "C": -2
+          },
+          "log": "Career-limiting move. Backfired."
+        }
+      },
+      {
+        "text": "Confront the CIO privately \u2014 give them a chance to fix it",
+        "checks": {
+          "C": 8
+        },
+        "success": {
+          "text": "The CIO is shaken. They agree to terminate the contract quietly. You get a raise for your 'discretion.'",
+          "effects": {
+            "C": 2,
+            "I": 1
+          },
+          "log": "Private resolution. Everyone wins."
+        },
+        "failure": {
+          "text": "The CIO gets angry. They threaten your position. You walk away with nothing.",
+          "effects": {
+            "C": -1,
+            "E": -2
+          },
+          "log": "CIO threatened you."
+        }
+      },
+      {
+        "text": "Stay quiet \u2014 it's not your fight",
+        "checks": {
+          "E": 6
+        },
+        "success": {
+          "text": "You stay quiet. The company bleeds $2M/year. You feel dirty but safe.",
+          "effects": {
+            "E": 1,
+            "C": -1
+          },
+          "log": "Stayed quiet. Felt dirty."
+        },
+        "failure": {
+          "text": "The scandal breaks anyway. You're asked about your knowledge. You're implicated for staying silent.",
+          "effects": {
+            "E": -2,
+            "C": -2
+          },
+          "log": "Silence didn't save you."
+        }
+      },
+      {
+        "text": "Find a replacement vendor \u2014 build leverage before confronting anyone",
+        "checks": {
+          "P": 8
+        },
+        "success": {
+          "text": "You research alternatives and find a better vendor at half the price. You present the data to the CIO: 'This or I go public.' They fold.",
+          "effects": {
+            "P": 2,
+            "I": 1
+          },
+          "log": "Leverage worked. Better vendor onboarded."
+        },
+        "failure": {
+          "text": "Your research is thorough but the CIO has already locked in a 3-year contract. You can't escape.",
+          "effects": {
+            "P": -1,
             "E": -1
           },
-          "log": "The automation outlived the freeze."
+          "log": "Contract lock-in. Stuck."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_product_owner_clash",
+    "title": "The Product Owner Clash",
+    "phase": 4,
+    "phaseLabel": "Staff/Principal",
+    "narrative": "Your Product Owner has just added 3 new features to the sprint. They're not technically complex but they're low-priority from a technical standpoint.\n\nYou've been pushing for a platform refactor that would reduce technical debt by 40%. The PO says \"users don't care about your refactor. Ship what they asked for.\"\n\nYou have 2 weeks left in the sprint. The refactor would take 3 weeks minimum.",
+    "choices": [
+      {
+        "text": "Push back with data \u2014 show the cost of technical debt",
+        "checks": {
+          "I": 8
+        },
+        "success": {
+          "text": "You present a clear analysis: how the debt is slowing feature delivery, the estimated cost of inaction, and a phased plan that delivers value now while addressing debt. The PO is convinced. You split the sprint.",
+          "effects": {
+            "I": 2,
+            "C": 1
+          },
+          "log": "Data won the argument!"
+        },
+        "failure": {
+          "text": "Your analysis is thorough but the PO doesn't care about the numbers. They say \"just ship what's in the sprint.\"",
+          "effects": {
+            "I": -1,
+            "E": -1
+          },
+          "log": "PO ignored the data."
+        }
+      },
+      {
+        "text": "Negotiate a compromise \u2014 ship 1 new feature + partial refactor",
+        "checks": {
+          "C": 7
+        },
+        "success": {
+          "text": "You negotiate: 1 new feature goes in, the refactor gets 50% of the sprint. It's not ideal but it's progress on both sides. The PO respects your flexibility.",
+          "effects": {
+            "C": 2,
+            "A": 1
+          },
+          "log": "Compromise achieved!"
+        },
+        "failure": {
+          "text": "The PO wants all 3 features. You get nothing. The refactor is pushed to next sprint.",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "Negotiation failed."
+        }
+      },
+      {
+        "text": "Refuse \u2014 block the sprint and escalate to your director",
+        "checks": {
+          "S": 8
+        },
+        "success": {
+          "text": "You escalate. Your director sides with you on the refactor's importance. The PO backs down. You deliver the refactor and the team is happier long-term.",
+          "effects": {
+            "S": 2,
+            "I": 1
+          },
+          "log": "Escalation paid off!"
+        },
+        "failure": {
+          "text": "Your director says \"figure it out yourselves.\" The PO ships their features. You're left with resentment.",
+          "effects": {
+            "S": -1,
+            "E": -2,
+            "C": -1
+          },
+          "log": "Escalation backfired."
+        }
+      },
+      {
+        "text": "Ship the features but sneak in small refactor improvements where possible",
+        "checks": {
+          "A": 7
+        },
+        "success": {
+          "text": "You ship the features and find 3 small opportunities to improve the code along the way. It's not the big refactor you wanted but it's incremental progress.",
+          "effects": {
+            "A": 2,
+            "P": 1
+          },
+          "log": "Incremental progress!"
+        },
+        "failure": {
+          "text": "You focus on shipping and miss the refactor opportunities. The debt grows.",
+          "effects": {
+            "A": -1,
+            "E": -1
+          },
+          "log": "Missed the refactor window."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_strategy_execution_tradeoff",
+    "title": "The Strategy vs Execution Trade-Off",
+    "phase": 4,
+    "phaseLabel": "Staff/Principal",
+    "narrative": "You've been asked to define the engineering roadmap for next quarter. Two camps emerge:\n\n**The Execution Camp** (led by your VP): \"Ship the new revenue feature. It's been promised to customers for 6 months.\"\n\n**The Strategy Camp** (led by your CTO): \"Build the new deployment platform. Everything is held together with duct tape and prayers.\"\n\nYou have 12 engineers. You can't do both. The VP and CTO both expect you to side with them.",
+    "choices": [
+      {
+        "text": "Prioritize execution \u2014 deliver the revenue feature, schedule platform for Q2",
+        "checks": {
+          "A": 8
+        },
+        "success": {
+          "text": "You ship the revenue feature. Customers are happy. Revenue goes up. The CTO is annoyed but understands. You start the platform design in Q2.",
+          "effects": {
+            "A": 2,
+            "C": 1
+          },
+          "log": "Executed first, strategized later."
+        },
+        "failure": {
+          "text": "You ship the feature but the platform debt catches up \u2014 3 production incidents in Q2 delay everything. The VP blames you.",
+          "effects": {
+            "E": -2,
+            "A": -1
+          },
+          "log": "Debt caught up. Painful."
+        }
+      },
+      {
+        "text": "Prioritize strategy \u2014 build the platform, push the feature to Q2",
+        "checks": {
+          "I": 8
+        },
+        "success": {
+          "text": "You build the platform. It's a masterpiece. Deployment time drops from 4 hours to 10 minutes. The VP is furious but the team's velocity doubles.",
+          "effects": {
+            "I": 2,
+            "S": 1
+          },
+          "log": "Platform built. Velocity doubled."
+        },
+        "failure": {
+          "text": "The platform takes longer than expected. The VP cancels it mid-quarter. You've wasted 3 months.",
+          "effects": {
+            "I": -1,
+            "E": -2
+          },
+          "log": "Platform cancelled. Wasted quarter."
+        }
+      },
+      {
+        "text": "Negotiate a split \u2014 50% execution, 50% strategy",
+        "checks": {
+          "C": 8
+        },
+        "success": {
+          "text": "You negotiate: half the team ships the feature, half starts the platform. It's slower on both fronts but both make progress. Everyone is somewhat happy.",
+          "effects": {
+            "C": 2,
+            "A": 1
+          },
+          "log": "Split delivery achieved!"
+        },
+        "failure": {
+          "text": "The split doesn't work. Context-switching kills both efforts. Neither the feature nor the platform ships on time.",
+          "effects": {
+            "C": -1,
+            "E": -2
+          },
+          "log": "Split failed. Both delayed."
+        }
+      },
+      {
+        "text": "Find a third option \u2014 can the feature ship on the current platform?",
+        "checks": {
+          "P": 8
+        },
+        "success": {
+          "text": "You dig into the requirements and find the feature doesn't actually need the new platform. You ship it on the current system. Both the VP and CTO are impressed.",
+          "effects": {
+            "P": 2,
+            "I": 1
+          },
+          "log": "Found the third option!"
+        },
+        "failure": {
+          "text": "You try to ship on the current platform but hit a hard limit. The feature can't work without the platform. You're back to square one.",
+          "effects": {
+            "P": -1,
+            "E": -1
+          },
+          "log": "Third option was a dead end."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_unexpected_acquisition",
+    "title": "The Unexpected Acquisition",
+    "phase": 4,
+    "phaseLabel": "Staff/Principal",
+    "narrative": "Your company just acquired a startup. They have 15 engineers, a product that's 80% complete, and a lead engineer who claims their architecture is 'revolutionary.'\n\nThe acquisition was your idea. You recommended it 3 months ago. Now it's happening, and you're responsible for integrating their team.\n\nThe lead engineer hands you a USB drive. 'Everything you need is on here,' they say. The drive contains 200GB of code, documentation, and something labeled 'the secret sauce.'",
+    "choices": [
+      {
+        "text": "Audit their codebase thoroughly before integration",
+        "checks": {
+          "P": 8
+        },
+        "success": {
+          "text": "You spend 2 weeks auditing. You find their architecture is solid but the 'secret sauce' is just a well-configured load balancer. You integrate them smoothly.",
+          "effects": {
+            "P": 2,
+            "I": 1
+          },
+          "log": "Thorough audit paid off!"
+        },
+        "failure": {
+          "text": "You audit but miss a critical dependency. The integration fails 3 weeks later. The lead engineer says 'I told you so.'",
+          "effects": {
+            "P": -1,
+            "E": -2
+          },
+          "log": "Missed the dependency."
+        }
+      },
+      {
+        "text": "Trust your gut \u2014 integrate them quickly and learn as you go",
+        "checks": {
+          "L": 9
+        },
+        "success": {
+          "text": "Miraculously, their architecture works with yours. The integration is smooth. The 'secret sauce' actually is revolutionary. You look like a genius.",
+          "effects": {
+            "L": 2,
+            "A": 1
+          },
+          "log": "Gut instinct was right!"
+        },
+        "failure": {
+          "text": "Their code is a disaster. The 'secret sauce' is a single Python script. You've wasted months.",
+          "effects": {
+            "L": -3,
+            "E": -3
+          },
+          "log": "Gut was wrong. Disaster."
+        }
+      },
+      {
+        "text": "Keep them separate \u2014 let them operate as a standalone team",
+        "checks": {
+          "C": 7
+        },
+        "success": {
+          "text": "You keep them separate. They innovate without bureaucracy. After 6 months, their product outperforms yours. You learn from them.",
+          "effects": {
+            "C": 2,
+            "I": 1
+          },
+          "log": "Separate teams, mutual respect."
+        },
+        "failure": {
+          "text": "They go rogue. Their product conflicts with yours. Customers are confused. You're forced to integrate anyway.",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "They went rogue."
+        }
+      },
+      {
+        "text": "Ask the lead engineer to mentor your team on their architecture",
+        "checks": {
+          "S": 7
+        },
+        "success": {
+          "text": "The lead engineer is thrilled. They mentor your team for 3 months. Your engineers learn valuable techniques. The knowledge transfer is successful.",
+          "effects": {
+            "S": 2,
+            "I": 2
+          },
+          "log": "Knowledge transfer successful!"
+        },
+        "failure": {
+          "text": "The lead engineer is arrogant. They refuse to share. Your team learns nothing. The acquisition feels like a waste.",
+          "effects": {
+            "S": -1,
+            "E": -2
+          },
+          "log": "Lead engineer wouldn't share."
         }
       }
     ]
@@ -821,11 +1179,11 @@
     "id": "restructure",
     "title": "BOSS: The Company-Wide Restructure",
     "phase": 4,
-    "phaseLabel": "Staff/Principal — Final Boss",
+    "phaseLabel": "Staff/Principal \u2014 Final Boss",
     "narrative": "Your FINAL BOSS. The company is restructuring. Teams are being merged. Reports are changing. The org chart is being redrawn.\n\nYou've spent 6 years building relationships, shipping products, and growing your career. Now everything is up in the air.\n\nThe new structure could make you a VP... or it could lay you off. Nobody knows yet.\n\nThis is it. Your career has led to this moment.",
     "choices": [
       {
-        "text": "Lead with transparency — share everything you know",
+        "text": "Lead with transparency \u2014 share everything you know",
         "checks": {
           "C": 10,
           "I": 7
@@ -837,7 +1195,7 @@
             "I": 1,
             "L": 1
           },
-          "log": "Reached the pinnacle! 🏆👑"
+          "log": "Reached the pinnacle! \ud83c\udfc6\ud83d\udc51"
         },
         "failure": {
           "text": "You share too much. Some information gets leaked. Management is unhappy. The restructuring is chaotic and you're left in limbo.",
@@ -845,11 +1203,11 @@
             "C": -2,
             "E": -2
           },
-          "log": "Transparency backfired. 💀"
+          "log": "Transparency backfired. \ud83d\udc80"
         }
       },
       {
-        "text": "Play it safe — say nothing and observe",
+        "text": "Play it safe \u2014 say nothing and observe",
         "checks": {
           "P": 8,
           "E": 7
@@ -868,7 +1226,7 @@
             "E": -3,
             "C": -1
           },
-          "log": "Played too safe. Role eliminated. 💀"
+          "log": "Played too safe. Role eliminated. \ud83d\udc80"
         }
       },
       {

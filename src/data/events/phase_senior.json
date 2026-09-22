@@ -133,7 +133,7 @@
           "S": 7
         },
         "success": {
-          "text": "Before the candidate arrives, you solve the standard problem — and it takes 40 minutes of genuine work, not the 15 the rubric assumes. You show the panel where the problem breaks. The panel lead quietly swaps in a better question. The candidate gets a fair interview. Engineering gets a better hire.",
+          "text": "Before the candidate arrives, you solve the standard problem \u2014 and it takes 40 minutes of genuine work, not the 15 the rubric assumes. You show the panel where the problem breaks. The panel lead quietly swaps in a better question. The candidate gets a fair interview. Engineering gets a better hire.",
           "effects": {
             "S": 1,
             "I": 1
@@ -215,12 +215,12 @@
           "log": "Survived the release but at a cost."
         },
         "failure": {
-          "text": "You collapse. Not dramatically — just a bad week of illness. The release is delayed. Your team covers for you but trust is damaged.",
+          "text": "You collapse. Not dramatically \u2014 just a bad week of illness. The release is delayed. Your team covers for you but trust is damaged.",
           "effects": {
             "E": -4,
             "C": -1
           },
-          "log": "Burnout hit hard. 💀"
+          "log": "Burnout hit hard. \ud83d\udc80"
         }
       }
     ]
@@ -366,7 +366,7 @@
           "log": "Live demo. Compiled first try. Legend status."
         },
         "failure": {
-          "text": "You go live coding. Of course it doesn't compile. You debug on stage for six minutes while 5,000 people watch, and the talk becomes a story everyone tells — but not the way you'd tell it.",
+          "text": "You go live coding. Of course it doesn't compile. You debug on stage for six minutes while 5,000 people watch, and the talk becomes a story everyone tells \u2014 but not the way you'd tell it.",
           "effects": {
             "E": -1,
             "C": -1
@@ -381,7 +381,7 @@
     "title": "The Promotion Review",
     "phase": 3,
     "phaseLabel": "Senior Developer",
-    "narrative": "It's promotion review season. You're up for Senior → Staff.\n\nYour manager says: \"You need more visibility. You need to influence at a higher level. You need to...\"\n\nYou look at your coworker who just gave a talk at a major conference. They're already getting their promotion packet.\n\nYou've spent 6 months deep in the code. Nobody knows what you've built.",
+    "narrative": "It's promotion review season. You're up for Senior \u2192 Staff.\n\nYour manager says: \"You need more visibility. You need to influence at a higher level. You need to...\"\n\nYou look at your coworker who just gave a talk at a major conference. They're already getting their promotion packet.\n\nYou've spent 6 months deep in the code. Nobody knows what you've built.",
     "choices": [
       {
         "text": "Write a detailed impact report",
@@ -417,7 +417,7 @@
             "C": 2,
             "A": 1
           },
-          "log": "Talk went viral — promotion secured!"
+          "log": "Talk went viral \u2014 promotion secured!"
         },
         "failure": {
           "text": "Nobody shows up to your talk. 3 people attend. One is your manager.",
@@ -442,7 +442,7 @@
           "log": "Six months of invisible work, documented."
         },
         "failure": {
-          "text": "You write the docs, but they're accurate to a fault — including the incident where your fix made things worse for a week. The Staff committee reads all of it. The promotion is \"next cycle.\"",
+          "text": "You write the docs, but they're accurate to a fault \u2014 including the incident where your fix made things worse for a week. The Staff committee reads all of it. The promotion is \"next cycle.\"",
           "effects": {
             "E": -1
           },
@@ -575,7 +575,7 @@
             "E": -2,
             "C": -1
           },
-          "log": "Speaker coach was a scam. 💀"
+          "log": "Speaker coach was a scam. \ud83d\udc80"
         }
       },
       {
@@ -661,7 +661,7 @@
           "P": 7
         },
         "success": {
-          "text": "You build a dashboard that measures what actually matters: change lead time, failure rate, recovery time. You don't argue with the KPIs — you just make them visible. Two sprints later, the CEO asks why the spaghetti coder's \"output\" correlates with the incident channel. The KPIs quietly evolve.",
+          "text": "You build a dashboard that measures what actually matters: change lead time, failure rate, recovery time. You don't argue with the KPIs \u2014 you just make them visible. Two sprints later, the CEO asks why the spaghetti coder's \"output\" correlates with the incident channel. The KPIs quietly evolve.",
           "effects": {
             "P": 1,
             "I": 1
@@ -669,7 +669,7 @@
           "log": "Instrumented the real metrics. The KPIs evolved."
         },
         "failure": {
-          "text": "You build the dashboard, but the CEO's favorite metric — PRs per week — lives on a different dashboard, in a different tool, that you don't have admin access to. Your truth is now a side project.",
+          "text": "You build the dashboard, but the CEO's favorite metric \u2014 PRs per week \u2014 lives on a different dashboard, in a different tool, that you don't have admin access to. Your truth is now a side project.",
           "effects": {
             "E": -1
           },
@@ -964,7 +964,7 @@
           "S": 8
         },
         "success": {
-          "text": "You take one small feature and run the full SVPG gauntlet on it: PRD, metrics framework, GTM alignment. It takes three weeks for a two-week feature — and the doc is so good that product stops arguing with engineering about scope for a month. You've made the bureaucracy legible, and legible things get fixed.",
+          "text": "You take one small feature and run the full SVPG gauntlet on it: PRD, metrics framework, GTM alignment. It takes three weeks for a two-week feature \u2014 and the doc is so good that product stops arguing with engineering about scope for a month. You've made the bureaucracy legible, and legible things get fixed.",
           "effects": {
             "S": 1,
             "I": 1
@@ -1108,6 +1108,415 @@
           },
           "log": "HR was too slow."
         }
+      },
+      {
+        "text": "Propose a team-wide CoC workshop to prevent future issues",
+        "checks": {
+          "C": 7
+        },
+        "success": {
+          "text": "The workshop is well-received. The team learns from the incident and improves their behavior. You're seen as a leader.",
+          "effects": {
+            "C": 2,
+            "I": 1
+          },
+          "log": "Workshop prevented future issues!"
+        },
+        "failure": {
+          "text": "The workshop falls flat. People are defensive. Nothing changes.",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "Workshop was a waste."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_senior_luck_event",
+    "title": "The Lucky Break",
+    "phase": 3,
+    "phaseLabel": "Senior Developer",
+    "narrative": "A competitor just open-sourced their entire platform. It's exactly what you've been building \u2014 but they've done 6 months of work in 2 weeks.\n\nYour team is excited. Your manager is nervous. The CEO wants to know if you can 'just copy it and ship faster.'\n\nYou know open-sourced code is a minefield \u2014 licenses, security, technical debt. But your team sees an opportunity.",
+    "choices": [
+      {
+        "text": "Audit the codebase thoroughly before considering anything",
+        "checks": {
+          "P": 8
+        },
+        "success": {
+          "text": "You find the code is poorly written and has licensing issues. You present this to the team and your manager. They respect your caution.",
+          "effects": {
+            "P": 2,
+            "I": 1
+          },
+          "log": "Thorough audit revealed the truth."
+        },
+        "failure": {
+          "text": "You audit but miss a critical license violation. The company uses the code and gets sued.",
+          "effects": {
+            "P": -1,
+            "E": -2
+          },
+          "log": "Missed the license violation."
+        }
+      },
+      {
+        "text": "Use it as inspiration \u2014 build your own version faster",
+        "checks": {
+          "A": 8
+        },
+        "success": {
+          "text": "You use the open-source code as a reference and build a better version in half the time. Your team is motivated and the product is superior.",
+          "effects": {
+            "A": 2,
+            "S": 1
+          },
+          "log": "Inspired, not copied!"
+        },
+        "failure": {
+          "text": "You try to build faster but cut corners. The product has bugs and your team is frustrated.",
+          "effects": {
+            "A": -1,
+            "E": -1
+          },
+          "log": "Rushed build caused bugs."
+        }
+      },
+      {
+        "text": "Ignore it \u2014 focus on your own roadmap",
+        "checks": {
+          "L": 9
+        },
+        "success": {
+          "text": "You ignore it. The competitor's code has a critical bug that gets exploited. Your decision to focus on your own roadmap was wise.",
+          "effects": {
+            "L": 2,
+            "I": 1
+          },
+          "log": "Lucky to ignore it!"
+        },
+        "failure": {
+          "text": "You ignore it. The competitor's product goes viral. Your roadmap is irrelevant.",
+          "effects": {
+            "L": -2,
+            "E": -2
+          },
+          "log": "Competitor went viral."
+        }
+      },
+      {
+        "text": "Contribute back to the project \u2014 build a relationship",
+        "checks": {
+          "C": 7
+        },
+        "success": {
+          "text": "You contribute bug fixes and feature requests. The maintainers appreciate it. You get early access to improvements.",
+          "effects": {
+            "C": 2,
+            "I": 1
+          },
+          "log": "Built a great relationship!"
+        },
+        "failure": {
+          "text": "Your contributions are rejected. The maintainers are hostile. You wasted time.",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "Contributions rejected."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_senior_strength_event",
+    "title": "The Technical Deep Dive",
+    "phase": 3,
+    "phaseLabel": "Senior Developer",
+    "narrative": "Your team is stuck on a performance issue that no one can solve. The database is slow, the API is slow, the frontend is slow.\n\nYou've been asked to take ownership. You have 2 weeks to find the root cause and fix it.\n\nThe issue is complex. It involves multiple systems, third-party integrations, and legacy code you didn't write.",
+    "choices": [
+      {
+        "text": "Spend 2 weeks deep in the code \u2014 find the root cause",
+        "checks": {
+          "S": 9
+        },
+        "success": {
+          "text": "You find the issue \u2014 a N+1 query in a library you didn't know existed. You fix it and add monitoring. Performance improves 10x.",
+          "effects": {
+            "S": 2,
+            "P": 1
+          },
+          "log": "Deep dive paid off!"
+        },
+        "failure": {
+          "text": "You spend 2 weeks but can't find the root cause. The issue persists. Your team is frustrated.",
+          "effects": {
+            "S": -1,
+            "E": -2
+          },
+          "log": "Couldn't find the root cause."
+        }
+      },
+      {
+        "text": "Bring in an external consultant to help diagnose",
+        "checks": {
+          "C": 7
+        },
+        "success": {
+          "text": "The consultant finds the issue in 2 days. You learn from them and implement the fix. The team is impressed.",
+          "effects": {
+            "C": 1,
+            "I": 1
+          },
+          "log": "Consultant saved the day!"
+        },
+        "failure": {
+          "text": "The consultant is expensive and doesn't find much. You're out $10k and still stuck.",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "Wasted money on consultant."
+        }
+      },
+      {
+        "text": "Rewrite the affected system from scratch",
+        "checks": {
+          "A": 8
+        },
+        "success": {
+          "text": "You rewrite the system. It's faster, cleaner, and easier to maintain. The team loves it.",
+          "effects": {
+            "A": 2,
+            "S": 1
+          },
+          "log": "Rewrite was worth it!"
+        },
+        "failure": {
+          "text": "The rewrite introduces new bugs. The system is slower than before. You revert.",
+          "effects": {
+            "A": -1,
+            "E": -2
+          },
+          "log": "Rewrite made it worse."
+        }
+      },
+      {
+        "text": "Accept the performance issue \u2014 it's not critical enough to fix",
+        "checks": {
+          "E": 6
+        },
+        "success": {
+          "text": "You accept it. The performance is bad but users adapt. You focus on other priorities.",
+          "effects": {
+            "E": 1,
+            "A": 1
+          },
+          "log": "Accepted the trade-off."
+        },
+        "failure": {
+          "text": "Users complain. The performance issue becomes a customer churn problem.",
+          "effects": {
+            "E": -1,
+            "C": -1
+          },
+          "log": "Performance became a churn problem."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_senior_agility_event",
+    "title": "The Pivot",
+    "phase": 3,
+    "phaseLabel": "Senior Developer",
+    "narrative": "Your product has been in development for 6 months. Today, the CEO announces a complete pivot \u2014 the product is going in a different direction.\n\nAll your work is going to be thrown away. The team is demoralized. Some engineers are already updating their resumes.\n\nYou have 2 weeks to redirect the team's effort. The old features are useless. The new direction is vague.",
+    "choices": [
+      {
+        "text": "Rally the team \u2014 focus on what we can reuse",
+        "checks": {
+          "A": 8
+        },
+        "success": {
+          "text": "You identify 60% of the codebase that's still useful. The team rebuilds faster than expected. The pivot succeeds.",
+          "effects": {
+            "A": 2,
+            "C": 1
+          },
+          "log": "Rallied the team!"
+        },
+        "failure": {
+          "text": "You try to reuse code but it doesn't fit the new direction. The team is stuck.",
+          "effects": {
+            "A": -1,
+            "E": -1
+          },
+          "log": "Reuse didn't work."
+        }
+      },
+      {
+        "text": "Start fresh \u2014 build the new product from scratch",
+        "checks": {
+          "S": 8
+        },
+        "success": {
+          "text": "You build the new product from scratch. It's clean and fast. The team is proud of the work.",
+          "effects": {
+            "S": 2,
+            "I": 1
+          },
+          "log": "Built from scratch!"
+        },
+        "failure": {
+          "text": "The new product has bugs. The team is frustrated. The CEO is unhappy.",
+          "effects": {
+            "S": -1,
+            "E": -2
+          },
+          "log": "New product had bugs."
+        }
+      },
+      {
+        "text": "Negotiate a hybrid \u2014 keep some old features, add new ones",
+        "checks": {
+          "C": 7
+        },
+        "success": {
+          "text": "You negotiate a hybrid approach. The old features that work stay. The new direction is added. Everyone is somewhat happy.",
+          "effects": {
+            "C": 2,
+            "A": 1
+          },
+          "log": "Hybrid approach worked!"
+        },
+        "failure": {
+          "text": "The CEO says no. The pivot is complete. You're back to square one.",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "CEO rejected hybrid."
+        }
+      },
+      {
+        "text": "Leave the company \u2014 this is too risky",
+        "checks": {
+          "L": 8
+        },
+        "success": {
+          "text": "You leave. The pivot fails. The company folds. You look like a genius.",
+          "effects": {
+            "L": 2,
+            "E": 1
+          },
+          "log": "Left at the right time."
+        },
+        "failure": {
+          "text": "You leave. The pivot succeeds. The company goes public. You missed out.",
+          "effects": {
+            "L": -3,
+            "E": -3
+          },
+          "log": "Left too early."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_senior_luck_2",
+    "title": "The Random Bug",
+    "phase": 3,
+    "phaseLabel": "Senior Developer",
+    "narrative": "A bug appears in production. It only happens on Tuesdays. It only affects 1% of users. It can't be reproduced in staging.\n\nYou've been assigned to fix it. The team is frustrated. The CEO is asking for updates.\n\nYou've tried everything \u2014 logs, metrics, user reports. Nothing explains the bug.",
+    "choices": [
+      {
+        "text": "Do a systematic investigation \u2014 check every variable",
+        "checks": {
+          "P": 8
+        },
+        "success": {
+          "text": "You find the bug \u2014 it's a race condition that only triggers on Tuesdays when a specific cron job runs. You fix it.",
+          "effects": {
+            "P": 2,
+            "I": 1
+          },
+          "log": "Systematic investigation found it!"
+        },
+        "failure": {
+          "text": "You investigate but can't find the bug. The team is frustrated.",
+          "effects": {
+            "P": -1,
+            "E": -1
+          },
+          "log": "Couldn't find the bug."
+        }
+      },
+      {
+        "text": "Add more logging and wait for the next occurrence",
+        "checks": {
+          "E": 6
+        },
+        "success": {
+          "text": "You add logging. The bug happens again. The logs reveal the pattern. You fix it.",
+          "effects": {
+            "E": 1,
+            "P": 1
+          },
+          "log": "Logging revealed the pattern!"
+        },
+        "failure": {
+          "text": "The bug doesn't happen again. You're stuck.",
+          "effects": {
+            "E": -1
+          },
+          "log": "Bug didn't recur."
+        }
+      },
+      {
+        "text": "Guess at the fix \u2014 try something and see if it works",
+        "checks": {
+          "L": 9
+        },
+        "success": {
+          "text": "You guess that it's a memory leak. You add a restart schedule. The bug disappears. You don't know why it worked but it did.",
+          "effects": {
+            "L": 2,
+            "A": 1
+          },
+          "log": "Lucky guess fixed it!"
+        },
+        "failure": {
+          "text": "Your guess was wrong. The bug is still there. You've wasted time.",
+          "effects": {
+            "L": -2,
+            "E": -2
+          },
+          "log": "Wrong guess."
+        }
+      },
+      {
+        "text": "Ask the team for help \u2014 collective brainpower",
+        "checks": {
+          "C": 7
+        },
+        "success": {
+          "text": "The team helps. They find the bug in 2 hours \u2014 it's a timezone issue that only affects Tuesdays. You fix it.",
+          "effects": {
+            "C": 2,
+            "P": 1
+          },
+          "log": "Team found the bug!"
+        },
+        "failure": {
+          "text": "The team can't find the bug. You're stuck.",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "Team couldn't find it."
+        }
       }
     ]
   },
@@ -1115,11 +1524,11 @@
     "id": "the_platform_rewrite",
     "title": "BOSS: The Platform Rewrite",
     "phase": 3,
-    "phaseLabel": "Senior Developer — Boss Battle",
+    "phaseLabel": "Senior Developer \u2014 Boss Battle",
     "narrative": "Your BOSS. The CTO has declared the entire platform \"architecturally unsound\" and wants a complete rewrite in a new stack.\n\n\"The old system was built by amateurs,\" they say. (It was built by you and your team over 3 years.)\n\nYou're tasked with building the new platform. The old system has 2 million users. Downtime is NOT an option.\n\nThe rewrite challenge awaits.",
     "choices": [
       {
-        "text": "Build it right — proper architecture, proper testing",
+        "text": "Build it right \u2014 proper architecture, proper testing",
         "checks": {
           "I": 9,
           "E": 7
@@ -1165,7 +1574,7 @@
         }
       },
       {
-        "text": "Push back — the old system works fine",
+        "text": "Push back \u2014 the old system works fine",
         "checks": {
           "C": 9,
           "I": 7
