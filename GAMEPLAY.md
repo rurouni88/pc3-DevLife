@@ -87,9 +87,13 @@ Defeat the **4 phase bosses** (24 events total — 20 with Fast Ship) to retire 
 There is no traditional hit points (HP) bar. This is a deliberate decision inspired by the things me and some colleagues say:
 
 > My Intelligence just went down after that conversation/decision.
+
 > I no longer have the willpower (Endurance) for this crap.
+
 > We are going to see a decline in Agility because of XXX.
+
 > Ivory Tower Architects. Too high from the front lines. They don't see what it's like down here. (Implies Perception loss)
+
 > We have been saying that for years, but bring in/pay for an external consultant (eg. McKinsey), and the executives listen. (External consultants tend to have higher charisma)
 
 If anyone is genuinely offended or butt-hurt by this, I will go on record and say:
