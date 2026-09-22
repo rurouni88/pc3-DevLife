@@ -181,6 +181,70 @@ body {
   flex: 1;
 }
 
+/* --- Difficulty selector (issue #6) --- */
+.difficulty-selector {
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-xs);
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin: var(--spacing-xs) 0;
+}
+
+.difficulty-lozenge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.difficulty-lozenge:hover:not(.locked) {
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+}
+
+.difficulty-lozenge.selected {
+  color: var(--accent-green);
+  border-color: var(--accent-green);
+  background: rgba(0, 255, 136, 0.08);
+}
+
+.difficulty-lozenge.locked {
+  color: var(--text-muted);
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.difficulty-help {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  font-size: 0.65rem;
+  line-height: 1;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  cursor: help;
+}
+
+.difficulty-help:hover {
+  color: var(--accent-green);
+  border-color: var(--accent-green);
+}
+
 /* --- Title Screen --- */
 #screen-title {
   justify-content: center;

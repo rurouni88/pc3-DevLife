@@ -47,6 +47,11 @@ class SaveData {
       for (const field of ['level', 'day', 'phase']) {
         if (typeof state[field] !== 'number') errors.push(`state.${field} is not a number`);
       }
+      // Optional: saves from before the difficulty feature have no field —
+      // they load as easy (the default in createCharacter).
+      if (state.difficulty !== undefined && !['easy', 'normal', 'hard'].includes(state.difficulty as string)) {
+        errors.push('state.difficulty is not a valid difficulty');
+      }
       const stats = state.stats as Record<string, unknown> | undefined;
       if (!stats || typeof stats !== 'object') {
         errors.push('state.stats is missing');

@@ -10,8 +10,9 @@ const Game = {
     return CONFIG.game.consumableCap + items.reduce((sum, item) => sum + (item.consumableSlots || 0), 0);
   },
 
-  // Initialize a new game
-  createCharacter(statAlloc: Stats, startingConsumables: Consumable[] = [], startingEquipment: Equipment[] = []): GameState {
+  // Initialize a new game. Difficulty is fixed at run start (issue #6) and
+  // defaults to easy.
+  createCharacter(statAlloc: Stats, startingConsumables: Consumable[] = [], startingEquipment: Equipment[] = [], difficulty: Difficulty = 'easy'): GameState {
     const now = Date.now();
     const state: GameState = {
       stats: { ...statAlloc },
@@ -20,6 +21,7 @@ const Game = {
       // by append, so most recent picks are granted, not the oldest. The cap
       // includes slot bonuses from the carried equipment (Backpack).
       consumables: [...startingConsumables.slice(-this.consumableCap(startingEquipment))],
+      difficulty,
       level: 1,
       levelUpPoints: 0,
       day: 1,
@@ -148,6 +150,22 @@ const Game = {
 
     // Effects for the final outcome; Code Review halves the negatives now
     let effects = success ? resolved.choice.success.effects : resolved.choice.failure.effects;
+    // Difficulty (issue #6): a failed outcome's negative effects are
+    // multiplied by a d(negMultSides) roll. Applied before Code Review so the
+    // perk mitigates the already-harder blow (more value on higher difficulty).
+    // Easy is d1 (×1) — a no-op, so it's skipped.
+    if (!success) {
+      const diff = CONFIG.game.difficulty[state.difficulty];
+      if (diff && diff.negMultSides > 1) {
+        const mult = dRoll(diff.negMultSides);
+        const scaled: Partial<Stats> = {};
+        for (const [stat, value] of Object.entries(effects) as [StatKey, number][]) {
+          scaled[stat] = value < 0 ? value * mult : value;
+        }
+        effects = scaled;
+        this.addLog(`⚠️ ${diff.label} difficulty: negative effects ×${mult}.`);
+      }
+    }
     if (!success && use.codeReview && resolved.interventions.codeReview) {
       PerkSystem.useCodeReview();
       const halved: Partial<Stats> = {};

@@ -255,6 +255,56 @@ PerkSystem.restore({ active: [], bruteForceUsed: false, codeReviewUsed: false, n
 assert.strictEqual(PerkSystem.ironNervesUsed, false, 'old-format snapshot (no field) → unused');
 console.log('✓ iron nerves: once-per-run burnout save, lands at 3, not wasted');
 
+// --- Difficulty (issue #6): a FAILED outcome's negatives are multiplied by
+//     a d(negMultSides) roll. t_intervene's failure is E: -4. ---
+// NORMAL, d2 rolled to 2 → -4 becomes -8
+fullRun({ S: 5, P: 5, E: 10, C: 5, I: 5, A: 5, L: 5 });
+Game.state.difficulty = 'normal';
+d20 = () => 20;   // S check: 15 vs 5 → fail
+dRoll = () => 2;  // force the d2 multiplier to ×2
+rc = Game.resolveChoice(EVENTS[0], 0);
+out = Game.applyChoice(rc, NO_USE);
+assert.strictEqual(out.success, false, 'failure stands');
+assert.deepStrictEqual(out.effects, { E: -8 }, 'normal d2=2 → -4 becomes -8');
+assert.strictEqual(SpecialSystem.stats.E, 2, 'E 10 → 2 after the doubled hit');
+// NORMAL, d2 rolled to 1 → no change
+fullRun({ S: 5, P: 5, E: 10, C: 5, I: 5, A: 5, L: 5 });
+Game.state.difficulty = 'normal';
+d20 = () => 20;
+dRoll = () => 1;  // ×1
+rc = Game.resolveChoice(EVENTS[0], 0);
+out = Game.applyChoice(rc, NO_USE);
+assert.deepStrictEqual(out.effects, { E: -4 }, 'normal d2=1 → -4 unchanged');
+// EASY: d1 (×1) — the multiplier is skipped entirely
+fullRun({ S: 5, P: 5, E: 10, C: 5, I: 5, A: 5, L: 5 });
+Game.state.difficulty = 'easy';
+d20 = () => 20;
+dRoll = () => 4;  // even a forced d4 is ignored on easy
+rc = Game.resolveChoice(EVENTS[0], 0);
+out = Game.applyChoice(rc, NO_USE);
+assert.deepStrictEqual(out.effects, { E: -4 }, 'easy: no multiplier');
+// Success outcomes are never multiplied
+fullRun({ S: 5, P: 5, E: 10, C: 5, I: 5, A: 5, L: 5 });
+Game.state.difficulty = 'normal';
+d20 = () => 1;    // S check: 1-5 = -4 vs 5 → success
+dRoll = () => 4;
+rc = Game.resolveChoice(EVENTS[0], 0);
+out = Game.applyChoice(rc, NO_USE);
+assert.strictEqual(out.success, true, 'success');
+assert.deepStrictEqual(out.effects, { S: 1 }, 'success effects untouched');
+// Multiplier applies BEFORE Code Review: CR halves the already-doubled value
+fullRun({ S: 5, P: 10, E: 10, C: 5, I: 5, A: 5, L: 5 });
+Game.state.difficulty = 'normal';
+d20 = () => 20;   // S check: 15 vs 5 → fail
+dRoll = () => 2;  // ×2 → -8, then CR halves → -4
+rc = Game.resolveChoice(EVENTS[0], 0);
+out = Game.applyChoice(rc, { negotiate: false, bruteForce: false, codeReview: true });
+assert.deepStrictEqual(out.effects, { E: -4 }, 'CR halves the doubled -8 → -4');
+assert.strictEqual(SpecialSystem.stats.E, 6, 'E 10 → 6');
+// restore the real dRoll (Math.random-driven) for later tests
+dRoll = (sides) => Math.floor(Math.random() * sides) + 1;
+console.log('✓ difficulty: failed negatives ×d2 (normal), skipped on easy/success, before code review');
+
 // --- Consumable carry-over: pick = most recent, pool capped at 2 ---
 localStorage.setItem('devlife_meta', JSON.stringify({ totalRuns: 0, startingConsumables: ['coffee', 'focus'] }));
 MetaStore.addCarriedConsumable('espresso'); // new pick

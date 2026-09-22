@@ -7,6 +7,7 @@ const App = {
     UI.startAsciiLoop();
     this.initHelpTabs();
     UI.showScreen('title');
+    UI.renderDifficultySelector();
     const versionText = `v${CONFIG.version} ${CONFIG.versionLabel}`;
     const versionBadge = document.getElementById('version-badge');
     if (versionBadge) versionBadge.textContent = versionText;
@@ -155,8 +156,11 @@ const App = {
     // equipmentBonuses, which createCharacter then fills from carry-over)
     SpecialSystem.init(stats);
 
+    // Difficulty is chosen on the title screen and stored in meta (issue #6).
+    const difficulty = MetaStore.selectedDifficulty();
+
     // Create game
-    Game.createCharacter(stats, startingConsumables, startingEquipment);
+    Game.createCharacter(stats, startingConsumables, startingEquipment, difficulty);
 
     // Initialize perk system (a starting build may already have a stat at 10)
     PerkSystem.reset();
