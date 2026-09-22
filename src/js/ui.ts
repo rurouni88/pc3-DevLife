@@ -38,6 +38,58 @@ const INTERVENTION_META = {
 const UICore = {
   currentScreen: 'title' as string,
 
+  // Difficulty selector (issue #6): lozenge row on the title screen.
+  // The choice is stored in meta so it persists and is read by startCareer.
+  renderDifficultySelector(): void {
+    const container = document.getElementById('difficulty-selector');
+    if (!container) return;
+    const selected = MetaStore.selectedDifficulty();
+    container.innerHTML = '';
+
+    (Object.keys(CONFIG.game.difficulty) as Difficulty[]).forEach(key => {
+      const cfg = CONFIG.game.difficulty[key];
+      const lozenge = document.createElement('button');
+      lozenge.className = 'difficulty-lozenge' + (key === selected ? ' selected' : '') + (cfg.locked ? ' locked' : '');
+      lozenge.dataset.difficulty = key;
+      lozenge.setAttribute('role', 'radio');
+      lozenge.setAttribute('aria-checked', key === selected ? 'true' : 'false');
+      lozenge.disabled = !!cfg.locked;
+      lozenge.title = cfg.desc;
+      lozenge.innerHTML = `<span class="difficulty-label">${cfg.label}</span>` +
+        (cfg.locked ? '<span class="difficulty-lock">🔒</span>' : '<span class="cons-info difficulty-help" data-help="' + key + '" aria-label="About ' + cfg.label + '">?</span>');
+
+      if (!cfg.locked) {
+        lozenge.addEventListener('click', (e) => {
+          // A tap on the "?" opens the tooltip; a tap elsewhere selects.
+          if ((e.target as Element).closest('.difficulty-help')) return;
+          UI.selectDifficulty(key);
+        });
+      }
+      container.appendChild(lozenge);
+    });
+
+    // "?" info buttons: reuse the item tooltip (hover on desktop, tap on mobile)
+    container.querySelectorAll<HTMLElement>('.difficulty-help').forEach(btn => {
+      const show = () => {
+        const key = btn.dataset.help as Difficulty;
+        const cfg = CONFIG.game.difficulty[key];
+        if (cfg) UI.showTooltip({ emoji: cfg.emoji, name: cfg.label, desc: cfg.desc });
+      };
+      btn.addEventListener('mouseenter', show);
+      btn.addEventListener('mouseleave', () => UI.hideTooltip());
+      btn.addEventListener('click', (e) => { e.stopPropagation(); show(); });
+    });
+  },
+
+  // Persist the chosen difficulty and re-render the selector.
+  selectDifficulty(key: Difficulty): void {
+    const cfg = CONFIG.game.difficulty[key];
+    if (!cfg || cfg.locked) return;
+    MetaStore.setSelectedDifficulty(key);
+    UI.playSound('click');
+    UI.renderDifficultySelector();
+  },
+
   // Audio context for sound effects
   audioCtx: null as AudioContext | null,
 

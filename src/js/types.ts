@@ -13,6 +13,9 @@ type Stats = Record<StatKey, number>;
 /** Item rarity tiers (see RARITY_WEIGHTS in items.js). */
 type Rarity = 'common' | 'uncommon' | 'rare' | 'epic';
 
+/** Career difficulty. Fixed at run start — no mid-run changes. */
+type Difficulty = 'easy' | 'normal' | 'hard';
+
 /** Equipment — passive item with permanent stat bonuses and/or slot bonuses. */
 interface Equipment {
   id: string;
@@ -140,6 +143,7 @@ interface GameState {
   stats: Stats;
   equipment: Equipment[];
   consumables: Consumable[];
+  difficulty: Difficulty;
   level: number;
   levelUpPoints: number;
   day: number;
@@ -195,4 +199,6 @@ interface MetaState {
   lastRunDate?: string;
   startingEquipment?: string[];
   startingConsumables?: string[];
+  /** Last difficulty chosen on the title screen; defaults to easy. */
+  lastSelectedDifficulty?: Difficulty;
 }

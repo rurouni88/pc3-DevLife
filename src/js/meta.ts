@@ -64,4 +64,17 @@ const MetaStore = {
   carriedIds(kind: 'startingConsumables' | 'startingEquipment'): string[] {
     return (this.load()[kind] || []).slice();
   },
+
+  // Difficulty chosen on the title screen (issue #6). Defaults to easy when
+  // unset (first run) or when the stored value is not a valid difficulty.
+  selectedDifficulty(): Difficulty {
+    const d = this.load().lastSelectedDifficulty;
+    return d === 'easy' || d === 'normal' || d === 'hard' ? d : 'easy';
+  },
+
+  setSelectedDifficulty(d: Difficulty): void {
+    const meta = this.load();
+    meta.lastSelectedDifficulty = d;
+    this.save(meta);
+  },
 };
