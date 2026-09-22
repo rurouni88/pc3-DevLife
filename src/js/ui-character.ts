@@ -21,6 +21,7 @@ const UICharacter = {
       row.innerHTML = `
         <span class="stat-label" style="color: ${meta.color}">${key}</span>
         <span class="stat-name">${meta.name}</span>
+        <span class="cons-info stat-help" data-stat="${key}" aria-label="About ${meta.name}">?</span>
         <div class="stat-controls">
           <button class="stat-btn minus" data-stat="${key}" data-action="minus">−</button>
           <span class="stat-value" style="color: ${meta.color}">${SpecialSystem.stats[key]}</span>
@@ -48,6 +49,18 @@ const UICharacter = {
           UI._selectedPreset = null;
           UI.updateCharCreationUI();
         }
+      });
+    });
+
+    // "?" next to each stat — shows the stat's blurb via the shared tooltip.
+    // Sits alongside the expandable "What does each stat do?" section so both
+    // can be evaluated side by side.
+    container.querySelectorAll<HTMLElement>('.stat-help').forEach(help => {
+      help.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const stat = help.dataset.stat as StatKey;
+        const meta = STAT_META[stat];
+        UI.showTooltip({ emoji: stat, name: meta.name, desc: `${meta.short}. ${meta.desc}` });
       });
     });
 
