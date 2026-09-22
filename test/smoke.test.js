@@ -32,19 +32,28 @@ for (const ref of assetRefs) {
 }
 console.log(`✓ smoke: all ${assetRefs.length} referenced scripts/stylesheets present in dist/`);
 
-// 2. Every event the game fetches at runtime must be present in dist/.
+// 2. Every data file the game fetches at runtime must be present in dist/.
 const eventsJs = fs.readFileSync(path.join(dist, 'js', 'events.js'), 'utf8');
-const fetchPaths = [...eventsJs.matchAll(/['"](js\/events\/[^'"]+\.json)['"]/g)].map(m => m[1]);
-assert.ok(fetchPaths.length > 0, 'expected runtime event fetch paths in dist/js/events.js');
+const fetchPaths = [...eventsJs.matchAll(/['"](data\/[^'"]+\.json)['"]/g)].map(m => m[1]);
+assert.ok(fetchPaths.length > 0, 'expected runtime data fetch paths in dist/js/events.js');
 for (const ref of fetchPaths) {
-  assert.ok(fs.existsSync(path.join(dist, ref)), `dist/ is missing a fetched event: ${ref}`);
+  assert.ok(fs.existsSync(path.join(dist, ref)), `dist/ is missing a fetched data file: ${ref}`);
 }
-console.log(`✓ smoke: all ${fetchPaths.length} runtime-fetched events present in dist/`);
+console.log(`✓ smoke: all ${fetchPaths.length} runtime-fetched data files present in dist/`);
 
-// 3. assemble copied the event content faithfully (dist/ matches src/ exactly).
-const srcEvents = fs.readdirSync(path.join(root, 'src', 'js', 'events')).sort();
-const distEvents = fs.readdirSync(path.join(dist, 'js', 'events')).sort();
-assert.deepStrictEqual(distEvents, srcEvents, 'dist/js/events/ must match src/js/events/');
-console.log(`✓ smoke: ${srcEvents.length} event files copied into dist/js/events/`);
+// 3. assemble copied the game data faithfully (dist/data/ matches src/data/ exactly).
+function listFiles(dir) {
+  const out = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) out.push(...listFiles(full).map(p => path.join(entry.name, p)));
+    else out.push(entry.name);
+  }
+  return out.sort();
+}
+const srcData = listFiles(path.join(root, 'src', 'data'));
+const distData = listFiles(path.join(dist, 'data'));
+assert.deepStrictEqual(distData, srcData, 'dist/data/ must match src/data/');
+console.log(`✓ smoke: ${srcData.length} data files copied into dist/data/`);
 
 console.log('✓ smoke: dist/ is a self-contained, deployable site');
