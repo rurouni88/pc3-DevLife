@@ -13,6 +13,7 @@ const UITooltip = {
     multiplier?: number;
     effects?: Partial<Stats>;
     consumableSlots?: number;
+    color?: string;
   }): void {
     const tooltip = document.getElementById('item-tooltip');
     if (!tooltip) return;
@@ -24,6 +25,12 @@ const UITooltip = {
     setTooltipText('.tooltip-emoji', item.emoji || '');
     setTooltipText('.tooltip-name', item.name || '');
     setTooltipText('.tooltip-desc', item.desc || '');
+
+    // Optional accent colour for the glyph (e.g. a stat's colour). Reset when
+    // absent so it doesn't linger from a previous tooltip. Real emojis ignore
+    // colour, so this only affects text glyphs like stat letters.
+    const emojiEl = tooltip.querySelector<HTMLElement>('.tooltip-emoji');
+    if (emojiEl) emojiEl.style.color = item.color || '';
 
     // Build effect text (only for consumables/equipment, not perks)
     let effectText = '';
