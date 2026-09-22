@@ -216,6 +216,11 @@ const Game = {
     const gameOver = this.checkGameOver();
     const victory = this.checkVictory();
 
+    // Terminal state flags: a death or the final boss ends the run. Set once,
+    // never cleared — used to gate in-run actions like consumable use (#41).
+    if (gameOver) state.alive = false;
+    if (victory) state.won = true;
+
     return {
       success,
       checkResults,
@@ -505,6 +510,8 @@ const ConsumableManager = {
   use(consumableId: string): ConsumableUseResult | null {
     const state = Game.state;
     if (!state) return null;
+    // The run is over (death or victory) — in-run consumables are inert (#41).
+    if (!state.alive || state.won) return null;
     const inventoryIndex = state.consumables.findIndex(c => c.id === consumableId);
     if (inventoryIndex === -1) return null;
 

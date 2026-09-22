@@ -8,7 +8,7 @@ function freshRun(stats) {
   SpecialSystem.init(stats);
   PerkSystem.reset();
   PerkSystem.refresh();
-  Game.state = { careerLog: [], day: 1 };
+  Game.state = { careerLog: [], day: 1, alive: true, won: false };
 }
 
 // Full run state for choice tests (resolve/apply touch log/meta paths)
@@ -566,6 +566,33 @@ assert.strictEqual(aiBad.multiplier, -0.5, 'backfire penalty multiplier');
 assert.strictEqual(aiBad.backfired, true, 'backfire flagged');
 Math.random = realRandom;
 console.log('✓ consumables: use/removal, unknown id, AI backfire threshold');
+
+// --- Consumables are inert once the run is over (#41) ---
+// Unit guard: alive=false (death) or won=true (victory) → use() returns null
+freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+Game.state.consumables = [coffee];
+assert.ok(ConsumableManager.use('coffee'), 'usable while the run is live');
+freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+Game.state.consumables = [coffee];
+Game.state.alive = false;
+assert.strictEqual(ConsumableManager.use('coffee'), null, 'inert after death');
+assert.strictEqual(Game.state.consumables.length, 1, 'not consumed after death');
+freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+Game.state.consumables = [coffee];
+Game.state.won = true;
+assert.strictEqual(ConsumableManager.use('coffee'), null, 'inert after victory');
+assert.strictEqual(Game.state.consumables.length, 1, 'not consumed after victory');
+// Integration: a killing blow sets alive=false, so the consumable is inert
+fullRun({ S: 5, P: 5, E: 5, C: 10, I: 5, A: 5, L: 1 });
+Game.state.consumables = [coffee];
+d20 = () => 20; // S check fails; saving roll 20 vs L+0.5C = 6 → fails → death
+rc = Game.resolveChoice(EVENTS[0], 0);
+out = Game.applyChoice(rc, NO_USE);
+assert.ok(out.gameOver, 'fatal failure ends the run');
+assert.strictEqual(Game.state.alive, false, 'applyChoice sets alive=false');
+assert.strictEqual(ConsumableManager.use('coffee'), null, 'consumable inert after the killing blow');
+assert.strictEqual(Game.state.consumables.length, 1, 'not consumed after the killing blow');
+console.log('✓ consumables: inert once the run is over (death or victory)');
 
 // --- Item pools: rarity weighting and unique random consumables ---
 Math.random = () => 0.01;
