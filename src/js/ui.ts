@@ -220,71 +220,9 @@ const UICore = {
     setTimeout(() => toast.remove(), 3000);
   },
 
-  // Show item tooltip (consumables, equipment, perks)
-  showTooltip(item: {
-    emoji?: string;
-    name?: string;
-    desc?: string;
-    stat?: string;
-    bonus?: number;
-    multiplier?: number;
-    effects?: Partial<Stats>;
-    consumableSlots?: number;
-  }): void {
-    const tooltip = document.getElementById('item-tooltip');
-    if (!tooltip) return;
-
-    const setTooltipText = (sel: string, text: string): void => {
-      const el = tooltip.querySelector(sel);
-      if (el) el.textContent = text;
-    };
-    setTooltipText('.tooltip-emoji', item.emoji || '');
-    setTooltipText('.tooltip-name', item.name || '');
-    setTooltipText('.tooltip-desc', item.desc || '');
-
-    // Build effect text (only for consumables/equipment, not perks)
-    let effectText = '';
-    if (item.stat && item.bonus) {
-      effectText = `+${item.bonus} ${item.stat === 'any' ? 'ANY stat' : STAT_META[item.stat as StatKey]?.name || item.stat}`;
-    } else if (item.multiplier) {
-      effectText = `${item.multiplier}× stat (risky)`;
-    } else if (item.effects || item.consumableSlots) {
-      effectText = equipmentEffectText(item);
-    }
-    const effectEl = tooltip.querySelector<HTMLElement>('.tooltip-effect');
-    if (!effectEl) return;
-    effectEl.textContent = effectText;
-    effectEl.style.display = effectText ? 'block' : 'none';
-
-    tooltip.style.display = 'block';
-  },
-
-  hideTooltip(): void {
-    const tooltip = document.getElementById('item-tooltip');
-    if (tooltip) tooltip.style.display = 'none';
-  },
-
-  // Initialize tooltip close handler
-  initTooltipClose(): void {
-    const tooltip = document.getElementById('item-tooltip');
-    if (!tooltip) return;
-
-    // Close tooltip when clicking on it
-    tooltip.addEventListener('click', (e) => {
-      e.stopPropagation();
-      UI.hideTooltip();
-    });
-
-    // Close tooltip when clicking outside
-    document.addEventListener('click', (e) => {
-      if (tooltip.style.display === 'none') return;
-      const target = e.target as Element;
-      if (tooltip.contains(target)) return;
-      if (target.classList.contains('cons-info')) return;
-      UI.hideTooltip();
-    });
-
-    // Close popup when clicking close button or overlay
+  // Wire up the click-to-close behaviour for the character modal. (The "?"
+  // tooltip's close handling lives in UITooltip.initTooltipClose.)
+  initPopupClose(): void {
     document.addEventListener('click', (e) => {
       if ((e.target as Element).classList.contains('popup-close')) {
         UI.closePopup();
@@ -433,11 +371,10 @@ const UICore = {
       const chip = document.createElement('span');
       chip.className = 'perk-chip';
       chip.dataset.perkId = id;
-      chip.dataset.desc = perk.desc;
-      chip.innerHTML = `${perk.emoji} ${perk.name}`;
+      chip.innerHTML = `${perk.emoji} ${perk.name}<span class="cons-info" aria-label="About ${perk.name}">?</span>`;
 
-      // Mobile: tap to show tooltip
-      chip.addEventListener('click', (e) => {
+      // Tap/click the "?" to show the tooltip (same as consumables/difficulty).
+      chip.querySelector<HTMLElement>('.cons-info')!.addEventListener('click', (e) => {
         e.stopPropagation();
         UI.showTooltip(perk);
       });
@@ -492,14 +429,12 @@ const UICore = {
 
     container.innerHTML = '';
     equipment.forEach(item => {
-      const effectText = equipmentEffectText(item);
       const el = document.createElement('span');
       el.className = 'equip-item';
-      el.dataset.tooltip = `${item.name}: ${effectText}`;
-      el.innerHTML = `${item.emoji}`;
+      el.innerHTML = `${item.emoji}<span class="cons-info" aria-label="About ${item.name}">?</span>`;
 
-      // Mobile: tap to show full tooltip
-      el.addEventListener('click', (e) => {
+      // Tap/click the "?" to show the tooltip (same as consumables/difficulty).
+      el.querySelector<HTMLElement>('.cons-info')!.addEventListener('click', (e) => {
         e.stopPropagation();
         UI.showTooltip(item);
       });
@@ -661,23 +596,13 @@ const UICore = {
     card.querySelectorAll<HTMLElement>('.cons-btn').forEach(btn => {
       const infoBtn = btn.querySelector<HTMLElement>('.cons-info');
       if (infoBtn) {
-        // Desktop: hover to show
-        infoBtn.addEventListener('mouseenter', () => {
-          const id = infoBtn.dataset.id;
-          const consumable = CONSUMABLES.find(c => c.id === id);
-          if (consumable) UI.showTooltip(consumable);
-        });
-        infoBtn.addEventListener('mouseleave', () => {
-          UI.hideTooltip();
-        });
-        // Mobile: tap to show (stays until tapped elsewhere)
+        // Tap/click the "?" to show the tooltip — the same interaction on
+        // mobile and desktop. Hover is not used (unreliable on mobile). The
+        // global "click outside" handler (UITooltip.initTooltipClose) closes it.
         infoBtn.addEventListener('click', (e) => {
           e.stopPropagation();
-          const id = (e.target as HTMLElement).dataset.id;
-          const consumable = CONSUMABLES.find(c => c.id === id);
-          if (consumable) {
-            UI.showTooltip(consumable);
-          }
+          const consumable = CONSUMABLES.find(c => c.id === infoBtn.dataset.id);
+          if (consumable) UI.showTooltip(consumable);
         });
       }
       btn.addEventListener('click', (e) => {
@@ -1133,4 +1058,4 @@ const UICore = {
 };
 
 // Compose the full UI object from the section files (loaded before this one).
-const UI = Object.assign({}, UICore, UICharacter, UILevelUp, UIEndOfRun);
+const UI = Object.assign({}, UICore, UICharacter, UILevelUp, UIEndOfRun, UITooltip);
