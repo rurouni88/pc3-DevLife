@@ -2014,7 +2014,13 @@ body {
   .menu-buttons {
     flex-direction: row;
   }
-  
+
+  /* The title screen keeps its controls stacked (New Career / difficulty /
+     Continue / Help) rather than collapsing them onto one line. */
+  #screen-title .menu-buttons {
+    flex-direction: column;
+  }
+
   .choice-btn {
     padding: var(--spacing-lg);
   }
