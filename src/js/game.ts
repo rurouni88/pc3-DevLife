@@ -1,22 +1,19 @@
 // Core game engine
 const Game = {
-  /** @type {GameState | null} */
-  state: null,
-  
+  state: null as GameState | null,
+
   // Consumable slot cap: base cap + slot bonuses from carried equipment
   // (the Backpack). A run's ending equipment carries over as-is, so this
   // is also the right cap for the next run's starting stash.
-  /** @param {Equipment[]} [equipment] @returns {number} */
-  consumableCap(equipment) {
+  consumableCap(equipment?: Equipment[]): number {
     const items = equipment || (this.state ? this.state.equipment : []);
     return CONFIG.game.consumableCap + items.reduce((sum, item) => sum + (item.consumableSlots || 0), 0);
   },
-  
+
   // Initialize a new game
-  /** @param {Stats} statAlloc @param {Consumable[]} [startingConsumables] @param {Equipment[]} [startingEquipment] @returns {GameState} */
-  createCharacter(statAlloc, startingConsumables = [], startingEquipment = []) {
+  createCharacter(statAlloc: Stats, startingConsumables: Consumable[] = [], startingEquipment: Equipment[] = []): GameState {
     const now = Date.now();
-    this.state = {
+    const state: GameState = {
       stats: { ...statAlloc },
       equipment: [...startingEquipment.slice(0, CONFIG.game.equipmentCarryOverCap)], // carry-over equipment
       // Carry-over consumables: the LAST `cap` in the pool — the pool grows
@@ -37,27 +34,28 @@ const Game = {
       startTime: now,
       runNumber: this.getRunNumber() + 1
     };
+    this.state = state;
     // Carry-over equipment grants its bonuses from day 1 (mid-run drops
     // and swaps apply their own — see checkForEquipmentDrop / UI)
-    this.state.equipment.forEach(item => SpecialSystem.addEquipment(item.emoji, item.effects));
-    return this.state;
+    state.equipment.forEach(item => SpecialSystem.addEquipment(item.emoji, item.effects));
+    return state;
   },
-  
+
   // Get run number from meta
-  getRunNumber() {
+  getRunNumber(): number {
     return MetaStore.runCount();
   },
-  
+
   // Save run completion to meta
-  saveRunComplete() {
+  saveRunComplete(): void {
     const state = this.state;
     if (!state) return;
     const firstEquipment = state.equipment[0];
     MetaStore.recordRunComplete(firstEquipment ? firstEquipment.id : null);
   },
-  
+
   // Check if character can level up (every N events = 1 level)
-  checkLevelUp() {
+  checkLevelUp(): boolean {
     const state = this.state;
     if (!state) return false;
     const eventsNeeded = state.level * PerkSystem.bossInterval();
@@ -66,38 +64,37 @@ const Game = {
       // 🧠 Rapid Learner: +1 bonus level up point
       state.levelUpPoints = PerkSystem.levelUpPoints();
       this.addLog(`Level up! Now level ${state.level}.`);
-      
+
       // Generate 3 random consumables for selection
       state.pendingLevelUpConsumables = get3RandomConsumables();
-      
+
       return true;
     }
     return false;
   },
-  
+
   // Phase 1 of choice processing: resolve the stat checks and determine
   // which perk interventions the player may choose. No persistent side
   // effects — effects, loot, days, and milestones all happen in
   // applyChoice(), AFTER the player has decided. (Clean Deploy is the
   // exception: it is automatic and fires here, at roll time.)
-  /** @param {GameEvent} gameEvent @param {number} choiceIndex @returns {ResolvedChoice | { error: string }} */
-  resolveChoice(gameEvent, choiceIndex) {
+  resolveChoice(gameEvent: GameEvent, choiceIndex: number): ResolvedChoice | { error: string } {
     const eventDef = EVENTS.find(e => e.id === gameEvent.id);
     if (!eventDef) return { error: 'Event not found' };
-    
+
     const choice = eventDef.choices[choiceIndex];
     if (!choice) return { error: 'Invalid choice' };
-    
+
     if (!this.state) return { error: 'No active run' };
-    
+
     const checkResult = this.resolveStatChecks(choice);
-    
+
     // Intervention availability is frozen here, before any effects are
     // applied — applyChoice() is what applies them, so a failure's own
     // effects (which may drop a stat and revoke the perk) cannot steal the
     // intervention that was earned when the check resolved.
     const failureHasNegatives = Object.values(choice.failure.effects).some(v => (v || 0) < 0);
-    
+
     return {
       gameEvent,
       choice,
@@ -112,27 +109,26 @@ const Game = {
       }
     };
   },
-  
+
   // Phase 2: apply the outcome with the player's intervention decisions.
   // Negotiate converts the failure to a success; Brute Force re-evaluates
   // the failed Strength check at +2 (success if all checks now pass);
   // Code Review halves the negative effects at apply time — no retroactive
   // refund. A perk is consumed only if its intervention actually applies
   // (e.g. Code Review is not spent when Negotiate already won the event).
-  /** @param {ResolvedChoice} resolved @param {PerkDecisions} [use] @returns {ProcessResult} */
-  applyChoice(resolved, use = { negotiate: false, bruteForce: false, codeReview: false }) {
+  applyChoice(resolved: ResolvedChoice, use: PerkDecisions = { negotiate: false, bruteForce: false, codeReview: false }): ProcessResult {
     const state = this.state;
-    if (!state) return { error: 'No active run' };
-    
+    if (!state) throw new Error('Game not initialized');
+
     // A pending drop from a prior event that was never resolved (e.g. the
     // run ended before the choice screen) must not leak into this result's
     // equipmentDropped flag — checkForEquipmentDrop() re-sets it below
     state.pendingEquipmentDrop = null;
-    
+
     // Final outcome: interventions may convert the failure
     const checkResults = resolved.checkResults.map(cr => ({ ...cr }));
     let success = resolved.allSuccess;
-    
+
     if (!success && use.negotiate && resolved.interventions.negotiate) {
       PerkSystem.useNegotiate();
       success = true;
@@ -149,19 +145,19 @@ const Game = {
       if (checkResults.every(cr => cr.success)) success = true;
       this.addLog('💪 Brute Force! +2 to the Strength check target.');
     }
-    
+
     // Effects for the final outcome; Code Review halves the negatives now
     let effects = success ? resolved.choice.success.effects : resolved.choice.failure.effects;
     if (!success && use.codeReview && resolved.interventions.codeReview) {
       PerkSystem.useCodeReview();
-      /** @type {Partial<Stats>} */ const halved = {};
-      for (const [stat, value] of /** @type {Array<[StatKey, number]>} */ (Object.entries(effects))) {
+      const halved: Partial<Stats> = {};
+      for (const [stat, value] of Object.entries(effects) as [StatKey, number][]) {
         halved[stat] = value < 0 ? PerkSystem.applyCodeReview(value) : value;
       }
       effects = halved;
       this.addLog('🐛 Code Review! Negative effects halved.');
     }
-    
+
     // 🧘 Iron Nerves: once per run, a hit that would floor Endurance stops
     // it at 3 instead. Judged on the final effects (after Code Review),
     // BEFORE anything is applied — the perk was active when the blow
@@ -179,10 +175,10 @@ const Game = {
     }
     const log = success ? resolved.choice.success.log : resolved.choice.failure.log;
     this.applyEffects(effects);
-    
+
     // Award loot if successful
     const itemDropped = this.checkForEquipmentDrop(success);
-    
+
     // Advance game state
     const { min: dayMin, max: dayMax } = CONFIG.game.dayAdvance;
     state.day += dayMin + Math.floor(Math.random() * (dayMax - dayMin + 1));
@@ -190,18 +186,18 @@ const Game = {
     state.currentEventId = resolved.gameEvent.id;
     state.eventHistory.push(resolved.gameEvent.id);
     this.addLog(log);
-    
+
     // Track boss defeat
     if (resolved.isBoss) {
       state.bossCompleted = true;
     }
-    
+
     // Check progression milestones
     const phaseComplete = this.checkPhaseCompletion();
     const leveledUp = this.checkLevelUp();
     const gameOver = this.checkGameOver();
     const victory = this.checkVictory();
-    
+
     return {
       success,
       checkResults,
@@ -218,23 +214,22 @@ const Game = {
       ironNervesUsed
     };
   },
-  
+
   // Resolve stat checks for a choice
-  /** @param {EventChoice} choice @returns {{ allSuccess: boolean, results: CheckResult[], hasNegotiate: boolean, hasBruteForce: boolean, cleanDeployUsed: boolean }} */
-  resolveStatChecks(choice) {
-    const results = [];
+  resolveStatChecks(choice: EventChoice): { allSuccess: boolean; results: CheckResult[]; hasNegotiate: boolean; hasBruteForce: boolean; cleanDeployUsed: boolean } {
+    const results: CheckResult[] = [];
     let allSuccess = true;
     let cleanDeployUsed = false;
-    
+
     if (choice.checks) {
       // Event JSON is validated at load, so check keys are always stat letters
-      for (const [stat, target] of /** @type {Array<[StatKey, number]>} */ (Object.entries(choice.checks))) {
+      for (const [stat, target] of Object.entries(choice.checks) as [StatKey, number][]) {
         let effective = SpecialSystem.effective(stat);
         const L = SpecialSystem.stats.L;
         let roll = d20() - L;
         let checkTarget = target;
         let success = roll <= checkTarget && effective >= (target - L) * CONFIG.game.competenceGateFactor;
-        
+
         // 🍀 Clean Deploy: once per run, reroll a failed check
         if (!success && PerkSystem.canCleanDeployReroll()) {
           PerkSystem.useCleanDeployReroll();
@@ -245,42 +240,41 @@ const Game = {
             this.addLog(`🍀 Clean Deploy! Rerolled ${stat}: ${roll} → success`);
           }
         }
-        
+
         results.push({ stat, roll, target: checkTarget, effective, success });
         if (!success) allSuccess = false;
       }
     }
-    
+
     // 💪 Brute Force: flag for player choice on failed Strength checks
     const hasBruteForce = results.some(r => r.stat === 'S' && !r.success) && PerkSystem.canUseBruteForce();
-    
+
     // 🤝 Negotiate: flag for player choice (not auto-used)
     const hasNegotiate = !allSuccess && PerkSystem.canNegotiate();
-    
+
     // Consumable bonuses are one-time — clear after stat check resolves
     SpecialSystem.clearTempBonuses();
-    
+
     return { allSuccess, results, hasNegotiate, hasBruteForce, cleanDeployUsed };
   },
-  
+
   // Apply stat effects from choice outcome.
-  /** @param {Partial<Stats>} effects @returns {{ hasNegativeEffects: boolean }} */
-  applyEffects(effects) {
-    const hasNegativeEffects = Object.entries(effects).some(([_, v]) => v < 0);
-    
-    for (const [stat, value] of /** @type {Array<[StatKey, number]>} */ (Object.entries(effects))) {
+  applyEffects(effects: Partial<Stats>): { hasNegativeEffects: boolean } {
+    const hasNegativeEffects = Object.entries(effects).some(([_, v]) => (v as number) < 0);
+
+    for (const [stat, value] of Object.entries(effects) as [StatKey, number][]) {
       if (SpecialSystem.stats[stat] === undefined) continue;
       SpecialSystem.stats[stat] = clampStat(SpecialSystem.stats[stat] + value);
     }
-    
+
     // Stat changes may unlock or revoke perks
     this.refreshPerks();
-    
+
     return { hasNegativeEffects };
   },
-  
+
   // Recompute active perks and announce changes
-  refreshPerks() {
+  refreshPerks(): void {
     const { gained, lost } = PerkSystem.refresh();
     gained.forEach(id => {
       const perk = PERK_BY_ID[id];
@@ -296,71 +290,69 @@ const Game = {
       UI.renderPerks();
     }
   },
-  
+
   // Check for equipment drop and handle inventory
-  /** @param {boolean} isSuccess @returns {Equipment | null} */
-  checkForEquipmentDrop(isSuccess) {
+  checkForEquipmentDrop(isSuccess: boolean): Equipment | null {
     if (!isSuccess || Math.random() >= Math.min(1, CONFIG.game.dropRate + SpecialSystem.stats.L * CONFIG.game.luckDropBonusPerPoint)) {
       return null;
     }
-    
+
     const state = this.state;
     if (!state) return null;
-    
+
     const droppedItem = getRandomEquipment();
-    
+
     if (state.equipment.length >= 1) {
       // Inventory full — flag for player choice
       state.pendingEquipmentDrop = { ...droppedItem };
       return null;
     }
-    
+
     // Add to inventory and apply bonuses. Store the full item — the
     // equipment popup renders rarity and desc.
     state.equipment.push({ ...droppedItem });
     SpecialSystem.addEquipment(droppedItem.emoji, droppedItem.effects);
-    
+
     return droppedItem;
   },
-  
+
   // Check if career phase is complete
-  checkPhaseCompletion() {
+  checkPhaseCompletion(): boolean {
     return !!this.state && this.state.phase < 4 && this.state.bossCompleted;
   },
-  
+
   // Check if player has reached victory condition
-  checkVictory() {
+  checkVictory(): boolean {
     return !!this.state && this.state.phase === 4 && this.state.bossCompleted;
   },
-  
+
   // Stats in immediate danger: at or below the danger threshold, i.e. one
   // negative hit from the saving-roll floor. Uses base stats — equipment
   // bonuses do not protect against the floor (the death check doesn't either).
-  /** @returns {StatKey[]} */
-  dangerStats() {
-    /** @type {StatKey[]} */ const out = [];
+  dangerStats(): StatKey[] {
+    const out: StatKey[] = [];
     for (const key of STAT_KEYS) {
       if (SpecialSystem.stats[key] <= CONFIG.game.dangerThreshold) out.push(key);
     }
     return out;
   },
-  
+
   // Check game over conditions
-  checkGameOver() {
+  checkGameOver(): { reason: string } | null {
     // Deterministic checks first; fall back to probabilistic ones only if
     // no deterministic death fired.
     return this._checkDeterministicGameOver() || this._checkProbabilisticGameOver();
   },
-  
+
   // Deterministic terminal conditions: a stat on its floor (1) would end the run,
   // unless a saving roll (d20 vs LUCK + 0.5*CHARISMA) succeeds.
-  _checkDeterministicGameOver() {
+  _checkDeterministicGameOver(): { reason: string } | null {
     const careerState = this.state;
     if (!careerState) return null;
     const stats = SpecialSystem.stats;
-    
+
     // Find the first deterministic death condition met (order preserved).
-    let death = null;
+    let death: { log: string; reason: string } | null = null;
     if (stats.S <= 1) {
       death = { log: 'Technical collapse! You could no longer carry the code.', reason: '💀 Technical Collapse — You couldn\'t keep up with the technical demands. The codebase won, and your career didn\'t survive the merge.' };
     } else if (stats.P <= 1) {
@@ -376,10 +368,10 @@ const Game = {
     } else if (stats.L <= 1) {
       death = { log: 'Your luck ran out — everything you touched broke.', reason: '💀 Bad Luck Runs Out — Every deploy broke and every guess was wrong. The universe finally stopped favoring you.' };
     }
-    
+
     // No stat on the floor — no deterministic death pending.
     if (!death) return null;
-    
+
     // Attempt the saving roll.
     const target = stats.L + CONFIG.game.savingRollCharismaFactor * stats.C;
     const roll = d20();
@@ -392,18 +384,18 @@ const Game = {
       this.addLog(`🎲 Saving roll: ${roll} vs ${target} — survived. Your luck and ability to bullsh*t keeps you around.`);
       return null;
     }
-    
+
     // Save failed: career over.
     this.addLog(death.log);
     return { reason: death.reason };
   },
-  
+
   // Probabilistic terminal conditions: chance-based deaths.
-  _checkProbabilisticGameOver() {
+  _checkProbabilisticGameOver(): { reason: string } | null {
     const careerState = this.state;
     if (!careerState) return null;
     const stats = SpecialSystem.stats;
-    
+
     // Redundancy risk scales with low Charisma in mid/late career
     if (careerState.phase >= CONFIG.game.redundancyPhase && stats.C <= 2 && careerState.day > CONFIG.game.deathThresholds.redundancyDay) {
       const redundancyRoll = Math.random();
@@ -413,33 +405,32 @@ const Game = {
         return { reason: '💀 Made Redundant — Low visibility, weak relationships, and the axe fell. The severance package was... adequate.' };
       }
     }
-    
+
     return null;
   },
-  
+
   // Advance to next phase
-  advancePhase() {
+  advancePhase(): void {
     const state = this.state;
     if (!state) return;
     state.phase++;
     state.bossCompleted = false;
     this.addLog(`Promoted to ${CONFIG.game.phaseNames[state.phase]}! 🎉`);
   },
-  
+
   // Pick the next event, advancing the phase first if needed. nextEvent is
   // the single owner of phase advancement — the result screen's continue
   // button relies on this instead of calling advancePhase itself.
-  /** @returns {GameEvent} */
-  nextEvent() {
+  nextEvent(): GameEvent {
     const state = this.state;
     if (!state) throw new Error('Game.nextEvent: no active run');
-    
+
     // Boss already defeated — advance and pick again
     if (state.bossCompleted) {
       this.advancePhase();
       return this.nextEvent();
     }
-    
+
     // Boss every N events (eventsCompleted is incremented AFTER the choice
     // that completed the cycle is processed)
     // 🚀 Fast Ship: bosses every 5 events instead of 6
@@ -447,22 +438,21 @@ const Game = {
       const boss = getBossEvent(state.phase);
       if (boss) return boss;
     }
-    
+
     const event = getRandomNonBossEvent(state.phase, state.eventHistory || []);
     if (event) return event;
-    
+
     // All non-boss events seen — fall back to the boss
     const fallback = getBossEvent(state.phase);
     if (fallback) return fallback;
-    
+
     // No events at all for this phase — advance and pick again
     this.advancePhase();
     return this.nextEvent();
   },
-  
+
   // Add to career log
-  /** @param {string} message */
-  addLog(message) {
+  addLog(message: string): void {
     const state = this.state;
     if (!state) return;
     state.careerLog.unshift({ message, day: state.day, timestamp: Date.now() });
@@ -470,16 +460,15 @@ const Game = {
       state.careerLog.pop();
     }
   },
-  
+
   // Get career summary
-  /** @returns {{ runNumber: number, level: number, phase: number, day: number, eventsCompleted: number, equipment: Equipment[], stats: Stats, duration: string } | null} */
-  getSummary() {
+  getSummary(): { runNumber: number; level: number; phase: number; day: number; eventsCompleted: number; equipment: Equipment[]; stats: Stats; duration: string } | null {
     const state = this.state;
     if (!state) return null;
     const duration = Math.floor((Date.now() - state.startTime) / 1000);
     const minutes = Math.floor(duration / 60);
     const hours = Math.floor(minutes / 60);
-    
+
     return {
       runNumber: state.runNumber,
       level: state.level,
@@ -491,30 +480,27 @@ const Game = {
       duration: `${hours}h ${minutes % 60}m`
     };
   },
-
 };
 
 // Consumable management
 const ConsumableManager = {
-  /** @param {string} consumableId @returns {ConsumableUseResult | null} */
-  use(consumableId) {
+  use(consumableId: string): ConsumableUseResult | null {
     const state = Game.state;
     if (!state) return null;
     const inventoryIndex = state.consumables.findIndex(c => c.id === consumableId);
     if (inventoryIndex === -1) return null;
-    
+
     const consumable = state.consumables[inventoryIndex];
     state.consumables.splice(inventoryIndex, 1);
-    
-    /** @type {ConsumableUseResult} */
-    const effect = {
+
+    const effect: ConsumableUseResult = {
       id: consumable.id,
       name: consumable.name,
       emoji: consumable.emoji,
       stat: consumable.stat,
       bonus: consumable.bonus
     };
-    
+
     if (consumable.multiplier !== undefined) {
       // AI tools have a 30% chance to backfire
       const roll = Math.random();
@@ -528,13 +514,13 @@ const ConsumableManager = {
         effect.backfired = true;
       }
     }
-    
+
     return effect;
   },
-  
+
   // End-of-run options: 3 random consumables the player does NOT already
   // carry — offering a carried item would make the swap a no-op
-  getEndOfRunOptions() {
+  getEndOfRunOptions(): Consumable[] {
     const carried = MetaStore.carriedIds('startingConsumables');
     const pool = CONSUMABLES.filter(c => !carried.includes(c.id));
     return shuffle(pool).slice(0, CONFIG.game.randomConsumableChoices);
