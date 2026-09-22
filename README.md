@@ -249,6 +249,15 @@ Current state:
 
 **SPECIAL stat system** inspired by [Fallout](https://fallout.fandom.com/wiki/SPECIAL) by Interplay Productions / Black Isle Studios. The seven stats (Strength, Perception, Endurance, Charisma, Intelligence, Agility, Luck) are a loving homage to the classic RPG system, reimagined for the modern software engineering career.
 
+**Game Inspiration** Did some training and had conversations where the general feel was how charismatic the trainer is.
+> If people had stats, he'd be a 10 for Charisma.
+
+> If I had his charisma, I'd could be a CEO.
+
+> But we are all SPECIAL in our own ways.
+
+And this is how we got here today. (Also, I've logged too many hours in Fallout in my younger years.)
+
 ## 📄 License
 
 MIT License
