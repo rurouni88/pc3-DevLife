@@ -15,7 +15,7 @@ Will you reach retirement, or will your career end in burnout?
 
 - **[Gameplay Guide](GAMEPLAY.md)** — Rules, mechanics, controls, game over conditions
 - **[Design Document](GAME_DESIGN.md)** — Full design, event examples, development roadmap
-- **[Contributing](CONTRIBUTING.md)** — Setup, build, deploy, project structure
+- **[Contributing](CONTRIBUTING.md)** — Setup, build, deploy, project structure (see File Structure)
 
 ---
 
