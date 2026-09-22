@@ -38,7 +38,7 @@
           "effects": {
             "C": 1
           },
-          "log": "Good judgment — followed protocol."
+          "log": "Good judgment \u2014 followed protocol."
         },
         "failure": {
           "text": "The team lead is also at a BBQ. Nobody answers. The issue persists for 3 hours.",
@@ -62,7 +62,7 @@
           "log": "Found and fixed the root cause over the BBQ."
         },
         "failure": {
-          "text": "You trace the issue for six hours and find the root cause — a config change made by a contractor in 2023. You fix it, but the postmortem has a section titled \"why this took so long,\" and it's all about you.",
+          "text": "You trace the issue for six hours and find the root cause \u2014 a config change made by a contractor in 2023. You fix it, but the postmortem has a section titled \"why this took so long,\" and it's all about you.",
           "effects": {
             "E": -2
           },
@@ -176,7 +176,7 @@
         }
       },
       {
-        "text": "Rewrite the frontend — it's the bottleneck",
+        "text": "Rewrite the frontend \u2014 it's the bottleneck",
         "checks": {
           "S": 6,
           "A": 7
@@ -190,7 +190,7 @@
           "log": "Frontend optimization succeeded!"
         },
         "failure": {
-          "text": "The bottleneck wasn't the frontend — it was the backend. You've optimized nothing. The CEO is not happy.",
+          "text": "The bottleneck wasn't the frontend \u2014 it was the backend. You've optimized nothing. The CEO is not happy.",
           "effects": {
             "E": -2,
             "P": -1
@@ -249,7 +249,7 @@
             "C": -1,
             "E": -1
           },
-          "log": "Demo showed a 404. 😬"
+          "log": "Demo showed a 404. \ud83d\ude2c"
         }
       },
       {
@@ -264,7 +264,7 @@
             "C": 2,
             "A": 1
           },
-          "log": "Smooth demo — they didn't notice the broken parts."
+          "log": "Smooth demo \u2014 they didn't notice the broken parts."
         },
         "failure": {
           "text": "An executive asks to see the feature you skipped. \"Can you show me the search?\" You have no search. It's on fire.",
@@ -272,7 +272,7 @@
             "C": -2,
             "E": -2
           },
-          "log": "Executive asked for the broken feature. 💀"
+          "log": "Executive asked for the broken feature. \ud83d\udc80"
         }
       },
       {
@@ -285,7 +285,7 @@
           "effects": {
             "L": 2
           },
-          "log": "Miracle demo! ✨"
+          "log": "Miracle demo! \u2728"
         },
         "failure": {
           "text": "The gods are not pleased. The demo crashes. The video call freezes. The audio cuts out. It's a triple crown of failures.",
@@ -293,7 +293,7 @@
             "L": -1,
             "E": -2
           },
-          "log": "Triple failure on demo day. 💀"
+          "log": "Triple failure on demo day. \ud83d\udc80"
         }
       }
     ]
@@ -346,7 +346,7 @@
             "E": -2,
             "P": -1
           },
-          "log": "Infinite review loop. 😵‍💫"
+          "log": "Infinite review loop. \ud83d\ude35\u200d\ud83d\udcab"
         }
       },
       {
@@ -369,6 +369,372 @@
             "E": -1
           },
           "log": "Unhelpful feedback."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_ai_vibe_code",
+    "title": "The AI Vibe Code",
+    "phase": 2,
+    "phaseLabel": "Mid-Level Developer",
+    "narrative": "You've been assigned a complex feature with a tight deadline. You try AI code generation \u2014 it produces 200 lines of code that looks perfect.\n\nYou run the tests. They all pass. You deploy it. The feature works.\n\nTwo days later, the monitoring dashboard shows a memory leak. The AI-generated code is consuming 500MB of RAM per request. Nobody knows why.\n\nYou wrote none of this code. You don't understand how it works.",
+    "choices": [
+      {
+        "text": "Read the AI-generated code line by line to find the leak",
+        "checks": {
+          "P": 8
+        },
+        "success": {
+          "text": "You spend 4 hours reading the generated code. You find it \u2014 an unclosed database connection in a loop. You fix it and add a comment explaining why.",
+          "effects": {
+            "P": 2,
+            "I": 1
+          },
+          "log": "Found the leak through careful reading!"
+        },
+        "failure": {
+          "text": "The code is 200 lines of AI-generated spaghetti. You can't follow the logic. You're stuck.",
+          "effects": {
+            "E": -2,
+            "P": -1
+          },
+          "log": "AI code was incomprehensible."
+        }
+      },
+      {
+        "text": "Rewrite the feature from scratch without AI",
+        "checks": {
+          "S": 8
+        },
+        "success": {
+          "text": "You rewrite it yourself. It's 50 lines of clean, readable code. No memory leak. The team is impressed.",
+          "effects": {
+            "S": 2,
+            "A": 1
+          },
+          "log": "Wrote it clean \u2014 no AI needed!"
+        },
+        "failure": {
+          "text": "You rewrite it but miss some edge cases. The feature works but crashes on invalid input.",
+          "effects": {
+            "S": -1,
+            "E": -1
+          },
+          "log": "Rewrite missed edge cases."
+        }
+      },
+      {
+        "text": "Add a memory limit and alert \u2014 treat it as a symptom, not the cause",
+        "checks": {
+          "A": 7
+        },
+        "success": {
+          "text": "You add a memory limit and alert. The leak is contained. You buy time to investigate properly.",
+          "effects": {
+            "A": 2,
+            "P": 1
+          },
+          "log": "Contained the leak with limits."
+        },
+        "failure": {
+          "text": "The memory limit triggers too late. The service crashes before the alert fires.",
+          "effects": {
+            "A": -1,
+            "E": -1
+          },
+          "log": "Limit was too late."
+        }
+      },
+      {
+        "text": "Ask the AI tool for an explanation of the generated code",
+        "checks": {
+          "L": 7
+        },
+        "success": {
+          "text": "Miraculously, the AI tool explains its own code. You find the leak in 10 minutes. You feel like you've hacked reality.",
+          "effects": {
+            "L": 2,
+            "I": 1
+          },
+          "log": "AI explained itself. Magic!"
+        },
+        "failure": {
+          "text": "The AI tool gives you a vague explanation that doesn't help. You're back to square one.",
+          "effects": {
+            "L": -1,
+            "E": -1
+          },
+          "log": "AI explanation was useless."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_ai_code_review",
+    "title": "The AI Code Review",
+    "phase": 2,
+    "phaseLabel": "Mid-Level Developer",
+    "narrative": "You've integrated an AI code reviewer into your workflow. It catches typos, suggests improvements, and flags potential bugs.\n\nToday it flags 47 issues in your PR. Most are minor \u2014 naming suggestions, style complaints. But one says: \"Potential security vulnerability: SQL injection in user input.\"\n\nYou didn't write any SQL. You don't even use a database in this feature.",
+    "choices": [
+      {
+        "text": "Investigate the SQL injection claim thoroughly",
+        "checks": {
+          "P": 8
+        },
+        "success": {
+          "text": "You trace the code and find it \u2014 a third-party library you're using constructs a query unsafely. You replace it with a parameterized version.",
+          "effects": {
+            "P": 2,
+            "S": 1
+          },
+          "log": "Found a real vulnerability!"
+        },
+        "failure": {
+          "text": "You investigate but can't find the issue. The AI was wrong. You approve the PR and move on.",
+          "effects": {
+            "E": -1,
+            "P": -1
+          },
+          "log": "AI was wrong. Nothing to fix."
+        }
+      },
+      {
+        "text": "Dismiss it as a false positive \u2014 AI reviewers are noisy",
+        "checks": {
+          "L": 8
+        },
+        "success": {
+          "text": "You dismiss it. The PR passes. Two weeks later, a hacker exploits the exact vulnerability the AI flagged. You feel terrible.",
+          "effects": {
+            "L": -2,
+            "E": -2
+          },
+          "log": "AI was right. You were wrong. \ud83d\udc80"
+        },
+        "failure": {
+          "text": "You dismiss it. It was a false positive. The PR passes. You feel smug.",
+          "effects": {
+            "L": 1,
+            "C": 1
+          },
+          "log": "AI was wrong. You were right."
+        }
+      },
+      {
+        "text": "Ask a senior dev to review the AI's claim",
+        "checks": {
+          "C": 6
+        },
+        "success": {
+          "text": "The senior dev agrees it's a real issue. You fix it together. They say \"good catch \u2014 AI reviewers can be helpful when you take them seriously.\"",
+          "effects": {
+            "C": 1,
+            "P": 1
+          },
+          "log": "Senior dev confirmed the vulnerability."
+        },
+        "failure": {
+          "text": "The senior dev says \"ignore the AI. It's noisy.\" You approve the PR.",
+          "effects": {
+            "E": -1,
+            "C": -1
+          },
+          "log": "Senior dev dismissed the AI."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_ai_library_dependency",
+    "title": "The AI Library Dependency",
+    "phase": 2,
+    "phaseLabel": "Mid-Level Developer",
+    "narrative": "You've been using an AI-generated library for data processing. It's fast, well-documented, and works perfectly.\n\nToday you see a GitHub issue: \"Critical vulnerability in v2.3.1 \u2014 arbitrary code execution via crafted input.\"\n\nYour code uses v2.3.1. You didn't write the vulnerable code. You just imported the library.",
+    "choices": [
+      {
+        "text": "Upgrade to v2.3.2 immediately",
+        "checks": {
+          "A": 7
+        },
+        "success": {
+          "text": "You upgrade. The new version works perfectly. You add a note to the team about dependency hygiene.",
+          "effects": {
+            "A": 2,
+            "P": 1
+          },
+          "log": "Upgraded and secured!"
+        },
+        "failure": {
+          "text": "The new version has breaking changes. Your code breaks in 3 places. You fix them but it takes all day.",
+          "effects": {
+            "A": -1,
+            "E": -1
+          },
+          "log": "Upgrade caused breaking changes."
+        }
+      },
+      {
+        "text": "Audit your usage of the library to see if the vulnerability applies",
+        "checks": {
+          "P": 8
+        },
+        "success": {
+          "text": "You audit your code and find you're using the library safely. The vulnerability requires a specific input pattern you don't use. You sleep easy.",
+          "effects": {
+            "P": 2,
+            "I": 1
+          },
+          "log": "Audited \u2014 not vulnerable!"
+        },
+        "failure": {
+          "text": "You can't determine if you're vulnerable. The library is complex. You upgrade anyway.",
+          "effects": {
+            "E": -1,
+            "P": -1
+          },
+          "log": "Couldn't determine vulnerability."
+        }
+      },
+      {
+        "text": "Replace the library with a custom implementation",
+        "checks": {
+          "S": 8
+        },
+        "success": {
+          "text": "You write your own data processing code. It's slower but you control it. No more dependency risk.",
+          "effects": {
+            "S": 2,
+            "I": 1
+          },
+          "log": "Wrote custom implementation!"
+        },
+        "failure": {
+          "text": "Your implementation is buggy. It processes data incorrectly. You revert and upgrade instead.",
+          "effects": {
+            "S": -1,
+            "E": -2
+          },
+          "log": "Custom code was worse."
+        }
+      },
+      {
+        "text": "Ignore it \u2014 the vulnerability is theoretical",
+        "checks": {
+          "L": 9
+        },
+        "success": {
+          "text": "You ignore it. Nothing happens. The vulnerability is theoretical. You feel lucky.",
+          "effects": {
+            "L": 1,
+            "E": 1
+          },
+          "log": "Ignored it. Nothing happened."
+        },
+        "failure": {
+          "text": "A hacker exploits the vulnerability. Your data is compromised. The incident takes 3 days to resolve.",
+          "effects": {
+            "L": -3,
+            "E": -3
+          },
+          "log": "Vulnerability exploited. \ud83d\udc80"
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_ai_prompt_disaster",
+    "title": "The AI Prompt Disaster",
+    "phase": 2,
+    "phaseLabel": "Mid-Level Developer",
+    "narrative": "You need to write a complex regex for log parsing. You try AI \u2014 it gives you a regex that works on your test data.\n\nYou deploy it to production. It works on 99% of logs. But the 1% it misses causes silent data corruption.\n\nThe corrupted logs are indistinguishable from valid ones. You don't notice for a week.",
+    "choices": [
+      {
+        "text": "Write the regex yourself from scratch",
+        "checks": {
+          "S": 8
+        },
+        "success": {
+          "text": "You write a robust regex that handles all edge cases. It's longer than the AI version but correct.",
+          "effects": {
+            "S": 2,
+            "P": 1
+          },
+          "log": "Wrote the regex yourself!"
+        },
+        "failure": {
+          "text": "You write a regex but miss an edge case. It's better than the AI version but still broken.",
+          "effects": {
+            "S": -1,
+            "E": -1
+          },
+          "log": "Regex still broken."
+        }
+      },
+      {
+        "text": "Add validation checks for the corrupted logs",
+        "checks": {
+          "P": 7
+        },
+        "success": {
+          "text": "You add validation that catches the corrupted logs. You fix them and add a monitoring alert for future issues.",
+          "effects": {
+            "P": 2,
+            "A": 1
+          },
+          "log": "Caught and fixed the corruption!"
+        },
+        "failure": {
+          "text": "Your validation is too strict \u2014 it catches valid logs too. You block legitimate data.",
+          "effects": {
+            "P": -1,
+            "E": -1
+          },
+          "log": "Validation was too strict."
+        }
+      },
+      {
+        "text": "Ask the AI to improve the regex with more test cases",
+        "checks": {
+          "C": 6
+        },
+        "success": {
+          "text": "You feed the AI the corrupted logs as test cases. It generates a better regex that handles the edge cases.",
+          "effects": {
+            "C": 1,
+            "I": 1
+          },
+          "log": "AI improved with better test cases!"
+        },
+        "failure": {
+          "text": "The AI generates a more complex regex that's harder to read but still broken. You're worse off.",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "AI made it worse."
+        }
+      },
+      {
+        "text": "Switch to a different parsing approach \u2014 stop using regex",
+        "checks": {
+          "A": 7
+        },
+        "success": {
+          "text": "You switch to a structured parser. It's more reliable and easier to maintain. The team loves it.",
+          "effects": {
+            "A": 2,
+            "P": 1
+          },
+          "log": "Switched to structured parsing!"
+        },
+        "failure": {
+          "text": "The structured parser is slower. It can't handle the volume of logs. You revert.",
+          "effects": {
+            "A": -1,
+            "E": -1
+          },
+          "log": "Structured parser was too slow."
         }
       }
     ]
@@ -403,7 +769,7 @@
         }
       },
       {
-        "text": "Push back — propose alternatives",
+        "text": "Push back \u2014 propose alternatives",
         "checks": {
           "C": 7,
           "I": 6
@@ -469,7 +835,7 @@
             "A": 1,
             "P": 1
           },
-          "log": "Friday night hero — saved production!"
+          "log": "Friday night hero \u2014 saved production!"
         },
         "failure": {
           "text": "You fix the wrong line. Production stays down. Your friends leave without you.",
@@ -668,7 +1034,7 @@
           "log": "Found the real gap: the auth middleware."
         },
         "failure": {
-          "text": "You trace the bug and find the real problem — but explaining it requires a two-hour deep dive they're not ready for. They nod, say \"got it,\" and break it again on Monday.",
+          "text": "You trace the bug and find the real problem \u2014 but explaining it requires a two-hour deep dive they're not ready for. They nod, say \"got it,\" and break it again on Monday.",
           "effects": {
             "E": -1
           },
@@ -727,6 +1093,28 @@
             "L": -1
           },
           "log": "CDN restart made it worse."
+        }
+      },
+      {
+        "text": "Log it and move on \u2014 it's a false alarm",
+        "checks": {
+          "E": 5
+        },
+        "success": {
+          "text": "It was a false alarm. You saved time by not investigating. The team appreciates your pragmatism.",
+          "effects": {
+            "E": 1,
+            "A": 1
+          },
+          "log": "False alarm. Moved on."
+        },
+        "failure": {
+          "text": "It wasn't a false alarm. It was a real issue that you ignored. The problem gets worse.",
+          "effects": {
+            "E": -1,
+            "P": -1
+          },
+          "log": "Ignored a real issue."
         }
       }
     ]
@@ -872,7 +1260,7 @@
           "log": "Ended the stack war with real numbers."
         },
         "failure": {
-          "text": "You build both prototypes, but your benchmark harness has a bug — you forgot to warm the caches. Framework Y \"wins\" by 3x, and the team ships it. Six months later, everyone remembers your name in the postmortem.",
+          "text": "You build both prototypes, but your benchmark harness has a bug \u2014 you forgot to warm the caches. Framework Y \"wins\" by 3x, and the team ships it. Six months later, everyone remembers your name in the postmortem.",
           "effects": {
             "E": -1,
             "S": -1
@@ -1072,7 +1460,7 @@
           "effects": {
             "L": 1
           },
-          "log": "Lucky break — better replacement appeared!"
+          "log": "Lucky break \u2014 better replacement appeared!"
         },
         "failure": {
           "text": "You wait. The library stops working. You scramble to find a replacement. Chaos.",
@@ -1097,7 +1485,7 @@
           "log": "Built the adapter. The deprecation is neutralized."
         },
         "failure": {
-          "text": "You build the adapter, but you pick the wrong replacement API — the new library changed its semantics between versions. The adapter works perfectly for a library nobody ships with.",
+          "text": "You build the adapter, but you pick the wrong replacement API \u2014 the new library changed its semantics between versions. The adapter works perfectly for a library nobody ships with.",
           "effects": {
             "E": -1,
             "S": -1
@@ -1111,11 +1499,11 @@
     "id": "the_migration",
     "title": "BOSS: The Migration Project",
     "phase": 2,
-    "phaseLabel": "Mid-Level Developer — Boss Battle",
+    "phaseLabel": "Mid-Level Developer \u2014 Boss Battle",
     "narrative": "Your BOSS. The company is migrating from a monolith to microservices. This is the \"big one.\"\n\nYou're leading the migration of the user authentication service. It has 14 dependencies, 3 of which are undocumented. The production database has 2 million records.\n\nDeadline: 4 weeks. Team: You and one other mid-level dev.\n\nThe migration looms.",
     "choices": [
       {
-        "text": "Strangler pattern — migrate incrementally",
+        "text": "Strangler pattern \u2014 migrate incrementally",
         "checks": {
           "I": 8,
           "A": 6
@@ -1138,7 +1526,7 @@
         }
       },
       {
-        "text": "Big bang — cut over in one weekend",
+        "text": "Big bang \u2014 cut over in one weekend",
         "checks": {
           "S": 7,
           "L": 7
@@ -1159,7 +1547,7 @@
             "E": -3,
             "L": -1
           },
-          "log": "Big bang migration FAILED. 💀"
+          "log": "Big bang migration FAILED. \ud83d\udc80"
         }
       },
       {

@@ -17,14 +17,14 @@
             "C": 1,
             "I": 1
           },
-          "log": "First code review — passed with flying colors!"
+          "log": "First code review \u2014 passed with flying colors!"
         },
         "failure": {
           "text": "You stammer through your explanation. The PR gets sent back with 12 more comments.",
           "effects": {
             "E": -1
           },
-          "log": "First code review — painful."
+          "log": "First code review \u2014 painful."
         }
       },
       {
@@ -59,7 +59,7 @@
             "C": 2,
             "P": 1
           },
-          "log": "Smart move — learned a lot in 1:1."
+          "log": "Smart move \u2014 learned a lot in 1:1."
         },
         "failure": {
           "text": "They're busy and say \"just comment on the PR.\" You're back to square one.",
@@ -90,7 +90,7 @@
           "log": "Solved first production incident!"
         },
         "failure": {
-          "text": "Rollback didn't help — the bug was in the data, not the code. Now you really need to dig in...",
+          "text": "Rollback didn't help \u2014 the bug was in the data, not the code. Now you really need to dig in...",
           "effects": {
             "E": -2,
             "A": -1
@@ -159,7 +159,7 @@
             "E": -3,
             "L": -1
           },
-          "log": "Restart made everything worse. 💀"
+          "log": "Restart made everything worse. \ud83d\udc80"
         }
       }
     ]
@@ -227,7 +227,7 @@
           "log": "Broke the scope down into a realistic plan."
         },
         "failure": {
-          "text": "You spend two days breaking down tasks, but your estimates are wrong — the \"simple\" integration is a three-week project. The sprint is overcommitted anyway.",
+          "text": "You spend two days breaking down tasks, but your estimates are wrong \u2014 the \"simple\" integration is a three-week project. The sprint is overcommitted anyway.",
           "effects": {
             "E": -1
           },
@@ -244,7 +244,7 @@
     "narrative": "Your company just decided to rewrite everything in a brand new framework that's 3 weeks old. The CTO announced it at all-hands: \"This is the future. Everyone needs to learn it by end of quarter.\"\n\nThe framework has 200 GitHub stars and documentation that says \"WIP.\"\n\nYour current project uses the OLD framework.",
     "choices": [
       {
-        "text": "Dive deep — build a prototype over the weekend",
+        "text": "Dive deep \u2014 build a prototype over the weekend",
         "checks": {
           "I": 7
         },
@@ -314,7 +314,7 @@
     "title": "The Requirements Change",
     "phase": 1,
     "phaseLabel": "Junior Developer",
-    "narrative": "Product Manager walks in. \"Hey, small change — can we make the app work offline, support 12 languages, and add a social feed? We need it by Friday.\"\n\nYou blink. You've been working on a login form.",
+    "narrative": "Product Manager walks in. \"Hey, small change \u2014 can we make the app work offline, support 12 languages, and add a social feed? We need it by Friday.\"\n\nYou blink. You've been working on a login form.",
     "choices": [
       {
         "text": "Accept and suffer",
@@ -463,7 +463,7 @@
     "narrative": "Your senior dev says: \"This is a quick fix. Should take 30 minutes.\"\n\nThe \"quick fix\" involves modifying a file that 47 other files import. The file has no tests. The comment at the top says \"DO NOT MODIFY.\"\n\nThe senior dev is on vacation. You're alone.",
     "choices": [
       {
-        "text": "Do it carefully — add tests first",
+        "text": "Do it carefully \u2014 add tests first",
         "checks": {
           "I": 6,
           "P": 5
@@ -547,7 +547,7 @@
             "C": 1,
             "P": 1
           },
-          "log": "Honesty paid off — learned from a senior dev!"
+          "log": "Honesty paid off \u2014 learned from a senior dev!"
         },
         "failure": {
           "text": "Your manager sighs. \"Figure it out.\" You go back to staring at the code.",
@@ -644,7 +644,7 @@
           "effects": {
             "A": 2
           },
-          "log": "Nuclear option — fast and clean."
+          "log": "Nuclear option \u2014 fast and clean."
         },
         "failure": {
           "text": "You delete the wrong branch. Your feature is gone. You're starting from zero.",
@@ -652,7 +652,29 @@
             "E": -3,
             "L": -1
           },
-          "log": "Deleted the wrong branch. 💀"
+          "log": "Deleted the wrong branch. \ud83d\udc80"
+        }
+      },
+      {
+        "text": "Ask a senior dev to help resolve",
+        "checks": {
+          "C": 5
+        },
+        "success": {
+          "text": "A senior dev hops in. They resolve the conflicts in 30 minutes and explain their reasoning. You learn a lot.",
+          "effects": {
+            "C": 1,
+            "P": 1
+          },
+          "log": "Senior dev saved the merge."
+        },
+        "failure": {
+          "text": "The senior dev is busy and says 'just resolve them yourself.' You're back to square one.",
+          "effects": {
+            "E": -1,
+            "C": -1
+          },
+          "log": "Senior dev couldn't help."
         }
       }
     ]
@@ -676,7 +698,7 @@
             "A": 1,
             "C": 1
           },
-          "log": "Smooth pivot — saved the demo!"
+          "log": "Smooth pivot \u2014 saved the demo!"
         },
         "failure": {
           "text": "You pivot but the tests are broken too. The demo is a total loss.",
@@ -694,7 +716,7 @@
           "P": 5
         },
         "success": {
-          "text": "You say: \"The crash is expected — it's in QA. Let me show you what we've fixed.\" They appreciate the honesty.",
+          "text": "You say: \"The crash is expected \u2014 it's in QA. Let me show you what we've fixed.\" They appreciate the honesty.",
           "effects": {
             "C": 1,
             "P": 1
@@ -785,7 +807,7 @@
         }
       },
       {
-        "text": "Skip the slides — build something that works",
+        "text": "Skip the slides \u2014 build something that works",
         "checks": {
           "S": 6
         },
@@ -798,7 +820,7 @@
           "log": "Built a small tool that actually works."
         },
         "failure": {
-          "text": "You spend 24 hours making it work, and it works — but the demo slot went to the blockchain todo app. Your tool gets the last ten minutes, right as the lights dim for dinner.",
+          "text": "You spend 24 hours making it work, and it works \u2014 but the demo slot went to the blockchain todo app. Your tool gets the last ten minutes, right as the lights dim for dinner.",
           "effects": {
             "E": -1
           },
@@ -882,14 +904,533 @@
     ]
   },
   {
+    "id": "the_debugging_marathon",
+    "title": "The Debugging Marathon",
+    "phase": 1,
+    "phaseLabel": "Junior Developer",
+    "narrative": "You've been staring at this bug for 6 hours. It only happens on Tuesdays. You've tried everything \u2014 restarting, reinstalling, even turning your monitor off and on again.\n\nYour teammate walks by and asks what you're working on. You explain the problem. They look at your screen for 30 seconds, point at line 47, and say \"You're checking the wrong variable.\"\n\nIt was a typo. A single letter.",
+    "choices": [
+      {
+        "text": "Do a systematic trace \u2014 log every variable at every step",
+        "checks": {
+          "P": 6
+        },
+        "success": {
+          "text": "You methodically trace the execution path. You find the root cause \u2014 a race condition in the async handler. It took 2 hours but you understand it completely now.",
+          "effects": {
+            "P": 2,
+            "I": 1
+          },
+          "log": "Systematic debugging wins the day!"
+        },
+        "failure": {
+          "text": "Your logs are too verbose \u2014 they flood the console. You can't see the signal through the noise.",
+          "effects": {
+            "E": -1,
+            "P": -1
+          },
+          "log": "Logs didn't help. Still stuck."
+        }
+      },
+      {
+        "text": "Take a walk and come back fresh",
+        "checks": {
+          "E": 4
+        },
+        "success": {
+          "text": "You step away for 20 minutes. When you come back, you see the problem immediately. The answer was staring you in the face the whole time.",
+          "effects": {
+            "E": 1,
+            "P": 1
+          },
+          "log": "Fresh eyes found the bug."
+        },
+        "failure": {
+          "text": "You come back but the bug is still there. You're more frustrated than before.",
+          "effects": {
+            "E": -1
+          },
+          "log": "Walk didn't fix it."
+        }
+      },
+      {
+        "text": "Ask your teammate to pair debug with you",
+        "checks": {
+          "C": 5
+        },
+        "success": {
+          "text": "Your teammate hops in. Together you find the issue in 10 minutes \u2014 a missing null check that only triggers under specific conditions.",
+          "effects": {
+            "C": 1,
+            "P": 1
+          },
+          "log": "Pair debugging saved hours."
+        },
+        "failure": {
+          "text": "Your teammate is busy and can only spare 5 minutes. They suggest \"have you tried turning it off and on again?\"",
+          "effects": {
+            "C": -1
+          },
+          "log": "Teammate couldn't help."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_wrong_algorithm",
+    "title": "The Wrong Algorithm",
+    "phase": 1,
+    "phaseLabel": "Junior Developer",
+    "narrative": "You've been tasked with implementing a search feature. You pick an algorithm you learned in college \u2014 it works correctly and the tests pass.\n\nYour senior dev reviews it and says \"this is O(n\u00b2). On a dataset of 100k items, this will take minutes.\"\n\nYou feel the floor drop out from under you.",
+    "choices": [
+      {
+        "text": "Implement a binary search \u2014 it's O(log n)",
+        "checks": {
+          "S": 7
+        },
+        "success": {
+          "text": "You rewrite the search from scratch. It's faster, cleaner, and the tests still pass. Your senior dev nods approvingly.",
+          "effects": {
+            "S": 2,
+            "I": 1
+          },
+          "log": "O(log n) is the way to go!"
+        },
+        "failure": {
+          "text": "Binary search requires sorted input. You forgot that part. The feature is broken in a new way.",
+          "effects": {
+            "S": -1,
+            "E": -1
+          },
+          "log": "Forgot the preconditions."
+        }
+      },
+      {
+        "text": "Ask your senior dev which algorithm to use",
+        "checks": {
+          "C": 5
+        },
+        "success": {
+          "text": "They explain hash maps and you implement a clean O(1) solution. You learn something new.",
+          "effects": {
+            "C": 1,
+            "I": 2
+          },
+          "log": "Learned about hash maps!"
+        },
+        "failure": {
+          "text": "They're in the middle of a crisis and say \"figure it out yourself.\"",
+          "effects": {
+            "E": -1
+          },
+          "log": "Left to figure it out alone."
+        }
+      },
+      {
+        "text": "Optimize the current implementation \u2014 add caching",
+        "checks": {
+          "A": 6
+        },
+        "success": {
+          "text": "You add a simple cache layer. It's not the most elegant solution but it's fast and the tests pass. Your senior dev accepts it for now.",
+          "effects": {
+            "A": 1,
+            "P": 1
+          },
+          "log": "Caching bought you time."
+        },
+        "failure": {
+          "text": "The cache introduces stale data bugs. The feature works but returns wrong answers sometimes.",
+          "effects": {
+            "A": -1,
+            "P": -1
+          },
+          "log": "Cache caused data corruption."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_lucky_bug_fix",
+    "title": "The Lucky Bug Fix",
+    "phase": 1,
+    "phaseLabel": "Junior Developer",
+    "narrative": "You're trying to fix a login issue. You change three unrelated lines of code \u2014 a variable name, an indentation, and a comment. You don't understand why you made these changes.\n\nYou run the tests. They all pass. You deploy. The login issue is fixed.\n\nYour senior dev looks at your changes and says \"why did you change the indentation?\" You have no idea.",
+    "choices": [
+      {
+        "text": "Admit you don't know and ask for help",
+        "checks": {
+          "C": 5
+        },
+        "success": {
+          "text": "Your senior dev explains that the indentation was masking a scope issue. You learn about variable scoping and feel smarter.",
+          "effects": {
+            "C": 1,
+            "I": 1
+          },
+          "log": "Honesty led to learning!"
+        },
+        "failure": {
+          "text": "They sigh and say \"you shouldn't be deploying code you don't understand.\"",
+          "effects": {
+            "E": -1,
+            "C": -1
+          },
+          "log": "Called out for blind deployment."
+        }
+      },
+      {
+        "text": "Say \"I fixed it, didn't I?\" and move on",
+        "checks": {
+          "L": 7
+        },
+        "success": {
+          "text": "Miraculously, your changes were actually correct \u2014 the indentation was hiding a bug. Your senior dev is impressed by your \"instincts.\"",
+          "effects": {
+            "L": 2,
+            "P": 1
+          },
+          "log": "Lucky guess paid off!"
+        },
+        "failure": {
+          "text": "The login issue comes back 2 days later. Your \"fix\" was a coincidence. The real bug is still there.",
+          "effects": {
+            "E": -2,
+            "P": -1
+          },
+          "log": "Lucky fix wasn't lucky."
+        }
+      },
+      {
+        "text": "Revert everything and start over properly",
+        "checks": {
+          "E": 5
+        },
+        "success": {
+          "text": "You revert, understand the actual problem, and fix it properly. It takes longer but you sleep well at night.",
+          "effects": {
+            "E": 1,
+            "P": 1
+          },
+          "log": "Did it the right way."
+        },
+        "failure": {
+          "text": "You revert but now you've lost track of what you were trying to fix. The login issue is back.",
+          "effects": {
+            "E": -1
+          },
+          "log": "Lost track of the fix."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_documentation_gap",
+    "title": "The Documentation Gap",
+    "phase": 1,
+    "phaseLabel": "Junior Developer",
+    "narrative": "You need to add a feature to a module that has no documentation. The code is 500 lines long, poorly named, and has no comments.\n\nYour only resource is the existing test file \u2014 but even that only covers the happy path.\n\nYou're about to make changes to code you don't understand.",
+    "choices": [
+      {
+        "text": "Read every line of the module carefully",
+        "checks": {
+          "P": 7
+        },
+        "success": {
+          "text": "You spend 3 hours reading. You piece together the logic and understand the data flow. It's not pretty but it's clear enough to add your feature safely.",
+          "effects": {
+            "P": 2,
+            "I": 1
+          },
+          "log": "Read the code \u2014 understood the system."
+        },
+        "failure": {
+          "text": "You read every line but the code is intentionally obfuscated. You understand nothing.",
+          "effects": {
+            "E": -2,
+            "P": -1
+          },
+          "log": "Code was incomprehensible."
+        }
+      },
+      {
+        "text": "Add inline comments as you go to understand it",
+        "checks": {
+          "A": 6
+        },
+        "success": {
+          "text": "You annotate the code line by line. By the time you're done, you have a 600-line commented version that explains everything. Your team loves it.",
+          "effects": {
+            "A": 1,
+            "P": 1,
+            "C": 1
+          },
+          "log": "Documented the undocumented!"
+        },
+        "failure": {
+          "text": "You spend so much time commenting that you lose track of the feature. The deadline passes.",
+          "effects": {
+            "E": -1,
+            "A": -1
+          },
+          "log": "Got lost in the comments."
+        }
+      },
+      {
+        "text": "Write tests first to understand the expected behavior",
+        "checks": {
+          "S": 6
+        },
+        "success": {
+          "text": "You write tests that capture the current behavior. They act as documentation and give you confidence to make changes. Your senior dev says \"this is how you do it.\"",
+          "effects": {
+            "S": 2,
+            "P": 1
+          },
+          "log": "Tests became the documentation."
+        },
+        "failure": {
+          "text": "The existing behavior is so inconsistent that you can't write reliable tests. You're stuck.",
+          "effects": {
+            "E": -1
+          },
+          "log": "Tests couldn't capture the chaos."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_performance_optimization",
+    "title": "The Performance Optimization",
+    "phase": 1,
+    "phaseLabel": "Junior Developer",
+    "narrative": "Your feature works but it's slow. A simple API call that should take 100ms is taking 2 seconds.\n\nYour senior dev says \"you're making a database call inside a loop. That's N+1 query problem.\"\n\nYou've never heard of it.",
+    "choices": [
+      {
+        "text": "Learn about batch queries and fix it properly",
+        "checks": {
+          "I": 7
+        },
+        "success": {
+          "text": "You learn about batch loading and rewrite the query. It goes from 2 seconds to 50ms. You feel like a wizard.",
+          "effects": {
+            "I": 2,
+            "S": 1
+          },
+          "log": "Batch queries are powerful!"
+        },
+        "failure": {
+          "text": "You try to batch the queries but the data relationships are complex. You create a new bug.",
+          "effects": {
+            "I": -1,
+            "E": -1
+          },
+          "log": "Batch query broke something."
+        }
+      },
+      {
+        "text": "Add caching to speed it up quickly",
+        "checks": {
+          "A": 6
+        },
+        "success": {
+          "text": "You add a simple cache layer. Performance improves dramatically. It's not the most elegant solution but it works.",
+          "effects": {
+            "A": 2,
+            "P": 1
+          },
+          "log": "Caching fixed the performance!"
+        },
+        "failure": {
+          "text": "The cache returns stale data. The feature is fast but wrong.",
+          "effects": {
+            "A": -1,
+            "P": -1
+          },
+          "log": "Fast but incorrect."
+        }
+      },
+      {
+        "text": "Ask your senior dev to show you the right way",
+        "checks": {
+          "C": 5
+        },
+        "success": {
+          "text": "They walk you through it. You learn about N+1 queries, batch loading, and how to use an ORM efficiently.",
+          "effects": {
+            "C": 1,
+            "I": 2
+          },
+          "log": "Learned about N+1 queries!"
+        },
+        "failure": {
+          "text": "They're busy and say \"read the docs.\"",
+          "effects": {
+            "E": -1
+          },
+          "log": "Left to read the docs."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_unexpected_bug",
+    "title": "The Unexpected Bug",
+    "phase": 1,
+    "phaseLabel": "Junior Developer",
+    "narrative": "Everything is working perfectly. You've deployed your feature, the tests pass, the product manager is happy.\n\nThen a user reports a bug. It only happens on Safari. And only on MacBooks from 2019. And only when the user has Dark Mode enabled.\n\nYou've never seen this bug before. You're not sure how to reproduce it.",
+    "choices": [
+      {
+        "text": "Set up a browser stack account and test on all devices",
+        "checks": {
+          "P": 7
+        },
+        "success": {
+          "text": "You systematically test across browsers and devices. You reproduce the bug \u2014 it's a CSS issue with how Safari handles a specific media query. You fix it.",
+          "effects": {
+            "P": 2,
+            "A": 1
+          },
+          "log": "Found and fixed the Safari bug!"
+        },
+        "failure": {
+          "text": "You can't reproduce the bug. You spend hours trying. The user closes the ticket.",
+          "effects": {
+            "E": -2,
+            "P": -1
+          },
+          "log": "Couldn't reproduce."
+        }
+      },
+      {
+        "text": "Ask the user for more details \u2014 screenshot, steps, console logs",
+        "checks": {
+          "C": 6
+        },
+        "success": {
+          "text": "The user provides a screenshot and console logs. You see the issue immediately \u2014 a JavaScript error that only occurs in Safari. You fix it in 10 minutes.",
+          "effects": {
+            "C": 1,
+            "P": 1
+          },
+          "log": "User feedback saved the day!"
+        },
+        "failure": {
+          "text": "The user is vague. \"It doesn't work.\" You ask for more details. They don't respond.",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "User was unhelpful."
+        }
+      },
+      {
+        "text": "Guess at the fix based on common Safari issues",
+        "checks": {
+          "L": 8
+        },
+        "success": {
+          "text": "You guess that it's a flexbox issue (common in Safari). You add a vendor prefix. It works. The user is happy. You don't know why it worked but it did.",
+          "effects": {
+            "L": 2,
+            "A": 1
+          },
+          "log": "Lucky guess fixed Safari!"
+        },
+        "failure": {
+          "text": "Your guess was wrong. The bug is still there. You've wasted time.",
+          "effects": {
+            "L": -1,
+            "E": -1
+          },
+          "log": "Wrong guess."
+        }
+      }
+    ]
+  },
+  {
+    "id": "the_pair_programming_session",
+    "title": "The Pair Programming Session",
+    "phase": 1,
+    "phaseLabel": "Junior Developer",
+    "narrative": "Your senior dev suggests you pair program on a complex feature. You've never done this before.\n\nYou sit (virtually) together and share your screen. They drive, you navigate. Then you switch. It's awkward at first \u2014 you're both talking over each other.\n\nAfter 30 minutes, you start to get into a rhythm.",
+    "choices": [
+      {
+        "text": "Let them drive and learn from their approach",
+        "checks": {
+          "P": 6
+        },
+        "success": {
+          "text": "You watch how they structure the code, name variables, and handle edge cases. You learn more in 2 hours than you would have in a week alone.",
+          "effects": {
+            "P": 2,
+            "I": 1
+          },
+          "log": "Learned from the best!"
+        },
+        "failure": {
+          "text": "You're too passive. You don't ask questions. You don't learn much.",
+          "effects": {
+            "E": -1
+          },
+          "log": "Passive pairing."
+        }
+      },
+      {
+        "text": "Take the wheel and try their approach",
+        "checks": {
+          "S": 6
+        },
+        "success": {
+          "text": "You implement their suggested approach. It's cleaner than your original idea. You feel confident and your code is better.",
+          "effects": {
+            "S": 1,
+            "I": 1
+          },
+          "log": "Applied their approach well!"
+        },
+        "failure": {
+          "text": "You struggle to implement their approach. You make mistakes and they have to take over.",
+          "effects": {
+            "E": -1,
+            "S": -1
+          },
+          "log": "Struggled with the approach."
+        }
+      },
+      {
+        "text": "Suggest your own approach and see if they agree",
+        "checks": {
+          "C": 7
+        },
+        "success": {
+          "text": "You propose an alternative. They think about it, then say \"actually, that's clever. Let's try it.\" It works better than their original idea.",
+          "effects": {
+            "C": 2,
+            "S": 1
+          },
+          "log": "Your idea won the day!"
+        },
+        "failure": {
+          "text": "They politely disagree but don't explain why. You implement their way but you're frustrated.",
+          "effects": {
+            "C": -1,
+            "E": -1
+          },
+          "log": "Idea was dismissed."
+        }
+      }
+    ]
+  },
+  {
     "id": "the_legacy_monolith",
     "title": "BOSS: The Legacy Monolith",
     "phase": 1,
-    "phaseLabel": "Junior Developer — Boss Battle",
-    "narrative": "Your first BOSS fight. You've been assigned to the \"legacy codebase\" — a 15-year-old application with no tests, no documentation, and 47 different developers who all touched the same file.\n\nThe codebase is written in 3 different languages. The build script requires a specific version of Node that was released in 2014.\n\nYour mission: Add a simple \"export to CSV\" feature without breaking anything.\n\nThe monolith stirs.",
+    "phaseLabel": "Junior Developer \u2014 Boss Battle",
+    "narrative": "Your first BOSS fight. You've been assigned to the \"legacy codebase\" \u2014 a 15-year-old application with no tests, no documentation, and 47 different developers who all touched the same file.\n\nThe codebase is written in 3 different languages. The build script requires a specific version of Node that was released in 2014.\n\nYour mission: Add a simple \"export to CSV\" feature without breaking anything.\n\nThe monolith stirs.",
     "choices": [
       {
-        "text": "Brute force it — read the code and hack it in",
+        "text": "Brute force it \u2014 read the code and hack it in",
         "checks": {
           "S": 7,
           "P": 6
@@ -900,7 +1441,7 @@
             "S": 2,
             "P": 1
           },
-          "log": "Defeated the Legacy Monolith! 🏆"
+          "log": "Defeated the Legacy Monolith! \ud83c\udfc6"
         },
         "failure": {
           "text": "You break 3 unrelated features. The monolith fights back. Your manager assigns a senior dev to fix your mess.",
@@ -908,7 +1449,7 @@
             "S": -1,
             "E": -2
           },
-          "log": "The monolith won. 💀"
+          "log": "The monolith won. \ud83d\udc80"
         }
       },
       {

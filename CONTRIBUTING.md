@@ -10,10 +10,10 @@ pc3-DevLife/
 │   │   └── style.css     # Dark terminal theme
 │   ├── data/             # Game content (fetched at runtime; not compiled by tsc)
 │   │   └── events/       # Event content, per career phase
-│   │       ├── phase_junior.json   # 13 events (incl. boss)
-│   │       ├── phase_mid.json      # 16 events (incl. boss)
-│   │       ├── phase_senior.json   # 16 events (incl. boss)
-│   │       └── phase_staff.json    # 12 events (incl. boss)
+│   │       ├── phase_junior.json
+│   │       ├── phase_mid.json
+│   │       ├── phase_senior.json
+│   │       └── phase_staff.json
 │   └── js/               # TypeScript source (compiled to dist/js/ by tsc)
 │       ├── app.ts        # Entry point: wiring, career start/continue
 │       ├── config.ts     # All tunable constants (version, thresholds, rates)
@@ -132,7 +132,7 @@ This is a prototype/vertical slice. Planned features:
 - [ ] Export/share career summaries
 
 Current state:
-- 57 events across 4 career phases (13–16 per phase)
+- 75 events across 4 career phases
 - Boss events ending each phase ✓
 - d20 stat checks with competence gate and saving rolls ✓
 - Perk system with once-per-run interventions ✓
