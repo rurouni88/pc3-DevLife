@@ -268,7 +268,7 @@ Defeat all **4 phase bosses** (24 events, 20 with Fast Ship) to reach **Retireme
 
 ## 4. Replayability Features
 
-1. **Random Events:** 57-event pool, drawn randomly **without repeats** within a run
+1. **Random Events:** 75-event pool, drawn randomly **without repeats** within a run
 2. **Random Items:** Equipment drops from successful stat checks (chance scales with Luck)
 3. **Multiple Archetypes:** 9 selectable predefined stat distributions (+1 locked easter egg), or build your own
 4. **Perks:** Different stat-mastery builds play like different classes
