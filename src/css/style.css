@@ -226,24 +226,8 @@ body {
   cursor: not-allowed;
 }
 
-.difficulty-help {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 15px;
-  height: 15px;
-  font-size: 0.65rem;
-  line-height: 1;
-  border-radius: 50%;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  cursor: help;
-}
-
-.difficulty-help:hover {
-  color: var(--accent-green);
-  border-color: var(--accent-green);
-}
+/* The "?" reuses .cons-info (the consumable info circle) for styling;
+   .difficulty-help is only a hook for the tooltip handler. */
 
 /* --- Title Screen --- */
 #screen-title {

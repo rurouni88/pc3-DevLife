@@ -56,7 +56,7 @@ const UICore = {
       lozenge.disabled = !!cfg.locked;
       lozenge.title = cfg.desc;
       lozenge.innerHTML = `<span class="difficulty-label">${cfg.label}</span>` +
-        (cfg.locked ? '<span class="difficulty-lock">🔒</span>' : '<span class="difficulty-help" data-help="' + key + '" aria-label="About ' + cfg.label + '">?</span>');
+        (cfg.locked ? '<span class="difficulty-lock">🔒</span>' : '<span class="cons-info difficulty-help" data-help="' + key + '" aria-label="About ' + cfg.label + '">?</span>');
 
       if (!cfg.locked) {
         lozenge.addEventListener('click', (e) => {
@@ -73,7 +73,7 @@ const UICore = {
       const show = () => {
         const key = btn.dataset.help as Difficulty;
         const cfg = CONFIG.game.difficulty[key];
-        if (cfg) UI.showTooltip({ name: cfg.label, desc: cfg.desc });
+        if (cfg) UI.showTooltip({ emoji: cfg.emoji, name: cfg.label, desc: cfg.desc });
       };
       btn.addEventListener('mouseenter', show);
       btn.addEventListener('mouseleave', () => UI.hideTooltip());

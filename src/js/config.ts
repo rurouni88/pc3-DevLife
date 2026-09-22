@@ -44,9 +44,9 @@ const CONFIG = {
     // deferred (issue #6): all difficulties use the default 1 equipment / 2
     // consumable slots for now. HARD is not selectable until those land.
     difficulty: {
-      easy:   { label: 'Easy',   negMultSides: 1, desc: 'The “Standard” career. Failures land exactly as written — no cosmic punishment. For your first run, or for when you\u2019re feeling generous with yourself.' },
-      normal: { label: 'Normal', negMultSides: 2, desc: 'The “Realistic” career. Failures hit 1–2× harder, rolled on a d2. This is what the industry actually feels like.' },
-      hard:   { label: 'Hard',   negMultSides: 4, desc: 'The “Unrealistic” career. Failures hit 1–4× harder, rolled on a d4. For masochists — or anyone who\u2019s been on-call since 2019.', locked: true },
-    } as Record<Difficulty, { label: string; negMultSides: number; desc: string; locked?: boolean }>,
+      easy:   { label: 'Easy',   emoji: '🙂', negMultSides: 1, desc: 'The “Standard” career. Failures land exactly as written — no cosmic punishment. For your first run, or for when you\u2019re feeling generous with yourself.' },
+      normal: { label: 'Normal', emoji: '😬', negMultSides: 2, desc: 'The “Realistic” career. Failures hit 1–2× harder, rolled on a d2. This is what the industry actually feels like.' },
+      hard:   { label: 'Hard',   emoji: '💀', negMultSides: 4, desc: 'The “Unrealistic” career. Failures hit 1–4× harder, rolled on a d4. For masochists — or anyone who\u2019s been on-call since 2019.', locked: true },
+    } as Record<Difficulty, { label: string; emoji: string; negMultSides: number; desc: string; locked?: boolean }>,
   },
 };
