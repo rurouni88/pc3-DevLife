@@ -7,7 +7,7 @@ const rule = '─'.repeat(60);
 console.log([
   '',
   `  ${rule}`,
-  '  DevLife dev build ready — dist/ is up to date.',
+  '  d20().devLife dev build ready — dist/ is up to date.',
   '',
   '  In a SECOND terminal, serve the built site and open it:',
   '',

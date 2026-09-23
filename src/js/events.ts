@@ -81,7 +81,7 @@ function validateEvents(events: GameEvent[]): void {
 // tests populate EVENTS directly)
 if (typeof fetch !== 'undefined') {
   initEvents().catch(err => {
-    console.error('[DevLife] Failed to load events:', err);
+    console.error('[d20().devLife] Failed to load events:', err);
     showEventsLoadError();
   });
 }

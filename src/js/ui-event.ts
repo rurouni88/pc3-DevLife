@@ -452,7 +452,7 @@ const UIEventCard = {
   // Get next event
   nextEvent(): void {
     if (!Game.state) {
-      console.error('[DevLife] Game.state is null');
+      console.error('[d20().devLife] Game.state is null');
       const container = document.getElementById('event-container');
       if (container) container.innerHTML = '<div class="event-card"><div class="event-body"><p style="color: var(--accent-red)">Error: Game state not initialized</p></div></div>';
       return;

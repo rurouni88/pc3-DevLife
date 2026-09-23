@@ -24,7 +24,7 @@ const App = {
       if (el) {
         el.addEventListener('click', handler);
       } else {
-        console.warn(`[DevLife] bindEvents: #${id} not found, skipping binding`);
+        console.warn(`[d20().devLife] bindEvents: #${id} not found, skipping binding`);
       }
     };
 

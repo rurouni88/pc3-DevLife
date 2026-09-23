@@ -1,8 +1,8 @@
-# DevLife: A Software Engineering Roguelike
+# d20().devLife: A Software Engineering Roguelike
 
 ## 1. Game Overview
 
-**DevLife** is a web-based roguelike simulation where you play as a software engineer navigating the treacherous landscape of modern tech careers. Each run is a new "career" — a procedurally generated journey through sprints, incidents, code reviews, and career milestones.
+**d20().devLife** is a web-based roguelike simulation where you play as a software engineer navigating the treacherous landscape of modern tech careers. Each run is a new "career" — a procedurally generated journey through sprints, incidents, code reviews, and career milestones.
 
 **Core Loop:** Make decisions → Manage stats → Survive → Reach retirement or die trying (career suicide).
 

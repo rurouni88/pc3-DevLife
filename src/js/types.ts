@@ -1,4 +1,4 @@
-// Shared type definitions for the DevLife codebase.
+// Shared type definitions for the d20().devLife codebase.
 // This file contains type declarations only — no runtime code. It is picked up
 // by the TypeScript compiler (tsconfig "include") and intentionally NOT loaded
 // as a <script> in index.html. It is a global *script* (no import/export), so

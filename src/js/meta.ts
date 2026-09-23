@@ -14,7 +14,7 @@ const MetaStore = {
       const meta = JSON.parse(raw);
       return meta && typeof meta === 'object' ? meta as MetaState : {};
     } catch (e) {
-      console.error('[DevLife] Meta data is corrupted; ignoring it', e);
+      console.error('[d20().devLife] Meta data is corrupted; ignoring it', e);
       return {};
     }
   },
