@@ -28,15 +28,24 @@ interface Equipment {
   consumableSlots?: number;
 }
 
-/** Consumable — one-time use stat boost (or risky multiplier). */
+/**
+ * Consumable — one-time use stat boost (or risky multiplier).
+ *
+ * Three mutually exclusive effect shapes:
+ *  - `stat` + `bonus`: a single-stat (or 'any') temp bonus on the next check
+ *  - `multiplier`: a risky stat multiplier (AI tools)
+ *  - `effects`: multiple stat deltas at once, negatives allowed (alcohol —
+ *    e.g. Beer is +2 Endurance, -1 Perception, -1 Agility)
+ */
 interface Consumable {
   id: string;
   name: string;
   emoji: string;
   rarity: Rarity;
-  stat: StatKey | 'any';
-  bonus: number;
+  stat?: StatKey | 'any';
+  bonus?: number;
   multiplier?: number;
+  effects?: Partial<Stats>;
   desc: string;
 }
 
@@ -45,9 +54,10 @@ interface ConsumableUseResult {
   id: string;
   name: string;
   emoji: string;
-  stat: StatKey | 'any';
-  bonus: number;
+  stat?: StatKey | 'any';
+  bonus?: number;
   multiplier?: number;
+  effects?: Partial<Stats>;
   effective?: string;
   backfired?: boolean;
 }

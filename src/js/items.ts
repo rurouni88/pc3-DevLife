@@ -1,5 +1,5 @@
 // Equipment and consumables are kept inline (not src/data/*.json) because:
-// 1. Small datasets — 15 equip + 31 consumable = ~94 lines total.
+// 1. Small datasets — 15 equip + 35 consumable = ~98 lines total.
 // 2. TypeScript safety — discriminated unions (bonus vs multiplier) enforced at compile time.
 // 3. Tightly coupled logic — RARITY_WEIGHTS and getRandomEquipment() live next to the data.
 // 4. Static config — never changes at runtime, so no need for async fetch.
@@ -59,6 +59,13 @@ const CONSUMABLES: Consumable[] = [
   { id: 'flow_state', name: 'Flow State', emoji: '⚡', rarity: 'epic', stat: 'any', bonus: 5, desc: '+5 to ANY stat on next check' },
   { id: 'perfect_meal', name: 'The Perfect Meal', emoji: '🍱', rarity: 'epic', stat: 'any', bonus: 5, desc: '+5 to ANY stat — Home-cooked. Made by someone who cares. Everything clicks.' },
   { id: 'survival_rations', name: 'Fried Chicken', emoji: '🍗', rarity: 'epic', stat: 'any', bonus: 3, desc: '+3 to ALL stats on next check — Putting the kids working in KFC through higher education.' },
+
+  // Alcohol — recovery with a tradeoff (issue #57). Multi-stat temp bonuses:
+  // the gain lands on the next check, and so does the hangover.
+  { id: 'beer', name: 'Beer', emoji: '🍺', rarity: 'common', effects: { E: 2, P: -1, A: -1 }, desc: '+2 Endurance, -1 Perception, -1 Agility — Team offsite energy. You will remember the standup.' },
+  { id: 'wine', name: 'Wine', emoji: '🍷', rarity: 'uncommon', effects: { C: 2, P: -1, A: -1 }, desc: '+2 Charisma, -1 Perception, -1 Agility — Stakeholder call charm. The Jira board will slip.' },
+  { id: 'whiskey', name: 'Whiskey', emoji: '🥃', rarity: 'rare', effects: { E: 3, P: -2, A: -1 }, desc: '+3 Endurance, -2 Perception, -1 Agility — On-call survival fuel. The pager will not be so lucky.' },
+  { id: 'cocktail', name: 'Cocktail', emoji: '🍹', rarity: 'epic', effects: { C: 3, P: -2, A: -1 }, desc: '+3 Charisma, -2 Perception, -1 Agility — Demo day confidence. The bug report will find you.' },
 
   // AI — risky multiplier
   { id: 'ai_copilot', name: 'AI Copilot', emoji: '🤖', rarity: 'uncommon', stat: 'any', bonus: 0, multiplier: 1.5, desc: '1.5× your stat... or does it?' },

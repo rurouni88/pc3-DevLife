@@ -395,6 +395,16 @@ const UICore = {
     if (item.multiplier) {
       return `<span class="cs-multiplier" style="color: var(--accent-yellow)">${item.multiplier > 1 ? item.multiplier + '× stat' : Math.abs(item.multiplier) * 100 + '% stat'}</span>`;
     }
+    if (item.effects) {
+      // Multi-stat consumables (alcohol, issue #57): green gains, red hits.
+      return Object.entries(item.effects)
+        .map(([stat, value]) => {
+          const color = value >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+          const label = `${value >= 0 ? '+' : '-'}${Math.abs(value)} ${STAT_META[stat as StatKey]?.name || stat}`;
+          return `<span class="cs-stat" style="color: ${color}">${label}</span>`;
+        })
+        .join(' ');
+    }
     if (item.stat === 'any') {
       return `<span class="cs-stat-any" style="color: var(--accent-green)">+${item.bonus} to ANY stat</span>`;
     }
