@@ -213,4 +213,33 @@ interface MetaState {
   startingConsumables?: string[];
   /** Last difficulty chosen on the title screen; defaults to easy. */
   lastSelectedDifficulty?: Difficulty;
+  /** Lifetime career statistics (issue #53). */
+  stats?: MetaStats;
+}
+
+// Lifetime statistics, persisted across runs. All fields optional so old
+// saves (pre-statistics) load cleanly; readers apply the zero defaults.
+interface MetaStats {
+  wins?: number;
+  losses?: number;
+  bestDay?: number;
+  bestDayDifficulty?: Difficulty;
+  /** Wins per difficulty (issue #53 — win rate by difficulty). */
+  winsByDifficulty?: Partial<Record<Difficulty, number>>;
+  lossesByDifficulty?: Partial<Record<Difficulty, number>>;
+  /** Total consumables used across all runs. */
+  consumablesUsedTotal?: number;
+  /** Sum of each base stat at run end; average = value / totalRuns. */
+  statTotals?: Stats;
+}
+
+// The result of a finished run, folded into lifetime statistics.
+// Passed to MetaStore.recordRunComplete (issue #53).
+interface RunResult {
+  won: boolean;
+  day: number;
+  difficulty: Difficulty;
+  consumablesUsed: number;
+  /** Base stats at run end (not effective — equipment is a separate stat). */
+  stats: Stats;
 }

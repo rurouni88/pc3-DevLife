@@ -58,7 +58,15 @@ const Game = {
     const state = this.state;
     if (!state) return;
     const firstEquipment = state.equipment[0];
-    MetaStore.recordRunComplete(firstEquipment ? firstEquipment.id : null);
+    // Base stats at run end (not effective — equipment bonuses are a
+    // separate stat and would skew the per-stat averages).
+    MetaStore.recordRunComplete(firstEquipment ? firstEquipment.id : null, {
+      won: state.won,
+      day: state.day,
+      difficulty: state.difficulty,
+      consumablesUsed: state.consumablesUsed,
+      stats: { ...state.stats },
+    });
   },
 
   // Check if character can level up (every N events = 1 level)

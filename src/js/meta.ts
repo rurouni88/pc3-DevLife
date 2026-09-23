@@ -28,8 +28,9 @@ const MetaStore = {
     return this.load().totalRuns || 0;
   },
 
-  // Record a finished run: increment counter, timestamp, carry over equipment
-  recordRunComplete(equipmentId: string | null): void {
+  // Record a finished run: increment counter, timestamp, carry over
+  // equipment, and fold the result into the lifetime statistics (#53).
+  recordRunComplete(equipmentId: string | null, result: RunResult): void {
     const meta = this.load();
     meta.totalRuns = (meta.totalRuns || 0) + 1;
     meta.lastRunDate = new Date().toISOString();
@@ -39,6 +40,54 @@ const MetaStore = {
     // (issue #4: appending kept the oldest item winning via slice(0,1))
     meta.startingEquipment = equipmentId ? [equipmentId] : [];
 
+    const stats = meta.stats || {};
+    stats.wins = (stats.wins || 0) + (result.won ? 1 : 0);
+    stats.losses = (stats.losses || 0) + (result.won ? 0 : 1);
+    // Best run = furthest day reached; ties keep the earlier record.
+    if (result.day > (stats.bestDay || 0)) {
+      stats.bestDay = result.day;
+      stats.bestDayDifficulty = result.difficulty;
+    }
+    // Win rate by difficulty (issue #53).
+    const wbd = stats.winsByDifficulty || {};
+    const lbd = stats.lossesByDifficulty || {};
+    wbd[result.difficulty] = (wbd[result.difficulty] || 0) + (result.won ? 1 : 0);
+    lbd[result.difficulty] = (lbd[result.difficulty] || 0) + (result.won ? 0 : 1);
+    stats.winsByDifficulty = wbd;
+    stats.lossesByDifficulty = lbd;
+    // Consumables used total (issue #53).
+    stats.consumablesUsedTotal = (stats.consumablesUsedTotal || 0) + result.consumablesUsed;
+    // Per-stat totals at run end (issue #53) — average = value / totalRuns.
+    const totals = stats.statTotals || zeroStats();
+    STAT_KEYS.forEach(k => { totals[k] += result.stats[k]; });
+    stats.statTotals = totals;
+    meta.stats = stats;
+
+    this.save(meta);
+  },
+
+  // Lifetime statistics with zero defaults (old saves have no stats block).
+  metaStats(): Required<MetaStats> {
+    const s = this.load().stats || {};
+    return {
+      wins: s.wins || 0,
+      losses: s.losses || 0,
+      bestDay: s.bestDay || 0,
+      bestDayDifficulty: s.bestDayDifficulty || 'easy',
+      winsByDifficulty: s.winsByDifficulty || {},
+      lossesByDifficulty: s.lossesByDifficulty || {},
+      consumablesUsedTotal: s.consumablesUsedTotal || 0,
+      statTotals: s.statTotals || zeroStats(),
+    };
+  },
+
+  // Wipe lifetime statistics (issue #53). Carried items and the selected
+  // difficulty are kept — only the numbers go.
+  resetStats(): void {
+    const meta = this.load();
+    delete meta.totalRuns;
+    delete meta.lastRunDate;
+    delete meta.stats;
     this.save(meta);
   },
 

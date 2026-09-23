@@ -307,6 +307,36 @@ const UICore = {
     modal.style.display = 'none';
   },
 
+  // Options menu (issue #53) — title-screen modal with Settings (locked),
+  // Statistics, and a reset action.
+  showOptions(): void {
+    const modal = document.getElementById('options-modal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+  },
+
+  closeOptions(): void {
+    const modal = document.getElementById('options-modal');
+    if (!modal) return;
+    modal.style.display = 'none';
+  },
+
+  // Reset lifetime statistics and achievements (issue #53). Opens the
+  // confirm popup (same pattern as the save popup); the actual wipe happens
+  // in confirmResetStats() when the player confirms.
+  resetStatsAndAchievements(): void {
+    UI.closeOptions();
+    UI.openPopup('reset');
+  },
+
+  // Perform the reset (called from the reset popup's confirm button).
+  confirmResetStats(): void {
+    MetaStore.resetStats();
+    Achievements.clearUnlocked();
+    UI.closePopup();
+    UI.showToast('Statistics and achievements reset');
+  },
+
   setHelpTab(tab: string): void {
     document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.modal-tab-content').forEach(c => c.classList.remove('active'));
@@ -562,7 +592,8 @@ const UICore = {
         UI.renderPopupCareerLog();
         break;
       case 'save':
-        // Save popup — no extra rendering needed
+      case 'reset':
+        // Static popups — no extra rendering needed
         break;
     }
 
@@ -648,4 +679,4 @@ const UICore = {
 };
 
 // Compose the full UI object from the section files (loaded before this one).
-const UI = Object.assign({}, UICore, UICharacter, UILevelUp, UIEndOfRun, UIEventCard, UITooltip, UIAchievements);
+const UI = Object.assign({}, UICore, UICharacter, UILevelUp, UIEndOfRun, UIEventCard, UITooltip, UIAchievements, UIStatistics);
