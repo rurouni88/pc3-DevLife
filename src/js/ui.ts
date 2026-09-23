@@ -240,41 +240,6 @@ const UICore = {
     });
   },
 
-  // --- Achievements Modal ---
-
-  // Show the achievements modal.
-  showAchievements(): void {
-    UI.renderAchievements();
-    document.getElementById('achievements-modal')?.style.setProperty('display', 'flex');
-  },
-
-  // Hide the achievements modal.
-  closeAchievements(): void {
-    document.getElementById('achievements-modal')?.style.setProperty('display', 'none');
-  },
-
-  // Render the achievements list.
-  renderAchievements(): void {
-    const container = document.getElementById('achievements-list');
-    if (!container) return;
-
-    const unlocked = Achievements.getUnlocked();
-
-    // Universal achievements
-    let html = Achievements.UNIVERSAL_ACHIEVEMENTS
-      .map(ach => Achievements.renderAchievementCard(ach, Achievements.getAchievementState(ach, unlocked)))
-      .join('');
-
-    // Archetype achievements
-    for (const achs of Object.values(Achievements.ARCHETYPE_ACHIEVEMENTS)) {
-      html += achs
-        .map(ach => Achievements.renderAchievementCard(ach, Achievements.getAchievementState(ach, unlocked)))
-        .join('');
-    }
-
-    container.innerHTML = html;
-  },
-
   // Satirical ASCII loop on the title screen (pauses while hidden)
   startAsciiLoop(): void {
     const el = document.getElementById('ascii-terminal-body');
@@ -659,4 +624,4 @@ const UICore = {
 };
 
 // Compose the full UI object from the section files (loaded before this one).
-const UI = Object.assign({}, UICore, UICharacter, UILevelUp, UIEndOfRun, UIEventCard, UITooltip);
+const UI = Object.assign({}, UICore, UICharacter, UILevelUp, UIEndOfRun, UIEventCard, UITooltip, UIAchievements);
