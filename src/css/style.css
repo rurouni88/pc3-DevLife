@@ -229,6 +229,31 @@ body {
 /* The "?" reuses .cons-info (the consumable info circle) for styling;
    .difficulty-help is only a hook for the tooltip handler. */
 
+/* Seed display — title screen */
+.seed-display {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  justify-content: center;
+  margin: var(--spacing-xs) 0;
+  font-size: 0.85rem;
+}
+
+.seed-label {
+  color: var(--text-muted);
+}
+
+.seed-value {
+  color: var(--accent-green);
+  min-width: 80px;
+  text-align: center;
+}
+
+.btn-small {
+  padding: 4px 8px;
+  font-size: 0.85rem;
+}
+
 /* --- Title Screen --- */
 #screen-title {
   justify-content: center;

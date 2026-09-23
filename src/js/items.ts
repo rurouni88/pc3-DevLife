@@ -79,7 +79,7 @@ const RARITY_WEIGHTS: Record<Rarity, number> = {
 // Get random equipment item (rarity-weighted)
 function getRandomEquipment(): Equipment {
   const totalWeight = Object.values(RARITY_WEIGHTS).reduce((a, b) => a + b, 0);
-  let roll = Math.random() * totalWeight;
+  let roll = RngEngine.random() * totalWeight;
   let selectedRarity = 'common';
 
   for (const [rarity, weight] of Object.entries(RARITY_WEIGHTS)) {
@@ -91,7 +91,7 @@ function getRandomEquipment(): Equipment {
   }
 
   const pool = EQUIPMENT.filter(item => item.rarity === selectedRarity);
-  return pool[Math.floor(Math.random() * pool.length)];
+  return pool[Math.floor(RngEngine.random() * pool.length)];
 }
 
 // Get 3 random consumables for end-of-run selection

@@ -1,6 +1,6 @@
 // Test body — runs in the SAME VM context as the game modules (see
 // core.test.js), so game globals (Game, PerkSystem, SpecialSystem, d20,
-// ...) are in scope. `assert` is node:assert, injected by the runner.
+// RngEngine, ...) are in scope. `assert` is node:assert, injected by the runner.
 
 // Fresh run: reset stats/perks and give Game the minimal state the
 // log/meta paths need.
@@ -90,7 +90,7 @@ console.log('✓ perk activation: unlock at 10, revoke below');
 
 // --- resolveChoice: pure — no effects, no days, no history ---
 fullRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
-Math.random = () => 0.99; // no equipment drops, no redundancy/obsolescence
+RngEngine.random = () => 0.99; // no equipment drops, no redundancy/obsolescence
 d20 = () => 20; // roll 20-5 = 15 vs 5 → fail
 let rc = Game.resolveChoice(EVENTS[0], 0);
 assert.strictEqual(rc.allSuccess, false, 'check failed');
@@ -211,7 +211,7 @@ EVENTS.push(
 );
 // The save fires: E 10 → would be 1 → lands exactly at 3
 fullRun({ S: 5, P: 5, E: 10, C: 5, I: 5, A: 5, L: 5 });
-Math.random = () => 0.99;
+RngEngine.random = () => 0.99;
 d20 = () => 20; // S check: 15 vs 5 → fail
 rc = Game.resolveChoice(EVENTS[3], 0);
 out = Game.applyChoice(rc, NO_USE);
@@ -530,19 +530,19 @@ console.log('✓ checkLevelUp: threshold cadence, Rapid Learner, Fast Ship');
 // --- checkForEquipmentDrop: rate roll, inventory fill, pending drop ---
 freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
 Game.state.equipment = [];
-Math.random = () => 0.99; // above drop rate (0.15 + 5*0.03 = 0.30)
+RngEngine.random = () => 0.99; // above drop rate (0.15 + 5*0.03 = 0.30)
 assert.strictEqual(Game.checkForEquipmentDrop(true), null, 'no drop on high roll');
-Math.random = () => 0.01; // below drop rate → common rarity, first item
+RngEngine.random = () => 0.01; // below drop rate → common rarity, first item
 const dropped = Game.checkForEquipmentDrop(true);
 assert.ok(dropped, 'drop on low roll');
 assert.strictEqual(dropped.id, 'keyboard', 'deterministic rarity pick');
 assert.strictEqual(Game.state.equipment.length, 1, 'added to inventory');
 assert.strictEqual(SpecialSystem.equipmentBonuses.S, 1, 'drop bonus applied');
 // Inventory full → held as a pending drop for the player to resolve
-Math.random = () => 0.01;
+RngEngine.random = () => 0.01;
 assert.strictEqual(Game.checkForEquipmentDrop(true), null, 'nothing auto-added when inventory full');
 assert.ok(Game.state.pendingEquipmentDrop, 'pending drop flagged for player choice');
-Math.random = realRandom;
+RngEngine.random = realRandom;
 console.log('✓ checkForEquipmentDrop: rate roll, inventory fill, pending drop');
 
 // --- ConsumableManager: use, removal, AI backfire threshold ---
@@ -555,16 +555,16 @@ assert.strictEqual(used.bonus, 2, 'bonus reported');
 assert.strictEqual(used.stat, 'E', 'stat reported');
 assert.strictEqual(Game.state.consumables.length, 1, 'consumed item removed from inventory');
 assert.strictEqual(ConsumableManager.use('nope'), null, 'unknown id returns null');
-Math.random = () => 0.5; // 0.5 > 0.30 → AI works
+RngEngine.random = () => 0.5; // 0.5 > 0.30 → AI works
 const aiOk = ConsumableManager.use('ai_copilot');
 assert.strictEqual(aiOk.multiplier, 1.5, 'AI multiplier applied');
 assert.strictEqual(aiOk.backfired, false, 'no backfire above threshold');
-Math.random = () => 0.2; // 0.2 <= 0.30 → backfire
+RngEngine.random = () => 0.2; // 0.2 <= 0.30 → backfire
 Game.state.consumables = [ai];
 const aiBad = ConsumableManager.use('ai_copilot');
 assert.strictEqual(aiBad.multiplier, -0.5, 'backfire penalty multiplier');
 assert.strictEqual(aiBad.backfired, true, 'backfire flagged');
-Math.random = realRandom;
+RngEngine.random = realRandom;
 console.log('✓ consumables: use/removal, unknown id, AI backfire threshold');
 
 // --- Consumables are inert once the run is over (#41) ---
@@ -595,14 +595,14 @@ assert.strictEqual(Game.state.consumables.length, 1, 'not consumed after the kil
 console.log('✓ consumables: inert once the run is over (death or victory)');
 
 // --- Item pools: rarity weighting and unique random consumables ---
-Math.random = () => 0.01;
+RngEngine.random = () => 0.01;
 assert.strictEqual(getRandomEquipment().id, 'keyboard', 'low roll → common (first in pool)');
-Math.random = () => 0.99;
+RngEngine.random = () => 0.99;
 assert.strictEqual(getRandomEquipment().id, 'homeoffice', 'high roll → epic (last in pool)');
 const three = get3RandomConsumables();
 assert.strictEqual(three.length, 3, '3 random consumables');
 assert.strictEqual(new Set(three.map(c => c.id)).size, 3, 'no duplicates');
-Math.random = realRandom;
+RngEngine.random = realRandom;
 console.log('✓ item pools: rarity weighting, unique random consumables');
 
 // --- Game over: saving roll and probabilistic redundancy ---
@@ -619,12 +619,12 @@ assert.ok(death && death.reason.includes('Technical Collapse'), 'saving roll fai
 freshRun({ S: 5, P: 5, E: 5, C: 1, I: 5, A: 5, L: 5 });
 Game.state.phase = 3;
 Game.state.day = 500;
-Math.random = () => 0.1; // 0.1 < 0.30 risk → redundant
+RngEngine.random = () => 0.1; // 0.1 < 0.30 risk → redundant
 const red = Game._checkProbabilisticGameOver();
 assert.ok(red && red.reason.includes('Redundant'), 'redundancy death fires under risk');
-Math.random = () => 0.9; // 0.9 > 0.30 → survives
+RngEngine.random = () => 0.9; // 0.9 > 0.30 → survives
 assert.strictEqual(Game._checkProbabilisticGameOver(), null, 'redundancy roll can miss');
-Math.random = realRandom;
+RngEngine.random = realRandom;
 console.log('✓ game over: saving roll survive/death, redundancy risk');
 
 // --- dangerStats: one hit from the saving-roll floor ---
@@ -689,7 +689,7 @@ EVENTS = [
   }
 ];
 fullRun({ S: 10, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
-Math.random = () => 0.99; // no equipment drops during this section
+RngEngine.random = () => 0.99; // no equipment drops during this section
 d20 = () => 1; // roll -4 vs target 5 → success
 let pr = Game.applyChoice(Game.resolveChoice(EVENTS[0], 0));
 assert.strictEqual(pr.success, true, 'choice succeeded');
@@ -711,7 +711,7 @@ assert.strictEqual(Game.state.bossCompleted, true, 'boss flag set');
 assert.strictEqual(pr.phaseComplete, true, 'phase 1 boss → phase complete');
 assert.ok(Game.resolveChoice({ id: 'nope' }, 0).error, 'unknown event → error result');
 assert.ok(Game.resolveChoice(EVENTS[0], 5).error, 'bad choice index → error result');
-Math.random = realRandom;
+RngEngine.random = realRandom;
 console.log('✓ resolve/apply: success/failure paths, boss detection, day/history, error paths');
 
 // --- Boss event + run end: terminal flags co-occur (toast clobber guard) ---
@@ -737,7 +737,7 @@ Object.assign(Game.state, {
   equipment: [], consumables: [], eventHistory: [],
   bossCompleted: false, currentEventId: null, pendingEquipmentDrop: null
 });
-Math.random = () => 0.99; // no equipment drops
+RngEngine.random = () => 0.99; // no equipment drops
 d20 = () => 20; // check: 19 vs 1 → fail; saving roll: 20 vs 3.5 → fail
 pr = Game.applyChoice(Game.resolveChoice(EVENTS[0], 0));
 assert.strictEqual(pr.success, false, 'boss check failed');
@@ -746,7 +746,7 @@ assert.ok(pr.gameOver, 'run ended on the boss event');
 assert.strictEqual(pr.leveledUp, true, 'level up also fires (6th event)');
 // All three of leveledUp/bossDefeated/gameOver true in one result — the
 // state that exercises the terminal-first toast ordering in handleChoice.
-Math.random = realRandom;
+RngEngine.random = realRandom;
 console.log('✓ boss + game over: terminal state co-occurs with leveledUp/bossDefeated (toast ordering guard)');
 
 // --- Game.nextEvent: event picking and phase advancement ---
@@ -861,3 +861,27 @@ assert.ok(ids.includes('architect_normal'), 'combined: archetype');
 assert.ok(ids.includes('stat_max_4'), 'combined: stat_max_4');
 assert.ok(ids.includes('consumable_0'), 'combined: consumable_0');
 console.log('✓ Achievements.satisfiedAchievementIds: stat_max, consumable_0, campaign, archetype, Hard-gated');
+
+// --- Seeded RNG: determinism, format, parse ---
+// Restore any earlier mock on RngEngine.random so the seeded run is real.
+const realRngRandom = RngEngine.random;
+RngEngine.random = realRngRandom;
+assert.strictEqual(RngEngine.seed, '', 'initial seed is empty');
+const seed = RngEngine.generateSeed();
+assert.strictEqual(seed.length, 8, 'seed is 8 chars');
+assert.ok(/^[A-Z0-9]+$/.test(seed), 'seed is uppercase alphanumeric');
+RngEngine.seedWith(seed);
+assert.strictEqual(RngEngine.seed, seed, 'seed stored after seeding');
+const r1 = RngEngine.random();
+const d1 = RngEngine.dRoll(20);
+RngEngine.seedWith(seed);
+const r2 = RngEngine.random();
+const d2 = RngEngine.dRoll(20);
+assert.strictEqual(r1, r2, 'same seed → same random');
+assert.strictEqual(d1, d2, 'same seed → same dice');
+const parsed = RngEngine.parseSeed(seed);
+const formatted = RngEngine.formatSeed(parsed);
+assert.strictEqual(formatted, seed, 'parse → format round-trips');
+RngEngine.unseed();
+assert.strictEqual(RngEngine.seed, '', 'unseed clears seed');
+console.log('✓ seeded-rng: determinism, format, parse');
