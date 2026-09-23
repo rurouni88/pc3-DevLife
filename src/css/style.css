@@ -262,6 +262,13 @@ body {
   text-align: center;
 }
 
+.seed-dice-icon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--accent-green);
+  vertical-align: middle;
+}
+
 .btn-small {
   padding: 4px 8px;
   font-size: 0.85rem;
