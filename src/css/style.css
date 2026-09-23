@@ -2503,3 +2503,46 @@ body {
 .events-load-error p {
   margin-top: var(--spacing-xs);
 }
+
+/* ============================================
+   D20 Dice Animation
+   ============================================ */
+
+.dice-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  pointer-events: none;
+  animation: diceFadeIn 0.1s ease-out;
+}
+
+@keyframes diceFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.d20-dice {
+  animation: diceWobble 0.1s linear infinite;
+  filter: drop-shadow(0 0 20px var(--accent-yellow));
+}
+
+@keyframes diceWobble {
+  0% { transform: rotate(-5deg) scale(0.95); }
+  50% { transform: rotate(5deg) scale(1.05); }
+  100% { transform: rotate(-5deg) scale(0.95); }
+}
+
+.d20-shape {
+  transition: fill 0.2s ease;
+}
+
+.d20-value {
+  transition: fill 0.2s ease;
+}

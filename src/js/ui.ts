@@ -695,4 +695,4 @@ const UICore = {
 };
 
 // Compose the full UI object from the section files (loaded before this one).
-const UI = Object.assign({}, UICore, UICharacter, UILevelUp, UIEndOfRun, UIEventCard, UITooltip, UIAchievements, UIStatistics);
+const UI = Object.assign({}, UICore, UICharacter, UILevelUp, UIEndOfRun, UIEventCard, UITooltip, UIDice, UIAchievements, UIStatistics);
