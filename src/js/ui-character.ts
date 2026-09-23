@@ -20,8 +20,8 @@ const UICharacter = {
       row.className = 'stat-row';
       row.innerHTML = `
         <span class="stat-label" style="color: ${meta.color}">${key}</span>
-        <span class="stat-name">${meta.name}</span>
         <span class="cons-info stat-help" data-stat="${key}" aria-label="About ${meta.name}">?</span>
+        <span class="stat-name">${meta.name}</span>
         <div class="stat-controls">
           <button class="stat-btn minus" data-stat="${key}" data-action="minus">−</button>
           <span class="stat-value" style="color: ${meta.color}">${SpecialSystem.stats[key]}</span>
