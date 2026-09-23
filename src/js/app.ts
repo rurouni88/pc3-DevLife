@@ -151,13 +151,6 @@ const App = {
   },
 
   startNewGame(): void {
-    // Starting a new career abandons any in-progress run — clear the save so
-    // a stale "Continue" can't resurrect the old run (title-screen New Career
-    // with a save present, or a leftover save after game over / victory).
-    SaveSystem.deleteSave();
-    const btnContinue = document.getElementById('btn-continue');
-    if (btnContinue) btnContinue.style.display = 'none';
-
     // Reset SPECIAL system
     STAT_KEYS.forEach(key => {
       SpecialSystem.stats[key] = 1;
