@@ -60,7 +60,7 @@ const UICharacter = {
         e.stopPropagation();
         const stat = help.dataset.stat as StatKey;
         const meta = STAT_META[stat];
-        UI.showTooltip({ emoji: stat, name: meta.short, desc: meta.desc, color: meta.color });
+        UI.showTooltip({ name: meta.short, desc: meta.desc, color: meta.color });
       });
     });
 
