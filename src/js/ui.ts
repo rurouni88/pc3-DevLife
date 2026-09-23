@@ -96,6 +96,28 @@ const UICore = {
     UI.renderDifficultySelector();
   },
 
+  // Seed display on title screen — shows the current seed and a re-roll button.
+  initSeedDisplay(): void {
+    const display = document.getElementById('seed-display');
+    const value = document.getElementById('seed-value');
+    const reRollBtn = document.getElementById('btn-re-roll-seed');
+    if (!display || !value || !reRollBtn) return;
+
+    // Seed is generated when the title screen first loads.
+    const seed = RngEngine.seed || RngEngine.generateSeed();
+    RngEngine.seedWith(seed);
+    value.textContent = seed;
+    display.style.display = 'flex';
+
+    reRollBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const newSeed = RngEngine.generateSeed();
+      RngEngine.seedWith(newSeed);
+      value.textContent = newSeed;
+      UI.playSound('click');
+    });
+  },
+
   // Audio context for sound effects
   audioCtx: null as AudioContext | null,
 
@@ -357,6 +379,8 @@ const UICore = {
     if (screen) {
       screen.classList.add('active');
       UI.currentScreen = screenId;
+      // Seed display is only relevant on the title screen.
+      if (screenId === 'title') UI.initSeedDisplay();
     }
   },
 

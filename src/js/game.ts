@@ -38,7 +38,8 @@ const Game = {
       alive: true,
       won: false,
       startTime: now,
-      runNumber: this.getRunNumber() + 1
+      runNumber: this.getRunNumber() + 1,
+      seed: RngEngine.seed || ''
     };
     this.state = state;
     // Carry-over equipment grants its bonuses from day 1 (mid-run drops
@@ -203,7 +204,7 @@ const Game = {
 
     // Advance game state
     const { min: dayMin, max: dayMax } = CONFIG.game.dayAdvance;
-    state.day += dayMin + Math.floor(Math.random() * (dayMax - dayMin + 1));
+    state.day += dayMin + Math.floor(RngEngine.random() * (dayMax - dayMin + 1));
     state.eventsCompleted++;
     state.currentEventId = resolved.gameEvent.id;
     state.eventHistory.push(resolved.gameEvent.id);
@@ -325,7 +326,7 @@ const Game = {
 
   // Check for equipment drop and handle inventory
   checkForEquipmentDrop(isSuccess: boolean): Equipment | null {
-    if (!isSuccess || Math.random() >= Math.min(1, CONFIG.game.dropRate + SpecialSystem.stats.L * CONFIG.game.luckDropBonusPerPoint)) {
+    if (!isSuccess || RngEngine.random() >= Math.min(1, CONFIG.game.dropRate + SpecialSystem.stats.L * CONFIG.game.luckDropBonusPerPoint)) {
       return null;
     }
 
@@ -430,7 +431,7 @@ const Game = {
 
     // Redundancy risk scales with low Charisma in mid/late career
     if (careerState.phase >= CONFIG.game.redundancyPhase && stats.C <= 2 && careerState.day > CONFIG.game.deathThresholds.redundancyDay) {
-      const redundancyRoll = Math.random();
+      const redundancyRoll = RngEngine.random();
       const risk = (3 - stats.C) * CONFIG.game.redundancyRiskPerCharisma;
       if (redundancyRoll < risk) {
         this.addLog('You\'ve been made redundant.');
@@ -494,7 +495,7 @@ const Game = {
   },
 
   // Get career summary
-  getSummary(): { runNumber: number; level: number; phase: number; day: number; eventsCompleted: number; equipment: Equipment[]; stats: Stats; duration: string; difficulty: Difficulty; archetype: string } | null {
+  getSummary(): { runNumber: number; level: number; phase: number; day: number; eventsCompleted: number; equipment: Equipment[]; stats: Stats; duration: string; difficulty: Difficulty; archetype: string; seed: string } | null {
     const state = this.state;
     if (!state) return null;
     const duration = Math.floor((Date.now() - state.startTime) / 1000);
@@ -513,7 +514,9 @@ const Game = {
       // Old saves may predate the difficulty field — treat those as Easy
       difficulty: state.difficulty ?? 'easy',
       // Old saves may predate the archetype field — treat those as custom
-      archetype: state.archetype ?? 'custom'
+      archetype: state.archetype ?? 'custom',
+      // Old saves may predate the seed field — treat those as unseeded
+      seed: state.seed || ''
     };
   },
 };
@@ -542,7 +545,7 @@ const ConsumableManager = {
 
     if (consumable.multiplier !== undefined) {
       // AI tools have a 30% chance to backfire
-      const roll = Math.random();
+      const roll = RngEngine.random();
       if (roll > 0.30) {
         effect.multiplier = consumable.multiplier;
         effect.effective = `+${Math.round((consumable.multiplier - 1) * 100)}% stat multiplier`;

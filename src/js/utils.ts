@@ -1,8 +1,9 @@
 // utils.ts — shared helpers (dice rolls)
 
 // Generic n-sided die: returns a random integer in [1, sides].
+// Uses RngEngine so that seeded runs reproduce the same rolls.
 function dRoll(sides: number): number {
-  return Math.floor(Math.random() * sides) + 1;
+  return RngEngine.dRoll(sides);
 }
 
 // 20-sided die — stat checks and saving rolls.
@@ -19,15 +20,11 @@ function zeroStats(): Stats {
 }
 
 // Fisher-Yates shuffle: returns a new uniformly shuffled array,
-// leaving the input untouched. (sort(() => Math.random() - 0.5) is
+// leaving the input untouched. Uses RngEngine so that seeded runs
+// reproduce the same orderings. (sort(() => Math.random() - 0.5) is
 // biased and mutates; this is neither.)
 function shuffle<T>(arr: T[]): T[] {
-  const out = [...arr];
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [out[i], out[j]] = [out[j], out[i]];
-  }
-  return out;
+  return RngEngine.shuffle(arr);
 }
 
 // Clamp a value into the stat range from CONFIG.

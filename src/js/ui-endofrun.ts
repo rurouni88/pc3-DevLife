@@ -118,6 +118,7 @@ const UIEndOfRun = {
       <div class="summary-row"><span class="label">Events Completed</span><span class="value">${summary.eventsCompleted}</span></div>
       <div class="summary-row"><span class="label">Equipment</span><span class="value">${summary.equipment.length}</span></div>
       <div class="summary-row"><span class="label">Stats</span><span class="value">${STAT_KEYS.map(k => `${k}:${SpecialSystem.stats[k]}`).join(' ')}</span></div>
+      ${summary.seed ? `<div class="summary-row"><span class="label">Seed</span><span class="value" style="font-family:var(--font-mono);letter-spacing:0.1em;">${summary.seed}</span></div>` : ''}
     `;
   },
 
@@ -151,6 +152,7 @@ const UIEndOfRun = {
       <div class="summary-row"><span class="label">Events Completed</span><span class="value">${summary.eventsCompleted}</span></div>
       <div class="summary-row"><span class="label">Equipment Collected</span><span class="value">${summary.equipment.length}</span></div>
       <div class="summary-row"><span class="label">Final Stats</span><span class="value">${STAT_KEYS.map(k => `${k}:${SpecialSystem.stats[k]}`).join(' ')}</span></div>
+      ${summary.seed ? `<div class="summary-row"><span class="label">Seed</span><span class="value" style="font-family:var(--font-mono);letter-spacing:0.1em;">${summary.seed}</span></div>` : ''}
     `;
   },
 

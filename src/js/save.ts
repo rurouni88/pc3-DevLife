@@ -8,12 +8,14 @@ class SaveData {
   state: GameState;
   special: SpecialSnapshot;
   perks: PerkSnapshot;
+  rng: RngSnapshot | null;
   timestamp: number;
 
-  constructor(state: GameState, special: SpecialSnapshot, perks: PerkSnapshot, timestamp: number) {
+  constructor(state: GameState, special: SpecialSnapshot, perks: PerkSnapshot, rng: RngSnapshot | null, timestamp: number) {
     this.state = state;
     this.special = special;
     this.perks = perks;
+    this.rng = rng;
     this.timestamp = timestamp;
   }
 
@@ -26,7 +28,7 @@ class SaveData {
       return null;
     }
     const save = data as SaveDataShape;
-    return new SaveData(save.state, save.special, save.perks, save.timestamp);
+    return new SaveData(save.state, save.special, save.perks, save.rng ?? null, save.timestamp);
   }
 
   // Validate a raw save against the schema. Returns human-readable problems
@@ -59,6 +61,11 @@ class SaveData {
       }
       if (state.consumablesUsed !== undefined && typeof state.consumablesUsed !== 'number') {
         errors.push('state.consumablesUsed is not a number');
+      }
+      // Optional: saves from before the seeded-run feature have no field —
+      // they load unseeded (Math.random).
+      if (state.seed !== undefined && typeof state.seed !== 'string') {
+        errors.push('state.seed is not a string');
       }
       const stats = state.stats as Record<string, unknown> | undefined;
       if (!stats || typeof stats !== 'object') {
@@ -96,6 +103,18 @@ class SaveData {
       }
     }
 
+    // Optional: saves from before the seeded-run feature have no field —
+    // they load unseeded (Math.random).
+    const rng = save.rng as Record<string, unknown> | undefined;
+    if (rng !== undefined) {
+      if (!rng || typeof rng !== 'object') {
+        errors.push('rng is not an object');
+      } else {
+        if (typeof rng.seed !== 'string') errors.push('rng.seed is not a string');
+        if (rng.state !== null && typeof rng.state !== 'number') errors.push('rng.state is not a number or null');
+      }
+    }
+
     return errors;
   }
 }
@@ -108,6 +127,9 @@ const SaveSystem = {
       state: { ...state },
       special: SpecialSystem.clone(),
       perks: PerkSystem.clone(),
+      // PRNG position — a seeded run resumes from the exact same point
+      // in the sequence after a load.
+      rng: RngEngine.getState(),
       timestamp: Date.now()
     };
     localStorage.setItem(this.SAVE_KEY, JSON.stringify(saveData));
@@ -130,6 +152,9 @@ const SaveSystem = {
       // Restore perk system (negotiate-used flag; active perks re-sync from stats)
       PerkSystem.restore(saveData.perks);
       PerkSystem.refresh();
+
+      // Restore the PRNG (unseeded for saves predating the field)
+      RngEngine.setState(saveData.rng);
 
       return saveData;
     } catch (e) {

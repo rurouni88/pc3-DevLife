@@ -164,6 +164,8 @@ interface GameState {
   won: boolean;
   startTime: number;
   runNumber: number;
+  /** 8-char alphanumeric seed for this run (empty when unseeded). */
+  seed: string;
   pendingLevelUpConsumables?: Consumable[] | null;
   pendingEquipmentDrop?: Equipment | null;
 }
@@ -197,6 +199,9 @@ interface SaveDataShape {
   state: GameState;
   special: SpecialSnapshot;
   perks: PerkSnapshot;
+  // Optional: saves from before the seeded-run feature have no field —
+  // they load unseeded (Math.random).
+  rng?: RngSnapshot;
   timestamp: number;
 }
 
