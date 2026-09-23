@@ -324,10 +324,38 @@ assert.deepStrictEqual(MetaStore.load(), {}, 'corrupted meta ignored');
 assert.strictEqual(MetaStore.runCount(), 0, 'runCount falls back to 0');
 localStorage.setItem('devlife_meta', '42');
 assert.deepStrictEqual(MetaStore.load(), {}, 'non-object meta ignored');
-MetaStore.recordRunComplete(null); // still writable after corruption
+MetaStore.recordRunComplete(null, false, 10, 'easy'); // still writable after corruption
 assert.strictEqual(MetaStore.runCount(), 1, 'meta usable after corruption fallback');
 localStorage.removeItem('devlife_meta');
 console.log('✓ meta store: corrupted data ignored, not fatal');
+
+// --- MetaStore: lifetime statistics (issue #53) ---
+localStorage.removeItem('devlife_meta');
+MetaStore.recordRunComplete(null, true, 365, 'easy'); // won
+MetaStore.recordRunComplete(null, false, 200, 'normal'); // lost, shorter
+MetaStore.recordRunComplete(null, false, 300, 'hard'); // lost, longer
+let ms = MetaStore.metaStats();
+assert.strictEqual(ms.wins, 1, 'win counted');
+assert.strictEqual(ms.losses, 2, 'losses counted');
+assert.strictEqual(ms.bestDay, 365, 'best day is the furthest reached');
+assert.strictEqual(ms.bestDayDifficulty, 'easy', 'best day difficulty recorded');
+assert.strictEqual(MetaStore.runCount(), 3, 'run count tracks all runs');
+// Tie on best day keeps the earlier record
+MetaStore.recordRunComplete(null, true, 365, 'hard');
+ms = MetaStore.metaStats();
+assert.strictEqual(ms.bestDay, 365, 'best day unchanged on tie');
+assert.strictEqual(ms.bestDayDifficulty, 'easy', 'earlier best-day difficulty kept on tie');
+// Reset wipes stats but keeps carried items and difficulty
+localStorage.setItem('devlife_meta', JSON.stringify({ totalRuns: 5, lastRunDate: 'x', startingEquipment: ['keyboard'], startingConsumables: ['coffee'], lastSelectedDifficulty: 'hard', stats: { wins: 2, losses: 3, bestDay: 300, bestDayDifficulty: 'hard' } }));
+MetaStore.resetStats();
+const afterReset = MetaStore.load();
+assert.strictEqual(MetaStore.runCount(), 0, 'reset clears run count');
+assert.deepStrictEqual(MetaStore.metaStats(), { wins: 0, losses: 0, bestDay: 0, bestDayDifficulty: 'easy' }, 'reset zeroes stats to defaults');
+assert.deepStrictEqual(afterReset.startingEquipment, ['keyboard'], 'reset keeps carried equipment');
+assert.deepStrictEqual(afterReset.startingConsumables, ['coffee'], 'reset keeps carried consumables');
+assert.strictEqual(afterReset.lastSelectedDifficulty, 'hard', 'reset keeps selected difficulty');
+localStorage.removeItem('devlife_meta');
+console.log('✓ meta store: lifetime statistics tracked and reset (issue #53)');
 
 // --- Stock Up swap: explicit replaceIndex swaps the chosen slot ---
 localStorage.setItem('devlife_meta', JSON.stringify({ totalRuns: 0, startingConsumables: ['coffee', 'focus'] }));
@@ -372,11 +400,11 @@ console.log('✓ carry-over equipment: bonuses active from day 1');
 
 // --- Equipment carry-over: most recent equipment wins (issue #4) ---
 localStorage.setItem('devlife_meta', JSON.stringify({ totalRuns: 0, startingEquipment: ['mech_keyboard'] }));
-MetaStore.recordRunComplete('standing_desk'); // swapped mid-run; ended with the new item
+MetaStore.recordRunComplete('standing_desk', false, 10, 'easy'); // swapped mid-run; ended with the new item
 assert.deepStrictEqual(MetaStore.carriedIds('startingEquipment'), ['standing_desk'], 'newest equipment replaces the carried one');
-MetaStore.recordRunComplete('mech_keyboard'); // swapped back in a later run
+MetaStore.recordRunComplete('mech_keyboard', false, 10, 'easy'); // swapped back in a later run
 assert.deepStrictEqual(MetaStore.carriedIds('startingEquipment'), ['mech_keyboard'], 'carries over again after swap-back');
-MetaStore.recordRunComplete(null); // ended a run with no equipment
+MetaStore.recordRunComplete(null, false, 10, 'easy'); // ended a run with no equipment
 assert.deepStrictEqual(MetaStore.carriedIds('startingEquipment'), [], 'no equipment at run end clears carry-over');
 assert.strictEqual(MetaStore.runCount(), 3, 'run counter still increments');
 localStorage.removeItem('devlife_meta');

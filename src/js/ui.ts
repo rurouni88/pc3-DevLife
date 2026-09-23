@@ -307,6 +307,30 @@ const UICore = {
     modal.style.display = 'none';
   },
 
+  // Options menu (issue #53) — title-screen modal with Settings (locked),
+  // Statistics, and a reset action.
+  showOptions(): void {
+    const modal = document.getElementById('options-modal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+  },
+
+  closeOptions(): void {
+    const modal = document.getElementById('options-modal');
+    if (!modal) return;
+    modal.style.display = 'none';
+  },
+
+  // Reset lifetime statistics and achievements (issue #53). Carried items
+  // and the selected difficulty are kept — only the numbers and unlocks go.
+  resetStatsAndAchievements(): void {
+    if (!confirm('Reset all statistics and achievements? This cannot be undone.')) return;
+    MetaStore.resetStats();
+    Achievements.clearUnlocked();
+    UI.closeOptions();
+    UI.showToast('Statistics and achievements reset');
+  },
+
   setHelpTab(tab: string): void {
     document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.modal-tab-content').forEach(c => c.classList.remove('active'));
@@ -648,4 +672,4 @@ const UICore = {
 };
 
 // Compose the full UI object from the section files (loaded before this one).
-const UI = Object.assign({}, UICore, UICharacter, UILevelUp, UIEndOfRun, UIEventCard, UITooltip, UIAchievements);
+const UI = Object.assign({}, UICore, UICharacter, UILevelUp, UIEndOfRun, UIEventCard, UITooltip, UIAchievements, UIStatistics);

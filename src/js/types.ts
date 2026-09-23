@@ -213,4 +213,15 @@ interface MetaState {
   startingConsumables?: string[];
   /** Last difficulty chosen on the title screen; defaults to easy. */
   lastSelectedDifficulty?: Difficulty;
+  /** Lifetime career statistics (issue #53). */
+  stats?: MetaStats;
+}
+
+// Lifetime statistics, persisted across runs. All fields optional so old
+// saves (pre-statistics) load cleanly; readers apply the zero defaults.
+interface MetaStats {
+  wins?: number;
+  losses?: number;
+  bestDay?: number;
+  bestDayDifficulty?: Difficulty;
 }

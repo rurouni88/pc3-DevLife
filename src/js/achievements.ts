@@ -295,6 +295,15 @@ function saveUnlocked(unlocked: Set<string>): void {
   }
 }
 
+// Wipe all unlocked achievements (issue #53 — reset from the options menu).
+function clearUnlocked(): void {
+  try {
+    localStorage.removeItem(ACHIEVEMENTS_STORAGE_KEY);
+  } catch {
+    // Storage unavailable — nothing to clear
+  }
+}
+
 // --- Logic ---
 
 // Check if an achievement is not yet implemented (type guard).
@@ -379,6 +388,7 @@ const Achievements = {
   isNotImplemented,
   getUnlocked,
   saveUnlocked,
+  clearUnlocked,
   satisfiedAchievementIds,
   evaluate,
 };

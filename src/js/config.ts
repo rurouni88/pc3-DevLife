@@ -1,6 +1,6 @@
 // Game configuration — all tunable constants in one place
 const CONFIG = {
-  version: '0.40',
+  version: '0.41',
   versionLabel: 'Prototype',
 
   stats: {

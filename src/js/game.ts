@@ -58,7 +58,12 @@ const Game = {
     const state = this.state;
     if (!state) return;
     const firstEquipment = state.equipment[0];
-    MetaStore.recordRunComplete(firstEquipment ? firstEquipment.id : null);
+    MetaStore.recordRunComplete(
+      firstEquipment ? firstEquipment.id : null,
+      state.won,
+      state.day,
+      state.difficulty
+    );
   },
 
   // Check if character can level up (every N events = 1 level)
