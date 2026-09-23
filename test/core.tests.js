@@ -324,24 +324,40 @@ assert.deepStrictEqual(MetaStore.load(), {}, 'corrupted meta ignored');
 assert.strictEqual(MetaStore.runCount(), 0, 'runCount falls back to 0');
 localStorage.setItem('devlife_meta', '42');
 assert.deepStrictEqual(MetaStore.load(), {}, 'non-object meta ignored');
-MetaStore.recordRunComplete(null, false, 10, 'easy'); // still writable after corruption
+MetaStore.recordRunComplete(null, { won: false, day: 10, difficulty: 'easy', consumablesUsed: 0, stats: { S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 } }); // still writable after corruption
 assert.strictEqual(MetaStore.runCount(), 1, 'meta usable after corruption fallback');
 localStorage.removeItem('devlife_meta');
 console.log('✓ meta store: corrupted data ignored, not fatal');
 
 // --- MetaStore: lifetime statistics (issue #53) ---
 localStorage.removeItem('devlife_meta');
-MetaStore.recordRunComplete(null, true, 365, 'easy'); // won
-MetaStore.recordRunComplete(null, false, 200, 'normal'); // lost, shorter
-MetaStore.recordRunComplete(null, false, 300, 'hard'); // lost, longer
+const baseStats5 = { S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 };
+const rec = (won, day, difficulty, consumablesUsed = 0, stats = baseStats5) =>
+  MetaStore.recordRunComplete(null, { won, day, difficulty, consumablesUsed, stats });
+rec(true, 365, 'easy', 3, { S: 10, P: 1, E: 1, C: 1, I: 1, A: 1, L: 1 }); // won, high S
+rec(false, 200, 'normal', 1, { S: 1, P: 10, E: 1, C: 1, I: 1, A: 1, L: 1 }); // lost, high P
+rec(false, 300, 'hard', 2, { S: 1, P: 1, E: 1, C: 1, I: 1, A: 1, L: 10 }); // lost, high L
 let ms = MetaStore.metaStats();
 assert.strictEqual(ms.wins, 1, 'win counted');
 assert.strictEqual(ms.losses, 2, 'losses counted');
 assert.strictEqual(ms.bestDay, 365, 'best day is the furthest reached');
 assert.strictEqual(ms.bestDayDifficulty, 'easy', 'best day difficulty recorded');
 assert.strictEqual(MetaStore.runCount(), 3, 'run count tracks all runs');
+// Win rate by difficulty (issue #53)
+assert.strictEqual(ms.winsByDifficulty.easy, 1, 'easy wins counted');
+assert.strictEqual(ms.lossesByDifficulty.easy, 0, 'no easy losses');
+assert.strictEqual(ms.winsByDifficulty.normal, 0, 'no normal wins');
+assert.strictEqual(ms.lossesByDifficulty.normal, 1, 'normal loss counted');
+assert.strictEqual(ms.lossesByDifficulty.hard, 1, 'hard loss counted');
+// Consumables used total (issue #53)
+assert.strictEqual(ms.consumablesUsedTotal, 6, 'consumables total = 3+1+2');
+// Per-stat totals at run end (issue #53)
+assert.strictEqual(ms.statTotals.S, 12, 'S total = 10+1+1');
+assert.strictEqual(ms.statTotals.P, 12, 'P total = 1+10+1');
+assert.strictEqual(ms.statTotals.L, 12, 'L total = 1+1+10');
+assert.strictEqual(ms.statTotals.E, 3, 'E total = 1+1+1');
 // Tie on best day keeps the earlier record
-MetaStore.recordRunComplete(null, true, 365, 'hard');
+rec(true, 365, 'hard');
 ms = MetaStore.metaStats();
 assert.strictEqual(ms.bestDay, 365, 'best day unchanged on tie');
 assert.strictEqual(ms.bestDayDifficulty, 'easy', 'earlier best-day difficulty kept on tie');
@@ -350,7 +366,7 @@ localStorage.setItem('devlife_meta', JSON.stringify({ totalRuns: 5, lastRunDate:
 MetaStore.resetStats();
 const afterReset = MetaStore.load();
 assert.strictEqual(MetaStore.runCount(), 0, 'reset clears run count');
-assert.deepStrictEqual(MetaStore.metaStats(), { wins: 0, losses: 0, bestDay: 0, bestDayDifficulty: 'easy' }, 'reset zeroes stats to defaults');
+assert.deepStrictEqual(MetaStore.metaStats(), { wins: 0, losses: 0, bestDay: 0, bestDayDifficulty: 'easy', winsByDifficulty: {}, lossesByDifficulty: {}, consumablesUsedTotal: 0, statTotals: { S: 0, P: 0, E: 0, C: 0, I: 0, A: 0, L: 0 } }, 'reset zeroes stats to defaults');
 assert.deepStrictEqual(afterReset.startingEquipment, ['keyboard'], 'reset keeps carried equipment');
 assert.deepStrictEqual(afterReset.startingConsumables, ['coffee'], 'reset keeps carried consumables');
 assert.strictEqual(afterReset.lastSelectedDifficulty, 'hard', 'reset keeps selected difficulty');
@@ -400,11 +416,11 @@ console.log('✓ carry-over equipment: bonuses active from day 1');
 
 // --- Equipment carry-over: most recent equipment wins (issue #4) ---
 localStorage.setItem('devlife_meta', JSON.stringify({ totalRuns: 0, startingEquipment: ['mech_keyboard'] }));
-MetaStore.recordRunComplete('standing_desk', false, 10, 'easy'); // swapped mid-run; ended with the new item
+MetaStore.recordRunComplete('standing_desk', { won: false, day: 10, difficulty: 'easy', consumablesUsed: 0, stats: baseStats5 }); // swapped mid-run; ended with the new item
 assert.deepStrictEqual(MetaStore.carriedIds('startingEquipment'), ['standing_desk'], 'newest equipment replaces the carried one');
-MetaStore.recordRunComplete('mech_keyboard', false, 10, 'easy'); // swapped back in a later run
+MetaStore.recordRunComplete('mech_keyboard', { won: false, day: 10, difficulty: 'easy', consumablesUsed: 0, stats: baseStats5 }); // swapped back in a later run
 assert.deepStrictEqual(MetaStore.carriedIds('startingEquipment'), ['mech_keyboard'], 'carries over again after swap-back');
-MetaStore.recordRunComplete(null, false, 10, 'easy'); // ended a run with no equipment
+MetaStore.recordRunComplete(null, { won: false, day: 10, difficulty: 'easy', consumablesUsed: 0, stats: baseStats5 }); // ended a run with no equipment
 assert.deepStrictEqual(MetaStore.carriedIds('startingEquipment'), [], 'no equipment at run end clears carry-over');
 assert.strictEqual(MetaStore.runCount(), 3, 'run counter still increments');
 localStorage.removeItem('devlife_meta');
