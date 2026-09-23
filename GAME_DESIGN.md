@@ -385,13 +385,16 @@ The project layout has changed since the initial commit, so this document no lon
 - 9 selectable archetypes (+1 locked)
 - Game over / victory conditions (incl. saving rolls)
 
-### Phase 3: Polish & Meta — 🚧 in progress
-- Save/load system ✓
-- Meta-progression carry-over (equipment + consumables) ✓ *(unlocks: planned)*
-- Career summaries ✓
-- Synthesized sound effects ✓
-- Perk system with interventions ✓
-- Achievements ✓ (26 tracked in localStorage, evaluated at run end)
+### Phase 3: Polish & Meta — ✅ done
+- Save/load system with version-drift guard
+- Meta-progression carry-over (equipment + consumables)
+- Difficulty levels (Easy / Normal / Hard)
+- Seeded runs (reproducible careers + re-roll)
+- Options menu: lifetime statistics + reset
+- Career summaries (win/lose, with seed + difficulty)
+- Synthesized sound effects
+- Perk system with interventions
+- Achievements (26 tracked in localStorage, evaluated at run end)
 
 ### Phase 4: Advanced Features — 🚧 in progress
 - Mobile responsive design ✓
