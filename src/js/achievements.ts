@@ -278,6 +278,39 @@ const ARCHETYPE_ACHIEVEMENTS: Record<string, ArchetypeAchievement[]> = {
 
 // --- Achievement Tracker ---
 
+// Achievement states for rendering.
+type AchievementState = 'unlocked' | 'notImplemented' | 'locked';
+
+// Check if an achievement is not yet implemented (type guard).
+function isNotImplemented(ach: AchievementDefinition): ach is AchievementDefinition & { implemented: false } {
+  return ach.implemented === false;
+}
+
+// Render a single achievement card as HTML.
+function renderAchievementCard(ach: AchievementDefinition, state: AchievementState): string {
+  const isUnlocked = state === 'unlocked';
+  const isNotImpl = state === 'notImplemented';
+  const cssClass = isUnlocked ? 'achievement-unlocked' : 'achievement-locked';
+  const lockIcon = isNotImpl ? ' <span style="color: var(--text-muted);">🔒</span>' : '';
+  const description = isUnlocked ? ach.description : isNotImpl ? 'Not yet implemented' : 'Complete achievements to unlock this.';
+
+  return `
+    <div class="achievement-item ${cssClass}">
+      <div class="achievement-emoji">${ach.emoji}</div>
+      <div class="achievement-info">
+        <div class="achievement-title">${ach.title}${lockIcon}</div>
+        <div class="achievement-desc">${description}</div>
+      </div>
+    </div>`;
+}
+
+// Determine the render state for an achievement.
+function getAchievementState(ach: AchievementDefinition, unlocked: Set<string>): AchievementState {
+  if (unlocked.has(ach.id)) return 'unlocked';
+  if (isNotImplemented(ach)) return 'notImplemented';
+  return 'locked';
+}
+
 // Achievement storage key in localStorage.
 const ACHIEVEMENTS_STORAGE_KEY = 'devlife_achievements';
 
@@ -321,4 +354,7 @@ const Achievements = {
   checkAchievement,
   getUnlocked,
   saveUnlocked,
+  renderAchievementCard,
+  getAchievementState,
+  isNotImplemented,
 };

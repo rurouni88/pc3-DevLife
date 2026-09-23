@@ -253,38 +253,17 @@ const UICore = {
     if (!container) return;
 
     const unlocked = Achievements.getUnlocked();
-    const currentDifficulty = MetaStore.selectedDifficulty();
-    const isHard = currentDifficulty === 'hard';
-    let html = '';
 
     // Universal achievements
-    for (const ach of Achievements.UNIVERSAL_ACHIEVEMENTS) {
-      const isUnlocked = unlocked.has(ach.id);
-      const isNotImplemented = ach.implemented === false;
-      html += `
-        <div class="achievement-item ${isUnlocked ? 'achievement-unlocked' : 'achievement-locked'}">
-          <div class="achievement-emoji">${ach.emoji}</div>
-          <div class="achievement-info">
-            <div class="achievement-title">${ach.title}${isNotImplemented ? ' <span style="color: var(--text-muted);">🔒</span>' : ''}</div>
-            <div class="achievement-desc">${isUnlocked ? ach.description : isNotImplemented ? 'Not yet implemented' : 'Complete achievements to unlock this.'}</div>
-          </div>
-        </div>`;
-    }
+    let html = Achievements.UNIVERSAL_ACHIEVEMENTS
+      .map(ach => Achievements.renderAchievementCard(ach, Achievements.getAchievementState(ach, unlocked)))
+      .join('');
 
-    // Archetype achievements (grouped by archetype)
-    for (const [archetypeId, achs] of Object.entries(Achievements.ARCHETYPE_ACHIEVEMENTS)) {
-      for (const ach of achs) {
-        const isUnlocked = unlocked.has(ach.id);
-        const isNotImplemented = ach.implemented === false;
-        html += `
-          <div class="achievement-item ${isUnlocked ? 'achievement-unlocked' : 'achievement-locked'}">
-            <div class="achievement-emoji">${ach.emoji}</div>
-            <div class="achievement-info">
-              <div class="achievement-title">${ach.title}${isNotImplemented ? ' <span style="color: var(--text-muted);">🔒</span>' : ''}</div>
-              <div class="achievement-desc">${isUnlocked ? ach.description : isNotImplemented ? 'Not yet implemented' : 'Complete achievements to unlock this.'}</div>
-            </div>
-          </div>`;
-      }
+    // Archetype achievements
+    for (const achs of Object.values(Achievements.ARCHETYPE_ACHIEVEMENTS)) {
+      html += achs
+        .map(ach => Achievements.renderAchievementCard(ach, Achievements.getAchievementState(ach, unlocked)))
+        .join('');
     }
 
     container.innerHTML = html;
