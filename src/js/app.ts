@@ -118,8 +118,13 @@ const App = {
     // Options menu (issue #53)
     bind('btn-options-title', () => UI.showOptions());
     bind('btn-close-options', () => UI.closeOptions());
+    bind('btn-options-settings', () => { UI.closeOptions(); UI.showSettings(); });
     bind('btn-options-statistics', () => { UI.closeOptions(); UI.showStatistics(); });
     bind('btn-options-reset', () => UI.resetStatsAndAchievements());
+
+    // Settings screen
+    bind('btn-settings-back', () => UI.closeSettings());
+    bind('btn-settings-reroll-seed', () => UI.renderSettings());
 
     // Statistics screen
     bind('btn-statistics-back', () => UI.closeStatistics());
