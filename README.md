@@ -7,7 +7,7 @@ d20().devLife is a browser-based roguelike where you play as a software engineer
 
 Will you reach retirement, or will your career end in burnout?
 
-[▶ Play](https://rurouni88.github.io/pc3-DevLife)
+[▶ Play](https://rurouni88.github.io/pc3-d20-devLife)
 
 ---
 
