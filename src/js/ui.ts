@@ -421,6 +421,12 @@ const UICore = {
       UI.currentScreen = screenId;
       // Seed display is only relevant on the title screen.
       if (screenId === 'title') UI.initSeedDisplay();
+      // Every screen starts at the top (issue #45). On desktop the page
+      // usually fits the viewport so this is a no-op; on mobile it stops a
+      // new screen inheriting the previous screen's scroll position — e.g.
+      // landing on a level-up or game-over screen mid-card. The event-card
+      // scroll in nextEvent() is separate: card-to-card stays in this screen.
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   },
 
