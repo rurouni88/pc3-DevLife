@@ -144,11 +144,33 @@ const UIEventCard = {
       return;
     }
 
-    // Handle normal bonus consumables
-    if (result.stat === 'any') {
-      STAT_KEYS.forEach(s => SpecialSystem.applyTempBonus(s, result.bonus));
+    // Handle multi-stat consumables (alcohol, issue #57): apply each delta as
+    // a temp bonus — negatives allowed, so the hangover lands on the check too.
+    if (result.effects) {
+      Object.entries(result.effects).forEach(([stat, value]) => {
+        SpecialSystem.applyTempBonus(stat as StatKey, value);
+      });
+      UI.renderSpecialStats();
+
+      const feedback = document.createElement('div');
+      feedback.className = 'consumable-feedback';
+      feedback.innerHTML = `${result.emoji} ${result.name} used! ${formatSignedEffects(result.effects)}`;
+
+      UI.renderEvent(event);
+      UI.insertConsumableFeedback(feedback, 2000);
+      return;
+    }
+
+    // Handle normal bonus consumables. The effect shapes are mutually
+    // exclusive, so past the multiplier/effects checks above, stat + bonus
+    // are present — the guard is just to satisfy the (now optional) types.
+    if (result.stat === undefined || result.bonus === undefined) return;
+    const stat = result.stat;
+    const bonus = result.bonus;
+    if (stat === 'any') {
+      STAT_KEYS.forEach(s => SpecialSystem.applyTempBonus(s, bonus));
     } else {
-      SpecialSystem.applyTempBonus(result.stat, result.bonus);
+      SpecialSystem.applyTempBonus(stat, bonus);
     }
 
     UI.renderSpecialStats();

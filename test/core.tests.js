@@ -613,6 +613,35 @@ assert.strictEqual(aiBad.backfired, true, 'backfire flagged');
 RngEngine.random = realRngRandom;
 console.log('✓ consumables: use/removal, unknown id, AI backfire threshold');
 
+// --- Alcohol: multi-stat consumables with negative deltas (issue #57) ---
+freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+const beer = CONSUMABLES.find(c => c.id === 'beer');
+assert.ok(beer, 'beer exists in the pool');
+assert.deepStrictEqual(beer.effects, { E: 2, P: -1, A: -1 }, 'beer: +2 E, -1 P, -1 A');
+Game.state.consumables = [beer];
+const beerUsed = ConsumableManager.use('beer');
+assert.deepStrictEqual(beerUsed.effects, { E: 2, P: -1, A: -1 }, 'use() reports the effects');
+assert.strictEqual(beerUsed.stat, undefined, 'effects items have no single stat');
+assert.strictEqual(Game.state.consumables.length, 0, 'consumed item removed');
+// The signed formatter renders negatives correctly (no "+-1")
+assert.strictEqual(formatSignedEffects({ E: 2, P: -1 }), '+2 Endurance, -1 Perception', 'formatSignedEffects: signed deltas');
+assert.strictEqual(formatSignedEffects({ C: 3, P: -2, A: -1 }), '+3 Charisma, -2 Perception, -1 Agility', 'formatSignedEffects: cocktail');
+// Negative temp bonuses are legal and clear with the rest
+SpecialSystem.applyTempBonus('E', 2);
+SpecialSystem.applyTempBonus('P', -1);
+assert.strictEqual(SpecialSystem.temporaryBonuses.E, 2, 'positive temp bonus applied');
+assert.strictEqual(SpecialSystem.temporaryBonuses.P, -1, 'negative temp bonus applied');
+SpecialSystem.clearTempBonuses();
+assert.strictEqual(SpecialSystem.temporaryBonuses.E, 0, 'temp bonuses cleared');
+// All four alcohol items exist with the planned deltas
+const whiskey = CONSUMABLES.find(c => c.id === 'whiskey');
+const wine = CONSUMABLES.find(c => c.id === 'wine');
+const cocktail = CONSUMABLES.find(c => c.id === 'cocktail');
+assert.deepStrictEqual(whiskey.effects, { E: 3, P: -2, A: -1 }, 'whiskey: +3 E, -2 P, -1 A');
+assert.deepStrictEqual(wine.effects, { C: 2, P: -1, A: -1 }, 'wine: +2 C, -1 P, -1 A');
+assert.deepStrictEqual(cocktail.effects, { C: 3, P: -2, A: -1 }, 'cocktail: +3 C, -2 P, -1 A');
+console.log('✓ alcohol: multi-stat consumables with negative deltas (issue #57)');
+
 // --- Consumables are inert once the run is over (#41) ---
 // Unit guard: alive=false (death) or won=true (victory) → use() returns null
 freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });

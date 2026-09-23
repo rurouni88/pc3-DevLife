@@ -92,7 +92,7 @@ Career Phase 4: Staff/Principal (Years 8-10) — Pool of 15 events
 
 Events are the core gameplay unit. Each event presents a scenario with:
 - **Narrative description** (satirical tech humor)
-- **2–4 choices** (most events are 2; bosses are 3)
+- **3–4 choices** (most events are 3; bosses are 3)
 - **d20 stat checks** behind most choices (see [§9](#9-stat-check-resolution))
 - **Consequences** based on checks + choices
 - Optional **equipment drop** on success (chance scales with Luck)
@@ -157,6 +157,7 @@ One-time stat boosts for a single event check. **Max 2 in inventory.** Earned on
 - You activate a consumable **before making the choice** on an event card.
 - It boosts the stat(s) it targets for that one check only — temporary bonuses are cleared after the check resolves.
 - **"any" consumables** (Flow State, Perfect Meal, Fried Chicken) boost **all** stats.
+- **Alcohol** (Beer, Wine, Whiskey, Cocktail) is a **recovery with a tradeoff**: it boosts Endurance or Charisma but *lowers* Perception and Agility, all for that one check. The gain and the hangover both land on the same roll.
 - **AI/multiplier consumables** multiply the effective stat total for the check (1.5× or 2×). There's a **30% chance they backfire**, applying **−50%** instead.
 - Up to 2 consumables can be carried into the next run via meta progression (see §4).
 
@@ -171,6 +172,7 @@ One-time stat boosts for a single event check. **Max 2 in inventory.** Earned on
 | Energy Gel | 🧴 | +2 Agility | Sprint fuel of champions |
 | Protein Bar | 🍫 | +1 Endurance | Tastes like cardboard. Works like magic. |
 | Cold Pizza | 🍕 | +2 Charisma | The universal developer currency. |
+| Beer | 🍺 | +2 Endurance, −1 Perception, −1 Agility | Team offsite energy. You will remember the standup. |
 
 #### Uncommon
 | Consumable | Emoji | Effect | Description |
@@ -184,6 +186,7 @@ One-time stat boosts for a single event check. **Max 2 in inventory.** Earned on
 | Pre-Workout | 💪 | +3 Agility | Jitters guaranteed. Shipping accelerated. |
 | AI Copilot | 🤖 | 1.5× stat (risky!) | 70% chance it works |
 | Red Bull + Espresso | ⚡ | 1.5× stat (risky!) | The double shot of doom. Heart rate: 180. Code quality: TBD. |
+| Wine | 🍷 | +2 Charisma, −1 Perception, −1 Agility | Stakeholder call charm. The Jira board will slip. |
 
 #### Rare
 | Consumable | Emoji | Effect | Description |
@@ -195,6 +198,7 @@ One-time stat boosts for a single event check. **Max 2 in inventory.** Earned on
 | Truffle Pasta | 🍝 | +3 Charisma | The PM actually enjoyed it. Miracles happen. |
 | AI Code Generator | 🧠 | 2× stat (very risky!) | Green screen of death |
 | Monster Energy | 👹 | 2× stat (very risky!) | Green liquid. Green screen of death. Either you ship or you don't wake up. |
+| Whiskey | 🥃 | +3 Endurance, −2 Perception, −1 Agility | On-call survival fuel. The pager will not be so lucky. |
 
 #### Epic
 | Consumable | Emoji | Effect | Description |
@@ -202,6 +206,7 @@ One-time stat boosts for a single event check. **Max 2 in inventory.** Earned on
 | Flow State | ⚡ | +5 ALL stats | Everything clicks |
 | The Perfect Meal | 🍱 | +5 ALL stats | Home-cooked. Made by someone who cares. Everything clicks. |
 | Fried Chicken | 🍗 | +3 ALL stats | Putting the kids working in KFC through higher education. |
+| Cocktail | 🍹 | +3 Charisma, −2 Perception, −1 Agility | Demo day confidence. The bug report will find you. |
 
 ### 2.6 Perks (Stat Mastery)
 
@@ -380,13 +385,16 @@ The project layout has changed since the initial commit, so this document no lon
 - 9 selectable archetypes (+1 locked)
 - Game over / victory conditions (incl. saving rolls)
 
-### Phase 3: Polish & Meta — 🚧 in progress
-- Save/load system ✓
-- Meta-progression carry-over (equipment + consumables) ✓ *(unlocks: planned)*
-- Career summaries ✓
-- Synthesized sound effects ✓
-- Perk system with interventions ✓
-- Achievements ✓ (26 tracked in localStorage, evaluated at run end)
+### Phase 3: Polish & Meta — ✅ done
+- Save/load system with version-drift guard
+- Meta-progression carry-over (equipment + consumables)
+- Difficulty levels (Easy / Normal / Hard)
+- Seeded runs (reproducible careers + re-roll)
+- Options menu: lifetime statistics + reset
+- Career summaries (win/lose, with seed + difficulty)
+- Synthesized sound effects
+- Perk system with interventions
+- Achievements (26 tracked in localStorage, evaluated at run end)
 
 ### Phase 4: Advanced Features — 🚧 in progress
 - Mobile responsive design ✓

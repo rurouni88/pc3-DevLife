@@ -41,10 +41,22 @@ function formatEffects(effects: Partial<Stats>): string {
 }
 
 // Full effect text for an equipment item: stat bonuses + slot bonuses
-// (the Backpack has no stat effects, only a slot bonus).
+// (the Backpack has no stat effects, only a slot bonus). Uses the signed
+// formatter so multi-stat consumables (alcohol) sharing this path — the
+// item tooltip — render their negative deltas correctly; equipment deltas
+// are all positive, so its output is unchanged.
 function equipmentEffectText(item: { effects?: Partial<Stats>; consumableSlots?: number }): string {
   const parts: string[] = [];
-  if (item.effects && Object.keys(item.effects).length > 0) parts.push(formatEffects(item.effects));
+  if (item.effects && Object.keys(item.effects).length > 0) parts.push(formatSignedEffects(item.effects));
   if (item.consumableSlots) parts.push(`+${item.consumableSlots} consumable slot`);
   return parts.join(', ');
+}
+
+// Signed effect string for multi-stat consumables (alcohol): { E: 2, P: -1 }
+// → "+2 Endurance, -1 Perception". formatEffects() hardcodes "+" and is for
+// equipment, where every delta is positive.
+function formatSignedEffects(effects: Partial<Stats>): string {
+  return Object.entries(effects)
+    .map(([stat, value]) => `${value >= 0 ? '+' : '-'}${Math.abs(value)} ${STAT_META[stat as StatKey]?.name || stat}`)
+    .join(', ');
 }

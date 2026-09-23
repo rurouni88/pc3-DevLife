@@ -548,7 +548,8 @@ const ConsumableManager = {
       name: consumable.name,
       emoji: consumable.emoji,
       stat: consumable.stat,
-      bonus: consumable.bonus
+      bonus: consumable.bonus,
+      effects: consumable.effects
     };
 
     if (consumable.multiplier !== undefined) {
