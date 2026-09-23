@@ -1,33 +1,39 @@
 // UI — character creation screen: presets, stat allocation, archetype preview.
 // Loaded before ui.js; its methods are composed into UI there.
+
+// Render a single stat allocation row. The value span is seeded from
+// SpecialSystem.stats here; updateCharCreationUI() keeps it in sync after
+// every +/- click.
+const renderStatRow = (key: StatKey): string => {
+  const meta = STAT_META[key];
+  return `
+    <span class="stat-label" style="color: ${meta.color}">${key}</span>
+    <span class="cons-info stat-help" data-stat="${key}" aria-label="About ${meta.name}">?</span>
+    <span class="stat-name">${meta.name}</span>
+    <div class="stat-controls">
+      <button class="stat-btn minus" data-stat="${key}" data-action="minus">−</button>
+      <span class="stat-value" style="color: ${meta.color}">${SpecialSystem.stats[key]}</span>
+      <button class="stat-btn plus" data-stat="${key}" data-action="plus">+</button>
+    </div>
+  `;
+};
+
 const UICharacter = {
   // Internal state (read/written via the composed UI object). Declared here
   // so the Object.assign composition in ui.js carries their types into UI.
-  _selectedPreset: null as Archetype | null,
   _presetToggleHandler: null as (() => void) | null,
   _presetCloseHandler: null as ((e: Event) => void) | null,
 
   // Render character creation screen
   renderCharacterCreation(): void {
-    UI._selectedPreset = null;
     const container = document.getElementById('stat-allocation');
     if (!container) return;
     container.innerHTML = '';
 
     STAT_KEYS.forEach(key => {
-      const meta = STAT_META[key];
       const row = document.createElement('div');
       row.className = 'stat-row';
-      row.innerHTML = `
-        <span class="stat-label" style="color: ${meta.color}">${key}</span>
-        <span class="cons-info stat-help" data-stat="${key}" aria-label="About ${meta.name}">?</span>
-        <span class="stat-name">${meta.name}</span>
-        <div class="stat-controls">
-          <button class="stat-btn minus" data-stat="${key}" data-action="minus">−</button>
-          <span class="stat-value" style="color: ${meta.color}">${SpecialSystem.stats[key]}</span>
-          <button class="stat-btn plus" data-stat="${key}" data-action="plus">+</button>
-        </div>
-      `;
+      row.innerHTML = renderStatRow(key);
       container.appendChild(row);
     });
 
@@ -42,11 +48,9 @@ const UICharacter = {
 
         if (action === 'plus' && SpecialSystem.stats[stat] < 10 && total < STARTING_POINTS) {
           SpecialSystem.stats[stat]++;
-          UI._selectedPreset = null;
           UI.updateCharCreationUI();
         } else if (action === 'minus' && SpecialSystem.stats[stat] > 1) {
           SpecialSystem.stats[stat]--;
-          UI._selectedPreset = null;
           UI.updateCharCreationUI();
         }
       });
@@ -104,7 +108,7 @@ const UICharacter = {
           <span class="preset-stats">${statStr}</span>
         `;
         btn.addEventListener('click', () => {
-          UI.applyArchetypePreset(arch.stats, arch);
+          UI.applyArchetypePreset(arch.stats);
           // Close dropdown and update toggle text
           container.classList.remove('open');
           toggle.classList.remove('open');
@@ -135,13 +139,10 @@ const UICharacter = {
   },
 
   // Apply an archetype preset to the stat allocation
-  applyArchetypePreset(stats: Stats, arch: Archetype | null): void {
-    // Replace the allocation; updateCharCreationUI() syncs the rows
+  applyArchetypePreset(stats: Stats): void {
+    // Replace the allocation; updateCharCreationUI() syncs the rows and the
+    // preview (which re-detects the archetype from the new exact stats).
     STAT_KEYS.forEach(key => { SpecialSystem.stats[key] = stats[key]; });
-
-    // Remember which preset was chosen so the preview can show it directly
-    // (its stats may be too flat to classify uniquely).
-    UI._selectedPreset = arch || null;
     UI.updateCharCreationUI();
   },
 
@@ -228,42 +229,25 @@ const UICharacter = {
     UI.updateArchetypePreview();
   },
 
-  // Update archetype preview based on the current allocation
+  // Update archetype preview based on the current allocation. Detects the
+  // archetype by exact stat match (classifyArchetype); a non-matching custom
+  // build shows as "Custom Engineer".
   updateArchetypePreview(): void {
-    const currentStats = SpecialSystem.stats;
-
     const preview = document.getElementById('archetype-preview');
     if (!preview) return;
 
-    // If a preset was just selected, show that archetype directly. Some presets
-    // (e.g. Full-Stack Generalist) have stats too flat to classify uniquely, so
-    // the stats-based fallback below would mislabel them.
-    let archetype = UI._selectedPreset || null;
-
-    if (!archetype) {
-      // Determine archetype based on top 2 stats.
-      // Sort a copy — Array.prototype.sort mutates in place, which would
-      // permanently reorder the shared global STAT_KEYS and make the
-      // tie-breaking (and thus the preview) depend on prior calls.
-      const sorted = [...STAT_KEYS].sort((a, b) => currentStats[b] - currentStats[a]);
-      const top1 = sorted[0];
-      const top2 = sorted[1];
-
-      if ((top1 === 'I' && top2 === 'C') || (top1 === 'C' && top2 === 'I')) archetype = ARCHETYPES.architect;
-      else if ((top1 === 'A' && top2 === 'E') || (top1 === 'E' && top2 === 'A')) archetype = ARCHETYPES.startup;
-      else if ((top1 === 'S' && top2 === 'P') || (top1 === 'P' && top2 === 'S')) archetype = ARCHETYPES.systems;
-      else if ((top1 === 'C' && top2 === 'A') || (top1 === 'A' && top2 === 'C')) archetype = ARCHETYPES.advocate;
-      else if ((top1 === 'P' && top2 === 'E') || (top1 === 'E' && top2 === 'P')) archetype = ARCHETYPES.sre;
-      else if ((top1 === 'P' && top2 === 'I') || (top1 === 'I' && top2 === 'P')) archetype = ARCHETYPES.pentester;
-      else if ((top1 === 'S' && top2 === 'E') || (top1 === 'E' && top2 === 'S')) archetype = ARCHETYPES.archeologist;
-      else if ((top1 === 'C' && top2 === 'E') || (top1 === 'E' && top2 === 'C')) archetype = ARCHETYPES.em;
-      else if ((top1 === 'A' && top2 === 'L') || (top1 === 'L' && top2 === 'A')) archetype = ARCHETYPES.prototype_king;
-      else archetype = ARCHETYPES.balanced;
+    const key = classifyArchetype(SpecialSystem.stats);
+    if (key === 'custom') {
+      preview.innerHTML = `
+        <div class="archetype-name">Custom Engineer</div>
+        <div class="archetype-desc">You're truly SPECIAL — your build fits no mold.</div>
+      `;
+    } else {
+      const arch = ARCHETYPES[key];
+      preview.innerHTML = `
+        <div class="archetype-name">${arch.name}</div>
+        <div class="archetype-desc">${arch.description}</div>
+      `;
     }
-
-    preview.innerHTML = `
-      <div class="archetype-name">${archetype.name}</div>
-      <div class="archetype-desc">${archetype.description}</div>
-    `;
   },
 };

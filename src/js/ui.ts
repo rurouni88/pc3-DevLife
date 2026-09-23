@@ -25,6 +25,12 @@ const perkPromptBox = (perkId: string, yesId: string, noId: string, useLabel: st
   `;
 };
 
+// A perk prompt after the player has already decided — dimmed, no buttons.
+const perkDecidedBox = (perkId: string, used: boolean): string => {
+  const perk = PERK_BY_ID[perkId];
+  return `<div class="perk-prompt-box decided">${perk.emoji} <strong>${perk.name}</strong> — ${used ? 'used' : 'declined'}</div>`;
+};
+
 // Intervention key → perk id (PERK_BY_ID) and prompt label
 const INTERVENTION_META = {
   negotiate: { perkId: 'negotiate', label: '🤝 Use Negotiate' },
@@ -618,4 +624,4 @@ const UICore = {
 };
 
 // Compose the full UI object from the section files (loaded before this one).
-const UI = Object.assign({}, UICore, UICharacter, UILevelUp, UIEndOfRun, UIEventCard, UITooltip);
+const UI = Object.assign({}, UICore, UICharacter, UILevelUp, UIEndOfRun, UIEventCard, UITooltip, UIAchievements);

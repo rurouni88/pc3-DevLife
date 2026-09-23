@@ -1,5 +1,15 @@
 // UI — end-of-run screens: game over, victory, Stock Up, equipment choice.
 // Loaded before ui.js; its methods are composed into UI there.
+
+// Display name for a starting archetype on the summary screens. 'custom' (or
+// an unknown key, e.g. an old save) shows as "Custom"; otherwise the archetype
+// name with the leading "The " stripped for a cleaner "Run Started As" row.
+function archetypeDisplayName(key: string): string {
+  const arch = key ? ARCHETYPES[key] : undefined;
+  if (!arch) return 'Custom';
+  return arch.name.replace(/^The /, '');
+}
+
 const UIEndOfRun = {
   // Show game over screen
   showGameOver(reason: string): void {
@@ -101,6 +111,7 @@ const UIEndOfRun = {
     container.innerHTML = `
       <div class="summary-row"><span class="label">Run #</span><span class="value">${summary.runNumber}</span></div>
       <div class="summary-row"><span class="label">Difficulty</span><span class="value">${CONFIG.game.difficulty[summary.difficulty].emoji} ${CONFIG.game.difficulty[summary.difficulty].label}</span></div>
+      <div class="summary-row"><span class="label">Run Started As</span><span class="value">${archetypeDisplayName(summary.archetype)}</span></div>
       <div class="summary-row"><span class="label">Level Reached</span><span class="value">${summary.level}</span></div>
       <div class="summary-row"><span class="label">Final Position</span><span class="value">${CONFIG.game.phaseNames[summary.phase] || summary.phase}</span></div>
       <div class="summary-row"><span class="label">Career Length</span><span class="value">${(summary.day / CONFIG.game.daysPerCareerYear).toFixed(1)} years</span></div>
@@ -133,6 +144,7 @@ const UIEndOfRun = {
     summaryContainer.innerHTML = `
       <div class="summary-row"><span class="label">Run #</span><span class="value">${summary.runNumber}</span></div>
       <div class="summary-row"><span class="label">Difficulty</span><span class="value">${CONFIG.game.difficulty[summary.difficulty].emoji} ${CONFIG.game.difficulty[summary.difficulty].label}</span></div>
+      <div class="summary-row"><span class="label">Run Started As</span><span class="value">${archetypeDisplayName(summary.archetype)}</span></div>
       <div class="summary-row"><span class="label">Final Level</span><span class="value">${summary.level}</span></div>
       <div class="summary-row"><span class="label">Final Position</span><span class="value">${CONFIG.game.phaseNames[summary.phase] || summary.phase} 🏆</span></div>
       <div class="summary-row"><span class="label">Career Length</span><span class="value">${(summary.day / CONFIG.game.daysPerCareerYear).toFixed(1)} years</span></div>

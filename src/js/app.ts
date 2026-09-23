@@ -103,6 +103,10 @@ const App = {
     bind('btn-help-title', () => UI.openHelp());
     bind('btn-close-help', () => UI.closeHelp());
 
+    // Achievements modal
+    bind('btn-achievements-title', () => UI.showAchievements());
+    bind('btn-close-achievements', () => UI.closeAchievements());
+
     // End-of-run consumable selection (Stock Up) is bound inline by
     // UI.showConsumableSelection, which owns the shared pick-and-swap UI
   },

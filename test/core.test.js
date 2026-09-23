@@ -37,7 +37,7 @@ const INDEX_ASSET_COUNT = (indexHtml.match(/(?:src|href)="[^"]*\.(?:js|css)(?:\?
 const INDEX_VERSIONS = [...indexHtml.matchAll(/[?&]v=([\d.]+)/g)].map(m => m[1]);
 
 // Executable in Node (no DOM/fetch at load time), in dependency order.
-const RUN_FILES = ['config', 'utils', 'events', 'archetypes', 'items', 'special', 'perks', 'meta', 'game', 'save'];
+const RUN_FILES = ['config', 'utils', 'events', 'archetypes', 'items', 'special', 'perks', 'achievements', 'meta', 'game', 'save'];
 
 // 1. Syntax-check every JS file (including the DOM-bound ones)
 for (const file of fs.readdirSync(JS_DIR).filter(f => f.endsWith('.js'))) {

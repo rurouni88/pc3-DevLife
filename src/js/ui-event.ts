@@ -239,8 +239,7 @@ const UIEventCard = {
     // Decided prompts (dimmed, in decision order)
     for (const k of decided) {
       const meta = INTERVENTION_META[k as keyof typeof INTERVENTION_META];
-      const perk = PERK_BY_ID[meta.perkId];
-      html += `<div class="perk-prompt-box decided">${perk.emoji} <strong>${perk.name}</strong> — ${decisions[k] ? 'used' : 'declined'}</div>`;
+      html += perkDecidedBox(meta.perkId, !!decisions[k]);
     }
 
     // Pending prompts
@@ -315,6 +314,12 @@ const UIEventCard = {
     } else {
       // Regular choice sound
       UI.playSound(result.success ? 'success' : 'failure');
+    }
+
+    // Newly-unlocked achievements (only present on a run-ending choice).
+    // Toasted after the terminal celebration so they don't clobber it.
+    for (const ach of result.newAchievements || []) {
+      UI.showToast(`${ach.emoji} Achievement: ${ach.title}`, 'success');
     }
 
     UI.renderResult(result);

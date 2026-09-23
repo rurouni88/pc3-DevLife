@@ -52,6 +52,14 @@ class SaveData {
       if (state.difficulty !== undefined && !['easy', 'normal', 'hard'].includes(state.difficulty as string)) {
         errors.push('state.difficulty is not a valid difficulty');
       }
+      // Optional: saves from before the achievements feature have no field —
+      // they load with no starting archetype (treated as 'custom' at run end).
+      if (state.archetype !== undefined && typeof state.archetype !== 'string') {
+        errors.push('state.archetype is not a string');
+      }
+      if (state.consumablesUsed !== undefined && typeof state.consumablesUsed !== 'number') {
+        errors.push('state.consumablesUsed is not a number');
+      }
       const stats = state.stats as Record<string, unknown> | undefined;
       if (!stats || typeof stats !== 'object') {
         errors.push('state.stats is missing');

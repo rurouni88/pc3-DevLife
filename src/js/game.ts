@@ -22,11 +22,15 @@ const Game = {
       // includes slot bonuses from the carried equipment (Backpack).
       consumables: [...startingConsumables.slice(-this.consumableCap(startingEquipment))],
       difficulty,
+      // Fixed at character creation from the final stat allocation — this is
+      // what the starting-archetype achievements and the summary screen use.
+      archetype: classifyArchetype(statAlloc),
       level: 1,
       levelUpPoints: 0,
       day: 1,
       phase: 1,
       eventsCompleted: 0,
+      consumablesUsed: 0,
       currentEventId: null,
       eventHistory: [],
       bossCompleted: false, // tracks if phase boss has been defeated
@@ -221,6 +225,10 @@ const Game = {
     if (gameOver) state.alive = false;
     if (victory) state.won = true;
 
+    // End of run (death or victory): evaluate achievements against the final
+    // state. Newly-unlocked definitions are returned so the UI can toast them.
+    const newAchievements = (gameOver || victory) ? Achievements.evaluate(state) : [];
+
     return {
       success,
       checkResults,
@@ -234,7 +242,8 @@ const Game = {
       victory,
       bossDefeated: resolved.isBoss,
       cleanDeployUsed: resolved.cleanDeployUsed,
-      ironNervesUsed
+      ironNervesUsed,
+      newAchievements
     };
   },
 
@@ -485,7 +494,7 @@ const Game = {
   },
 
   // Get career summary
-  getSummary(): { runNumber: number; level: number; phase: number; day: number; eventsCompleted: number; equipment: Equipment[]; stats: Stats; duration: string; difficulty: Difficulty } | null {
+  getSummary(): { runNumber: number; level: number; phase: number; day: number; eventsCompleted: number; equipment: Equipment[]; stats: Stats; duration: string; difficulty: Difficulty; archetype: string } | null {
     const state = this.state;
     if (!state) return null;
     const duration = Math.floor((Date.now() - state.startTime) / 1000);
@@ -502,7 +511,9 @@ const Game = {
       stats: { ...SpecialSystem.stats },
       duration: `${hours}h ${minutes % 60}m`,
       // Old saves may predate the difficulty field — treat those as Easy
-      difficulty: state.difficulty ?? 'easy'
+      difficulty: state.difficulty ?? 'easy',
+      // Old saves may predate the archetype field — treat those as custom
+      archetype: state.archetype ?? 'custom'
     };
   },
 };
@@ -519,6 +530,7 @@ const ConsumableManager = {
 
     const consumable = state.consumables[inventoryIndex];
     state.consumables.splice(inventoryIndex, 1);
+    state.consumablesUsed++;
 
     const effect: ConsumableUseResult = {
       id: consumable.id,

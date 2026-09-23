@@ -1,3 +1,9 @@
+// Equipment and consumables are kept inline (not src/data/*.json) because:
+// 1. Small datasets — 15 equip + 31 consumable = ~94 lines total.
+// 2. TypeScript safety — discriminated unions (bonus vs multiplier) enforced at compile time.
+// 3. Tightly coupled logic — RARITY_WEIGHTS and getRandomEquipment() live next to the data.
+// 4. Static config — never changes at runtime, so no need for async fetch.
+// Contrast with events (src/data/events/) which are large (45-57KB each) and content-driven.
 const EQUIPMENT: Equipment[] = [
   // Common
   { id: 'keyboard', name: 'Mechanical Keyboard', emoji: '⌨️', rarity: 'common', effects: { S: 1 }, desc: '+1 Strength' },

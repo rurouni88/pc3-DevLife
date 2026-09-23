@@ -129,6 +129,8 @@ interface ProcessResult {
   bossDefeated?: boolean;
   cleanDeployUsed?: boolean;
   ironNervesUsed?: boolean;
+  // Achievements unlocked by this (run-ending) choice — the UI toasts these.
+  newAchievements?: AchievementDefinition[];
 }
 
 /** A career log entry (most recent first). */
@@ -144,11 +146,16 @@ interface GameState {
   equipment: Equipment[];
   consumables: Consumable[];
   difficulty: Difficulty;
+  // The archetype the player started the run as (a key from ARCHETYPES, or
+  // 'custom' for a non-matching build). Fixed at character creation.
+  archetype: string;
   level: number;
   levelUpPoints: number;
   day: number;
   phase: number;
   eventsCompleted: number;
+  // Number of consumables used this run (for the 'Consumer's Choice' achievement).
+  consumablesUsed: number;
   currentEventId: string | null;
   eventHistory: string[];
   bossCompleted: boolean;

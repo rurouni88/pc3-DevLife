@@ -803,3 +803,61 @@ assert.deepStrictEqual([...sh].sort((a, b) => a - b), input, 'shuffle: permutati
 assert.deepStrictEqual(input, [1, 2, 3, 4, 5], 'shuffle: input not mutated');
 assert.deepStrictEqual(shuffle([]), [], 'shuffle: empty array');
 console.log('✓ utils: zeroStats, clampStat, formatEffects, Fisher-Yates shuffle');
+
+// --- classifyArchetype: exact-match detection ---
+// Every preset's own stats classify back to itself (prototype_king included —
+// the function doesn't know about the point budget, so it would match that
+// block; the 42-point sum is what makes it unbuildable in practice).
+for (const key of Object.keys(ARCHETYPES)) {
+  assert.strictEqual(classifyArchetype(ARCHETYPES[key].stats), key, `classifyArchetype: ${key} exact match`);
+}
+assert.strictEqual(
+  classifyArchetype({ S: 7, P: 7, E: 6, C: 6, I: 5, A: 5, L: 4 }),
+  'custom', 'classifyArchetype: non-matching build → custom'
+);
+const nearArchitect = { ...ARCHETYPES.architect.stats };
+nearArchitect.S = 4; // one point off the architect block
+assert.strictEqual(classifyArchetype(nearArchitect), 'custom', 'classifyArchetype: one point off → custom');
+console.log('✓ classifyArchetype: exact match per preset, custom fallback');
+
+// --- Achievements.satisfiedAchievementIds: end-of-run conditions ---
+const achState = (o = {}) => Object.assign({ won: false, difficulty: 'easy', archetype: 'custom', consumablesUsed: 0 }, o);
+
+// stat_max: counts base stats at MAX_STAT (10)
+SpecialSystem.init({ S: 10, P: 10, E: 10, C: 10, I: 1, A: 1, L: 1 });
+let ids = Achievements.satisfiedAchievementIds(achState());
+assert.ok(ids.includes('stat_max_4'), 'stat_max: 4 maxed → stat_max_4');
+assert.ok(!ids.includes('stat_max_5'), 'stat_max: 4 maxed → not stat_max_5');
+SpecialSystem.init({ S: 10, P: 10, E: 10, C: 10, I: 10, A: 1, L: 1 });
+ids = Achievements.satisfiedAchievementIds(achState());
+assert.ok(ids.includes('stat_max_5'), 'stat_max: 5 maxed → stat_max_5');
+assert.ok(ids.includes('stat_max_4'), 'stat_max: 5 maxed → also stat_max_4');
+
+// consumable_0: no consumables used this run (win or death)
+SpecialSystem.init(zeroStats());
+assert.ok(Achievements.satisfiedAchievementIds(achState({ consumablesUsed: 0 })).includes('consumable_0'), 'consumable_0: 0 used → yes');
+assert.ok(!Achievements.satisfiedAchievementIds(achState({ consumablesUsed: 1 })).includes('consumable_0'), 'consumable_0: 1 used → no');
+
+// campaign_normal_universal: win on Normal
+assert.ok(Achievements.satisfiedAchievementIds(achState({ won: true, difficulty: 'normal', consumablesUsed: 1 })).includes('campaign_normal_universal'), 'campaign: won+normal → yes');
+assert.ok(!Achievements.satisfiedAchievementIds(achState({ won: true, difficulty: 'easy', consumablesUsed: 1 })).includes('campaign_normal_universal'), 'campaign: won+easy → no');
+assert.ok(!Achievements.satisfiedAchievementIds(achState({ won: false, difficulty: 'normal', consumablesUsed: 1 })).includes('campaign_normal_universal'), 'campaign: died+normal → no');
+
+// archetype: win on Normal as that starting archetype
+assert.ok(Achievements.satisfiedAchievementIds(achState({ won: true, difficulty: 'normal', archetype: 'architect', consumablesUsed: 1 })).includes('architect_normal'), 'archetype: won+normal+architect → architect_normal');
+assert.ok(!Achievements.satisfiedAchievementIds(achState({ won: true, difficulty: 'normal', archetype: 'custom', consumablesUsed: 1 })).includes('architect_normal'), 'archetype: won+normal+custom → none');
+assert.ok(!Achievements.satisfiedAchievementIds(achState({ won: true, difficulty: 'easy', archetype: 'architect', consumablesUsed: 1 })).includes('architect_normal'), 'archetype: won+easy → none (Normal only)');
+
+// Hard-mode achievements are not implemented — never fire even on a Hard win
+const hard = Achievements.satisfiedAchievementIds(achState({ won: true, difficulty: 'hard', archetype: 'architect', consumablesUsed: 1 }));
+assert.ok(!hard.includes('architect_hard'), 'hard: architect_hard not implemented');
+assert.ok(!hard.includes('campaign_hard_universal'), 'hard: campaign_hard not implemented');
+
+// combined: a Normal win as architect with 4 maxed stats and no consumables
+SpecialSystem.init({ S: 10, P: 10, E: 10, C: 10, I: 1, A: 1, L: 1 });
+ids = Achievements.satisfiedAchievementIds(achState({ won: true, difficulty: 'normal', archetype: 'architect', consumablesUsed: 0 }));
+assert.ok(ids.includes('campaign_normal_universal'), 'combined: campaign');
+assert.ok(ids.includes('architect_normal'), 'combined: archetype');
+assert.ok(ids.includes('stat_max_4'), 'combined: stat_max_4');
+assert.ok(ids.includes('consumable_0'), 'combined: consumable_0');
+console.log('✓ Achievements.satisfiedAchievementIds: stat_max, consumable_0, campaign, archetype, Hard-gated');
