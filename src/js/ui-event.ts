@@ -316,6 +316,12 @@ const UIEventCard = {
       UI.playSound(result.success ? 'success' : 'failure');
     }
 
+    // Newly-unlocked achievements (only present on a run-ending choice).
+    // Toasted after the terminal celebration so they don't clobber it.
+    for (const ach of result.newAchievements || []) {
+      UI.showToast(`${ach.emoji} Achievement: ${ach.title}`, 'success');
+    }
+
     UI.renderResult(result);
   },
 

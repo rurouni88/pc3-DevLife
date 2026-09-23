@@ -46,11 +46,14 @@ const ARCHETYPES: Record<string, Archetype> = {
     description: "People leadership, talent retention, org alignment",
     stats: { S: 2, P: 5, E: 9, C: 10, I: 5, A: 4, L: 5 },
   },
-  // Unlockable archetype
+  // Unlockable archetype — stats deliberately sum to 42 (the Answer to the
+  // Ultimate Question of Life, the Universe, and Everything), which is above the
+  // 40-point budget. It can therefore never be an exact match: truly locked
+  // until a real unlock path is implemented.
   prototype_king: {
     name: "The Prototype King / Hackathon Champion",
-    description: "⚠️ UNLOCKED — Lightning-speed prototyping, demo-day legend",
-    stats: { S: 2, P: 3, E: 3, C: 5, I: 4, A: 10, L: 10 },
+    description: "⚠️ LOCKED — Lightning-speed prototyping, demo-day legend",
+    stats: { S: 2, P: 3, E: 3, C: 7, I: 7, A: 10, L: 10 },
   }
 };
 
@@ -104,3 +107,16 @@ const STAT_META: Record<StatKey, { name: string; short: string; desc: string; co
 const STAT_KEYS: StatKey[] = CONFIG.stats.keys;
 const STARTING_POINTS = CONFIG.stats.startingPoints;
 const MAX_STAT = CONFIG.stats.max;
+
+// Classify a stat build by EXACT match against the archetype declarations.
+// Returns the archetype key whose stats match exactly, or 'custom' if none.
+// Pure — used by both the character-creation preview and startCareer so the
+// recorded starting archetype always matches what the player saw. Selecting a
+// preset writes its exact stats, so detection naturally returns that preset.
+// (prototype_king sums to 42 > the 40-point budget, so it can never match.)
+function classifyArchetype(stats: Stats): string {
+  for (const [key, arch] of Object.entries(ARCHETYPES)) {
+    if (STAT_KEYS.every(k => stats[k] === arch.stats[k])) return key;
+  }
+  return 'custom';
+}

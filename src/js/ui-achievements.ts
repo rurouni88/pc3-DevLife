@@ -1,6 +1,6 @@
 // UI — achievements modal: title-screen button, flat list of all achievements.
 // Presentation tier: owns the card rendering and the show/hide handlers.
-// Data + logic (definitions, localStorage, checkAchievement) live in
+// Data + logic (definitions, localStorage, evaluation) live in
 // achievements.ts; this file depends on that tier, never the reverse.
 // Loaded before ui.js; its methods are composed into UI there.
 
