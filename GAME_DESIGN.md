@@ -36,35 +36,56 @@ The game is structured as a series of **Career Phases**, each containing multipl
 Each phase is a fixed-length gauntlet: **6 events** (5 with **Fast Ship**), the last one being the phase **boss**. Events are drawn **randomly without repeats** within a run (from the phase's pool, excluding anything seen so far; if the pool runs dry, the boss is used as fallback). A full run is **24 events** (20 with Fast Ship).
 
 ```
-Career Phase 1: Junior Developer (Years 1-2) — 13 events
-├── Event: First Code Review, 3 AM Production Incident, Sprint Planning
-├── Event: The New Framework Mandate, The Requirements Change, The 3 AM Email
-├── Event: The "Quick" Fix, Daily Standup from Hell, The Merge Conflict
-├── Event: Demo Day Disaster, Innovation Day, The Sprint Retrospective
-└── BOSS: The Legacy Monolith
+Each phase has a **pool** of events (20 for Junior, 20 for Mid, 20 for Senior, 15 for Staff). A run draws **5 events randomly** from the pool (no repeats), then the phase boss is fixed. Example events from each pool:
+
+```text
+Career Phase 1: Junior Developer (Years 1-2) — Pool of 20 events
+├── First Code Review, 3 AM Production Incident, Sprint Planning
+├── The New Framework Mandate, The Requirements Change, The 3 AM Email
+├── The "Quick" Fix, Daily Standup from Hell, The Merge Conflict
+├── Demo Day Disaster, Innovation Day, The Sprint Retrospective
+├── The Performance Review, The Bug That Wasn't, The Missing Dependency
+├── The Code Freeze, The Hotfix, The Deployment Window
+├── The Standup That Ran Over, The Ticket That Got Lost, The Scope Creep
+├── The Bad Merge, The Broken Build, The Staging Drift
+├── The Legacy Ticket, The Duplicate PR, The Accidental Feature
+└── BOSS: The Legacy Monolith (fixed)
 │
-Career Phase 2: Mid-Level Developer (Years 3-5) — 16 events
-├── Event: Weekend On-Call, Mentor a Junior Developer, Performance Crisis
-├── Event: Demo Day, The Code Review from Hell, The Boss Wants Your Weekend
-├── Event: The Midnight Hotfix, Technical Debt Avalanche, The Mentor Crisis
-├── Event: The 404 That Wasn't, The Refactor Temptation, The Tech Stack War
-├── Event: The Agile Transformation, The Sprint Ceremony, The Deprecation Notice
-└── BOSS: The Migration Project
+Career Phase 2: Mid-Level Developer (Years 3-5) — Pool of 20 events
+├── Weekend On-Call, Mentor a Junior Developer, Performance Crisis
+├── Demo Day, The Code Review from Hell, The Boss Wants Your Weekend
+├── The Midnight Hotfix, Technical Debt Avalanche, The Mentor Crisis
+├── The 404 That Wasn't, The Refactor Temptation, The Tech Stack War
+├── The Agile Transformation, The Sprint Ceremony, The Deprecation Notice
+├── The Cross-Team Dependency, The SLA Breach, The Capacity Planning
+├── The Production Rollback, The Canary Failure, The Load Test
+├── The Architecture Review, The RFC That Nobody Read, The Design Doc
+├── The Incident Post-Mortem, The Blame Game, The On-Call Handoff
+└── BOSS: The Migration Project (fixed)
 │
-Career Phase 3: Senior Developer (Years 6-7) — 16 events
-├── Event: Tech Debt Crisis, The Interview Panel, Burnout Warning Signs
-├── Event: Performance Review, Conference Talk Opportunity, The Promotion Review
-├── Event: The Security Audit, The Keynote Invitation, The KPI Trap
-├── Event: The On-Call Nightmare, The Blameless Retrospective, The Architecture Presentation
-├── Event: The SVPG Product Model, The Product Triangle, The Code of Conduct Incident
-└── BOSS: The Platform Rewrite
+Career Phase 3: Senior Developer (Years 6-7) — Pool of 20 events
+├── Tech Debt Crisis, The Interview Panel, Burnout Warning Signs
+├── Performance Review, Conference Talk Opportunity, The Promotion Review
+├── The Security Audit, The Keynote Invitation, The KPI Trap
+├── The On-Call Nightmare, The Blameless Retrospective, The Architecture Presentation
+├── The SVPG Product Model, The Product Triangle, The Code of Conduct Incident
+├── The Platform Strategy, The Tech Radar, The Innovation Sprint
+├── The Budget Review, The Headcount Freeze, The Org Restructure
+├── The Vendor Evaluation, The Open Source Decision, The License Audit
+├── The Compliance Check, The Data Privacy Review, The Accessibility Audit
+└── BOSS: The Platform Rewrite (fixed)
 │
-Career Phase 4: Staff/Principal (Years 8-10) — 12 events
-├── Event: Executive Presentation, Open Source Controversy, The Great Hiring Freeze
-├── Event: Boardroom Strategy Session, The Data Breach, The Board Presentation
-├── Event: The Open Source Crisis, The Company Merger, The Breaking API Change
-├── Event: The Performance Crisis II, The Hiring Freeze II
-└── BOSS: The Company-Wide Restructure
+Career Phase 4: Staff/Principal (Years 8-10) — Pool of 15 events
+├── Executive Presentation, Open Source Controversy, The Great Hiring Freeze
+├── Boardroom Strategy Session, The Data Breach, The Board Presentation
+├── The Open Source Crisis, The Company Merger, The Breaking API Change
+├── The Performance Crisis II, The Hiring Freeze II
+├── The Technical Debt Summit, The Engineering Vision, The Roadmap Review
+├── The Team Restructure, The Manager Conflict, The Career Crossroads
+├── The Public Speaking Gig, The Conference Keynote, The Industry Award
+├── The Mentorship Program, The Succession Plan, The Legacy Project
+├── The Budget Negotiation, The Resource Allocation, The Prioritization Matrix
+└── BOSS: The Company-Wide Restructure (fixed)
 ```
 
 ### 2.3 Events
@@ -212,7 +233,12 @@ Maxing a stat (**base value of 10**) unlocks a **Perk** — a boon for the durat
 
 ### 2.7 Career Milestones & Achievements
 
-**Planned — not yet implemented.** Trackable achievements for replayability:
+26 achievements tracked in localStorage, evaluated at the end of every run (win or death):
+- Campaign completions on Normal and Hard difficulty
+- Consumable-free runs
+- Stat-max milestones (4–7 stats at 10 by run end)
+- Archetype completions (9 archetypes × Normal difficulty)
+- Load Bearing (5 consumable slots) — Hard difficulty only
 - https://github.com/rurouni88/pc3-DevLife/issues/13
 
 ---
@@ -360,7 +386,7 @@ The project layout has changed since the initial commit, so this document no lon
 - Career summaries ✓
 - Synthesized sound effects ✓
 - Perk system with interventions ✓
-- Achievements *(planned)*
+- Achievements ✓ (26 tracked in localStorage, evaluated at run end)
 
 ### Phase 4: Advanced Features — 🚧 in progress
 - Mobile responsive design ✓
