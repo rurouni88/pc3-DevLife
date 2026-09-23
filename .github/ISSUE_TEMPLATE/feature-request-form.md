@@ -8,11 +8,11 @@ type: Feature
 
 ---
 
-###Premise
+### Premise
 Why you want it.
 
-###Feature
+### Feature
 What you want?
 
-###Planning
+### Planning
 How you want it? (if you have a solution in mind already)
