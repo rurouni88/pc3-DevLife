@@ -48,16 +48,6 @@ const UIStatistics = {
     html += renderStatisticRow('Best Run', stats.bestDay > 0 ? `${(stats.bestDay / CONFIG.game.daysPerCareerYear).toFixed(1)} years (${stats.bestDayDifficulty})` : '—');
     html += renderStatisticRow('Last Run', lastRunDate ? new Date(lastRunDate).toLocaleDateString() : '—');
 
-    // Win rate by difficulty (issue #53).
-    (['easy', 'normal', 'hard'] as Difficulty[]).forEach(d => {
-      const w = stats.winsByDifficulty[d] || 0;
-      const l = stats.lossesByDifficulty[d] || 0;
-      const played = w + l;
-      const rate = played > 0 ? Math.round((w / played) * 100) : null;
-      const label = CONFIG.game.difficulty[d].emoji + ' ' + CONFIG.game.difficulty[d].label;
-      html += renderStatisticRow(`Win Rate (${label})`, rate === null ? '—' : `${rate}% (${w}/${played})`);
-    });
-
     // Consumables used (issue #53).
     const consTotal = stats.consumablesUsedTotal;
     const consAvg = totalRuns > 0 ? (consTotal / totalRuns).toFixed(1) : null;
