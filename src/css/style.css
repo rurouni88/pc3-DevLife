@@ -326,6 +326,13 @@ body {
   margin-bottom: var(--spacing-sm);
 }
 
+@media (max-width: 480px) {
+  .title-text {
+    font-size: 1.4rem;
+    letter-spacing: 1px;
+  }
+}
+
 .title-text .highlight {
   color: var(--accent-green);
   text-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
