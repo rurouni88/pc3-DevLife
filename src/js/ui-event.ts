@@ -239,8 +239,7 @@ const UIEventCard = {
     // Decided prompts (dimmed, in decision order)
     for (const k of decided) {
       const meta = INTERVENTION_META[k as keyof typeof INTERVENTION_META];
-      const perk = PERK_BY_ID[meta.perkId];
-      html += `<div class="perk-prompt-box decided">${perk.emoji} <strong>${perk.name}</strong> — ${decisions[k] ? 'used' : 'declined'}</div>`;
+      html += perkDecidedBox(meta.perkId, !!decisions[k]);
     }
 
     // Pending prompts

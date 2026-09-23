@@ -1,5 +1,23 @@
 // UI — character creation screen: presets, stat allocation, archetype preview.
 // Loaded before ui.js; its methods are composed into UI there.
+
+// Render a single stat allocation row. The value span is seeded from
+// SpecialSystem.stats here; updateCharCreationUI() keeps it in sync after
+// every +/- click.
+const renderStatRow = (key: StatKey): string => {
+  const meta = STAT_META[key];
+  return `
+    <span class="stat-label" style="color: ${meta.color}">${key}</span>
+    <span class="cons-info stat-help" data-stat="${key}" aria-label="About ${meta.name}">?</span>
+    <span class="stat-name">${meta.name}</span>
+    <div class="stat-controls">
+      <button class="stat-btn minus" data-stat="${key}" data-action="minus">−</button>
+      <span class="stat-value" style="color: ${meta.color}">${SpecialSystem.stats[key]}</span>
+      <button class="stat-btn plus" data-stat="${key}" data-action="plus">+</button>
+    </div>
+  `;
+};
+
 const UICharacter = {
   // Internal state (read/written via the composed UI object). Declared here
   // so the Object.assign composition in ui.js carries their types into UI.
@@ -15,19 +33,9 @@ const UICharacter = {
     container.innerHTML = '';
 
     STAT_KEYS.forEach(key => {
-      const meta = STAT_META[key];
       const row = document.createElement('div');
       row.className = 'stat-row';
-      row.innerHTML = `
-        <span class="stat-label" style="color: ${meta.color}">${key}</span>
-        <span class="cons-info stat-help" data-stat="${key}" aria-label="About ${meta.name}">?</span>
-        <span class="stat-name">${meta.name}</span>
-        <div class="stat-controls">
-          <button class="stat-btn minus" data-stat="${key}" data-action="minus">−</button>
-          <span class="stat-value" style="color: ${meta.color}">${SpecialSystem.stats[key]}</span>
-          <button class="stat-btn plus" data-stat="${key}" data-action="plus">+</button>
-        </div>
-      `;
+      row.innerHTML = renderStatRow(key);
       container.appendChild(row);
     });
 
