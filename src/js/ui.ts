@@ -234,6 +234,62 @@ const UICore = {
     });
   },
 
+  // --- Achievements Modal ---
+
+  // Show the achievements modal.
+  showAchievements(): void {
+    UI.renderAchievements();
+    document.getElementById('achievements-modal')?.style.setProperty('display', 'flex');
+  },
+
+  // Hide the achievements modal.
+  closeAchievements(): void {
+    document.getElementById('achievements-modal')?.style.setProperty('display', 'none');
+  },
+
+  // Render the achievements list.
+  renderAchievements(): void {
+    const container = document.getElementById('achievements-list');
+    if (!container) return;
+
+    const unlocked = Achievements.getUnlocked();
+    const currentDifficulty = MetaStore.selectedDifficulty();
+    const isHard = currentDifficulty === 'hard';
+    let html = '';
+
+    // Universal achievements
+    for (const ach of Achievements.UNIVERSAL_ACHIEVEMENTS) {
+      const isUnlocked = unlocked.has(ach.id);
+      const isNotImplemented = ach.implemented === false;
+      html += `
+        <div class="achievement-item ${isUnlocked ? 'achievement-unlocked' : 'achievement-locked'}">
+          <div class="achievement-emoji">${ach.emoji}</div>
+          <div class="achievement-info">
+            <div class="achievement-title">${ach.title}${isNotImplemented ? ' <span style="color: var(--text-muted);">🔒</span>' : ''}</div>
+            <div class="achievement-desc">${isUnlocked ? ach.description : isNotImplemented ? 'Not yet implemented' : 'Complete achievements to unlock this.'}</div>
+          </div>
+        </div>`;
+    }
+
+    // Archetype achievements (grouped by archetype)
+    for (const [archetypeId, achs] of Object.entries(Achievements.ARCHETYPE_ACHIEVEMENTS)) {
+      for (const ach of achs) {
+        const isUnlocked = unlocked.has(ach.id);
+        const isNotImplemented = ach.implemented === false;
+        html += `
+          <div class="achievement-item ${isUnlocked ? 'achievement-unlocked' : 'achievement-locked'}">
+            <div class="achievement-emoji">${ach.emoji}</div>
+            <div class="achievement-info">
+              <div class="achievement-title">${ach.title}${isNotImplemented ? ' <span style="color: var(--text-muted);">🔒</span>' : ''}</div>
+              <div class="achievement-desc">${isUnlocked ? ach.description : isNotImplemented ? 'Not yet implemented' : 'Complete achievements to unlock this.'}</div>
+            </div>
+          </div>`;
+      }
+    }
+
+    container.innerHTML = html;
+  },
+
   // Satirical ASCII loop on the title screen (pauses while hidden)
   startAsciiLoop(): void {
     const el = document.getElementById('ascii-terminal-body');
