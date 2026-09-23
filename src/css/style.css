@@ -163,6 +163,50 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+.save-icon {
+  width: 1.6rem;
+  height: 1.6rem;
+  stroke-width: 1.5;
+}
+
+.options-gear {
+  width: 1.4rem;
+  height: 1.4rem;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.screen-stat-icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  margin-right: 0.3em;
+  color: var(--accent-green);
+}
+
+.dice-icon {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+/* Reusable icon button style — matches perk/equip hover treatment. */
+.btn-icon-styled {
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  transition: border-color var(--transition-fast);
+}
+
+.btn-icon-styled:hover {
+  border-color: var(--accent-yellow);
+}
+
+/* SVG icons inside icon buttons inherit green. */
+.btn-icon-styled svg {
+  color: var(--accent-green);
+}
+
 .menu-buttons {
   display: flex;
   flex-direction: column;
@@ -237,6 +281,12 @@ body {
   color: var(--text-muted);
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+.difficulty-lock svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  vertical-align: middle;
 }
 
 /* The "?" reuses .cons-info (the consumable info circle) for styling;
@@ -580,6 +630,12 @@ body {
   line-height: 1.4;
 }
 
+.ach-lock-icon {
+  width: 0.9em;
+  height: 0.9em;
+  vertical-align: middle;
+}
+
 .achievement-locked .achievement-desc {
   font-style: italic;
 }
@@ -645,6 +701,28 @@ body {
   flex-shrink: 0;
   width: 1.8rem;
   text-align: center;
+}
+
+.option-icon svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  color: var(--text-primary);
+}
+.option-item.danger .option-icon svg {
+  color: var(--accent-red);
+}
+.option-item:disabled .option-icon svg {
+  color: var(--text-secondary);
+}
+
+.padlock-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.stats-icon, .reset-icon {
+  width: 1.2rem;
+  height: 1.2rem;
 }
 
 .option-label {
@@ -900,6 +978,7 @@ body {
 }
 
 .stat-row .stat-name {
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   color: var(--text-muted);
   flex: 1;

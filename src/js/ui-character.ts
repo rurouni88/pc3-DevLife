@@ -99,7 +99,7 @@ const UICharacter = {
       if (!unlocked) {
         btn.classList.add('locked');
         btn.innerHTML = `
-          <span class="preset-name">🔒 ${arch.name}</span>
+          <span class="preset-name"><svg class="ach-lock-icon"><use href="#icon-padlock"/></svg> ${arch.name}</span>
           <span class="preset-stats">Locked</span>
         `;
       } else {

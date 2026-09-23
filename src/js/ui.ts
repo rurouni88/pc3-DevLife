@@ -61,7 +61,7 @@ const UICore = {
       lozenge.setAttribute('aria-checked', key === selected ? 'true' : 'false');
       lozenge.disabled = !!cfg.locked;
       lozenge.innerHTML = `<span class="difficulty-label">${cfg.label}</span>` +
-        (cfg.locked ? '<span class="difficulty-lock">🔒</span>' : '<span class="cons-info difficulty-help" data-help="' + key + '" aria-label="About ' + cfg.label + '">?</span>');
+        (cfg.locked ? '<span class="difficulty-lock"><svg class="lock-icon"><use href="#icon-padlock"/></svg></span>' : '<span class="cons-info difficulty-help" data-help="' + key + '" aria-label="About ' + cfg.label + '">?</span>');
 
       if (!cfg.locked) {
         lozenge.addEventListener('click', (e) => {

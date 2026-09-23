@@ -12,7 +12,7 @@ function renderAchievementCard(ach: AchievementDefinition, state: AchievementSta
   const isUnlocked = state === 'unlocked';
   const isNotImpl = state === 'notImplemented';
   const cssClass = isUnlocked ? 'achievement-unlocked' : 'achievement-locked';
-  const lockIcon = isNotImpl ? ' <span style="color: var(--text-muted);">🔒</span>' : '';
+  const lockIcon = isNotImpl ? ' <svg class="ach-lock-icon" style="color: var(--text-muted);"><use href="#icon-padlock"/></svg>' : '';
   const description = isUnlocked ? ach.description : isNotImpl ? 'Not yet implemented' : 'Complete achievements to unlock this.';
 
   return `
