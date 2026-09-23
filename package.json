@@ -2,7 +2,7 @@
   "name": "devlife",
   "version": "0.42",
   "private": true,
-  "description": "DevLife — a software engineering roguelike",
+  "description": "d20().devLife — a software engineering roguelike",
   "scripts": {
     "typecheck": "tsc",
     "test": "npm run build && npm run assemble && node test/core.test.js && node test/smoke.test.js",

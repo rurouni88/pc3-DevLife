@@ -24,7 +24,7 @@ class SaveData {
   static parse(data: unknown): SaveData | null {
     const errors = SaveData.validate(data);
     if (errors.length > 0) {
-      console.error('[DevLife] Save data is invalid:', errors.join('; '));
+      console.error('[d20().devLife] Save data is invalid:', errors.join('; '));
       return null;
     }
     const save = data as SaveDataShape;

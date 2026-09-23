@@ -3,7 +3,7 @@
 > **A Software Engineering Roguelike**  
 > *"Ship it. Survive it. Repeat."*
 
-DevLife is a browser-based roguelike where you play as a software engineer navigating the treacherous landscape of a modern tech career. Each run is a new career — procedurally generated through sprints, incidents, code reviews, and career milestones.
+d20().devLife is a browser-based roguelike where you play as a software engineer navigating the treacherous landscape of a modern tech career. Each run is a new career — procedurally generated through sprints, incidents, code reviews, and career milestones.
 
 Will you reach retirement, or will your career end in burnout?
 

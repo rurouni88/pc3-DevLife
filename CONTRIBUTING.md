@@ -104,7 +104,7 @@ Use `http://`, not `https://` — the local server speaks HTTP only.
 
 ## 🧪 Building & Verifying
 
-DevLife is a static site with a single build step: `tsc` compiles the
+d20().devLife is a static site with a single build step: `tsc` compiles the
 TypeScript source in `src/js/` to plain, module-free JavaScript in `dist/`. The
 browser and the tests both load the built output, so you always verify what
 ships:
