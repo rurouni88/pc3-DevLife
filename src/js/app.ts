@@ -57,6 +57,14 @@ const App = {
       UI.closePopup();
     });
 
+    // Popup reset confirm/cancel (issue #53)
+    bind('btn-popup-reset-confirm', () => {
+      UI.confirmResetStats();
+    });
+    bind('btn-popup-reset-cancel', () => {
+      UI.closePopup();
+    });
+
     // Hamburger menu toggle (mobile)
     bind('btn-menu-toggle-main', () => {
       const panel = document.getElementById('side-panel');

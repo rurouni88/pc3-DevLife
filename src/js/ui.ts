@@ -321,13 +321,19 @@ const UICore = {
     modal.style.display = 'none';
   },
 
-  // Reset lifetime statistics and achievements (issue #53). Carried items
-  // and the selected difficulty are kept — only the numbers and unlocks go.
+  // Reset lifetime statistics and achievements (issue #53). Opens the
+  // confirm popup (same pattern as the save popup); the actual wipe happens
+  // in confirmResetStats() when the player confirms.
   resetStatsAndAchievements(): void {
-    if (!confirm('Reset all statistics and achievements? This cannot be undone.')) return;
+    UI.closeOptions();
+    UI.openPopup('reset');
+  },
+
+  // Perform the reset (called from the reset popup's confirm button).
+  confirmResetStats(): void {
     MetaStore.resetStats();
     Achievements.clearUnlocked();
-    UI.closeOptions();
+    UI.closePopup();
     UI.showToast('Statistics and achievements reset');
   },
 
@@ -586,7 +592,8 @@ const UICore = {
         UI.renderPopupCareerLog();
         break;
       case 'save':
-        // Save popup — no extra rendering needed
+      case 'reset':
+        // Static popups — no extra rendering needed
         break;
     }
 
