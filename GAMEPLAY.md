@@ -47,7 +47,7 @@ Seven stats inspired by Fallout, tailored for dev life:
 - **Consumables** — One-time stat boosts for a single event check. Max 2 in inventory.
 - **Permadeath** — Each run is a new career. Game over means starting fresh.
 - **Meta Progression** — Carry end-of-run equipment and consumables into your next career
-- **Procedural Events** — 57 satirical tech scenarios across 4 career phases. No event repeats within a run; each phase ends with a boss
+- **Procedural Events** — 75 satirical tech scenarios across 4 career phases. No event repeats within a run; each phase ends with a boss
 
 ### Sound & Design
 
