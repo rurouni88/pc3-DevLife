@@ -441,6 +441,14 @@ const UIEventCard = {
       UI.renderCareerLog();
     }
     UI.renderEvent(event);
+
+    // Scroll the new card into view so the narrative is at the top.
+    // On desktop (card fits viewport) this is a no-op; on mobile it
+    // smoothly brings the card's top to the top of the screen.
+    const card = document.getElementById('event-card');
+    if (card) {
+      card.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }
   },
 };
 
