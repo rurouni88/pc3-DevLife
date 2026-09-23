@@ -115,6 +115,10 @@ const App = {
     bind('btn-achievements-title', () => UI.showAchievements());
     bind('btn-close-achievements', () => UI.closeAchievements());
 
+    // Leaderboard screen
+    bind('btn-leaderboard-title', () => UI.showLeaderboard());
+    bind('btn-leaderboard-back', () => UI.closeLeaderboard());
+
     // Options menu (issue #53)
     bind('btn-options-title', () => UI.showOptions());
     bind('btn-close-options', () => UI.closeOptions());

@@ -1,0 +1,70 @@
+// UI — leaderboard screen: top 10 runs per difficulty.
+// Presentation tier: owns the screen rendering and show/hide handlers.
+// Data lives in meta.ts; this file depends on that tier, never the reverse.
+// Loaded before ui.js; its methods are composed into UI there.
+
+// Truncate a seed to 6 characters for display.
+function shortSeed(seed: string): string {
+  return seed.length > 6 ? seed.slice(0, 6) : seed;
+}
+
+// Render a single leaderboard row.
+function renderLeaderboardRow(run: RunRecord, rank: number): string {
+  const result = run.won ? '✓' : '✗';
+  return `
+    <div class="leaderboard-row">
+      <span class="lb-rank">${rank}</span>
+      <span class="lb-day">${run.day}</span>
+      <span class="lb-seed">${shortSeed(run.seed)}</span>
+      <span class="lb-result">${result}</span>
+      <span class="lb-archetype">${run.archetype}</span>
+    </div>`;
+}
+
+// Render a single difficulty section.
+function renderDifficultySection(difficulty: Difficulty): string {
+  const label = difficulty === 'easy' ? 'Easy' : difficulty === 'normal' ? 'Normal' : 'Hard';
+  const topRuns = MetaStore.getTopRuns(difficulty, 10);
+  let html = `<h3 class="leaderboard-diff-title">${label}</h3>`;
+
+  if (topRuns.length === 0) {
+    html += '<div class="leaderboard-empty">No runs yet</div>';
+  } else {
+    html += '<div class="leaderboard-header">';
+    html += '<span class="lb-rank">Rank</span>';
+    html += '<span class="lb-day">Day</span>';
+    html += '<span class="lb-seed">Seed</span>';
+    html += '<span class="lb-result">Result</span>';
+    html += '<span class="lb-archetype">Archetype</span>';
+    html += '</div>';
+    topRuns.forEach((run, i) => {
+      html += renderLeaderboardRow(run, i + 1);
+    });
+  }
+  return html;
+}
+
+const UILeaderboard = {
+  // Show the leaderboard screen.
+  showLeaderboard(): void {
+    UI.renderLeaderboard();
+    UI.showScreen('leaderboard');
+  },
+
+  // Back to the title screen.
+  closeLeaderboard(): void {
+    UI.showScreen('title');
+  },
+
+  // Render the leaderboard list.
+  renderLeaderboard(): void {
+    const container = document.getElementById('leaderboard-list');
+    if (!container) return;
+
+    let html = '';
+    for (const diff of ['hard', 'normal', 'easy'] as Difficulty[]) {
+      html += renderDifficultySection(diff);
+    }
+    container.innerHTML = html;
+  },
+};

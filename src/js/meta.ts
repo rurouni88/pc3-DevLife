@@ -30,7 +30,7 @@ const MetaStore = {
 
   // Record a finished run: increment counter, timestamp, carry over
   // equipment, and fold the result into the lifetime statistics (#53).
-  recordRunComplete(equipmentId: string | null, result: RunResult): void {
+  recordRunComplete(equipmentId: string | null, result: RunResult, seed: string, archetype: string): void {
     const meta = this.load();
     meta.totalRuns = (meta.totalRuns || 0) + 1;
     meta.lastRunDate = new Date().toISOString();
@@ -63,6 +63,20 @@ const MetaStore = {
     stats.statTotals = totals;
     meta.stats = stats;
 
+    // Leaderboard: append a RunRecord.
+    const history = meta.runHistory || [];
+    history.push({
+      seed,
+      difficulty: result.difficulty,
+      day: result.day,
+      won: result.won,
+      archetype,
+      stats: { ...result.stats },
+      consumablesUsed: result.consumablesUsed,
+      equipmentId,
+    });
+    meta.runHistory = history;
+
     this.save(meta);
   },
 
@@ -81,6 +95,20 @@ const MetaStore = {
     };
   },
 
+  // Return the top N runs for a given difficulty, sorted by day
+  // (descending), then won before lost as a tiebreaker.
+  getTopRuns(difficulty: Difficulty, count: number): RunRecord[] {
+    const history = this.load().runHistory || [];
+    return history
+      .filter(r => r.difficulty === difficulty)
+      .sort((a, b) => {
+        if (b.day !== a.day) return b.day - a.day;
+        if ((a.won ? 1 : 0) !== (b.won ? 1 : 0)) return (b.won ? 1 : 0) - (a.won ? 1 : 0);
+        return 0;
+      })
+      .slice(0, count);
+  },
+
   // Wipe lifetime statistics (issue #53). Carried items and the selected
   // difficulty are kept — only the numbers go.
   resetStats(): void {
@@ -88,6 +116,7 @@ const MetaStore = {
     delete meta.totalRuns;
     delete meta.lastRunDate;
     delete meta.stats;
+    delete meta.runHistory;
     this.save(meta);
   },
 

@@ -29,9 +29,13 @@ pc3-DevLife/
 │       ├── ui.ts         # UI core: screens, toasts, sound
 │       ├── ui-achievements.ts # UI: achievements modal & card rendering
 │       ├── ui-character.ts   # UI: character creation & stat allocation
+│       ├── ui-dice.ts        # UI: animated d20 dice roll
 │       ├── ui-endofrun.ts    # UI: end-of-run / victory consumable selection
 │       ├── ui-event.ts       # UI: event cards, choice rendering, perk interventions
+│       ├── ui-leaderboard.ts # UI: leaderboard screen (top 10 per difficulty)
 │       ├── ui-levelup.ts     # UI: level-up (stat + consumable) selection
+│       ├── ui-settings.ts    # UI: settings screen (seed display + re-roll)
+│       ├── ui-statistics.ts  # UI: lifetime statistics screen
 │       ├── ui-tooltip.ts     # UI: tooltip system (click/tap ? triggers)
 │       ├── utils.ts      # Shared helpers (d20, day→year)
 │       └── types.ts      # Shared types (interfaces — no runtime code)
@@ -123,17 +127,17 @@ npm test             # build + assemble, then run the core + smoke tests against
 - The emitted JS is plain scripts (no `import`/`export`), so the game needs no bundler and still works from `file://`.
 - Tests live in [`test/`](test/): the logic modules run in a Node VM context with stubbed browser globals, loaded from the **built** `dist/js/`, so the rules (stat checks, perk activation and grace rules, equipment drops, carry-over) are verified against exactly what ships.
 - A smoke test ([`test/smoke.test.js`](test/smoke.test.js)) verifies the built `dist/` is a self-contained, deployable site — every referenced script/style and runtime-fetched event is present (checks the filesystem, no live server).
-- CI (`.github/workflows/ci.yml`) runs `npm run typecheck` and `npm test` on every push to `main` and on all pull requests (Node 20, two jobs).
+- CI (`.github/workflows/ci.yml`) runs `npm run typecheck` and `npm test` on every push to `main` and on all pull requests (Node 24, two jobs).
 - Deployment (`.github/workflows/pages.yml`) builds the site and uploads `dist/` to GitHub Pages on every push to `main`.
 
 ## 📋 Roadmap
 
 This is a prototype/vertical slice. Planned features:
 
-- [ ] Achievement system
-- [ ] Animated transitions
+- [ ] Multi-run leaderboards (player rankings)
+- [ ] Export/share career summaries (seed + transcript)
 - [ ] More events (50+ per phase)
-- [ ] Export/share career summaries
+- [ ] Archetype unlocks via meta-progression
 
 Current state:
 - 75 events across 4 career phases
@@ -142,3 +146,10 @@ Current state:
 - Perk system with once-per-run interventions ✓
 - Meta progression: carry equipment/consumables between runs ✓
 - Synthesized sound effects ✓
+- Achievements (26 tracked in localStorage) ✓
+- Difficulty levels (Easy/Normal/Hard) ✓
+- Seeded runs (reproducible careers + re-roll) ✓
+- Options menu: lifetime statistics + reset ✓
+- Career summaries (win/lose, with seed + difficulty) ✓
+- Animated d20 dice roll (SVG icosahedron) ✓
+- Multi-run leaderboard (top 10 per difficulty) ✓

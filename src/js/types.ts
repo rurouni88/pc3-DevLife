@@ -225,6 +225,8 @@ interface MetaState {
   lastSelectedDifficulty?: Difficulty;
   /** Lifetime career statistics (issue #53). */
   stats?: MetaStats;
+  /** Completed runs for the leaderboard (issue #53 follow-up). */
+  runHistory?: RunRecord[];
 }
 
 // Lifetime statistics, persisted across runs. All fields optional so old
@@ -252,4 +254,16 @@ interface RunResult {
   consumablesUsed: number;
   /** Base stats at run end (not effective — equipment is a separate stat). */
   stats: Stats;
+}
+
+/** A single completed run, stored in MetaStore for the leaderboard. */
+interface RunRecord {
+  seed: string;
+  difficulty: Difficulty;
+  day: number;
+  won: boolean;
+  archetype: string;
+  stats: Stats;
+  consumablesUsed: number;
+  equipmentId: string | null;
 }

@@ -66,7 +66,7 @@ const Game = {
       difficulty: state.difficulty,
       consumablesUsed: state.consumablesUsed,
       stats: { ...state.stats },
-    });
+    }, state.seed, state.archetype);
   },
 
   // Check if character can level up (every N events = 1 level)
