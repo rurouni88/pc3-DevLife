@@ -162,6 +162,13 @@ const App = {
   },
 
   startCareer(): void {
+    // Starting a new career abandons any in-progress run — clear the save so
+    // the old run can't be resurrected via a stale "Continue" (e.g. the player
+    // hit New Career while a save existed, then allocated stats).
+    SaveSystem.deleteSave();
+    const btnContinue = document.getElementById('btn-continue');
+    if (btnContinue) btnContinue.style.display = 'none';
+
     // The allocation screen's +/− buttons mutate SpecialSystem.stats
     // directly — the DOM rows are just a view, so read the state
     const stats = { ...SpecialSystem.stats };
