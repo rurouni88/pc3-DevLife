@@ -400,7 +400,7 @@ The project layout has changed since the initial commit, so this document no lon
 - Mobile responsive design ✓
 - Random event selection without repeats ✓
 - Animated dice roll (SVG d20 with cycling animation) ✓
-- Multi-run leaderboard (top 10 per difficulty, Statistics screen) ✓
+- Multi-run leaderboard (top 10 per difficulty, dedicated screen) ✓
 - Export/share career runs *(planned)*
 
 ---
