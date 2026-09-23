@@ -641,10 +641,16 @@ body {
 }
 
 .option-icon {
-  font-size: 1.2rem;
   flex-shrink: 0;
-  width: 1.8rem;
-  text-align: center;
+  width: 1.2rem;
+  height: 1.2rem;
+  color: var(--text-primary);
+}
+.option-item.danger .option-icon {
+  color: var(--accent-red);
+}
+.option-item:disabled .option-icon {
+  color: var(--text-secondary);
 }
 
 .option-label {
