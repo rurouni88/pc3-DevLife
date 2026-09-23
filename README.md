@@ -1,4 +1,4 @@
-# DEV LIFE 🖥️💀
+# d20().devLife 🖥️💀
 
 > **A Software Engineering Roguelike**  
 > *"Ship it. Survive it. Repeat."*
