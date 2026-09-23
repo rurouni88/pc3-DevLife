@@ -181,6 +181,19 @@ body {
   flex: 1;
 }
 
+/* A pair of buttons sharing one row on the title screen (e.g. New Career +
+   Continue, Help + Options) — keeps the stacked menu short on mobile. */
+.btn-row {
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+.btn-row .btn {
+  flex: 1;
+}
+
 /* --- Difficulty selector (issue #6) --- */
 .difficulty-selector {
   display: flex;
