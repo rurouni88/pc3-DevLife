@@ -263,8 +263,8 @@ body {
 }
 
 .seed-dice-icon {
-  width: 1rem;
-  height: 1rem;
+  width: 18px;
+  height: 18px;
   color: var(--accent-green);
   vertical-align: middle;
 }
