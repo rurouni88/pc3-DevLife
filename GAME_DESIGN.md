@@ -92,7 +92,7 @@ Career Phase 4: Staff/Principal (Years 8-10) — Pool of 15 events
 
 Events are the core gameplay unit. Each event presents a scenario with:
 - **Narrative description** (satirical tech humor)
-- **2–4 choices** (most events are 2; bosses are 3)
+- **3–4 choices** (most events are 3; bosses are 3)
 - **d20 stat checks** behind most choices (see [§9](#9-stat-check-resolution))
 - **Consequences** based on checks + choices
 - Optional **equipment drop** on success (chance scales with Luck)
