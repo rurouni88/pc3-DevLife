@@ -800,13 +800,18 @@ body {
 .stat-row .stat-name {
   font-size: 0.75rem;
   color: var(--text-muted);
-  flex: 1;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .stat-row .stat-controls {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
+  flex-shrink: 0;
 }
 
 .stat-row .stat-value {
