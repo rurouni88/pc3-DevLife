@@ -43,7 +43,9 @@ const UIStatistics = {
     html += renderStatisticRow('Retirements (Wins)', String(stats.wins));
     html += renderStatisticRow('Failures (Losses)', String(stats.losses));
     html += renderStatisticRow('Win Rate', totalRuns > 0 ? `${winRate}%` : '—');
-    html += renderStatisticRow('Best Run', stats.bestDay > 0 ? `Day ${stats.bestDay} (${stats.bestDayDifficulty})` : '—');
+    // Career length in years (12 days = 1 career year) — matches the run
+    // summaries, which report "Career Length" in years.
+    html += renderStatisticRow('Best Run', stats.bestDay > 0 ? `${(stats.bestDay / CONFIG.game.daysPerCareerYear).toFixed(1)} years (${stats.bestDayDifficulty})` : '—');
     html += renderStatisticRow('Last Run', lastRunDate ? new Date(lastRunDate).toLocaleDateString() : '—');
 
     // Win rate by difficulty (issue #53).
