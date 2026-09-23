@@ -46,8 +46,9 @@ const UIStatistics = {
     // Career length in years (12 days = 1 career year) — matches the run
     // summaries, which report "Career Length" in years.
     html += renderStatisticRow('Best Run', stats.bestDay > 0 ? `${(stats.bestDay / CONFIG.game.daysPerCareerYear).toFixed(1)} years (${stats.bestDayDifficulty})` : '—');
-    // lastRunDate is stored as ISO 8601 (UTC) — display it as-is.
-    html += renderStatisticRow('Last Run', lastRunDate || '—');
+    // lastRunDate is stored as ISO 8601 (UTC) — render it in the
+    // browser's local time zone for readability.
+    html += renderStatisticRow('Last Run', lastRunDate ? new Date(lastRunDate).toLocaleString() : '—');
 
     // Consumables used (issue #53).
     const consTotal = stats.consumablesUsedTotal;
