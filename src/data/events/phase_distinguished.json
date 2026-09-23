@@ -1,0 +1,590 @@
+[
+  {
+    "id": "de_001",
+    "title": "The Silicon Valley Tour",
+    "phase": 5,
+    "emoji": "🏔️",
+    "desc": "Benchmark against FAANG engineering cultures",
+    "narrative": "You've been sent to the Valley to study how the top companies engineer. You're visiting Google, Meta, and two startups. What do you bring back?",
+    "choices": [
+      {
+        "text": "Copy their engineering rituals",
+        "checks": { "I": 8, "C": 7 },
+        "success": { "text": "You adapt the best practices. Team productivity jumps.", "effects": { "I": 2, "C": 1 } },
+        "failure": { "text": "You copy the worst parts. Team hates the new rituals.", "effects": { "C": -2, "E": -1 } }
+      },
+      {
+        "text": "Build your own culture",
+        "checks": { "C": 9, "S": 6 },
+        "success": { "text": "Your culture is unique and sticky. Top talent wants in.", "effects": { "C": 2, "S": 1 } },
+        "failure": { "text": "Culture is incoherent. People leave for 'better' places.", "effects": { "C": -2 } }
+      },
+      {
+        "text": "Focus on compensation packages",
+        "checks": { "C": 7 },
+        "success": { "text": "Your offers are competitive. You attract great people.", "effects": { "C": 1 } },
+        "failure": { "text": "Compensation is too high. Finance pushes back hard.", "effects": { "E": -2 } }
+      }
+    ]
+  },
+  {
+    "id": "de_002",
+    "title": "The IPO Preparation",
+    "phase": 5,
+    "emoji": "📈",
+    "desc": "Prepare the engineering org for an IPO",
+    "narrative": "The company is going public. SEC requires rigorous technical controls. Your engineering processes will be scrutinized by auditors, investors, and the press.",
+    "choices": [
+      {
+        "text": "Implement rigorous change management",
+        "checks": { "I": 9, "P": 8 },
+        "success": { "text": "Audit passes cleanly. Investors are impressed.", "effects": { "I": 2, "P": 1 } },
+        "failure": { "text": "Process is so heavy that deployments stall. Missed targets.", "effects": { "E": -2 } }
+      },
+      {
+        "text": "Automate compliance",
+        "checks": { "I": 10 },
+        "success": { "text": "Compliance-as-code. Audit is a formality.", "effects": { "I": 3 } },
+        "failure": { "text": "Automation has blind spots. Audit finds gaps.", "effects": { "I": -2, "P": -1 } }
+      },
+      {
+        "text": "Hire external compliance experts",
+        "checks": { "C": 8 },
+        "success": { "text": "Experts navigate the process smoothly.", "effects": { "C": 1 } },
+        "failure": { "text": "Experts don't understand your tech. Recommendations are wrong.", "effects": { "C": -1, "E": -1 } }
+      }
+    ]
+  },
+  {
+    "id": "de_003",
+    "title": "The Patent War",
+    "phase": 5,
+    "emoji": "⚖️",
+    "desc": "A competitor sues for patent infringement",
+    "narrative": "A non-practicing entity (patent troll) has sued your company for $50M. They claim your core feature infringes on their patent. Legal wants you to help defend.",
+    "choices": [
+      {
+        "text": "Prior art search",
+        "checks": { "P": 10, "I": 8 },
+        "success": { "text": "You find smoking gun prior art. Case dismissed.", "effects": { "P": 2, "I": 1 } },
+        "failure": { "text": "Prior art is weak. Settlement is expensive.", "effects": { "E": -2, "C": -1 } }
+      },
+      {
+        "text": "Counter-sue",
+        "checks": { "S": 7, "C": 8 },
+        "success": { "text": "Counter-sue lands. They settle quickly.", "effects": { "S": 1, "C": 2 } },
+        "failure": { "text": "Counter-sue is weak. You look aggressive.", "effects": { "C": -2 } }
+      },
+      {
+        "text": "Settle quietly",
+        "checks": { "C": 7 },
+        "success": { "text": "Settlement is reasonable. No precedent set.", "effects": { "C": 1 } },
+        "failure": { "text": "Settlement is huge. Sets bad precedent.", "effects": { "E": -3 } }
+      }
+    ]
+  },
+  {
+    "id": "de_004",
+    "title": "The Government Contract",
+    "phase": 5,
+    "emoji": "🏛️",
+    "desc": "Bid on a government technology contract",
+    "narrative": "The government wants to modernize a legacy system. The contract is massive but comes with security clearances, compliance requirements, and political risk.",
+    "choices": [
+      {
+        "text": "Go all-in on the bid",
+        "checks": { "I": 9, "C": 8 },
+        "success": { "text": "You win the contract. Revenue soars.", "effects": { "I": 2, "C": 2 } },
+        "failure": { "text": "You lose the bid. Resources were wasted.", "effects": { "E": -2 } }
+      },
+      {
+        "text": "Partner with a defense contractor",
+        "checks": { "C": 9, "I": 6 },
+        "success": { "text": "Partner handles compliance. You focus on tech.", "effects": { "C": 2, "I": 1 } },
+        "failure": { "text": "Partner is slow. You miss deadlines.", "effects": { "E": -2 } }
+      },
+      {
+        "text": "Decline — too much risk",
+        "checks": { "L": 5 },
+        "success": { "text": "You avoid the risk. No regrets.", "effects": { "L": 1 } },
+        "failure": { "text": "Competitor wins. They gain government credibility.", "effects": { "C": -1 } }
+      }
+    ]
+  },
+  {
+    "id": "de_005",
+    "title": "The Technical Fellow Track",
+    "phase": 5,
+    "emoji": "🎓",
+    "desc": "Apply for the company's Technical Fellow program",
+    "narrative": "The Technical Fellow program is the highest individual contributor track. It's peer-reviewed by existing Fellows. One slot. Three candidates including you.",
+    "choices": [
+      {
+        "text": "Present your technical vision",
+        "checks": { "I": 10, "C": 8 },
+        "success": { "text": "Your vision is visionary. You're elected.", "effects": { "I": 3, "C": 1 } },
+        "failure": { "text": "Presentation is too academic. Fellows want practical.", "effects": { "C": -1 } }
+      },
+      {
+        "text": "Build coalitions beforehand",
+        "checks": { "C": 9, "S": 6 },
+        "success": { "text": "You have the votes. Election is a formality.", "effects": { "C": 2, "S": 1 } },
+        "failure": { "text": "Coalitions fracture. You lose to a rival.", "effects": { "C": -2 } }
+      },
+      {
+        "text": "Let merit speak for itself",
+        "checks": { "L": 5 },
+        "success": { "text": "Your track record speaks. You win.", "effects": { "L": 1 } },
+        "failure": { "text": "Politics win. Someone with less merit gets it.", "effects": { "C": -1, "E": -1 } }
+      }
+    ]
+  },
+  {
+    "id": "de_006",
+    "title": "The Platform Strategy",
+    "phase": 5,
+    "emoji": "🏗️",
+    "desc": "Decide the company's platform architecture",
+    "narrative": "The company needs a platform strategy. Build in-house, buy, or open-source? This decision will shape the next decade. The board wants your recommendation.",
+    "choices": [
+      {
+        "text": "Build in-house",
+        "checks": { "I": 10, "S": 7 },
+        "success": { "text": "In-house platform becomes a competitive moat.", "effects": { "I": 3, "S": 1 } },
+        "failure": { "text": "In-house platform is over-engineered. Nobody uses it.", "effects": { "I": -2, "E": -2 } }
+      },
+      {
+        "text": "Buy a best-of-breed solution",
+        "checks": { "C": 9, "I": 7 },
+        "success": { "text": "Acquisition accelerates your roadmap by 2 years.", "effects": { "C": 2, "I": 1 } },
+        "failure": { "text": "Acquisition integration fails. You have two broken systems.", "effects": { "E": -3 } }
+      },
+      {
+        "text": "Contribute to open-source",
+        "checks": { "C": 8, "I": 8 },
+        "success": { "text": "Open-source platform gains adoption. You lead it.", "effects": { "C": 1, "I": 2 } },
+        "failure": { "text": "Open-source project stalls. No one maintains it.", "effects": { "I": -1 } }
+      }
+    ]
+  },
+  {
+    "id": "de_007",
+    "title": "The Board Seat",
+    "phase": 5,
+    "emoji": "🪑",
+    "desc": "You're offered a seat on the company's board",
+    "narrative": "The board wants you to join as an executive director. You'll have fiduciary duties, access to sensitive information, and ultimate accountability.",
+    "choices": [
+      {
+        "text": "Accept the seat",
+        "checks": { "C": 9, "S": 7 },
+        "success": { "text": "You bring engineering perspective to the board. Trusted.", "effects": { "C": 2, "S": 2 } },
+        "failure": { "text": "Board sees you as too technical. Your voice is marginalized.", "effects": { "C": -2 } }
+      },
+      {
+        "text": "Accept as observer only",
+        "checks": { "C": 8 },
+        "success": { "text": "Observer role gives you insight without obligation.", "effects": { "C": 1 } },
+        "failure": { "text": "Observer status is seen as weakness. You lose influence.", "effects": { "C": -1 } }
+      },
+      {
+        "text": "Decline — stay focused on engineering",
+        "checks": { "I": 7 },
+        "success": { "text": "You avoid politics. Engineering focus pays off.", "effects": { "I": 1 } },
+        "failure": { "text": "You're excluded from key decisions. Your team suffers.", "effects": { "E": -1 } }
+      }
+    ]
+  },
+  {
+    "id": "de_008",
+    "title": "The Quantum Computing Pivot",
+    "phase": 5,
+    "emoji": "⚛️",
+    "desc": "Evaluate quantum computing for your domain",
+    "narrative": "A quantum computing startup wants to partner with you. Quantum could revolutionize your domain — or it could be a decade away from practical use.",
+    "choices": [
+      {
+        "text": "Invest heavily in quantum R&D",
+        "checks": { "I": 10 },
+        "success": { "text": "Quantum breakthrough. You're 5 years ahead of competitors.", "effects": { "I": 3 } },
+        "failure": { "text": "Quantum is still theoretical. You wasted 2 years.", "effects": { "I": -2, "E": -2 } }
+      },
+      {
+        "text": "Small exploratory team",
+        "checks": { "I": 8, "C": 6 },
+        "success": { "text": "Team finds a niche application. Patent filed.", "effects": { "I": 2, "C": 1 } },
+        "failure": { "text": "Team produces nothing. Funding is cut.", "effects": { "E": -1 } }
+      },
+      {
+        "text": "Wait and watch",
+        "checks": { "L": 5 },
+        "success": { "text": "You avoid the risk. When quantum is ready, you'll adapt.", "effects": { "L": 1 } },
+        "failure": { "text": "Competitor moves first. You're behind.", "effects": { "I": -1 } }
+      }
+    ]
+  },
+  {
+    "id": "de_009",
+    "title": "The Regulatory Hearing",
+    "phase": 5,
+    "emoji": "🏛️",
+    "desc": "Testify before Congress on technology policy",
+    "narrative": "You've been summoned to testify before Congress on AI regulation. The media will be watching. Your words will shape policy for the next decade.",
+    "choices": [
+      {
+        "text": "Advocate for balanced regulation",
+        "checks": { "C": 10, "I": 8 },
+        "success": { "text": "Your testimony is quoted in the final bill. Wise regulation.", "effects": { "C": 3, "I": 1 } },
+        "failure": { "text": "Testimony is misinterpreted. Bad regulation passes.", "effects": { "C": -2 } }
+      },
+      {
+        "text": "Stay technical, avoid politics",
+        "checks": { "I": 9 },
+        "success": { "text": "Congress appreciates the technical clarity.", "effects": { "I": 2 } },
+        "failure": { "text": "Congress thinks you're evasive. Media pounces.", "effects": { "C": -2 } }
+      },
+      {
+        "text": "Decline to testify",
+        "checks": { "L": 4 },
+        "success": { "text": "You avoid the spotlight. No consequences.", "effects": { "L": 1 } },
+        "failure": { "text": "Your absence is seen as guilt. Industry looks bad.", "effects": { "C": -2 } }
+      }
+    ]
+  },
+  {
+    "id": "de_010",
+    "title": "The Global Expansion",
+    "phase": 5,
+    "emoji": "🌐",
+    "desc": "Expand engineering operations globally",
+    "narrative": "The company wants to build engineering teams in Tokyo, Berlin, and Bangalore. You need to design the global org structure. Culture and time zones will be challenging.",
+    "choices": [
+      {
+        "text": "Hub-and-spoke model",
+        "checks": { "I": 9, "C": 8 },
+        "success": { "text": "Hub coordinates effectively. Spokes have autonomy.", "effects": { "I": 2, "C": 2 } },
+        "failure": { "text": "Hub becomes a bottleneck. Spokes feel controlled.", "effects": { "C": -2 } }
+      },
+      {
+        "text": "Fully decentralized",
+        "checks": { "C": 9 },
+        "success": { "text": "Local teams thrive. Innovation flows everywhere.", "effects": { "C": 2 } },
+        "failure": { "text": "No coordination. Teams duplicate work.", "effects": { "E": -2 } }
+      },
+      {
+        "text": "Centralize key functions",
+        "checks": { "I": 8, "S": 6 },
+        "success": { "text": "Centralized functions provide stability. Local teams ship.", "effects": { "I": 1, "S": 1 } },
+        "failure": { "text": "Centralization stifles local innovation.", "effects": { "C": -1 } }
+      }
+    ]
+  },
+  {
+    "id": "de_011",
+    "title": "The Ethics Committee",
+    "phase": 5,
+    "emoji": "⚖️",
+    "desc": "Chair the company's AI ethics committee",
+    "narrative": "Your company's AI products are under scrutiny. The board wants you to chair an ethics committee. You'll set policy for AI development and deployment.",
+    "choices": [
+      {
+        "text": "Establish strict guardrails",
+        "checks": { "I": 9, "C": 8 },
+        "success": { "text": "Guardrails are respected. AI is safe and effective.", "effects": { "I": 2, "C": 1 } },
+        "failure": { "text": "Guardrails are too strict. Product is uncompetitive.", "effects": { "E": -2 } }
+      },
+      {
+        "text": "Light-touch oversight",
+        "checks": { "C": 7 },
+        "success": { "text": "Teams move fast. Ethics are built in organically.", "effects": { "C": 1 } },
+        "failure": { "text": "Something unethical slips through. PR disaster.", "effects": { "C": -3 } }
+      },
+      {
+        "text": "Hire external ethicists",
+        "checks": { "C": 8 },
+        "success": { "text": "External perspective is valuable. Policy is credible.", "effects": { "C": 2 } },
+        "failure": { "text": "External ethicists don't understand the tech. Policy is naive.", "effects": { "C": -1 } }
+      }
+    ]
+  },
+  {
+    "id": "de_012",
+    "title": "The Acquisition Target",
+    "phase": 5,
+    "emoji": "🎯",
+    "desc": "Your company is approached for acquisition",
+    "narrative": "A tech giant wants to acquire your company. The offer is generous. But what happens to your team? Your culture? Your vision?",
+    "choices": [
+      {
+        "text": "Negotiate team retention",
+        "checks": { "C": 10, "S": 7 },
+        "success": { "text": "Team is retained. Culture is preserved. Deal closes.", "effects": { "C": 3, "S": 1 } },
+        "failure": { "text": "Deal closes. Team is absorbed. Key people leave.", "effects": { "E": -3 } }
+      },
+      {
+        "text": "Walk away",
+        "checks": { "S": 8, "L": 6 },
+        "success": { "text": "Company thrives independently. You're vindicated.", "effects": { "S": 2, "L": 1 } },
+        "failure": { "text": "Company struggles without the acquisition capital.", "effects": { "E": -2 } }
+      },
+      {
+        "text": "Accept with cultural protections",
+        "checks": { "C": 9, "I": 7 },
+        "success": { "text": "Cultural protections hold. Best of both worlds.", "effects": { "C": 2, "I": 1 } },
+        "failure": { "text": "Cultural protections are ignored. You're powerless.", "effects": { "C": -2 } }
+      }
+    ]
+  },
+  {
+    "id": "de_013",
+    "title": "The Industry Standard",
+    "phase": 5,
+    "emoji": "📏",
+    "desc": "Propose an industry-wide technical standard",
+    "narrative": "You've been asked to lead the effort to create an industry standard for your domain. This is prestigious but politically complex. Competitors will resist.",
+    "choices": [
+      {
+        "text": "Push your company's technology",
+        "checks": { "S": 8, "C": 8 },
+        "success": { "text": "Your tech becomes the standard. Market dominance.", "effects": { "S": 2, "C": 2 } },
+        "failure": { "text": "Competitors form a coalition against you. You lose.", "effects": { "C": -2 } }
+      },
+      {
+        "text": "Propose a neutral standard",
+        "checks": { "C": 10, "I": 8 },
+        "success": { "text": "Neutral standard is adopted. You're the hero.", "effects": { "C": 3, "I": 1 } },
+        "failure": { "text": "Standard is too generic. Nobody adopts it.", "effects": { "C": -1 } }
+      },
+      {
+        "text": "Let the market decide",
+        "checks": { "L": 5 },
+        "success": { "text": "Your tech wins organically. No politics needed.", "effects": { "L": 1 } },
+        "failure": { "text": "Competitor's tech wins. You're irrelevant.", "effects": { "I": -1 } }
+      }
+    ]
+  },
+  {
+    "id": "de_014",
+    "title": "The Succession Crisis",
+    "phase": 5,
+    "emoji": "🔄",
+    "desc": "The CEO is stepping down unexpectedly",
+    "narrative": "The CEO has resigned abruptly. The board is looking for a successor. You're one of three candidates. The other two are external hires with more business experience.",
+    "choices": [
+      {
+        "text": "Run for CEO",
+        "checks": { "C": 10, "S": 8 },
+        "success": { "text": "You win the CEO role. Engineering perspective valued.", "effects": { "C": 3, "S": 2 } },
+        "failure": { "text": "You lose to an external hire. Your influence wanes.", "effects": { "C": -2 } }
+      },
+      {
+        "text": "Support a candidate",
+        "checks": { "C": 9 },
+        "success": { "text": "Your chosen candidate wins. You're the power behind the throne.", "effects": { "C": 2 } },
+        "failure": { "text": "Your candidate loses. You're sidelined.", "effects": { "C": -1 } }
+      },
+      {
+        "text": "Stay in your lane",
+        "checks": { "I": 7 },
+        "success": { "text": "You focus on engineering. New CEO respects your domain.", "effects": { "I": 1 } },
+        "failure": { "text": "New CEO doesn't value engineering. Your influence drops.", "effects": { "E": -1 } }
+      }
+    ]
+  },
+  {
+    "id": "de_015",
+    "title": "The Technical Memoir",
+    "phase": 5,
+    "emoji": "📖",
+    "desc": "Write a book about your engineering career",
+    "narrative": "Your publisher wants you to write a memoir about your engineering journey. It could cement your legacy — or expose company secrets.",
+    "choices": [
+      {
+        "text": "Write the unvarnished truth",
+        "checks": { "S": 8, "C": 7 },
+        "success": { "text": "Book is a bestseller. You're a thought leader.", "effects": { "S": 2, "C": 2 } },
+        "failure": { "text": "Book exposes too much. Legal threatens action.", "effects": { "C": -3 } }
+      },
+      {
+        "text": "Write a sanitized version",
+        "checks": { "C": 8 },
+        "success": { "text": "Book is safe but forgettable.", "effects": { "C": 1 } },
+        "failure": { "text": "Readers see through the sanitization. Reputation suffers.", "effects": { "C": -1 } }
+      },
+      {
+        "text": "Decline — focus on work",
+        "checks": { "L": 5 },
+        "success": { "text": "You avoid the risk. Your work speaks for itself.", "effects": { "L": 1 } },
+        "failure": { "text": "Rival writes a better book. You're forgotten.", "effects": { "C": -1 } }
+      }
+    ]
+  },
+  {
+    "id": "de_016",
+    "title": "The Open Source Foundation",
+    "phase": 5,
+    "emoji": "🌱",
+    "desc": "Found an open-source foundation",
+    "narrative": "You want to create a foundation to steward critical open-source projects. This is prestigious but requires significant fundraising and governance design.",
+    "choices": [
+      {
+        "text": "Build a robust governance model",
+        "checks": { "I": 9, "C": 9 },
+        "success": { "text": "Foundation is well-governed. Projects thrive.", "effects": { "I": 2, "C": 2 } },
+        "failure": { "text": "Governance is flawed. Projects fracture.", "effects": { "C": -2 } }
+      },
+      {
+        "text": "Start small, iterate",
+        "checks": { "I": 8, "L": 6 },
+        "success": { "text": "Foundation grows organically. Sustainable.", "effects": { "I": 1, "L": 1 } },
+        "failure": { "text": "Foundation never gains traction. Wasted effort.", "effects": { "E": -1 } }
+      },
+      {
+        "text": "Partner with an existing foundation",
+        "checks": { "C": 8 },
+        "success": { "text": "Partner provides infrastructure. You focus on projects.", "effects": { "C": 1 } },
+        "failure": { "text": "Partner's politics slow everything down.", "effects": { "E": -1 } }
+      }
+    ]
+  },
+  {
+    "id": "de_017",
+    "title": "The Boardroom Coup",
+    "phase": 5,
+    "emoji": "🗡️",
+    "desc": "A faction on the board wants to oust the CEO",
+    "narrative": "A group of board members wants to replace the CEO. They want your vote. This is corporate politics at its most dangerous.",
+    "choices": [
+      {
+        "text": "Support the status quo",
+        "checks": { "C": 9, "S": 7 },
+        "success": { "text": "CEO stays. Stability preserved.", "effects": { "C": 2, "S": 1 } },
+        "failure": { "text": "CEO is ousted anyway. You're seen as weak.", "effects": { "C": -2 } }
+      },
+      {
+        "text": "Back the coup",
+        "checks": { "S": 8, "C": 8 },
+        "success": { "text": "New CEO is better. Company turns around.", "effects": { "S": 2, "C": 2 } },
+        "failure": { "text": "New CEO is worse. Company declines.", "effects": { "E": -3 } }
+      },
+      {
+        "text": "Stay neutral",
+        "checks": { "L": 5 },
+        "success": { "text": "You avoid the fallout. No enemies made.", "effects": { "L": 1 } },
+        "failure": { "text": "Both sides see you as unreliable.", "effects": { "C": -2 } }
+      }
+    ]
+  },
+  {
+    "id": "de_018",
+    "title": "The Legacy Codebase",
+    "phase": 5,
+    "emoji": "🏚️",
+    "desc": "A 30-year-old system must be replaced",
+    "narrative": "Your company's core system was written in COBOL in 1994. It processes 90% of transactions. It's held together by duct tape and the memories of retired engineers.",
+    "choices": [
+      {
+        "text": "Complete rewrite in modern stack",
+        "checks": { "I": 10, "S": 8 },
+        "success": { "text": "Rewrite succeeds. System is fast and maintainable.", "effects": { "I": 3, "S": 2 } },
+        "failure": { "text": "Rewrite fails. System crashes. Revenue plummets.", "effects": { "I": -3, "E": -3 } }
+      },
+      {
+        "text": "Strangler fig migration",
+        "checks": { "I": 9, "P": 8 },
+        "success": { "text": "Gradual migration. Zero downtime. Success.", "effects": { "I": 2, "P": 1 } },
+        "failure": { "text": "Migration is too slow. Legacy system collapses mid-way.", "effects": { "E": -2 } }
+      },
+      {
+        "text": "Keep running it — no budget",
+        "checks": { "L": 4 },
+        "success": { "text": "It works. For now.", "effects": { "L": 1 } },
+        "failure": { "text": "System crashes. Catastrophic failure.", "effects": { "E": -3, "C": -2 } }
+      }
+    ]
+  },
+  {
+    "id": "de_019",
+    "title": "The Venture Capital Offer",
+    "phase": 5,
+    "emoji": "💰",
+    "desc": "A VC wants to invest — with conditions",
+    "narrative": "A top-tier VC wants to invest $100M. But they want board control, a faster growth path, and your resignation as CTO if the company is sold.",
+    "choices": [
+      {
+        "text": "Accept the terms",
+        "checks": { "S": 7, "C": 8 },
+        "success": { "text": "Investment accelerates growth. You stay on.", "effects": { "S": 1, "C": 2 } },
+        "failure": { "text": "VC forces your resignation. You're out.", "effects": { "C": -2 } }
+      },
+      {
+        "text": "Negotiate better terms",
+        "checks": { "C": 10, "I": 7 },
+        "success": { "text": "You get favorable terms. Investment closes.", "effects": { "C": 3, "I": 1 } },
+        "failure": { "text": "VC walks away. You lost a great opportunity.", "effects": { "E": -1 } }
+      },
+      {
+        "text": "Decline the offer",
+        "checks": { "L": 5 },
+        "success": { "text": "Company grows organically. You maintain control.", "effects": { "L": 1 } },
+        "failure": { "text": "Competitor takes the VC money. You fall behind.", "effects": { "I": -1 } }
+      }
+    ]
+  },
+  {
+    "id": "de_020",
+    "title": "The Nobel Prize Nomination",
+    "phase": 5,
+    "emoji": "🏅",
+    "desc": "You're nominated for a Nobel Prize in Computer Science",
+    "narrative": "Your contributions to distributed systems have earned you a Nobel nomination. The ceremony is in Stockholm. This is the pinnacle of academic recognition.",
+    "choices": [
+      {
+        "text": "Accept and give a speech",
+        "checks": { "C": 10, "I": 8 },
+        "success": { "text": "Speech inspires a generation. You're a legend.", "effects": { "C": 3, "I": 2 } },
+        "failure": { "text": "Speech is too technical. Audience is lost.", "effects": { "C": -1 } }
+      },
+      {
+        "text": "Accept but decline the ceremony",
+        "checks": { "I": 7 },
+        "success": { "text": "You keep the honor. No performance required.", "effects": { "I": 1 } },
+        "failure": { "text": "Declining the ceremony is seen as arrogant.", "effects": { "C": -2 } }
+      },
+      {
+        "text": "Decline — not your thing",
+        "checks": { "S": 6 },
+        "success": { "text": "You avoid the spotlight. No regrets.", "effects": { "S": 1 } },
+        "failure": { "text": "Nomination is withdrawn. You look ungrateful.", "effects": { "C": -1 } }
+      }
+    ]
+  },
+  {
+    "id": "de_021",
+    "title": "BOSS: The Ultimate Merger",
+    "phase": 5,
+    "emoji": "🌟",
+    "desc": "The final boss: merge with the industry's largest competitor",
+    "narrative": "The biggest merger in tech history. Two giants become one. You're tasked with integrating the engineering organizations. 10,000 engineers. Two cultures. One deadline.",
+    "choices": [
+      {
+        "text": "Absorb the other company",
+        "checks": { "S": 10, "C": 8 },
+        "success": { "text": "You absorb them cleanly. New company is stronger.", "effects": { "S": 3, "C": 2 } },
+        "failure": { "text": "Absorption fails. Culture clash destroys both teams.", "effects": { "C": -3, "E": -3 } }
+      },
+      {
+        "text": "Create a new unified culture",
+        "checks": { "C": 10, "I": 9 },
+        "success": { "text": "New culture is authentic. Everyone embraces it.", "effects": { "C": 3, "I": 2 } },
+        "failure": { "text": "New culture is incoherent. Nobody adopts it.", "effects": { "C": -2 } }
+      },
+      {
+        "text": "Let the market decide",
+        "checks": { "L": 6 },
+        "success": { "text": "Market rewards the merger. Stock soars.", "effects": { "L": 2 } },
+        "failure": { "text": "Market punishes the merger. Stock crashes.", "effects": { "E": -3, "C": -2 } }
+      }
+    ]
+  }
+]
