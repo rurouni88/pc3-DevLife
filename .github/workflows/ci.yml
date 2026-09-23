@@ -7,6 +7,7 @@ on:
 
 jobs:
   typecheck:
+    permissions: { contents: read }
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -17,6 +18,7 @@ jobs:
       - run: npm run typecheck
 
   test:
+    permissions: { contents: read }
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
