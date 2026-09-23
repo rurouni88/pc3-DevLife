@@ -89,6 +89,9 @@ assert.ok(!PerkSystem.has('brute_force'), 'S=9 revokes Brute Force');
 console.log('✓ perk activation: unlock at 10, revoke below');
 
 // --- resolveChoice: pure — no effects, no days, no history ---
+// Keep the real engine method — the mocks below replace RngEngine.random,
+// and restoring Math.random would lose the seeded path for later tests.
+const realRngRandom = RngEngine.random;
 fullRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
 RngEngine.random = () => 0.99; // no equipment drops, no redundancy/obsolescence
 d20 = () => 20; // roll 20-5 = 15 vs 5 → fail
@@ -301,8 +304,8 @@ rc = Game.resolveChoice(EVENTS[0], 0);
 out = Game.applyChoice(rc, { negotiate: false, bruteForce: false, codeReview: true });
 assert.deepStrictEqual(out.effects, { E: -4 }, 'CR halves the doubled -8 → -4');
 assert.strictEqual(SpecialSystem.stats.E, 6, 'E 10 → 6');
-// restore the real dRoll (Math.random-driven) for later tests
-dRoll = (sides) => Math.floor(Math.random() * sides) + 1;
+// restore the real dRoll (RngEngine-driven) for later tests
+dRoll = (sides) => RngEngine.dRoll(sides);
 console.log('✓ difficulty: failed negatives ×d2 (normal), skipped on easy/success, before code review');
 
 // --- Consumable carry-over: pick = most recent, pool capped at 2 ---
@@ -436,7 +439,6 @@ console.log('✓ clean deploy: auto-reroll, flag reported for outcome toast');
 
 // Earlier sections stubbed d20 — restore real rolls for range tests
 d20 = () => dRoll(20);
-const realRandom = Math.random;
 
 // --- utils: dice ranges and career-year conversion ---
 for (let i = 0; i < 1000; i++) {
@@ -542,7 +544,7 @@ assert.strictEqual(SpecialSystem.equipmentBonuses.S, 1, 'drop bonus applied');
 RngEngine.random = () => 0.01;
 assert.strictEqual(Game.checkForEquipmentDrop(true), null, 'nothing auto-added when inventory full');
 assert.ok(Game.state.pendingEquipmentDrop, 'pending drop flagged for player choice');
-RngEngine.random = realRandom;
+RngEngine.random = realRngRandom;
 console.log('✓ checkForEquipmentDrop: rate roll, inventory fill, pending drop');
 
 // --- ConsumableManager: use, removal, AI backfire threshold ---
@@ -564,7 +566,7 @@ Game.state.consumables = [ai];
 const aiBad = ConsumableManager.use('ai_copilot');
 assert.strictEqual(aiBad.multiplier, -0.5, 'backfire penalty multiplier');
 assert.strictEqual(aiBad.backfired, true, 'backfire flagged');
-RngEngine.random = realRandom;
+RngEngine.random = realRngRandom;
 console.log('✓ consumables: use/removal, unknown id, AI backfire threshold');
 
 // --- Consumables are inert once the run is over (#41) ---
@@ -602,7 +604,7 @@ assert.strictEqual(getRandomEquipment().id, 'homeoffice', 'high roll → epic (l
 const three = get3RandomConsumables();
 assert.strictEqual(three.length, 3, '3 random consumables');
 assert.strictEqual(new Set(three.map(c => c.id)).size, 3, 'no duplicates');
-RngEngine.random = realRandom;
+RngEngine.random = realRngRandom;
 console.log('✓ item pools: rarity weighting, unique random consumables');
 
 // --- Game over: saving roll and probabilistic redundancy ---
@@ -624,7 +626,7 @@ const red = Game._checkProbabilisticGameOver();
 assert.ok(red && red.reason.includes('Redundant'), 'redundancy death fires under risk');
 RngEngine.random = () => 0.9; // 0.9 > 0.30 → survives
 assert.strictEqual(Game._checkProbabilisticGameOver(), null, 'redundancy roll can miss');
-RngEngine.random = realRandom;
+RngEngine.random = realRngRandom;
 console.log('✓ game over: saving roll survive/death, redundancy risk');
 
 // --- dangerStats: one hit from the saving-roll floor ---
@@ -711,7 +713,7 @@ assert.strictEqual(Game.state.bossCompleted, true, 'boss flag set');
 assert.strictEqual(pr.phaseComplete, true, 'phase 1 boss → phase complete');
 assert.ok(Game.resolveChoice({ id: 'nope' }, 0).error, 'unknown event → error result');
 assert.ok(Game.resolveChoice(EVENTS[0], 5).error, 'bad choice index → error result');
-RngEngine.random = realRandom;
+RngEngine.random = realRngRandom;
 console.log('✓ resolve/apply: success/failure paths, boss detection, day/history, error paths');
 
 // --- Boss event + run end: terminal flags co-occur (toast clobber guard) ---
@@ -746,7 +748,7 @@ assert.ok(pr.gameOver, 'run ended on the boss event');
 assert.strictEqual(pr.leveledUp, true, 'level up also fires (6th event)');
 // All three of leveledUp/bossDefeated/gameOver true in one result — the
 // state that exercises the terminal-first toast ordering in handleChoice.
-RngEngine.random = realRandom;
+RngEngine.random = realRngRandom;
 console.log('✓ boss + game over: terminal state co-occurs with leveledUp/bossDefeated (toast ordering guard)');
 
 // --- Game.nextEvent: event picking and phase advancement ---
@@ -863,8 +865,7 @@ assert.ok(ids.includes('consumable_0'), 'combined: consumable_0');
 console.log('✓ Achievements.satisfiedAchievementIds: stat_max, consumable_0, campaign, archetype, Hard-gated');
 
 // --- Seeded RNG: determinism, format, parse ---
-// Restore any earlier mock on RngEngine.random so the seeded run is real.
-const realRngRandom = RngEngine.random;
+// Restore the real engine method (mocks above replaced it).
 RngEngine.random = realRngRandom;
 assert.strictEqual(RngEngine.seed, '', 'initial seed is empty');
 const seed = RngEngine.generateSeed();
@@ -879,9 +880,85 @@ const r2 = RngEngine.random();
 const d2 = RngEngine.dRoll(20);
 assert.strictEqual(r1, r2, 'same seed → same random');
 assert.strictEqual(d1, d2, 'same seed → same dice');
+// 36^8 (seed space) > 2^32 (PRNG state space), so parse → format is not a
+// bijection — distinct seeds can share a state. What DOES hold: parse is
+// deterministic and parse ∘ format is idempotent.
 const parsed = RngEngine.parseSeed(seed);
+assert.strictEqual(RngEngine.parseSeed(seed), parsed, 'parseSeed is deterministic');
 const formatted = RngEngine.formatSeed(parsed);
-assert.strictEqual(formatted, seed, 'parse → format round-trips');
+assert.ok(/^[A-Z0-9]{8}$/.test(formatted), 'formatSeed is 8-char uppercase alphanumeric');
+assert.strictEqual(RngEngine.parseSeed(formatted), parsed, 'parse ∘ format is idempotent');
+// getState/setState: snapshot mid-sequence, restore, next roll matches
+RngEngine.seedWith('ABCD1234');
+RngEngine.random(); RngEngine.random(); RngEngine.random(); // advance the sequence
+const rngSnap = RngEngine.getState();
+const nextAfterSnap = RngEngine.random();
+RngEngine.seedWith('ZZZZ9999'); // disturb the engine
+RngEngine.setState(rngSnap);
+assert.strictEqual(RngEngine.random(), nextAfterSnap, 'setState resumes the exact sequence position');
+RngEngine.setState(null);
+assert.strictEqual(RngEngine.seed, '', 'setState(null) unseeds');
 RngEngine.unseed();
 assert.strictEqual(RngEngine.seed, '', 'unseed clears seed');
-console.log('✓ seeded-rng: determinism, format, parse');
+console.log('✓ seeded-rng: determinism, format, parse, state snapshot');
+
+// --- Seeded run: same seed → same event sequence and outcomes ---
+// Synthetic phase-1 pool: 4 non-boss events + 1 boss, all with S checks
+// so the seeded dice decide success/failure.
+EVENTS = [1, 2, 3, 4].map(n => ({
+  id: 'p1e' + n, title: 'P1 E' + n, phase: 1, phaseLabel: 'Jr', narrative: 'n',
+  choices: [{
+    text: 'x', checks: { S: 7 },
+    success: { text: 's', effects: { S: 1 }, log: 's' },
+    failure: { text: 'f', effects: { E: -1 }, log: 'f' }
+  }]
+})).concat({
+  id: 'p1boss', title: 'BOSS: One', phase: 1, phaseLabel: 'Jr', narrative: 'n',
+  choices: [{ text: 'x', checks: { S: 5 }, success: { text: 's', effects: {}, log: 's' }, failure: { text: 'f', effects: {}, log: 'f' } }]
+});
+function seededRun(seed) {
+  RngEngine.seedWith(seed);
+  fullRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+  Game.state.difficulty = 'easy'; // no dRoll multiplier — pure d20 sequence
+  const trace = [];
+  for (let i = 0; i < 6 && Game.state.alive && !Game.state.won; i++) {
+    const ev = Game.nextEvent();
+    const out = Game.applyChoice(Game.resolveChoice(ev, 0));
+    trace.push(ev.id, out.success ? 'W' : 'L', Game.state.day, SpecialSystem.stats.S, SpecialSystem.stats.E);
+  }
+  return trace;
+}
+const runA = seededRun('TESTSEED');
+const runB = seededRun('TESTSEED');
+assert.deepStrictEqual(runB, runA, 'same seed → identical event sequence, outcomes, days, stats');
+assert.ok(runA.length > 0, 'run actually progressed');
+const runC = seededRun('OTHERSEE');
+assert.ok(JSON.stringify(runC) !== JSON.stringify(runA), 'different seed → different run');
+RngEngine.unseed();
+console.log('✓ seeded run: same seed reproduces events/outcomes/days/stats; different seed diverges');
+
+// --- Save/load: the PRNG position survives a save round-trip ---
+RngEngine.seedWith('SAVESEED');
+fullRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+Game.state.stats = { ...SpecialSystem.stats }; // fullRun omits it; the schema requires it
+RngEngine.random(); RngEngine.random(); // advance the sequence
+SaveSystem.save(Game.state); // snapshot the PRNG position here
+const afterSave = RngEngine.random(); // the roll a fresh load must resume with
+RngEngine.unseed(); // simulate a fresh page load (engine state lost)
+const loadedSave = SaveSystem.load();
+assert.ok(loadedSave, 'save loads');
+assert.strictEqual(RngEngine.seed, 'SAVESEED', 'seed restored from save');
+assert.strictEqual(RngEngine.random(), afterSave, 'roll sequence resumes exactly where it left off');
+localStorage.removeItem('devlife_save');
+console.log('✓ save/load: PRNG position persisted, seeded run resumes mid-sequence');
+
+// --- Save schema: rng field optional (old saves), validated when present ---
+const saveWithRng = validSave();
+saveWithRng.rng = { seed: 'ABCD1234', state: 12345 };
+assert.deepStrictEqual(SaveData.validate(saveWithRng), [], 'valid rng accepted');
+assert.deepStrictEqual(SaveData.validate(validSave()), [], 'missing rng (old save) accepted');
+const badRng = validSave(); badRng.rng = { seed: 42 };
+assert.ok(SaveData.validate(badRng).some(e => e.startsWith('rng.seed')), 'bad rng.seed reported');
+const badRngState = validSave(); badRngState.rng = { seed: 'ABCD1234', state: 'x' };
+assert.ok(SaveData.validate(badRngState).some(e => e.startsWith('rng.state')), 'bad rng.state reported');
+console.log('✓ save schema: rng field optional, validated when present');

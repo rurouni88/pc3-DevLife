@@ -1,57 +1,16 @@
 // Seeded random number generator — mulberry32.
 // Fast, deterministic, good-enough quality for game use.
-// Replaces Math.random() so all dice rolls, shuffles, and loot picks
-// can be reproduced from a single 8-character alphanumeric seed.
+// All dice rolls, shuffles, event picks, and loot rolls go through this
+// engine so a run is fully reproducible from its 8-character seed.
+// Unseeded (the default), it falls back to Math.random().
 
 const SEED_CHARSET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 const SEED_LENGTH = 8;
 
-// Convert a string seed to a 32-bit integer for mulberry32.
-function seedFromString(seed: string): number {
-  let h = 2166136261 >>> 0; // FNV-1a base
-  for (let i = 0; i < seed.length; i++) {
-    h ^= seed.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-    h = h >>> 0;
-  }
-  return h;
-}
-
-// Generate a random 8-character alphanumeric seed.
-function generateSeed(): string {
-  let result = '';
-  for (let i = 0; i < SEED_LENGTH; i++) {
-    result += SEED_CHARSET[Math.floor(Math.random() * SEED_CHARSET.length)];
-  }
-  return result;
-}
-
-// Mulberry32 PRNG — returns a float in [0, 1).
-// Takes a 32-bit integer seed (or a string that is converted).
-function createRng(seed: number): () => number {
-  let state = seed >>> 0;
-
-  return () => {
-    state |= 0;
-    state = state + 0x6D2B79F5 | 0;
-    let t = Math.imul(state ^ (state >>> 15), 1 | state);
-    t = t + Math.imul(t ^ (t >>> 7), 61 | t) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-// Format a number as an 8-char uppercase alphanumeric seed.
-function formatSeed(num: number): string {
-  let n = num >>> 0;
-  let result = '';
-  for (let i = 0; i < SEED_LENGTH; i++) {
-    result += SEED_CHARSET[n % SEED_CHARSET.length];
-    n = Math.floor(n / SEED_CHARSET.length);
-  }
-  return result;
-}
-
-// Parse a formatted seed back to a number.
+// Parse a seed string to a 32-bit integer (base-36 positional).
+// Note: 36^8 (the seed space) exceeds 2^32, so distinct seeds can share
+// the same PRNG state (~650 seeds per state). Collisions are harmless —
+// they just mean two different seed strings happen to replay identically.
 function parseSeed(seed: string): number {
   let result = 0;
   for (let i = 0; i < seed.length; i++) {
@@ -62,18 +21,35 @@ function parseSeed(seed: string): number {
   return result >>> 0;
 }
 
-// The seeded RNG engine. Can be seeded with a string (e.g., "ABC123")
-// or left unseeded (uses Math.random() for backwards compat).
-// All dice rolls, shuffles, and loot picks go through here so that
-// a seeded run is fully reproducible.
+// Format a 32-bit integer back to an 8-char uppercase seed string
+// (big-endian base-36, so parseSeed(formatSeed(n)) === n).
+function formatSeed(num: number): string {
+  let n = num >>> 0;
+  const chars: string[] = [];
+  for (let i = 0; i < SEED_LENGTH; i++) {
+    chars.push(SEED_CHARSET[n % SEED_CHARSET.length]);
+    n = Math.floor(n / SEED_CHARSET.length);
+  }
+  return chars.reverse().join('');
+}
+
+// Snapshot of the PRNG position — persisted in run saves so a loaded
+// seeded run resumes from the exact same point in the sequence.
+interface RngSnapshot {
+  seed: string;
+  state: number | null;
+}
+
 const RngEngine = {
   // Current seed string (empty when unseeded).
   seed: '',
 
-  // The current random function — either the seeded PRNG or Math.random.
-  _rng: Math.random as () => number,
+  // The mulberry32 register (null when unseeded → Math.random).
+  _state: null as number | null,
 
-  // Generate a random 8-char alphanumeric seed.
+  // Generate a random 8-char alphanumeric seed. Uses Math.random on
+  // purpose: the seed is the one value that must NOT come from the
+  // engine it seeds.
   generateSeed(): string {
     let result = '';
     for (let i = 0; i < SEED_LENGTH; i++) {
@@ -85,18 +61,24 @@ const RngEngine = {
   // Seed the RNG with an 8-char alphanumeric string.
   seedWith(seed: string): void {
     this.seed = seed;
-    this._rng = createRng(parseSeed(seed));
+    this._state = parseSeed(seed);
   },
 
   // Unseed — fall back to Math.random().
   unseed(): void {
     this.seed = '';
-    this._rng = Math.random;
+    this._state = null;
   },
 
   // Current random number in [0, 1).
   random(): number {
-    return this._rng();
+    if (this._state === null) return Math.random();
+    // Mulberry32: advance the register, then mix.
+    this._state = (this._state + 0x6D2B79F5) | 0;
+    let t = this._state;
+    t = Math.imul(t ^ (t >>> 15), 1 | t);
+    t = t + Math.imul(t ^ (t >>> 7), 61 | t) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   },
 
   // Generic n-sided die: returns a random integer in [1, sides].
@@ -117,7 +99,24 @@ const RngEngine = {
     return out;
   },
 
-  // Parse a formatted seed back to a number.
+  // Snapshot the engine (seed + register) for run saves.
+  getState(): RngSnapshot {
+    return { seed: this.seed, state: this._state };
+  },
+
+  // Restore a snapshot. Missing/null (old saves, unseeded runs) → unseed.
+  // A seed without a register (hand-built saves) resumes from the
+  // sequence start for that seed.
+  setState(snap: RngSnapshot | null | undefined): void {
+    if (!snap || !snap.seed) {
+      this.unseed();
+      return;
+    }
+    this.seed = snap.seed;
+    this._state = snap.state !== null ? snap.state : parseSeed(snap.seed);
+  },
+
+  // Parse a formatted seed back to a number (test/diagnostic helper).
   parseSeed(seed: string): number {
     return parseSeed(seed);
   },

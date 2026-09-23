@@ -199,6 +199,9 @@ interface SaveDataShape {
   state: GameState;
   special: SpecialSnapshot;
   perks: PerkSnapshot;
+  // Optional: saves from before the seeded-run feature have no field —
+  // they load unseeded (Math.random).
+  rng?: RngSnapshot;
   timestamp: number;
 }
 

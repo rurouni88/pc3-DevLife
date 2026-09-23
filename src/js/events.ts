@@ -37,7 +37,7 @@ function waitForEvents(): Promise<void> {
 function getRandomNonBossEvent(phase: number, excludeIds: string[] = []): GameEvent | null {
   const phaseEvents = EVENTS.filter(e => e.phase === phase && !excludeIds.includes(e.id) && !e.title.startsWith(BOSS_PREFIX));
   if (phaseEvents.length === 0) return null;
-  return phaseEvents[Math.floor(Math.random() * phaseEvents.length)];
+  return phaseEvents[Math.floor(RngEngine.random() * phaseEvents.length)];
 }
 
 // Get boss event for a phase
