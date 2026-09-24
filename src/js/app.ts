@@ -260,14 +260,13 @@ const App = {
     SaveSystem.save(state);
     UI.closePopup();
 
-    // Show brief feedback
-    const btn = document.getElementById('btn-save');
-    if (!btn) return;
-    const original = btn.textContent;
-    btn.textContent = '✓';
-    setTimeout(() => {
-      btn.textContent = original;
-    }, 1000);
+    // Show brief feedback: swap the save glyph to a checkmark, then restore.
+    // The button holds an SVG (<use>), not text, so we swap the icon ref.
+    const use = document.querySelector('#btn-save use');
+    if (use) {
+      use.setAttribute('href', '#icon-check');
+      setTimeout(() => use.setAttribute('href', '#icon-save'), 1000);
+    }
   },
 
   afterLevelUp(): void {
