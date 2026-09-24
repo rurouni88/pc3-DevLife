@@ -2,12 +2,19 @@
 // consumables, the perk-intervention gate, the outcome/result, and the
 // "continue" flow to the next event. Loaded before ui.js; its methods are
 // composed into UI there.
+
+// The dice animation plays once per event — when the roll first happens. A
+// failed check with interventions shows it on the intervention screen; the
+// re-renders of that screen and the final outcome must not re-roll the die.
+let diceShownForEvent = false;
+
 const UIEventCard = {
   // Render an event
   renderEvent(event: GameEvent): void {
     const container = document.getElementById('event-container');
     const state = Game.state;
     if (!container || !state) return;
+    diceShownForEvent = false; // new event: allow the dice animation to play
     const letters = ['A', 'B', 'C', 'D'];
 
     const card = document.createElement('div');
@@ -252,8 +259,14 @@ const UIEventCard = {
 
     // The rolled checks, so the player can weigh the intervention
     if (resolved.checkResults.length > 0) {
-      // Trigger dice animation for the first check
-      UIDice.showDiceRoll(resolved.checkResults[0].roll);
+      // Play the dice animation once for this event (raw d20 faces, not the
+      // Luck-adjusted rolls which can be negative). Multi-check choices stack
+      // one die per check; each die's border reflects pass/fail. Re-renders as
+      // the player decides each intervention must not re-roll the same die.
+      if (!diceShownForEvent) {
+        UIDice.showDiceRoll(resolved.checkResults.map(cr => ({ roll: cr.rawRoll, success: cr.success })));
+        diceShownForEvent = true;
+      }
       const checkHTML = resolved.checkResults.map(cr =>
         `<span class="stat-change ${cr.success ? 'positive' : 'negative'}">${cr.stat}: rolled ${cr.roll} vs ${cr.target} ${cr.success ? '✓' : '✗'}</span>`
       ).join('');
@@ -412,8 +425,14 @@ const UIEventCard = {
 
     // Show check results
     if (result.checkResults && result.checkResults.length > 0) {
-      // Trigger dice animation for the first check
-      UIDice.showDiceRoll(result.checkResults[0].roll);
+      // Play the dice animation only if it hasn't already shown on the
+      // intervention screen for this event (raw d20 faces, not the
+      // Luck-adjusted rolls which can be negative). Multi-check choices stack
+      // one die per check; each die's border reflects pass/fail.
+      if (!diceShownForEvent) {
+        UIDice.showDiceRoll(result.checkResults.map(cr => ({ roll: cr.rawRoll, success: cr.success })));
+        diceShownForEvent = true;
+      }
       const checkHTML = result.checkResults.map(cr =>
         `<span class="stat-change ${cr.success ? 'positive' : 'negative'}">${cr.stat}: rolled ${cr.roll} vs ${cr.target} ${cr.success ? (cr.negotiated ? '🤝' : '✓') : '✗'}</span>`
       ).join('');

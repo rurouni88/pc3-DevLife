@@ -49,4 +49,19 @@ const CONFIG = {
       hard:   { label: 'Hard',   emoji: '💀', negMultSides: 4, desc: 'The “Unrealistic” career. Failures hit 1–4× harder, rolled on a d4. For masochists — or anyone who\u2019s been on-call since 2019.', locked: true },
     } as Record<Difficulty, { label: string; emoji: string; negMultSides: number; desc: string; locked?: boolean }>,
   },
+
+  // Presentation timing (defaults). A future settings screen can override any
+  // of these per-player; CONFIG stays the source of factory defaults.
+  dice: {
+    rollDurationMs: 800,  // how long the dice cycle before settling
+    cycleCount: 15,       // random faces shown before settling
+    // How long the settled result stays on screen before the overlay clears.
+    // 1337ms is a deliberate easter egg (leet) — not a tuned value.
+    resultHoldMs: 1337,
+  },
+  ui: {
+    toastMs: 3000,        // toast notification lifetime
+    flashMs: 300,         // screen-flash duration
+    statFloatMs: 1500,    // floating stat-change text lifetime
+  },
 };

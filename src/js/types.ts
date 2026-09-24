@@ -91,6 +91,9 @@ interface GameEvent {
 interface CheckResult {
   stat: StatKey;
   roll: number;
+  // The unmodified d20 face (1-20). `roll` is Luck-adjusted (d20 - L) and can
+  // go negative; the dice animation shows the real die, so it uses rawRoll.
+  rawRoll: number;
   target: number;
   effective: number;
   success: boolean;

@@ -33,7 +33,10 @@ function createDiceSVG(value: number): SVGSVGElement {
   ];
   for (const pts of lines) {
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    const [x1, y1, x2, y2] = pts.split(' ').map(Number);
+    // Each entry is "x1,y1 x2,y2" — split into two points, then into coords.
+    const [from, to] = pts.split(' ');
+    const [x1, y1] = from.split(',').map(Number);
+    const [x2, y2] = to.split(',').map(Number);
     line.setAttribute('x1', String(x1));
     line.setAttribute('y1', String(y1));
     line.setAttribute('x2', String(x2));
@@ -61,52 +64,71 @@ function createDiceSVG(value: number): SVGSVGElement {
   return svg;
 }
 
-// Animate a d20 roll: cycle through random values then settle on the final result.
-function animateDiceRoll(finalValue: number, callback: (value: number) => void): void {
+// One die's outcome: the d20 face to settle on, and whether the check passed.
+// success drives the pass/fail border colour shown once the die settles.
+interface DiceRoll {
+  roll: number;
+  success: boolean;
+}
+
+// Animate one or more d20 rolls: cycle through random values then settle each
+// die on its final face. Multi-check choices show one die per check, stacked
+// top-to-bottom, so the player sees every roll on a single screen.
+function animateDiceRoll(rolls: DiceRoll[], callback?: (rolls: DiceRoll[]) => void): void {
   // Create overlay
   const overlay = document.createElement('div');
   overlay.classList.add('dice-overlay');
   document.body.appendChild(overlay);
 
-  // Create dice
-  const dice = createDiceSVG(1);
-  overlay.appendChild(dice);
+  // Dice stack: one die per check, laid out vertically.
+  const stack = document.createElement('div');
+  stack.className = 'dice-stack';
+  overlay.appendChild(stack);
 
-  // Animation parameters
-  const totalDuration = 800; // ms
-  const cycleCount = 15; // number of random values before settling
+  const dice = rolls.map(() => {
+    const d = createDiceSVG(1);
+    stack.appendChild(d);
+    return d;
+  });
+
+  // Animation parameters (see CONFIG.dice)
+  const totalDuration = CONFIG.dice.rollDurationMs;
+  const cycleCount = CONFIG.dice.cycleCount;
   const startTime = performance.now();
 
   // Animation loop
   function tick(now: number): void {
     const elapsed = now - startTime;
     const progress = Math.min(elapsed / totalDuration, 1);
+    const settled = progress >= 1;
 
-    // Calculate which value to show
-    const valueIndex = Math.floor(progress * cycleCount);
-    const currentValue = valueIndex >= cycleCount ? finalValue : Math.floor(Math.random() * 20) + 1;
+    dice.forEach((die, i) => {
+      const currentValue = settled ? rolls[i].roll : Math.floor(Math.random() * 20) + 1;
+      const textEl = die.querySelector('.d20-value');
+      if (textEl) textEl.textContent = String(currentValue);
 
-    // Update the SVG text
-    const textEl = dice.querySelector('.d20-value');
-    if (textEl) textEl.textContent = String(currentValue);
+      // Shake while cycling, still when settled
+      const shake = (1 - progress) * 4;
+      const rx = (Math.random() - 0.5) * shake;
+      const ry = (Math.random() - 0.5) * shake;
+      die.style.transform = `rotate(${rx}deg) translate(${ry}px, ${ry * 0.5}px)`;
+    });
 
-    // Add shake effect based on progress
-    const shake = (1 - progress) * 4;
-    const rx = (Math.random() - 0.5) * shake;
-    const ry = (Math.random() - 0.5) * shake;
-    dice.style.transform = `rotate(${rx}deg) translate(${ry}px, ${ry * 0.5}px)`;
-
-    if (progress < 1) {
+    if (!settled) {
       requestAnimationFrame(tick);
     } else {
-      // Final value with settle effect
-      dice.style.transform = 'rotate(0deg) scale(1.2)';
+      // Settle: colour each die's border by pass/fail (visual affirmation),
+      // then hold the result on screen before clearing.
+      dice.forEach((die, i) => {
+        die.style.transform = 'rotate(0deg) scale(1.2)';
+        die.classList.add(rolls[i].success ? 'pass' : 'fail');
+      });
       setTimeout(() => {
-        dice.style.transform = 'rotate(0deg) scale(1)';
+        dice.forEach(die => { die.style.transform = 'rotate(0deg) scale(1)'; });
         setTimeout(() => {
           overlay.remove();
-          callback(finalValue);
-        }, 200);
+          callback?.(rolls);
+        }, CONFIG.dice.resultHoldMs);
       }, 100);
     }
   }
@@ -117,12 +139,13 @@ function animateDiceRoll(finalValue: number, callback: (value: number) => void):
 // Check if a dice animation is currently running.
 let diceAnimating = false;
 
-// Show a d20 dice animation for a specific roll value.
+// Show a d20 dice animation for one or more rolls (raw d20 face + pass/fail).
+// A single-element array renders one die; multiple render a vertical stack.
 // Triggers the animation and calls callback when done.
-function showDiceRoll(value: number, callback?: () => void): void {
+function showDiceRoll(rolls: DiceRoll[], callback?: () => void): void {
   if (diceAnimating) return;
   diceAnimating = true;
-  animateDiceRoll(value, () => {
+  animateDiceRoll(rolls, () => {
     diceAnimating = false;
     callback?.();
   });

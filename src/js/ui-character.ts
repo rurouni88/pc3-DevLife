@@ -46,7 +46,7 @@ const UICharacter = {
         const action = btn.dataset.action;
         const total = STAT_KEYS.reduce((s, k) => s + SpecialSystem.stats[k], 0);
 
-        if (action === 'plus' && SpecialSystem.stats[stat] < 10 && total < STARTING_POINTS) {
+        if (action === 'plus' && SpecialSystem.stats[stat] < MAX_STAT && total < STARTING_POINTS) {
           SpecialSystem.stats[stat]++;
           UI.updateCharCreationUI();
         } else if (action === 'minus' && SpecialSystem.stats[stat] > 1) {
@@ -222,7 +222,7 @@ const UICharacter = {
       const value = currentStats[labelEl.textContent as StatKey];
 
       minusBtn.disabled = value <= 1;
-      plusBtn.disabled = value >= 10 || total >= STARTING_POINTS;
+      plusBtn.disabled = value >= MAX_STAT || total >= STARTING_POINTS;
     });
 
     // Update archetype preview
