@@ -12,10 +12,18 @@ let diceShownForEvent = false;
 //   "E: 🎲 12 − 4 = 8 vs 4 ✗"
 // rawRoll is the d20 face (1-20); Luck is derived as rawRoll − roll; roll is
 // the Luck-adjusted result (can be negative); target is the check's static
-// target. The mark reflects the actual outcome (a negotiated save shows 🤝).
+// target. A check can also fail the competence gate (effective stat too low)
+// even when the roll clears the target — that reads as "✓, but…incompetent ✗".
 function formatCheckResult(cr: CheckResult): string {
   const luck = cr.rawRoll - cr.roll;
-  const mark = cr.success ? (cr.negotiated ? '🤝' : '✓') : '✗';
+  let mark;
+  if (cr.success) {
+    mark = cr.negotiated ? '🤝' : '✓';
+  } else if (!cr.negotiated && cr.roll <= cr.target) {
+    mark = '✓, but…incompetent ✗';
+  } else {
+    mark = '✗';
+  }
   return `<span class="stat-change ${cr.success ? 'positive' : 'negative'}">${cr.stat}: 🎲 ${cr.rawRoll} − ${luck} = ${cr.roll} vs ${cr.target} ${mark}</span>`;
 }
 
