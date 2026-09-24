@@ -11,10 +11,11 @@ function shortSeed(seed: string): string {
 // Render a single leaderboard row.
 function renderLeaderboardRow(run: RunRecord, rank: number): string {
   const result = run.won ? '✓' : '✗';
+  const careerYear = dayToCareerYear(run.day);
   return `
     <div class="leaderboard-row">
       <span class="lb-rank">${rank}</span>
-      <span class="lb-day">${run.day}</span>
+      <span class="lb-year">${careerYear}</span>
       <span class="lb-seed">${shortSeed(run.seed)}</span>
       <span class="lb-result">${result}</span>
       <span class="lb-archetype">${run.archetype}</span>
@@ -32,7 +33,7 @@ function renderDifficultySection(difficulty: Difficulty): string {
   } else {
     html += '<div class="leaderboard-header">';
     html += '<span class="lb-rank">Rank</span>';
-    html += '<span class="lb-day">Day</span>';
+    html += '<span class="lb-year">Year</span>';
     html += '<span class="lb-seed">Seed</span>';
     html += '<span class="lb-result">Result</span>';
     html += '<span class="lb-archetype">Archetype</span>';
