@@ -110,14 +110,15 @@ function animateDiceRoll(finalValues: number[], callback?: (values: number[]) =>
     if (!settled) {
       requestAnimationFrame(tick);
     } else {
-      // Settle effect, then clean up
+      // Settle effect, then hold the final result on screen before clearing.
+      // 1337ms is a deliberate easter egg (leet) — not a tuned value.
       dice.forEach(die => { die.style.transform = 'rotate(0deg) scale(1.2)'; });
       setTimeout(() => {
         dice.forEach(die => { die.style.transform = 'rotate(0deg) scale(1)'; });
         setTimeout(() => {
           overlay.remove();
           callback?.(finalValues);
-        }, 200);
+        }, 1337);
       }, 100);
     }
   }
