@@ -60,3 +60,4 @@ function formatSignedEffects(effects: Partial<Stats>): string {
     .map(([stat, value]) => `${value >= 0 ? '+' : '-'}${Math.abs(value)} ${STAT_META[stat as StatKey]?.name || stat}`)
     .join(', ');
 }
+
