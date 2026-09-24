@@ -2638,9 +2638,25 @@ body {
 }
 
 .d20-shape {
-  transition: fill 0.2s ease;
+  transition: fill 0.2s ease, stroke 0.2s ease;
 }
 
 .d20-value {
   transition: fill 0.2s ease;
+}
+
+/* Pass/fail affirmation: recolour the border (and glow) once the die settles.
+   The stroke is set as an SVG presentation attribute, which any CSS rule
+   overrides, so these take effect without touching createDiceSVG(). */
+.d20-dice.pass .d20-shape {
+  stroke: var(--accent-green);
+}
+.d20-dice.fail .d20-shape {
+  stroke: var(--accent-red);
+}
+.d20-dice.pass {
+  filter: drop-shadow(0 0 20px var(--accent-green));
+}
+.d20-dice.fail {
+  filter: drop-shadow(0 0 20px var(--accent-red));
 }

@@ -38,6 +38,9 @@ const CONFIG = {
     randomConsumableChoices: 3,
     // Career log: cap on stored entries, and how many each view shows
     careerLog: { cap: 50, sidePanel: 20, recent: 3, popup: 50 },
+    // Dice animation (ui-dice): how long the settled result stays on screen
+    // before the overlay clears. 1337ms is a deliberate easter egg (leet).
+    diceResultHoldMs: 1337,
     // Difficulty (issue #6). Fixed at run start. A failed outcome's negative
     // effects are multiplied by a d(negMultSides) roll — easy is d1 (×1, no
     // change). Equipment slots (2) and HARD's extra consumable slot (3) are

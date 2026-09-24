@@ -64,10 +64,17 @@ function createDiceSVG(value: number): SVGSVGElement {
   return svg;
 }
 
+// One die's outcome: the d20 face to settle on, and whether the check passed.
+// success drives the pass/fail border colour shown once the die settles.
+interface DiceRoll {
+  roll: number;
+  success: boolean;
+}
+
 // Animate one or more d20 rolls: cycle through random values then settle each
 // die on its final face. Multi-check choices show one die per check, stacked
 // top-to-bottom, so the player sees every roll on a single screen.
-function animateDiceRoll(finalValues: number[], callback?: (values: number[]) => void): void {
+function animateDiceRoll(rolls: DiceRoll[], callback?: (rolls: DiceRoll[]) => void): void {
   // Create overlay
   const overlay = document.createElement('div');
   overlay.classList.add('dice-overlay');
@@ -78,7 +85,7 @@ function animateDiceRoll(finalValues: number[], callback?: (values: number[]) =>
   stack.className = 'dice-stack';
   overlay.appendChild(stack);
 
-  const dice = finalValues.map(() => {
+  const dice = rolls.map(() => {
     const d = createDiceSVG(1);
     stack.appendChild(d);
     return d;
@@ -96,7 +103,7 @@ function animateDiceRoll(finalValues: number[], callback?: (values: number[]) =>
     const settled = progress >= 1;
 
     dice.forEach((die, i) => {
-      const currentValue = settled ? finalValues[i] : Math.floor(Math.random() * 20) + 1;
+      const currentValue = settled ? rolls[i].roll : Math.floor(Math.random() * 20) + 1;
       const textEl = die.querySelector('.d20-value');
       if (textEl) textEl.textContent = String(currentValue);
 
@@ -110,15 +117,19 @@ function animateDiceRoll(finalValues: number[], callback?: (values: number[]) =>
     if (!settled) {
       requestAnimationFrame(tick);
     } else {
-      // Settle effect, then hold the final result on screen before clearing.
-      // 1337ms is a deliberate easter egg (leet) — not a tuned value.
-      dice.forEach(die => { die.style.transform = 'rotate(0deg) scale(1.2)'; });
+      // Settle: colour each die's border by pass/fail (visual affirmation),
+      // then hold the result on screen before clearing. The hold is a
+      // deliberate easter egg (leet) — see CONFIG.game.diceResultHoldMs.
+      dice.forEach((die, i) => {
+        die.style.transform = 'rotate(0deg) scale(1.2)';
+        die.classList.add(rolls[i].success ? 'pass' : 'fail');
+      });
       setTimeout(() => {
         dice.forEach(die => { die.style.transform = 'rotate(0deg) scale(1)'; });
         setTimeout(() => {
           overlay.remove();
-          callback?.(finalValues);
-        }, 1337);
+          callback?.(rolls);
+        }, CONFIG.game.diceResultHoldMs);
       }, 100);
     }
   }
@@ -129,13 +140,13 @@ function animateDiceRoll(finalValues: number[], callback?: (values: number[]) =>
 // Check if a dice animation is currently running.
 let diceAnimating = false;
 
-// Show a d20 dice animation for one or more roll values (the raw d20 faces).
+// Show a d20 dice animation for one or more rolls (raw d20 face + pass/fail).
 // A single-element array renders one die; multiple render a vertical stack.
 // Triggers the animation and calls callback when done.
-function showDiceRoll(values: number[], callback?: () => void): void {
+function showDiceRoll(rolls: DiceRoll[], callback?: () => void): void {
   if (diceAnimating) return;
   diceAnimating = true;
-  animateDiceRoll(values, () => {
+  animateDiceRoll(rolls, () => {
     diceAnimating = false;
     callback?.();
   });

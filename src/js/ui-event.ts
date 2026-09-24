@@ -254,8 +254,8 @@ const UIEventCard = {
     if (resolved.checkResults.length > 0) {
       // Trigger dice animation for every check (raw d20 faces, not the
       // Luck-adjusted rolls which can be negative). Multi-check choices
-      // stack one die per check.
-      UIDice.showDiceRoll(resolved.checkResults.map(cr => cr.rawRoll));
+      // stack one die per check; each die's border reflects pass/fail.
+      UIDice.showDiceRoll(resolved.checkResults.map(cr => ({ roll: cr.rawRoll, success: cr.success })));
       const checkHTML = resolved.checkResults.map(cr =>
         `<span class="stat-change ${cr.success ? 'positive' : 'negative'}">${cr.stat}: rolled ${cr.roll} vs ${cr.target} ${cr.success ? '✓' : '✗'}</span>`
       ).join('');
@@ -416,8 +416,8 @@ const UIEventCard = {
     if (result.checkResults && result.checkResults.length > 0) {
       // Trigger dice animation for every check (raw d20 faces, not the
       // Luck-adjusted rolls which can be negative). Multi-check choices
-      // stack one die per check.
-      UIDice.showDiceRoll(result.checkResults.map(cr => cr.rawRoll));
+      // stack one die per check; each die's border reflects pass/fail.
+      UIDice.showDiceRoll(result.checkResults.map(cr => ({ roll: cr.rawRoll, success: cr.success })));
       const checkHTML = result.checkResults.map(cr =>
         `<span class="stat-change ${cr.success ? 'positive' : 'negative'}">${cr.stat}: rolled ${cr.roll} vs ${cr.target} ${cr.success ? (cr.negotiated ? '🤝' : '✓') : '✗'}</span>`
       ).join('');
