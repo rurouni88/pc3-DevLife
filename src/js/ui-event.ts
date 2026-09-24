@@ -8,6 +8,25 @@
 // re-renders of that screen and the final outcome must not re-roll the die.
 let diceShownForEvent = false;
 
+// Format a single stat-check result as a formula the player can follow:
+//   "E: 🎲 12 − 4 = 8 vs 4 ✗"
+// rawRoll is the d20 face (1-20); Luck is derived as rawRoll − roll; roll is
+// the Luck-adjusted result (can be negative); target is the check's static
+// target. A check can also fail the competence gate (effective stat too low)
+// even when the roll clears the target — that reads as "✓, but…incompetent ✗".
+function formatCheckResult(cr: CheckResult): string {
+  const luck = cr.rawRoll - cr.roll;
+  let mark;
+  if (cr.success) {
+    mark = cr.negotiated ? '🤝' : '✓';
+  } else if (!cr.negotiated && cr.roll <= cr.target) {
+    mark = '✓, but…incompetent ✗';
+  } else {
+    mark = '✗';
+  }
+  return `<span class="stat-change ${cr.success ? 'positive' : 'negative'}">${cr.stat}: 🎲 ${cr.rawRoll} − ${luck} = ${cr.roll} vs ${cr.target} ${mark}</span>`;
+}
+
 const UIEventCard = {
   // Render an event
   renderEvent(event: GameEvent): void {
@@ -267,9 +286,7 @@ const UIEventCard = {
         UIDice.showDiceRoll(resolved.checkResults.map(cr => ({ roll: cr.rawRoll, success: cr.success })));
         diceShownForEvent = true;
       }
-      const checkHTML = resolved.checkResults.map(cr =>
-        `<span class="stat-change ${cr.success ? 'positive' : 'negative'}">${cr.stat}: rolled ${cr.roll} vs ${cr.target} ${cr.success ? '✓' : '✗'}</span>`
-      ).join('');
+      const checkHTML = resolved.checkResults.map(formatCheckResult).join('');
       html += `<div class="stat-changes">${checkHTML}</div>`;
     }
 
@@ -433,9 +450,7 @@ const UIEventCard = {
         UIDice.showDiceRoll(result.checkResults.map(cr => ({ roll: cr.rawRoll, success: cr.success })));
         diceShownForEvent = true;
       }
-      const checkHTML = result.checkResults.map(cr =>
-        `<span class="stat-change ${cr.success ? 'positive' : 'negative'}">${cr.stat}: rolled ${cr.roll} vs ${cr.target} ${cr.success ? (cr.negotiated ? '🤝' : '✓') : '✗'}</span>`
-      ).join('');
+      const checkHTML = result.checkResults.map(formatCheckResult).join('');
       resultHTML += `<div class="stat-changes">${checkHTML}</div>`;
     }
 
