@@ -226,7 +226,7 @@ const UICore = {
   },
 
   // Flash screen with color
-  flashScreen(color: string, duration: number = 300): void {
+  flashScreen(color: string, duration: number = CONFIG.ui.flashMs): void {
     const flash = document.createElement('div');
     flash.className = 'screen-flash';
     flash.style.backgroundColor = color;
@@ -245,7 +245,7 @@ const UICore = {
     toast.textContent = message;
     container.appendChild(toast);
 
-    setTimeout(() => toast.remove(), 3000);
+    setTimeout(() => toast.remove(), CONFIG.ui.toastMs);
   },
 
   // Wire up the click-to-close behaviour for the character modal. (The "?"
@@ -360,7 +360,7 @@ const UICore = {
     float.style.top = `${rect.top}px`;
 
     document.body.appendChild(float);
-    setTimeout(() => float.remove(), 1500);
+    setTimeout(() => float.remove(), CONFIG.ui.statFloatMs);
   },
 
   // Render a single consumable/selectable item

@@ -91,9 +91,9 @@ function animateDiceRoll(rolls: DiceRoll[], callback?: (rolls: DiceRoll[]) => vo
     return d;
   });
 
-  // Animation parameters
-  const totalDuration = 800; // ms
-  const cycleCount = 15; // number of random values before settling
+  // Animation parameters (see CONFIG.dice)
+  const totalDuration = CONFIG.dice.rollDurationMs;
+  const cycleCount = CONFIG.dice.cycleCount;
   const startTime = performance.now();
 
   // Animation loop
@@ -118,8 +118,7 @@ function animateDiceRoll(rolls: DiceRoll[], callback?: (rolls: DiceRoll[]) => vo
       requestAnimationFrame(tick);
     } else {
       // Settle: colour each die's border by pass/fail (visual affirmation),
-      // then hold the result on screen before clearing. The hold is a
-      // deliberate easter egg (leet) — see CONFIG.game.diceResultHoldMs.
+      // then hold the result on screen before clearing.
       dice.forEach((die, i) => {
         die.style.transform = 'rotate(0deg) scale(1.2)';
         die.classList.add(rolls[i].success ? 'pass' : 'fail');
@@ -129,7 +128,7 @@ function animateDiceRoll(rolls: DiceRoll[], callback?: (rolls: DiceRoll[]) => vo
         setTimeout(() => {
           overlay.remove();
           callback?.(rolls);
-        }, CONFIG.game.diceResultHoldMs);
+        }, CONFIG.dice.resultHoldMs);
       }, 100);
     }
   }
