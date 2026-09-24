@@ -16,9 +16,9 @@ function renderLeaderboardRow(run: RunRecord, rank: number): string {
     <div class="leaderboard-row">
       <span class="lb-rank">${rank}</span>
       <span class="lb-year">${careerYear}</span>
-      <span class="lb-seed">${shortSeed(run.seed)}</span>
-      <span class="lb-result">${result}</span>
       <span class="lb-archetype">${ARCHETYPES[run.archetype]?.name ?? run.archetype}</span>
+      <span class="lb-result">${result}</span>
+      <span class="lb-seed">${shortSeed(run.seed)}</span>
     </div>`;
 }
 
@@ -34,9 +34,9 @@ function renderDifficultySection(difficulty: Difficulty): string {
     html += '<div class="leaderboard-header">';
     html += '<span class="lb-rank">Rank</span>';
     html += '<span class="lb-year">Year</span>';
-    html += '<span class="lb-seed">Seed</span>';
-    html += '<span class="lb-result">Result</span>';
     html += '<span class="lb-archetype">Archetype</span>';
+    html += '<span class="lb-result">Result</span>';
+    html += '<span class="lb-seed">Seed</span>';
     html += '</div>';
     topRuns.forEach((run, i) => {
       html += renderLeaderboardRow(run, i + 1);
