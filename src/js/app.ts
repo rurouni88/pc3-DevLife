@@ -282,8 +282,20 @@ const App = {
     state.levelUpPoints = Math.max(0, (state.levelUpPoints || 1) - 1);
 
     // A stat increase may unlock a perk (e.g. pushing a stat to 10)
-    Game.refreshPerks();
-    UI.renderPerks();
+    const { gained, lost } = Game.refreshPerks();
+    gained.forEach(id => {
+      const perk = PERK_BY_ID[id];
+      UI.showToast(`🏅 Perk Unlocked: ${perk.emoji} ${perk.name}`, 'success');
+      state.careerLog.unshift({ message: `🏅 Perk unlocked: ${perk.name} — ${perk.desc}`, day: state.day, timestamp: Date.now() });
+    });
+    lost.forEach(id => {
+      const perk = PERK_BY_ID[id];
+      UI.showToast(`💔 Perk Lost: ${perk.emoji} ${perk.name}`, 'error');
+      state.careerLog.unshift({ message: `💔 Perk lost: ${perk.name}`, day: state.day, timestamp: Date.now() });
+    });
+    if (gained.length > 0 || lost.length > 0) {
+      UI.renderPerks();
+    }
 
     // 🧠 Rapid Learner: spend remaining points one at a time
     if (state.levelUpPoints > 0) {

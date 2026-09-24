@@ -205,7 +205,22 @@ const Game = {
       }
     }
     const log = success ? resolved.choice.success.log : resolved.choice.failure.log;
-    this.applyEffects(effects);
+    const { gained, lost } = this.applyEffects(effects);
+
+    // Announce perk changes (UI tier — caller handles display)
+    gained.forEach(id => {
+      const perk = PERK_BY_ID[id];
+      UI.showToast(`🏅 Perk Unlocked: ${perk.emoji} ${perk.name}`, 'success');
+      this.addLog(`🏅 Perk unlocked: ${perk.name} — ${perk.desc}`);
+    });
+    lost.forEach(id => {
+      const perk = PERK_BY_ID[id];
+      UI.showToast(`💔 Perk Lost: ${perk.emoji} ${perk.name}`, 'error');
+      this.addLog(`💔 Perk lost: ${perk.name}`);
+    });
+    if (gained.length > 0 || lost.length > 0) {
+      UI.renderPerks();
+    }
 
     // Award loot if successful
     const itemDropped = this.checkForEquipmentDrop(success);
@@ -302,7 +317,9 @@ const Game = {
   },
 
   // Apply stat effects from choice outcome.
-  applyEffects(effects: Partial<Stats>): { hasNegativeEffects: boolean } {
+  // Returns { gained, lost } so the caller can display UI — this keeps
+  // Game (logic tier) free of DOM dependencies.
+  applyEffects(effects: Partial<Stats>): { hasNegativeEffects: boolean; gained: string[]; lost: string[] } {
     const hasNegativeEffects = Object.entries(effects).some(([_, v]) => (v as number) < 0);
 
     for (const [stat, value] of Object.entries(effects) as [StatKey, number][]) {
@@ -310,28 +327,15 @@ const Game = {
       SpecialSystem.stats[stat] = clampStat(SpecialSystem.stats[stat] + value);
     }
 
-    // Stat changes may unlock or revoke perks
-    this.refreshPerks();
+    // Stat changes may unlock or revoke perks — return the delta, not UI.
+    const { gained, lost } = PerkSystem.refresh();
 
-    return { hasNegativeEffects };
+    return { hasNegativeEffects, gained, lost };
   },
 
-  // Recompute active perks and announce changes
-  refreshPerks(): void {
-    const { gained, lost } = PerkSystem.refresh();
-    gained.forEach(id => {
-      const perk = PERK_BY_ID[id];
-      UI.showToast(`🏅 Perk Unlocked: ${perk.emoji} ${perk.name}`, 'success');
-      this.addLog(`🏅 Perk unlocked: ${perk.name} — ${perk.desc}`);
-    });
-    lost.forEach(id => {
-      const perk = PERK_BY_ID[id];
-      UI.showToast(`💔 Perk Lost: ${perk.emoji} ${perk.name}`, 'error');
-      this.addLog(`💔 Perk lost: ${perk.name}`);
-    });
-    if (gained.length > 0 || lost.length > 0) {
-      UI.renderPerks();
-    }
+  // Recompute active perks. Returns { gained, lost } — pure logic, no UI.
+  refreshPerks(): { gained: string[]; lost: string[] } {
+    return PerkSystem.refresh();
   },
 
   // Check for equipment drop and handle inventory
