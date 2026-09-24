@@ -1,5 +1,25 @@
 // Shared DOM helpers — the UI is static HTML, but the type system
 // doesn't know that, so these narrow once and reuse.
+
+// Sound effect definitions — each entry is a sequence of frequency
+// notes (freq at time-offset), a gain level, and an exponential ramp.
+// Adding a new sound is just appending to this record.
+const SOUND_DEFS: Record<string, {
+  oscType?: OscillatorType;
+  notes: { freq: number; time: number }[];
+  gain: number;
+  gainRampEnd: number;
+  gainRampDuration: number;
+}> = {
+  click:    { notes: [{ freq: 800, time: 0 }], gain: 0.1, gainRampEnd: 0.01, gainRampDuration: 0.05 },
+  success:  { oscType: 'sine', notes: [{ freq: 523, time: 0 }, { freq: 659, time: 0.1 }, { freq: 784, time: 0.2 }], gain: 0.15, gainRampEnd: 0.01, gainRampDuration: 0.3 },
+  failure:  { oscType: 'sawtooth', notes: [{ freq: 200, time: 0 }, { freq: 150, time: 0.2 }], gain: 0.1, gainRampEnd: 0.01, gainRampDuration: 0.2 },
+  levelup:  { oscType: 'sine', notes: [{ freq: 523, time: 0 }, { freq: 659, time: 0.1 }, { freq: 784, time: 0.2 }, { freq: 1047, time: 0.3 }], gain: 0.15, gainRampEnd: 0.01, gainRampDuration: 0.5 },
+  boss:     { oscType: 'square', notes: [{ freq: 100, time: 0 }, { freq: 50, time: 0.5 }], gain: 0.1, gainRampEnd: 0.01, gainRampDuration: 0.5 },
+  gameover: { oscType: 'sawtooth', notes: [{ freq: 400, time: 0 }, { freq: 100, time: 1 }], gain: 0.15, gainRampEnd: 0.01, gainRampDuration: 1 },
+  perk:     { oscType: 'sine', notes: [{ freq: 988, time: 0 }, { freq: 1319, time: 0.09 }], gain: 0.12, gainRampEnd: 0.01, gainRampDuration: 0.25 },
+  victory:  { oscType: 'sine', notes: [{ freq: 523, time: 0 }, { freq: 659, time: 0.15 }, { freq: 784, time: 0.3 }, { freq: 1047, time: 0.45 }, { freq: 784, time: 0.6 }, { freq: 1047, time: 0.75 }], gain: 0.15, gainRampEnd: 0.01, gainRampDuration: 1 },
+};
 const setDisplay = (id: string, display: string): void => {
   const el = document.getElementById(id);
   if (el) el.style.display = display;
@@ -127,8 +147,10 @@ const UICore = {
     UI.audioCtx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
   },
 
-  // Play a sound effect
+  // Play a sound effect — looks up the definition and plays it.
   playSound(type: string): void {
+    const def = SOUND_DEFS[type];
+    if (!def) return;
     if (!UI.audioCtx) UI.initAudio();
     if (!UI.audioCtx) return;
 
@@ -136,93 +158,26 @@ const UICore = {
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
 
+    if (def.oscType) osc.type = def.oscType;
     osc.connect(gain);
     gain.connect(ctx.destination);
 
     const now = ctx.currentTime;
 
-    switch (type) {
-      case 'click':
-        osc.frequency.setValueAtTime(800, now);
-        gain.gain.setValueAtTime(0.1, now);
-        osc.start(now);
-        osc.stop(now + 0.05);
-        break;
-
-      case 'success':
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(523, now);
-        osc.frequency.setValueAtTime(659, now + 0.1);
-        osc.frequency.setValueAtTime(784, now + 0.2);
-        gain.gain.setValueAtTime(0.15, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-        osc.start(now);
-        osc.stop(now + 0.3);
-        break;
-
-      case 'failure':
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(200, now);
-        osc.frequency.linearRampToValueAtTime(150, now + 0.2);
-        gain.gain.setValueAtTime(0.1, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-        osc.start(now);
-        osc.stop(now + 0.2);
-        break;
-
-      case 'levelup':
-        osc.type = 'sine';
-        [523, 659, 784, 1047].forEach((freq, i) => {
-          osc.frequency.setValueAtTime(freq, now + i * 0.1);
-        });
-        gain.gain.setValueAtTime(0.15, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
-        osc.start(now);
-        osc.stop(now + 0.5);
-        break;
-
-      case 'boss':
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(100, now);
-        osc.frequency.linearRampToValueAtTime(50, now + 0.5);
-        gain.gain.setValueAtTime(0.1, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
-        osc.start(now);
-        osc.stop(now + 0.5);
-        break;
-
-      case 'gameover':
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(400, now);
-        osc.frequency.linearRampToValueAtTime(100, now + 1);
-        gain.gain.setValueAtTime(0.15, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 1);
-        osc.start(now);
-        osc.stop(now + 1);
-        break;
-
-      case 'perk':
-        // Distinctive high two-note ping — a perk intervention fired
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(988, now);
-        osc.frequency.setValueAtTime(1319, now + 0.09);
-        gain.gain.setValueAtTime(0.12, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
-        osc.start(now);
-        osc.stop(now + 0.25);
-        break;
-
-      case 'victory':
-        osc.type = 'sine';
-        [523, 659, 784, 1047, 784, 1047].forEach((freq, i) => {
-          osc.frequency.setValueAtTime(freq, now + i * 0.15);
-        });
-        gain.gain.setValueAtTime(0.15, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 1);
-        osc.start(now);
-        osc.stop(now + 1);
-        break;
+    // Set frequency notes
+    for (const { freq, time } of def.notes) {
+      osc.frequency.setValueAtTime(freq, now + time);
     }
+
+    // Set gain with exponential decay
+    gain.gain.setValueAtTime(def.gain, now);
+    gain.gain.exponentialRampToValueAtTime(def.gainRampEnd, now + def.gainRampDuration);
+
+    const duration = def.notes.length > 0
+      ? now + def.notes[def.notes.length - 1].time + def.gainRampDuration
+      : now + def.gainRampDuration;
+    osc.start(now);
+    osc.stop(duration);
   },
 
   // Flash screen with color
