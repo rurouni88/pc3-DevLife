@@ -2618,6 +2618,14 @@ body {
   to { opacity: 1; }
 }
 
+/* Multi-check rolls: one die per check, stacked top-to-bottom. */
+.dice-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
 .d20-dice {
   animation: diceWobble 0.1s linear infinite;
   filter: drop-shadow(0 0 20px var(--accent-yellow));
