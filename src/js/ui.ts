@@ -736,6 +736,9 @@ const SVG_SYMBOLS = `
     <polyline points="17 21 17 13 7 13 7 21"/>
     <polyline points="7 3 7 8 15 8"/>
   </symbol>
+  <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <polyline points="20 6 9 17 4 12"/>
+  </symbol>
 `;
 
 // Inject shared SVG symbols into the DOM so <use href="#icon-*"> works.
