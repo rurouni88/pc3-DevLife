@@ -3,6 +3,7 @@ const App = {
   init(): void {
     this.bindEvents();
     this.checkForSave();
+    initSvgAssets();
     UI.initTooltipClose();
     UI.initPopupClose();
     UI.startAsciiLoop();
