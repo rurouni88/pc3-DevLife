@@ -1884,6 +1884,14 @@ body {
   }
 }
 
+/* Mobile: the fixed hamburger (44px, top: spacing-md) floats over the event
+   card. Push game content down so the event title clears it. */
+@media (max-width: 899px) {
+  .game-main {
+    padding-top: calc(44px + var(--spacing-md) + var(--spacing-sm));
+  }
+}
+
 /* --- Mobile Toolbar --- */
 .mobile-toolbar {
   display: flex;
