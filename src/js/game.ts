@@ -267,7 +267,8 @@ const Game = {
       for (const [stat, target] of Object.entries(choice.checks) as [StatKey, number][]) {
         let effective = SpecialSystem.effective(stat);
         const L = SpecialSystem.stats.L;
-        let roll = d20() - L;
+        let rawRoll = d20();
+        let roll = rawRoll - L;
         let checkTarget = target;
         let success = roll <= checkTarget && effective >= (target - L) * CONFIG.game.competenceGateFactor;
 
@@ -275,14 +276,15 @@ const Game = {
         if (!success && PerkSystem.canCleanDeployReroll()) {
           PerkSystem.useCleanDeployReroll();
           cleanDeployUsed = true;
-          roll = d20() - L;
+          rawRoll = d20();
+          roll = rawRoll - L;
           success = roll <= checkTarget && effective >= (target - L) * CONFIG.game.competenceGateFactor;
           if (success) {
             this.addLog(`🍀 Clean Deploy! Rerolled ${stat}: ${roll} → success`);
           }
         }
 
-        results.push({ stat, roll, target: checkTarget, effective, success });
+        results.push({ stat, roll, rawRoll, target: checkTarget, effective, success });
         if (!success) allSuccess = false;
       }
     }

@@ -252,8 +252,9 @@ const UIEventCard = {
 
     // The rolled checks, so the player can weigh the intervention
     if (resolved.checkResults.length > 0) {
-      // Trigger dice animation for the first check
-      UIDice.showDiceRoll(resolved.checkResults[0].roll);
+      // Trigger dice animation for the first check (raw d20 face, not the
+      // Luck-adjusted roll which can be negative)
+      UIDice.showDiceRoll(resolved.checkResults[0].rawRoll);
       const checkHTML = resolved.checkResults.map(cr =>
         `<span class="stat-change ${cr.success ? 'positive' : 'negative'}">${cr.stat}: rolled ${cr.roll} vs ${cr.target} ${cr.success ? '✓' : '✗'}</span>`
       ).join('');
@@ -412,8 +413,9 @@ const UIEventCard = {
 
     // Show check results
     if (result.checkResults && result.checkResults.length > 0) {
-      // Trigger dice animation for the first check
-      UIDice.showDiceRoll(result.checkResults[0].roll);
+      // Trigger dice animation for the first check (raw d20 face, not the
+      // Luck-adjusted roll which can be negative)
+      UIDice.showDiceRoll(result.checkResults[0].rawRoll);
       const checkHTML = result.checkResults.map(cr =>
         `<span class="stat-change ${cr.success ? 'positive' : 'negative'}">${cr.stat}: rolled ${cr.roll} vs ${cr.target} ${cr.success ? (cr.negotiated ? '🤝' : '✓') : '✗'}</span>`
       ).join('');
