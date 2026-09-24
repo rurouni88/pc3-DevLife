@@ -33,7 +33,10 @@ function createDiceSVG(value: number): SVGSVGElement {
   ];
   for (const pts of lines) {
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    const [x1, y1, x2, y2] = pts.split(' ').map(Number);
+    // Each entry is "x1,y1 x2,y2" — split into two points, then into coords.
+    const [from, to] = pts.split(' ');
+    const [x1, y1] = from.split(',').map(Number);
+    const [x2, y2] = to.split(',').map(Number);
     line.setAttribute('x1', String(x1));
     line.setAttribute('y1', String(y1));
     line.setAttribute('x2', String(x2));
