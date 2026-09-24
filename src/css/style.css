@@ -815,23 +815,30 @@ body {
 
 .lb-rank {
   width: 2rem;
+  min-width: 0;
   text-align: center;
   color: var(--text-muted);
 }
 
 .lb-year {
   width: 3rem;
+  min-width: 0;
   text-align: right;
   font-weight: 700;
 }
 
 .lb-seed {
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--text-secondary);
 }
 
 .lb-result {
   width: 1.5rem;
+  min-width: 0;
   text-align: center;
 }
 
@@ -839,19 +846,20 @@ body {
   font-size: 0.85rem;
 }
 
-/* Narrow screens: shrink fixed columns so the archetype name fits. */
-@media (max-width: 480px) {
-  .lb-rank   { width: 1.5rem; }
-  .lb-year   { width: 2.5rem; }
-  .lb-result { width: 1.2rem; }
-}
-
 .lb-archetype {
   flex: 2;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   color: var(--text-secondary);
+}
+
+/* Narrow screens: shrink fixed columns and hide the tiny Result column. */
+@media (max-width: 480px) {
+  .lb-rank   { width: 1.5rem; }
+  .lb-year   { width: 2.5rem; }
+  .lb-result { display: none; }
 }
 
 /* --- Popup Panels --- */
