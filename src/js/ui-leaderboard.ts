@@ -18,7 +18,7 @@ function renderLeaderboardRow(run: RunRecord, rank: number): string {
       <span class="lb-year">${careerYear}</span>
       <span class="lb-seed">${shortSeed(run.seed)}</span>
       <span class="lb-result">${result}</span>
-      <span class="lb-archetype">${run.archetype}</span>
+      <span class="lb-archetype">${ARCHETYPES[run.archetype]?.name ?? run.archetype}</span>
     </div>`;
 }
 

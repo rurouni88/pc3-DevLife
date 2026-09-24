@@ -839,8 +839,18 @@ body {
   font-size: 0.85rem;
 }
 
+/* Narrow screens: shrink fixed columns so the archetype name fits. */
+@media (max-width: 480px) {
+  .lb-rank   { width: 1.5rem; }
+  .lb-year   { width: 2.5rem; }
+  .lb-result { width: 1.2rem; }
+}
+
 .lb-archetype {
   flex: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--text-secondary);
 }
 
