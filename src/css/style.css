@@ -286,6 +286,12 @@ body {
   transition: all var(--transition-fast);
 }
 
+.difficulty-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
 .difficulty-lozenge:hover:not(.locked) {
   color: var(--text-primary);
   border-color: var(--text-muted);

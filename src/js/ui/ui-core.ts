@@ -73,7 +73,8 @@ export const UICore = {
       lozenge.setAttribute('role', 'radio');
       lozenge.setAttribute('aria-checked', key === selected ? 'true' : 'false');
       lozenge.disabled = !!cfg.locked;
-      lozenge.innerHTML = `<span class="difficulty-label">${cfg.label}</span>` +
+      const iconId = key === 'easy' ? 'icon-easy' : key === 'normal' ? 'icon-normal' : 'icon-hard';
+      lozenge.innerHTML = `<svg class="difficulty-icon"><use href="#${iconId}"/></svg><span class="difficulty-label">${cfg.label}</span>` +
         (cfg.locked ? '<span class="difficulty-lock"><svg class="lock-icon"><use href="#icon-padlock"/></svg></span>' : '<span class="cons-info difficulty-help" data-help="' + key + '" aria-label="About ' + cfg.label + '">?</span>');
 
       if (!cfg.locked) {
@@ -95,7 +96,10 @@ export const UICore = {
         e.stopPropagation();
         const key = btn.dataset.help as Difficulty;
         const cfg = CONFIG.game.difficulty[key];
-        if (cfg) UI.showTooltip({ emoji: cfg.emoji, name: cfg.label, desc: cfg.desc });
+        if (cfg) {
+          const iconId = key === 'easy' ? 'icon-easy' : key === 'normal' ? 'icon-normal' : 'icon-hard';
+          UI.showTooltip({ icon: iconId, name: cfg.label, desc: cfg.desc });
+        }
       });
     });
   },
@@ -748,6 +752,25 @@ const SVG_SYMBOLS = `
     <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
     <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
     <line x1="14" y1="10" x2="22" y2="10"/>
+  </symbol>
+  <!-- Difficulty icons: same face, different mouths -->
+  <symbol id="icon-easy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="12" r="10"/>
+    <line x1="9" y1="10" x2="9.01" y2="10" stroke-width="3"/>
+    <line x1="15" y1="10" x2="15.01" y2="10" stroke-width="3"/>
+    <path d="M8 15s1.5-2 4-2 4 2 4 2"/>
+  </symbol>
+  <symbol id="icon-normal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="12" r="10"/>
+    <line x1="9" y1="10" x2="9.01" y2="10" stroke-width="3"/>
+    <line x1="15" y1="10" x2="15.01" y2="10" stroke-width="3"/>
+    <path d="M8 15s1.5 2 4 2 4-2 4-2"/>
+  </symbol>
+  <symbol id="icon-hard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="12" r="10"/>
+    <line x1="9" y1="10" x2="9.01" y2="10" stroke-width="3"/>
+    <line x1="15" y1="10" x2="15.01" y2="10" stroke-width="3"/>
+    <path d="M8 15s1.5-2 4-2 4 2 4 2" transform="rotate(180 12 15)"/>
   </symbol>
 `;
 
