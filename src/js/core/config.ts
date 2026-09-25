@@ -3,7 +3,7 @@ import type { Difficulty, StatKey } from './types.js';
 
 export const CONFIG = {
   version: '0.49',
-  versionLabel: 'Pretty Playable Prototype (PPP)',
+  versionLabel: 'Pretty Playable Prototype',
 
   stats: {
     min: 1,

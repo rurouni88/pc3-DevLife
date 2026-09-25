@@ -32,8 +32,6 @@ export const App = {
     const versionText = `v${CONFIG.version} ${CONFIG.versionLabel}`;
     const versionBadge = document.getElementById('version-badge');
     if (versionBadge) versionBadge.textContent = versionText;
-    const aboutVersion = document.getElementById('about-version');
-    if (aboutVersion) aboutVersion.textContent = versionText;
 
     // Apply persisted theme (or system preference on first load).
     const settings = loadSettings();
@@ -164,21 +162,6 @@ export const App = {
       if (toggleBtn) toggleBtn.classList.remove('open');
     });
 
-    // Collapsible Info / About sections in the side panel
-    const bindInfoToggle = (btnId: string, contentId: string, arrowId: string): void => {
-      const btn = document.getElementById(btnId);
-      const content = document.getElementById(contentId);
-      const arrow = document.getElementById(arrowId);
-      if (!btn || !content) return;
-      btn.addEventListener('click', () => {
-        const open = content.classList.toggle('open');
-        if (arrow) arrow.textContent = open ? '▼' : '▶';
-        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      });
-    };
-    bindInfoToggle('btn-toggle-info', 'info-content', 'info-arrow');
-    bindInfoToggle('btn-toggle-about', 'about-content', 'about-arrow');
-
     bind('btn-save', () => {
       // Save Scum setting: only allow saving when the toggle is ON.
       if (!UI.saveScumOn) {
@@ -202,7 +185,7 @@ export const App = {
 
     // Leaderboard screen
     bind('btn-leaderboard-title', () => UI.showLeaderboard());
-    bind('btn-leaderboard-back', () => UI.closeLeaderboard());
+    bind('btn-close-leaderboard', () => UI.closeLeaderboard());
 
     // Options menu (issue #53)
     bind('btn-options-title', () => UI.showOptions());

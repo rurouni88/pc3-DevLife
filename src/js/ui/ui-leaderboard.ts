@@ -31,9 +31,10 @@ function renderLeaderboardRow(run: RunRecord, rank: number): string {
 
 // Render a single difficulty section.
 function renderDifficultySection(difficulty: Difficulty): string {
+  const iconId = difficulty === 'easy' ? 'icon-easy' : difficulty === 'normal' ? 'icon-normal' : 'icon-hard';
   const label = difficulty === 'easy' ? 'Easy' : difficulty === 'normal' ? 'Normal' : 'Hard';
   const topRuns = MetaStore.getTopRuns(difficulty, 10);
-  let html = `<h3 class="leaderboard-diff-title">${label}</h3>`;
+  let html = `<h3 class="leaderboard-diff-title"><svg class="difficulty-icon leaderboard-diff-icon"><use href="#${iconId}"/></svg> ${label}</h3>`;
 
   if (topRuns.length === 0) {
     html += '<div class="leaderboard-empty">No runs yet</div>';
@@ -56,12 +57,13 @@ export const UILeaderboard = {
   // Show the leaderboard screen.
   showLeaderboard(): void {
     UI.renderLeaderboard();
-    UI.showScreen('leaderboard');
+    const modal = document.getElementById('leaderboard-modal');
+    if (modal) modal.style.display = 'flex';
   },
 
-  // Back to the title screen.
   closeLeaderboard(): void {
-    UI.showScreen('title');
+    const modal = document.getElementById('leaderboard-modal');
+    if (modal) modal.style.display = 'none';
   },
 
   // Render the leaderboard list.
