@@ -59,7 +59,7 @@ const sandbox = {
     removeItem(k) { delete this._data[k]; },
   },
   document: { getElementById: () => null, addEventListener() {} },
-  UI: { showToast() {}, renderPerks() {} },
+  UI: { showToast() {}, renderPerks() {}, announcePerkChanges() {} },
 };
 sandbox.window = sandbox;
 vm.createContext(sandbox);

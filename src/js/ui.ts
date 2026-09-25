@@ -6,17 +6,19 @@
 // Adding a new sound is just appending to this record.
 const SOUND_DEFS: Record<string, {
   oscType?: OscillatorType;
-  notes: { freq: number; time: number }[];
+  // ramp: true glides from the previous note's frequency (linearRamp);
+  // otherwise the frequency jumps at the note's time (setValue).
+  notes: { freq: number; time: number; ramp?: boolean }[];
   gain: number;
   gainRampEnd: number;
   gainRampDuration: number;
 }> = {
   click:    { notes: [{ freq: 800, time: 0 }], gain: 0.1, gainRampEnd: 0.01, gainRampDuration: 0.05 },
   success:  { oscType: 'sine', notes: [{ freq: 523, time: 0 }, { freq: 659, time: 0.1 }, { freq: 784, time: 0.2 }], gain: 0.15, gainRampEnd: 0.01, gainRampDuration: 0.3 },
-  failure:  { oscType: 'sawtooth', notes: [{ freq: 200, time: 0 }, { freq: 150, time: 0.2 }], gain: 0.1, gainRampEnd: 0.01, gainRampDuration: 0.2 },
+  failure:  { oscType: 'sawtooth', notes: [{ freq: 200, time: 0 }, { freq: 150, time: 0.2, ramp: true }], gain: 0.1, gainRampEnd: 0.01, gainRampDuration: 0.2 },
   levelup:  { oscType: 'sine', notes: [{ freq: 523, time: 0 }, { freq: 659, time: 0.1 }, { freq: 784, time: 0.2 }, { freq: 1047, time: 0.3 }], gain: 0.15, gainRampEnd: 0.01, gainRampDuration: 0.5 },
-  boss:     { oscType: 'square', notes: [{ freq: 100, time: 0 }, { freq: 50, time: 0.5 }], gain: 0.1, gainRampEnd: 0.01, gainRampDuration: 0.5 },
-  gameover: { oscType: 'sawtooth', notes: [{ freq: 400, time: 0 }, { freq: 100, time: 1 }], gain: 0.15, gainRampEnd: 0.01, gainRampDuration: 1 },
+  boss:     { oscType: 'square', notes: [{ freq: 100, time: 0 }, { freq: 50, time: 0.5, ramp: true }], gain: 0.1, gainRampEnd: 0.01, gainRampDuration: 0.5 },
+  gameover: { oscType: 'sawtooth', notes: [{ freq: 400, time: 0 }, { freq: 100, time: 1, ramp: true }], gain: 0.15, gainRampEnd: 0.01, gainRampDuration: 1 },
   perk:     { oscType: 'sine', notes: [{ freq: 988, time: 0 }, { freq: 1319, time: 0.09 }], gain: 0.12, gainRampEnd: 0.01, gainRampDuration: 0.25 },
   victory:  { oscType: 'sine', notes: [{ freq: 523, time: 0 }, { freq: 659, time: 0.15 }, { freq: 784, time: 0.3 }, { freq: 1047, time: 0.45 }, { freq: 784, time: 0.6 }, { freq: 1047, time: 0.75 }], gain: 0.15, gainRampEnd: 0.01, gainRampDuration: 1 },
 };
@@ -164,20 +166,17 @@ const UICore = {
 
     const now = ctx.currentTime;
 
-    // Set frequency notes
-    for (const { freq, time } of def.notes) {
-      osc.frequency.setValueAtTime(freq, now + time);
+    for (const { freq, time, ramp } of def.notes) {
+      if (ramp) osc.frequency.linearRampToValueAtTime(freq, now + time);
+      else osc.frequency.setValueAtTime(freq, now + time);
     }
-
-    // Set gain with exponential decay
     gain.gain.setValueAtTime(def.gain, now);
     gain.gain.exponentialRampToValueAtTime(def.gainRampEnd, now + def.gainRampDuration);
 
-    const duration = def.notes.length > 0
-      ? now + def.notes[def.notes.length - 1].time + def.gainRampDuration
-      : now + def.gainRampDuration;
+    // Sound runs until both the last note and the gain decay are done.
+    const lastNote = def.notes[def.notes.length - 1];
     osc.start(now);
-    osc.stop(duration);
+    osc.stop(now + Math.max(lastNote.time, def.gainRampDuration));
   },
 
   // Flash screen with color
@@ -385,6 +384,25 @@ const UICore = {
     }
   },
 
+
+  // Announce perk changes: toast + career log + re-render the perk list.
+  // Single owner of the announcement format — the game engine and the
+  // level-up flow call this instead of formatting messages themselves.
+  announcePerkChanges(gained: string[], lost: string[]): void {
+    for (const id of gained) {
+      const perk = PERK_BY_ID[id];
+      UI.showToast(`🏅 Perk Unlocked: ${perk.emoji} ${perk.name}`, 'success');
+      Game.addLog(`🏅 Perk unlocked: ${perk.name} — ${perk.desc}`);
+    }
+    for (const id of lost) {
+      const perk = PERK_BY_ID[id];
+      UI.showToast(`💔 Perk Lost: ${perk.emoji} ${perk.name}`, 'error');
+      Game.addLog(`💔 Perk lost: ${perk.name}`);
+    }
+    if (gained.length > 0 || lost.length > 0) {
+      UI.renderPerks();
+    }
+  },
 
   // Render active perks as chips
   renderPerks(): void {

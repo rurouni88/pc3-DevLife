@@ -4,18 +4,17 @@
 // Each condition has a stat, a predicate, and the death messages.
 // Extending with new phases just means appending to this array.
 const DEATH_CONDITIONS: {
-  stat: StatKey;
   check: (state: GameState, stats: Stats) => boolean;
   log: string;
   reason: string;
 }[] = [
-  { stat: 'S', check: (_s, s) => s.S <= 1, log: 'Technical collapse! You could no longer carry the code.', reason: '💀 Technical Collapse — You couldn\'t keep up with the technical demands. The codebase won, and your career didn\'t survive the merge.' },
-  { stat: 'P', check: (_s, s) => s.P <= 1, log: 'You lost the plot — the system became incomprehensible.', reason: '💀 Lost in the Stack — You could no longer understand the system. Every bug was a mystery and every review a guess, until there was nowhere left to debug to.' },
-  { stat: 'E', check: (_state, stats) => stats.E <= 1 && !PerkSystem.has('iron_nerves'), log: 'Burnout! You collapsed from exhaustion.', reason: '💀 Burnout — Your body and mind gave out. Too many late nights and unsustainable pace.' },
-  { stat: 'C', check: (_s, s) => s.C <= 1, log: 'Imposter syndrome overwhelmed you.', reason: '💀 Imposter Syndrome — You can\'t function in the industry anymore. The self-doubt was too much.' },
-  { stat: 'I', check: (state, stats) => stats.I <= 1 && state.day > CONFIG.game.deathThresholds.obsolescenceDay, log: 'Your skills became obsolete.', reason: '💀 Skill Obsolescence — You couldn\'t adapt. The industry moved on without you.' },
-  { stat: 'A', check: (_s, s) => s.A <= 1, log: 'Velocity hit zero — you could no longer ship.', reason: '💀 Velocity Zero — You couldn\'t deliver fast enough. Every sprint slipped and every deadline passed, and the team moved on without you.' },
-  { stat: 'L', check: (_s, s) => s.L <= 1, log: 'Your luck ran out — everything you touched broke.', reason: '💀 Bad Luck Runs Out — Every deploy broke and every guess was wrong. The universe finally stopped favoring you.' },
+  { check: (_state, stats) => stats.S <= 1, log: 'Technical collapse! You could no longer carry the code.', reason: '💀 Technical Collapse — You couldn\'t keep up with the technical demands. The codebase won, and your career didn\'t survive the merge.' },
+  { check: (_state, stats) => stats.P <= 1, log: 'You lost the plot — the system became incomprehensible.', reason: '💀 Lost in the Stack — You could no longer understand the system. Every bug was a mystery and every review a guess, until there was nowhere left to debug to.' },
+  { check: (_state, stats) => stats.E <= 1 && !PerkSystem.has('iron_nerves'), log: 'Burnout! You collapsed from exhaustion.', reason: '💀 Burnout — Your body and mind gave out. Too many late nights and unsustainable pace.' },
+  { check: (_state, stats) => stats.C <= 1, log: 'Imposter syndrome overwhelmed you.', reason: '💀 Imposter Syndrome — You can\'t function in the industry anymore. The self-doubt was too much.' },
+  { check: (state, stats) => stats.I <= 1 && state.day > CONFIG.game.deathThresholds.obsolescenceDay, log: 'Your skills became obsolete.', reason: '💀 Skill Obsolescence — You couldn\'t adapt. The industry moved on without you.' },
+  { check: (_state, stats) => stats.A <= 1, log: 'Velocity hit zero — you could no longer ship.', reason: '💀 Velocity Zero — You couldn\'t deliver fast enough. Every sprint slipped and every deadline passed, and the team moved on without you.' },
+  { check: (_state, stats) => stats.L <= 1, log: 'Your luck ran out — everything you touched broke.', reason: '💀 Bad Luck Runs Out — Every deploy broke and every guess was wrong. The universe finally stopped favoring you.' },
 ];
 
 const Game = {
@@ -225,21 +224,7 @@ const Game = {
     }
     const log = success ? resolved.choice.success.log : resolved.choice.failure.log;
     const { gained, lost } = this.applyEffects(effects);
-
-    // Announce perk changes (UI tier — caller handles display)
-    gained.forEach(id => {
-      const perk = PERK_BY_ID[id];
-      UI.showToast(`🏅 Perk Unlocked: ${perk.emoji} ${perk.name}`, 'success');
-      this.addLog(`🏅 Perk unlocked: ${perk.name} — ${perk.desc}`);
-    });
-    lost.forEach(id => {
-      const perk = PERK_BY_ID[id];
-      UI.showToast(`💔 Perk Lost: ${perk.emoji} ${perk.name}`, 'error');
-      this.addLog(`💔 Perk lost: ${perk.name}`);
-    });
-    if (gained.length > 0 || lost.length > 0) {
-      UI.renderPerks();
-    }
+    UI.announcePerkChanges(gained, lost);
 
     // Award loot if successful
     const itemDropped = this.checkForEquipmentDrop(success);
