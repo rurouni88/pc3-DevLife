@@ -478,6 +478,11 @@ export const Game = {
     const state = this.state;
     if (!state) throw new Error('Game.nextEvent: no active run');
 
+    // A finished run has no next event — the end screens own the flow from
+    // here. (issue #79: after a phase-4 win this advanced past the last
+    // phase and recursed until the stack blew.)
+    if (state.won || !state.alive) throw new Error('Game.nextEvent: run already ended');
+
     // Boss already defeated — advance and pick again
     if (state.bossCompleted) {
       this.advancePhase();

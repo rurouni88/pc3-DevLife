@@ -931,6 +931,18 @@ assert.strictEqual(ne.id, 'p2a', 'next event picked from the new phase');
 assert.ok(Game.state.careerLog[0].message.includes('Promoted'), 'promotion logged');
 console.log('✓ Game.nextEvent: non-boss cadence, boss cycle, exclusion fallback, phase advancement');
 
+// --- Game.nextEvent: a finished run has no next event (issue #79) ---
+// Without the guard, a phase-4 win (bossCompleted at the last phase) advanced
+// past the final phase and recursed until the stack blew — which killed the
+// equipment-choice → "View Retirement" flow after a winning drop.
+Game.state.won = true;
+assert.throws(() => Game.nextEvent(), /run already ended/, 'won run: nextEvent throws instead of recursing');
+Game.state.won = false;
+Game.state.alive = false;
+assert.throws(() => Game.nextEvent(), /run already ended/, 'dead run: nextEvent throws instead of recursing');
+Game.state.alive = true; // restore for later tests
+console.log('✓ Game.nextEvent: finished runs throw instead of recursing (issue #79)');
+
 // --- utils: zeroStats, clampStat, formatEffects, Fisher-Yates shuffle ---
 const zs = zeroStats();
 assert.deepStrictEqual(Object.keys(zs).sort(), ['A', 'C', 'E', 'I', 'L', 'P', 'S'], 'zeroStats: all seven stats');

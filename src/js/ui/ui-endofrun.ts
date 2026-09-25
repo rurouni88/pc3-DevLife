@@ -256,6 +256,13 @@ export const UIEndOfRun = {
       if (!state) return;
       state.pendingEquipmentDrop = null;
       UI.showScreen('game');
+      // The run ended on this event (e.g. the winning boss also dropped
+      // equipment): the outcome card is still there and its button leads
+      // to the end screens — don't ask the engine for a next event (issue #79).
+      if (state.won || !state.alive) {
+        document.getElementById('event-card')?.scrollIntoView({ block: 'end', behavior: 'smooth' });
+        return;
+      }
       UI.nextEvent();
     };
 
@@ -275,6 +282,12 @@ export const UIEndOfRun = {
 
         UI.showScreen('game');
         UI.renderEquipment();
+        // Run ended on this event — back to the outcome card, whose button
+        // leads to the end screens (issue #79).
+        if (state.won || !state.alive) {
+          document.getElementById('event-card')?.scrollIntoView({ block: 'end', behavior: 'smooth' });
+          return;
+        }
         UI.nextEvent();
       }
     };

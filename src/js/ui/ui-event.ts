@@ -516,8 +516,14 @@ export const UIEventCard = {
     if (continueBtn) continueBtn.addEventListener('click', () => {
       if (showEquipmentChoice) {
         const pending = state.pendingEquipmentDrop;
-        if (pending) UI.showEquipmentChoice(pending, [...state.equipment]);
-      } else if (result.gameOver) {
+        if (pending) {
+          UI.showEquipmentChoice(pending, [...state.equipment]);
+          return;
+        }
+        // The equipment choice was already resolved (skip/swap cleared the
+        // pending drop) — fall through to the normal chain below (issue #79).
+      }
+      if (result.gameOver) {
         UI.showGameOver(result.gameOver.reason);
       } else if (result.victory) {
         UI.showVictory();
