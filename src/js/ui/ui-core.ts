@@ -277,7 +277,7 @@ export const UICore = {
     const modal = document.getElementById('help-modal');
     if (!modal) return;
     modal.style.display = 'flex';
-    UI.setHelpTab('info');
+    UI.setHelpTab('gameplay');
     const helpVersion = document.getElementById('help-version');
     if (helpVersion) helpVersion.textContent = `v${CONFIG.version} ${CONFIG.versionLabel}`;
   },
@@ -771,6 +771,30 @@ const SVG_SYMBOLS = `
     <circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/>
     <circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/>
     <path d="M8 15s1.5-2 4-2 4 2 4 2"/>
+  </symbol>
+  <!-- Help modal icons -->
+  <symbol id="icon-skull" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="10" r="8"/>
+    <line x1="9" y1="9" x2="9.01" y2="9" stroke-width="2"/>
+    <line x1="15" y1="9" x2="15.01" y2="9" stroke-width="2"/>
+    <path d="M9 14h6"/>
+    <line x1="10" y1="16" x2="10" y2="17"/>
+    <line x1="14" y1="16" x2="14" y2="17"/>
+  </symbol>
+  <symbol id="icon-lightning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+  </symbol>
+  <symbol id="icon-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="12" r="10"/>
+    <line x1="12" y1="16" x2="12" y2="12"/>
+    <circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="icon-controller" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <rect x="2" y="6" width="20" height="12" rx="6"/>
+    <line x1="6" y1="10" x2="6" y2="14"/>
+    <line x1="4" y1="12" x2="8" y2="12"/>
+    <circle cx="16" cy="10" r="1" fill="currentColor" stroke="none"/>
+    <circle cx="18" cy="12" r="1" fill="currentColor" stroke="none"/>
   </symbol>
 `;
 

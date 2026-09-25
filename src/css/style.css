@@ -569,6 +569,14 @@ body {
   flex: 1;
 }
 
+/* Shared scrollable content area for modal lists (achievements, leaderboard, options). */
+.modal-scrollable {
+  overflow-y: auto;
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+}
+
 .modal-tab-content {
   display: none;
 }
@@ -589,6 +597,22 @@ body {
   line-height: 1.5;
 }
 
+#help-version,
+#help-about p:nth-child(3),
+#help-about p:nth-child(4) {
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+
+#help-about a {
+  color: var(--accent-green);
+  text-decoration: underline;
+}
+
+#help-about a:hover {
+  color: var(--accent-green-dim);
+}
+
 .modal-tab-content ul {
   margin: 0 0 var(--spacing-sm);
   padding-left: var(--spacing-lg);
@@ -607,10 +631,6 @@ body {
 }
 
 .achievements-list {
-  overflow-y: auto;
-  padding: var(--spacing-md);
-  display: flex;
-  flex-direction: column;
   gap: var(--spacing-sm);
 }
 
@@ -688,10 +708,7 @@ body {
 /* --- Options Modal --- */
 
 .options-list {
-  display: flex;
-  flex-direction: column;
   gap: var(--spacing-sm);
-  padding: var(--spacing-md);
 }
 
 .option-item {
@@ -894,10 +911,21 @@ body {
   letter-spacing: 0.05em;
 }
 
+.leaderboard-diff-icon {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
 .leaderboard-empty {
   font-size: 0.8rem;
   color: var(--text-muted);
   padding: var(--spacing-xs) 0;
+}
+
+.leaderboard-list {
+  gap: var(--spacing-sm);
 }
 
 .leaderboard-table {
@@ -909,7 +937,7 @@ body {
 .leaderboard-header,
 .leaderboard-row {
   display: flex;
-  gap: 8px;
+  gap: 4px;
   padding: 4px 8px;
   font-size: 0.75rem;
   font-family: var(--font-mono);
@@ -971,11 +999,14 @@ body {
   color: var(--text-secondary);
 }
 
-/* Narrow screens: shrink fixed columns and hide the tiny Result column. */
+/* Narrow screens: keep all columns, add horizontal scroll if needed. */
 @media (max-width: 480px) {
-  .lb-rank   { width: 1.5rem; }
-  .lb-year   { width: 2.5rem; }
-  .lb-result { display: none; }
+  .leaderboard-list {
+    overflow-x: auto;
+  }
+  .leaderboard-table {
+    min-width: 100%;
+  }
 }
 
 /* --- Popup Panels --- */
@@ -1439,64 +1470,6 @@ body {
   letter-spacing: 1px;
 }
 
-/* --- Panel Info / About (collapsible) + footer --- */
-.panel-info-toggle {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  background: none;
-  border: none;
-  padding: 0;
-  margin-bottom: var(--spacing-sm);
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.panel-info-toggle:active {
-  opacity: 0.7;
-}
-
-.panel-info-arrow {
-  display: inline-block;
-  transition: transform var(--transition-fast);
-}
-
-.panel-info-content {
-  display: none;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  font-size: 0.8rem;
-  line-height: 1.5;
-}
-
-.panel-info-content.open {
-  display: flex;
-}
-
-.panel-info-content p {
-  margin: 0;
-}
-
-.panel-info-lead {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--text-muted);
-}
-
-.panel-info-muted {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  color: var(--text-muted);
-}
-
 .info-block {
   padding: var(--spacing-sm);
   background: var(--bg-tertiary);
@@ -1508,6 +1481,13 @@ body {
   margin: 0 0 var(--spacing-xs);
   font-family: var(--font-mono);
   font-size: 0.8rem;
+}
+
+.info-icon {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 4px;
+  vertical-align: middle;
 }
 
 .info-block p {
@@ -1537,6 +1517,22 @@ body {
 
 .info-lose h4 {
   color: var(--accent-red);
+}
+
+.info-tips {
+  border-left-color: var(--accent-blue);
+}
+
+.info-tips h4 {
+  color: var(--accent-blue);
+}
+
+.info-about {
+  border-left-color: var(--accent-purple);
+}
+
+.info-about h4 {
+  color: var(--accent-purple);
 }
 
 .panel-footer {
@@ -2011,9 +2007,14 @@ body {
   transform: translateY(-6px) rotate(-45deg);
 }
 
-/* Hide on desktop */
+/* Hide mobile-only controls on desktop */
 @media (min-width: 900px) {
   .mobile-menu-toggle {
+    display: none;
+  }
+  /* These live inside the side panel; the panel is always open on desktop */
+  #btn-menu-toggle,
+  #btn-close-panel {
     display: none;
   }
 }
