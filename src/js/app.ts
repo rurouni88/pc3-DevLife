@@ -282,8 +282,8 @@ const App = {
     state.levelUpPoints = Math.max(0, (state.levelUpPoints || 1) - 1);
 
     // A stat increase may unlock a perk (e.g. pushing a stat to 10)
-    Game.refreshPerks();
-    UI.renderPerks();
+    const { gained, lost } = Game.refreshPerks();
+    UI.announcePerkChanges(gained, lost);
 
     // 🧠 Rapid Learner: spend remaining points one at a time
     if (state.levelUpPoints > 0) {

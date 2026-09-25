@@ -744,6 +744,34 @@ assert.strictEqual(Game._checkProbabilisticGameOver(), null, 'redundancy roll ca
 RngEngine.random = realRngRandom;
 console.log('✓ game over: saving roll survive/death, redundancy risk');
 
+// --- Game over: death condition table (Iron Nerves, obsolescence gate, per-stat reasons) ---
+// Iron Nerves exempts an E-floor death; without it, burnout fires.
+freshRun({ S: 5, P: 5, E: 10, C: 5, I: 5, A: 5, L: 5 });
+assert.ok(PerkSystem.has('iron_nerves'), 'E=10 grants Iron Nerves');
+SpecialSystem.stats.E = 1; // dropped after the perk was earned — no re-refresh
+d20 = () => 8; // 8 > 7.5 → any save would fail
+assert.strictEqual(Game._checkDeterministicGameOver(), null, 'Iron Nerves exempts E-floor death');
+freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+SpecialSystem.stats.E = 1;
+const burnout = Game._checkDeterministicGameOver();
+assert.ok(burnout && burnout.reason.includes('Burnout'), 'E-floor without Iron Nerves → burnout');
+// Obsolescence is day-gated: I on the floor at the threshold day is survivable.
+freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+SpecialSystem.stats.I = 1;
+Game.state.day = CONFIG.game.deathThresholds.obsolescenceDay;
+assert.strictEqual(Game._checkDeterministicGameOver(), null, 'I-floor at the threshold day → no death');
+Game.state.day = CONFIG.game.deathThresholds.obsolescenceDay + 1;
+const obsolete = Game._checkDeterministicGameOver();
+assert.ok(obsolete && obsolete.reason.includes('Obsolescence'), 'I-floor past the threshold day → obsolescence');
+// Every remaining stat has its own death reason in the table.
+for (const [stat, keyword] of [['P', 'Lost in the Stack'], ['C', 'Imposter'], ['A', 'Velocity'], ['L', 'Luck']]) {
+  freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
+  SpecialSystem.stats[stat] = 1;
+  const d = Game._checkDeterministicGameOver();
+  assert.ok(d && d.reason.includes(keyword), `${stat}-floor → ${keyword}`);
+}
+console.log('✓ game over: death condition table (Iron Nerves, obsolescence gate, per-stat reasons)');
+
 // --- dangerStats: one hit from the saving-roll floor ---
 freshRun({ S: 2, P: 3, E: 2, C: 5, I: 5, A: 5, L: 5 });
 assert.deepStrictEqual(Game.dangerStats(), ['S', 'E'], 'warns at 2, not at 3');

@@ -1,4 +1,22 @@
 // Core game engine
+
+// Deterministic death conditions — ordered array. The first match wins.
+// Each condition has a stat, a predicate, and the death messages.
+// Extending with new phases just means appending to this array.
+const DEATH_CONDITIONS: {
+  check: (state: GameState, stats: Stats) => boolean;
+  log: string;
+  reason: string;
+}[] = [
+  { check: (_state, stats) => stats.S <= 1, log: 'Technical collapse! You could no longer carry the code.', reason: '💀 Technical Collapse — You couldn\'t keep up with the technical demands. The codebase won, and your career didn\'t survive the merge.' },
+  { check: (_state, stats) => stats.P <= 1, log: 'You lost the plot — the system became incomprehensible.', reason: '💀 Lost in the Stack — You could no longer understand the system. Every bug was a mystery and every review a guess, until there was nowhere left to debug to.' },
+  { check: (_state, stats) => stats.E <= 1 && !PerkSystem.has('iron_nerves'), log: 'Burnout! You collapsed from exhaustion.', reason: '💀 Burnout — Your body and mind gave out. Too many late nights and unsustainable pace.' },
+  { check: (_state, stats) => stats.C <= 1, log: 'Imposter syndrome overwhelmed you.', reason: '💀 Imposter Syndrome — You can\'t function in the industry anymore. The self-doubt was too much.' },
+  { check: (state, stats) => stats.I <= 1 && state.day > CONFIG.game.deathThresholds.obsolescenceDay, log: 'Your skills became obsolete.', reason: '💀 Skill Obsolescence — You couldn\'t adapt. The industry moved on without you.' },
+  { check: (_state, stats) => stats.A <= 1, log: 'Velocity hit zero — you could no longer ship.', reason: '💀 Velocity Zero — You couldn\'t deliver fast enough. Every sprint slipped and every deadline passed, and the team moved on without you.' },
+  { check: (_state, stats) => stats.L <= 1, log: 'Your luck ran out — everything you touched broke.', reason: '💀 Bad Luck Runs Out — Every deploy broke and every guess was wrong. The universe finally stopped favoring you.' },
+];
+
 const Game = {
   state: null as GameState | null,
 
@@ -205,7 +223,8 @@ const Game = {
       }
     }
     const log = success ? resolved.choice.success.log : resolved.choice.failure.log;
-    this.applyEffects(effects);
+    const { gained, lost } = this.applyEffects(effects);
+    UI.announcePerkChanges(gained, lost);
 
     // Award loot if successful
     const itemDropped = this.checkForEquipmentDrop(success);
@@ -302,7 +321,9 @@ const Game = {
   },
 
   // Apply stat effects from choice outcome.
-  applyEffects(effects: Partial<Stats>): { hasNegativeEffects: boolean } {
+  // Returns { gained, lost } so the caller can display UI — this keeps
+  // Game (logic tier) free of DOM dependencies.
+  applyEffects(effects: Partial<Stats>): { hasNegativeEffects: boolean; gained: string[]; lost: string[] } {
     const hasNegativeEffects = Object.entries(effects).some(([_, v]) => (v as number) < 0);
 
     for (const [stat, value] of Object.entries(effects) as [StatKey, number][]) {
@@ -310,28 +331,15 @@ const Game = {
       SpecialSystem.stats[stat] = clampStat(SpecialSystem.stats[stat] + value);
     }
 
-    // Stat changes may unlock or revoke perks
-    this.refreshPerks();
+    // Stat changes may unlock or revoke perks — return the delta, not UI.
+    const { gained, lost } = PerkSystem.refresh();
 
-    return { hasNegativeEffects };
+    return { hasNegativeEffects, gained, lost };
   },
 
-  // Recompute active perks and announce changes
-  refreshPerks(): void {
-    const { gained, lost } = PerkSystem.refresh();
-    gained.forEach(id => {
-      const perk = PERK_BY_ID[id];
-      UI.showToast(`🏅 Perk Unlocked: ${perk.emoji} ${perk.name}`, 'success');
-      this.addLog(`🏅 Perk unlocked: ${perk.name} — ${perk.desc}`);
-    });
-    lost.forEach(id => {
-      const perk = PERK_BY_ID[id];
-      UI.showToast(`💔 Perk Lost: ${perk.emoji} ${perk.name}`, 'error');
-      this.addLog(`💔 Perk lost: ${perk.name}`);
-    });
-    if (gained.length > 0 || lost.length > 0) {
-      UI.renderPerks();
-    }
+  // Recompute active perks. Returns { gained, lost } — pure logic, no UI.
+  refreshPerks(): { gained: string[]; lost: string[] } {
+    return PerkSystem.refresh();
   },
 
   // Check for equipment drop and handle inventory
@@ -395,24 +403,7 @@ const Game = {
     const stats = SpecialSystem.stats;
 
     // Find the first deterministic death condition met (order preserved).
-    let death: { log: string; reason: string } | null = null;
-    if (stats.S <= 1) {
-      death = { log: 'Technical collapse! You could no longer carry the code.', reason: '💀 Technical Collapse — You couldn\'t keep up with the technical demands. The codebase won, and your career didn\'t survive the merge.' };
-    } else if (stats.P <= 1) {
-      death = { log: 'You lost the plot — the system became incomprehensible.', reason: '💀 Lost in the Stack — You could no longer understand the system. Every bug was a mystery and every review a guess, until there was nowhere left to debug to.' };
-    } else if (stats.E <= 1 && !PerkSystem.has('iron_nerves')) {
-      death = { log: 'Burnout! You collapsed from exhaustion.', reason: '💀 Burnout — Your body and mind gave out. Too many late nights and unsustainable pace.' };
-    } else if (stats.C <= 1) {
-      death = { log: 'Imposter syndrome overwhelmed you.', reason: '💀 Imposter Syndrome — You can\'t function in the industry anymore. The self-doubt was too much.' };
-    } else if (stats.I <= 1 && careerState.day > CONFIG.game.deathThresholds.obsolescenceDay) {
-      death = { log: 'Your skills became obsolete.', reason: '💀 Skill Obsolescence — You couldn\'t adapt. The industry moved on without you.' };
-    } else if (stats.A <= 1) {
-      death = { log: 'Velocity hit zero — you could no longer ship.', reason: '💀 Velocity Zero — You couldn\'t deliver fast enough. Every sprint slipped and every deadline passed, and the team moved on without you.' };
-    } else if (stats.L <= 1) {
-      death = { log: 'Your luck ran out — everything you touched broke.', reason: '💀 Bad Luck Runs Out — Every deploy broke and every guess was wrong. The universe finally stopped favoring you.' };
-    }
-
-    // No stat on the floor — no deterministic death pending.
+    const death = DEATH_CONDITIONS.find(c => c.check(careerState, stats));
     if (!death) return null;
 
     // Attempt the saving roll.
