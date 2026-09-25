@@ -42,7 +42,6 @@ export const UNIVERSAL_ACHIEVEMENTS: AchievementDefinition[] = [
     title: 'Fixed In Production.',
     description: "Completed the game on Hard difficulty without reading the documentation. Talk about deploying a high-'risk' architecture!",
     emoji: '🏆',
-    implemented: false,
     check: (s) => s.won,
   },
   {
@@ -97,8 +96,7 @@ export const UNIVERSAL_ACHIEVEMENTS: AchievementDefinition[] = [
 ];
 
 // --- Archetype Achievements ---
-// Keys and the `archetype` field use the ARCHETYPES keys. Hard-mode entries are
-// not implemented until HARD difficulty ships (issue #6).
+// Keys and the `archetype` field use the ARCHETYPES keys.
 
 export const ARCHETYPE_ACHIEVEMENTS: Record<string, ArchetypeAchievement[]> = {
   architect: [
@@ -119,7 +117,6 @@ export const ARCHETYPE_ACHIEVEMENTS: Record<string, ArchetypeAchievement[]> = {
       description: "Completed the game using nothing but 47 interconnected UML diagrams and a prayer. You really drew the short 'string' on this layout.",
       emoji: '📝',
       check: (s) => s.won,
-      implemented: false,
     },
   ],
   startup: [
@@ -140,7 +137,6 @@ export const ARCHETYPE_ACHIEVEMENTS: Record<string, ArchetypeAchievement[]> = {
       description: "Completely rewrote the core gameplay loop at 3 AM the night before launch because the CEO saw a tweet. Talk about an artificial 'intelligence' crisis!",
       emoji: '🔄',
       check: (s) => s.won,
-      implemented: false,
     },
   ],
   systems: [
@@ -161,7 +157,6 @@ export const ARCHETYPE_ACHIEVEMENTS: Record<string, ArchetypeAchievement[]> = {
       description: "Refused to use any libraries and beat the game using only C, custom assembly, and sheer stubbornness. You've truly got some 'register'-ed anger issues.",
       emoji: '🩸',
       check: (s) => s.won,
-      implemented: false,
     },
   ],
   advocate: [
@@ -182,7 +177,6 @@ export const ARCHETYPE_ACHIEVEMENTS: Record<string, ArchetypeAchievement[]> = {
       description: "Managed to maintain a smile and complete the game while being bombarded by toxic comments on Hacker News. Way to 'buffer' the incoming insults!",
       emoji: '🎢',
       check: (s) => s.won,
-      implemented: false,
     },
   ],
   balanced: [
@@ -203,7 +197,6 @@ export const ARCHETYPE_ACHIEVEMENTS: Record<string, ArchetypeAchievement[]> = {
       description: "Completed the game while simultaneously wrestling with CSS specificity and database deadlocks. Talk about a 'class'ic case of mixed 'signals'.",
       emoji: '🌀',
       check: (s) => s.won,
-      implemented: false,
     },
   ],
   sre: [
@@ -224,7 +217,6 @@ export const ARCHETYPE_ACHIEVEMENTS: Record<string, ArchetypeAchievement[]> = {
       description: "Beat the game while the alarm siren was constantly blaring in the background. You really know how to keep your composure under intense 'pipeline' pressure.",
       emoji: '🚨',
       check: (s) => s.won,
-      implemented: false,
     },
   ],
   pentester: [
@@ -245,7 +237,6 @@ export const ARCHETYPE_ACHIEVEMENTS: Record<string, ArchetypeAchievement[]> = {
       description: "Beat the final boss by guessing their password was 'Password123!'. They really handed over the 'keys' to the kingdom on a silver platter.",
       emoji: '🎣',
       check: (s) => s.won,
-      implemented: false,
     },
   ],
   archeologist: [
@@ -266,7 +257,6 @@ export const ARCHETYPE_ACHIEVEMENTS: Record<string, ArchetypeAchievement[]> = {
       description: "Successfully summoned and debugged code written by a developer who retired before you were born. That's some ancient 'history' you've just 'compiled'.",
       emoji: '💀',
       check: (s) => s.won,
-      implemented: false,
     },
   ],
   em: [
@@ -287,7 +277,6 @@ export const ARCHETYPE_ACHIEVEMENTS: Record<string, ArchetypeAchievement[]> = {
       description: "Beat the final boss solely by scheduling back-to-back status update meetings until they surrendered. You really 'blocked' their schedule into submission.",
       emoji: '📧',
       check: (s) => s.won,
-      implemented: false,
     },
   ],
 };
