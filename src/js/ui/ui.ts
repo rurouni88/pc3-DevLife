@@ -18,5 +18,6 @@ import { UIDice } from './ui-dice.js';
 import { UILeaderboard } from './ui-leaderboard.js';
 import { UIAchievements } from './ui-achievements.js';
 import { UIStatistics } from './ui-statistics.js';
+import { UISettings } from './ui-settings.js';
 
-export const UI = Object.assign({}, UICore, UICharacter, UILevelUp, UIEndOfRun, UIEventCard, UITooltip, UIDice, UILeaderboard, UIAchievements, UIStatistics);
+export const UI = Object.assign({}, UICore, UICharacter, UILevelUp, UIEndOfRun, UIEventCard, UITooltip, UIDice, UILeaderboard, UIAchievements, UIStatistics, UISettings);

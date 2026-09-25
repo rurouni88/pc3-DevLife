@@ -47,6 +47,26 @@
   --transition-normal: 250ms ease;
 }
 
+/* Light theme — overrides dark-mode defaults. */
+[data-theme="light"] {
+  --bg-primary: #f5f5f5;
+  --bg-secondary: #e8e8e8;
+  --bg-tertiary: #ffffff;
+  --bg-card: #ffffff;
+  --border-color: #d0d0d0;
+  --text-primary: #1a1a1a;
+  --text-secondary: #333333;
+  --text-muted: #666666;
+  --accent-green: #008844;
+  --accent-green-dim: #006633;
+  --accent-blue: #0277bd;
+  --accent-red: #d32f2f;
+  --accent-yellow: #8b6914;
+  --accent-purple: #7e57c2;
+  --accent-orange: #bf360c;
+  --accent-cyan: #00838f;
+}
+
 html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
@@ -720,7 +740,7 @@ body {
   height: 1rem;
 }
 
-.stats-icon, .reset-icon {
+.stats-icon, .reset-icon, .settings-icon {
   width: 1.2rem;
   height: 1.2rem;
 }
@@ -752,6 +772,89 @@ body {
 .stat-row-label {
   font-size: 0.9rem;
   color: var(--text-secondary);
+}
+
+/* --- Settings Screen --- */
+.settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.setting-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.setting-value {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  min-width: 3ch;
+  text-align: right;
+}
+
+.setting-description {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 2px 0;
+}
+
+/* Toggle switch (audio on/off) */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 2px;
+  bottom: 2px;
+  background: var(--text-secondary);
+  border-radius: 50%;
+  transition: transform var(--transition-fast);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: var(--accent-green);
+  border-color: var(--accent-green);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(20px);
+  background: white;
 }
 
 /* --- Leaderboard Trophy --- */
@@ -2509,6 +2612,12 @@ body {
   font-size: 1.5rem;
 }
 
+.tooltip-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--accent-green);
+}
+
 .tooltip-name {
   font-family: var(--font-mono);
   font-weight: 700;
@@ -2570,6 +2679,10 @@ body {
 
 .toast.error {
   border-color: var(--accent-red);
+}
+
+.toast.warning {
+  border-color: var(--accent-yellow);
 }
 
 @keyframes toast-in {

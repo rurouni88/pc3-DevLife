@@ -109,11 +109,13 @@ export const UICore = {
     UI.renderDifficultySelector();
   },
 
-  // Seed display on title screen — shows the current seed and a re-roll button.
+  // Seed display on title screen — shows the current seed, a re-roll button,
+  // and an edit button for custom seeds.
   initSeedDisplay(): void {
     const display = document.getElementById('seed-display');
     const value = document.getElementById('seed-value');
     const reRollBtn = document.getElementById('btn-re-roll-seed');
+    const editBtn = document.getElementById('btn-edit-seed');
     if (!display || !value || !reRollBtn) return;
 
     // Seed is generated when the title screen first loads.
@@ -129,10 +131,39 @@ export const UICore = {
       value.textContent = newSeed;
       UI.playSound('click');
     });
+
+    // Edit — open the seed-edit popup with the current seed pre-filled.
+    if (editBtn) {
+      editBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        UI.playSound('click');
+        const input = document.getElementById('seed-edit-input') as HTMLInputElement | null;
+        const error = document.getElementById('seed-edit-error');
+        if (input) {
+          input.value = value.textContent || '';
+          input.readOnly = false;
+        }
+        if (error) error.style.display = 'none';
+        UI.openPopup('seed-edit');
+      });
+    }
   },
 
   // Audio context for sound effects
   audioCtx: null as AudioContext | null,
+
+  // Global audio toggle — persisted in settings (ui-settings.ts).
+  audioOn: true,
+
+  // Global volume (0 = mute, 1 = full). Persisted in settings.
+  volume: 0.5,
+
+  // Dice animation toggle — persisted in settings (ui-settings.ts).
+  diceAnimationOn: true,
+
+  // Save Scum toggle: when ON, the save button is enabled during a run.
+  // When OFF (default), saving is disabled mid-run — no save scumming.
+  saveScumOn: false,
 
   // Initialize audio (must be called after user interaction)
   initAudio(): void {
@@ -142,6 +173,7 @@ export const UICore = {
 
   // Play a sound effect — looks up the definition and plays it.
   playSound(type: string): void {
+    if (!UI.audioOn) return;
     const def = SOUND_DEFS[type];
     if (!def) return;
     if (!UI.audioCtx) UI.initAudio();
@@ -161,7 +193,7 @@ export const UICore = {
       if (ramp) osc.frequency.linearRampToValueAtTime(freq, now + time);
       else osc.frequency.setValueAtTime(freq, now + time);
     }
-    gain.gain.setValueAtTime(def.gain, now);
+    gain.gain.setValueAtTime(def.gain * UI.volume, now);
     gain.gain.exponentialRampToValueAtTime(def.gainRampEnd, now + def.gainRampDuration);
 
     // Sound runs until both the last note and the gain decay are done.
@@ -702,6 +734,20 @@ const SVG_SYMBOLS = `
   </symbol>
   <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <polyline points="20 6 9 17 4 12"/>
+  </symbol>
+  <symbol id="icon-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M16.47 2.53a2.5 2.5 0 0 1 3.54 3.54L7 19 2 21l2-5z"/>
+  </symbol>
+  <symbol id="icon-speaker" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+  </symbol>
+  <symbol id="icon-volume" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+    <line x1="14" y1="10" x2="22" y2="10"/>
   </symbol>
 `;
 
