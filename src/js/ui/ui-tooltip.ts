@@ -20,6 +20,7 @@ export const UITooltip = {
     effects?: Partial<Stats>;
     consumableSlots?: number;
     color?: string;
+    icon?: string;  // SVG icon ID (e.g. 'icon-speaker')
   }): void {
     const tooltip = document.getElementById('item-tooltip');
     if (!tooltip) return;
@@ -28,19 +29,24 @@ export const UITooltip = {
       const el = tooltip.querySelector(sel);
       if (el) el.textContent = text;
     };
-    setTooltipText('.tooltip-emoji', item.emoji || '');
+
+    // Render SVG icon if provided, otherwise fall back to emoji text.
+    const emojiEl = tooltip.querySelector<HTMLElement>('.tooltip-emoji');
+    if (emojiEl) {
+      if (item.icon) {
+        emojiEl.innerHTML = `<svg class="tooltip-icon"><use href="#${item.icon}"/></svg>`;
+        emojiEl.style.color = item.color || '';
+      } else {
+        emojiEl.textContent = item.emoji || '';
+        emojiEl.style.color = item.color || '';
+      }
+    }
     setTooltipText('.tooltip-name', item.name || '');
     setTooltipText('.tooltip-desc', item.desc || '');
 
-    // Optional accent colour for the glyph and name (e.g. a stat's colour).
-    // Reset when absent so it doesn't linger from a previous tooltip. Real
-    // emojis ignore colour, so the glyph only affects text glyphs like the
-    // stat letter.
-    const accent = item.color || '';
-    const emojiEl = tooltip.querySelector<HTMLElement>('.tooltip-emoji');
-    if (emojiEl) emojiEl.style.color = accent;
+    // Optional accent colour for the name (e.g. a stat's colour).
     const nameEl = tooltip.querySelector<HTMLElement>('.tooltip-name');
-    if (nameEl) nameEl.style.color = accent;
+    if (nameEl) nameEl.style.color = item.color || '';
 
     // Build effect text (only for consumables/equipment, not perks)
     let effectText = '';

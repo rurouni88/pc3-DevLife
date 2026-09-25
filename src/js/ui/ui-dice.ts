@@ -4,6 +4,7 @@
 
 // Create the SVG d20 (icosahedron projection) with a number overlay.
 import { CONFIG } from '../core/config.js';
+import { UI } from './ui.js'; // cycle: safe — diceAnimationOn is read at call time
 
 
 function createDiceSVG(value: number): SVGSVGElement {
@@ -147,6 +148,11 @@ let diceAnimating = false;
 // Triggers the animation and calls callback when done.
 function showDiceRoll(rolls: DiceRoll[], callback?: () => void): void {
   if (diceAnimating) return;
+  // Player has disabled dice animation — skip to the callback immediately.
+  if (!UI.diceAnimationOn) {
+    callback?.();
+    return;
+  }
   diceAnimating = true;
   animateDiceRoll(rolls, () => {
     diceAnimating = false;

@@ -3,6 +3,7 @@
 // the static imports below.
 
 import { CONFIG } from './core/config.js';
+import { RngEngine } from './core/seeded-rng.js';
 import { zeroStats } from './core/utils.js';
 import { STAT_KEYS } from './data/archetypes.js';
 import { CONSUMABLES, EQUIPMENT } from './data/items.js';
@@ -14,6 +15,7 @@ import { SaveSystem } from './engine/save.js';
 import { SpecialSystem } from './engine/special.js';
 import { UI } from './ui/ui.js';
 import { initSvgAssets } from './ui/ui-core.js';
+import { loadSettings, applyTheme } from './ui/ui-settings.js';
 import type { Consumable, Equipment, StatKey } from './core/types.js';
 
 export const App = {
@@ -32,6 +34,20 @@ export const App = {
     if (versionBadge) versionBadge.textContent = versionText;
     const aboutVersion = document.getElementById('about-version');
     if (aboutVersion) aboutVersion.textContent = versionText;
+
+    // Apply persisted theme (or system preference on first load).
+    const settings = loadSettings();
+    const hasSavedTheme = typeof localStorage !== 'undefined' && localStorage.getItem('devlife_settings');
+    if (!hasSavedTheme && typeof window !== 'undefined') {
+      // First load — respect system preference.
+      const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+      settings.theme = prefersLight ? 'light' : 'dark';
+      applyTheme(settings.theme);
+      try { localStorage.setItem('devlife_settings', JSON.stringify(settings)); } catch {}
+    } else {
+      // Has saved preference — use it.
+      applyTheme(settings.theme);
+    }
   },
 
   bindEvents(): void {
@@ -83,6 +99,50 @@ export const App = {
       UI.closePopup();
     });
 
+    // Options menu — Settings (issue #??)
+    bind('btn-options-settings', () => {
+      UI.closeOptions();
+      UI.showSettings();
+    });
+    bind('btn-settings-back', () => {
+      UI.closeSettings();
+    });
+
+    // Popup seed-edit confirm/cancel
+    bind('btn-popup-seed-cancel', () => {
+      UI.closePopup();
+    });
+    bind('btn-popup-seed-confirm', () => {
+      const input = document.getElementById('seed-edit-input') as HTMLInputElement | null;
+      const error = document.getElementById('seed-edit-error');
+      if (!input || !error) { UI.closePopup(); return; }
+      const raw = input.value.trim();
+      if (raw.length !== 8) {
+        error.textContent = 'Seed must be exactly 8 characters.';
+        error.style.display = 'block';
+        return;
+      }
+      if (!/^[A-Za-z0-9]+$/.test(raw)) {
+        error.textContent = 'Only A–Z and 0–9 are allowed.';
+        error.style.display = 'block';
+        return;
+      }
+      const seed = raw.toUpperCase();
+      RngEngine.seedWith(seed);
+      const value = document.getElementById('seed-value');
+      if (value) value.textContent = seed;
+      UI.closePopup();
+      UI.playSound('click');
+    });
+    // Clear error as the user types
+    const seedInput = document.getElementById('seed-edit-input');
+    if (seedInput) {
+      seedInput.addEventListener('input', () => {
+        const error = document.getElementById('seed-edit-error');
+        if (error) error.style.display = 'none';
+      });
+    }
+
     // Hamburger menu toggle (mobile)
     bind('btn-menu-toggle-main', () => {
       const panel = document.getElementById('side-panel');
@@ -119,7 +179,14 @@ export const App = {
     bindInfoToggle('btn-toggle-info', 'info-content', 'info-arrow');
     bindInfoToggle('btn-toggle-about', 'about-content', 'about-arrow');
 
-    bind('btn-save', () => UI.openPopup('save'));
+    bind('btn-save', () => {
+      // Save Scum setting: only allow saving when the toggle is ON.
+      if (!UI.saveScumOn) {
+        UI.showToast('Save Scum is disabled — you cannot save during a run.', 'warning');
+        return;
+      }
+      UI.openPopup('save');
+    });
 
     // Game over / Victory
     bind('btn-new-career', () => this.startNewGame());
