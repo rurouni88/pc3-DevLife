@@ -99,7 +99,7 @@ const UNIVERSAL_ACHIEVEMENTS: AchievementDefinition[] = [
     description: "Unlock 5 consumable slots. Your inventory is held together by a single string of legacy code. If you try to 'unload' just one item, the whole stack will 'overflow' and bring down the system.",
     emoji: '📦',
     implemented: false,
-    check: (s) => Game.consumableCap(s.equipment) >= 5,
+    check: (s) => consumableCapFor(s.equipment) >= 5,
   },
 ];
 

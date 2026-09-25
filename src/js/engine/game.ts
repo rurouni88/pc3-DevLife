@@ -24,8 +24,9 @@ const Game = {
   // (the Backpack). A run's ending equipment carries over as-is, so this
   // is also the right cap for the next run's starting stash.
   consumableCap(equipment?: Equipment[]): number {
-    const items = equipment || (this.state ? this.state.equipment : []);
-    return CONFIG.game.consumableCap + items.reduce((sum, item) => sum + (item.consumableSlots || 0), 0);
+    // The cap formula itself lives in items.ts (consumableCapFor) — the
+    // engine only adds the state fallback.
+    return consumableCapFor(equipment || (this.state ? this.state.equipment : []));
   },
 
   // Initialize a new game. Difficulty is fixed at run start (issue #6) and

@@ -84,6 +84,14 @@ const RARITY_WEIGHTS: Record<Rarity, number> = {
 };
 
 // Get random equipment item (rarity-weighted)
+// The consumable-slot cap for a given equipment loadout: the base cap plus
+// any slot bonuses the equipment grants (the Backpack). Pure — takes the
+// equipment explicitly, so data-tier callers (achievements) can use it
+// without the game engine.
+function consumableCapFor(equipment: Equipment[]): number {
+  return CONFIG.game.consumableCap + equipment.reduce((sum, item) => sum + (item.consumableSlots || 0), 0);
+}
+
 function getRandomEquipment(): Equipment {
   const totalWeight = Object.values(RARITY_WEIGHTS).reduce((a, b) => a + b, 0);
   let roll = RngEngine.random() * totalWeight;
