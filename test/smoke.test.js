@@ -33,9 +33,9 @@ for (const ref of assetRefs) {
 console.log(`✓ smoke: all ${assetRefs.length} referenced scripts/stylesheets present in dist/`);
 
 // 2. Every data file the game fetches at runtime must be present in dist/.
-const eventsJs = fs.readFileSync(path.join(dist, 'js', 'events.js'), 'utf8');
+const eventsJs = fs.readFileSync(path.join(dist, 'js', 'data', 'events.js'), 'utf8');
 const fetchPaths = [...eventsJs.matchAll(/['"](data\/[^'"]+\.json)['"]/g)].map(m => m[1]);
-assert.ok(fetchPaths.length > 0, 'expected runtime data fetch paths in dist/js/events.js');
+assert.ok(fetchPaths.length > 0, 'expected runtime data fetch paths in dist/js/data/events.js');
 for (const ref of fetchPaths) {
   assert.ok(fs.existsSync(path.join(dist, ref)), `dist/ is missing a fetched data file: ${ref}`);
 }
