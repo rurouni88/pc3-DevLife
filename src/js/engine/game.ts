@@ -223,8 +223,9 @@ const Game = {
       }
     }
     const log = success ? resolved.choice.success.log : resolved.choice.failure.log;
-    const { gained, lost } = this.applyEffects(effects);
-    UI.announcePerkChanges(gained, lost);
+    const perkChanges = this.applyEffects(effects);
+    // The UI announces perkChanges (returned below) — the engine never
+    // touches the DOM.
 
     // Award loot if successful
     const itemDropped = this.checkForEquipmentDrop(success);
@@ -271,6 +272,7 @@ const Game = {
       bossDefeated: resolved.isBoss,
       cleanDeployUsed: resolved.cleanDeployUsed,
       ironNervesUsed,
+      perkChanges,
       newAchievements
     };
   },

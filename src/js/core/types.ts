@@ -142,6 +142,8 @@ interface ProcessResult {
   bossDefeated?: boolean;
   cleanDeployUsed?: boolean;
   ironNervesUsed?: boolean;
+  // Perks gained/lost by this choice's effects — the UI announces these.
+  perkChanges?: { gained: string[]; lost: string[] };
   // Achievements unlocked by this (run-ending) choice — the UI toasts these.
   newAchievements?: AchievementDefinition[];
 }

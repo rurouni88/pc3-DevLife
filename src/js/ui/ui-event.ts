@@ -329,6 +329,10 @@ const UIEventCard = {
     const state = Game.state;
     if (!state) return;
 
+    // Announce perk changes from this choice's effects (the engine returns
+    // them; the UI owns the announcement).
+    if (result.perkChanges) UI.announcePerkChanges(result.perkChanges.gained, result.perkChanges.lost);
+
     // Update UI elements
     UI.renderSpecialStats();
     UI.renderEquipment();

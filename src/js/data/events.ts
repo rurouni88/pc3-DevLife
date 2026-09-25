@@ -77,9 +77,10 @@ function validateEvents(events: GameEvent[]): void {
   });
 }
 
-// Initialize event loading (skipped in the test VM, which has no fetch —
-// tests populate EVENTS directly)
-if (typeof fetch !== 'undefined') {
+// Initialize event loading (skipped outside the browser — tests populate
+// EVENTS directly). Guard on document, not fetch: Node has fetch but no DOM,
+// and the load-error fallback needs the DOM to display.
+if (typeof document !== 'undefined') {
   initEvents().catch(err => {
     console.error('[d20().devLife] Failed to load events:', err);
     showEventsLoadError();
