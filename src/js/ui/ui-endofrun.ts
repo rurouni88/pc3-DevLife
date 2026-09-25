@@ -121,9 +121,10 @@ export const UIEndOfRun = {
     const summary = Game.getSummary();
     const container = document.getElementById('gameover-summary');
     if (!summary || !container) return;
+    const diffIcon = summary.difficulty === 'easy' ? 'icon-easy' : summary.difficulty === 'normal' ? 'icon-normal' : 'icon-hard';
     container.innerHTML = `
       <div class="summary-row"><span class="label">Run #</span><span class="value">${summary.runNumber}</span></div>
-      <div class="summary-row"><span class="label">Difficulty</span><span class="value">${CONFIG.game.difficulty[summary.difficulty].emoji} ${CONFIG.game.difficulty[summary.difficulty].label}</span></div>
+      <div class="summary-row"><span class="label">Difficulty</span><span class="value"><svg class="difficulty-icon summary-diff-icon"><use href="#${diffIcon}"/></svg> ${CONFIG.game.difficulty[summary.difficulty].label}</span></div>
       <div class="summary-row"><span class="label">Run Started As</span><span class="value">${archetypeDisplayName(summary.archetype)}</span></div>
       <div class="summary-row"><span class="label">Level Reached</span><span class="value">${summary.level}</span></div>
       <div class="summary-row"><span class="label">Final Position</span><span class="value">${CONFIG.game.phaseNames[summary.phase] || summary.phase}</span></div>
@@ -155,9 +156,10 @@ export const UIEndOfRun = {
 
     const summary = Game.getSummary();
     if (!summary) return;
+    const vDiffIcon = summary.difficulty === 'easy' ? 'icon-easy' : summary.difficulty === 'normal' ? 'icon-normal' : 'icon-hard';
     summaryContainer.innerHTML = `
       <div class="summary-row"><span class="label">Run #</span><span class="value">${summary.runNumber}</span></div>
-      <div class="summary-row"><span class="label">Difficulty</span><span class="value">${CONFIG.game.difficulty[summary.difficulty].emoji} ${CONFIG.game.difficulty[summary.difficulty].label}</span></div>
+      <div class="summary-row"><span class="label">Difficulty</span><span class="value"><svg class="difficulty-icon summary-diff-icon"><use href="#${vDiffIcon}"/></svg> ${CONFIG.game.difficulty[summary.difficulty].label}</span></div>
       <div class="summary-row"><span class="label">Run Started As</span><span class="value">${archetypeDisplayName(summary.archetype)}</span></div>
       <div class="summary-row"><span class="label">Final Level</span><span class="value">${summary.level}</span></div>
       <div class="summary-row"><span class="label">Final Position</span><span class="value">${CONFIG.game.phaseNames[summary.phase] || summary.phase} 🏆</span></div>

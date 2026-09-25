@@ -292,6 +292,13 @@ body {
   flex-shrink: 0;
 }
 
+.summary-diff-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
 .difficulty-lozenge:hover:not(.locked) {
   color: var(--text-primary);
   border-color: var(--text-muted);
