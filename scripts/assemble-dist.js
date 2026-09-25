@@ -20,9 +20,11 @@
 //
 // Run after `npm run build`.
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const srcDir = path.join(root, 'src');
 const dist = path.join(root, 'dist');
@@ -41,6 +43,12 @@ if (!fs.existsSync(path.join(dist, 'js'))) {
 //    js/ and css/ relative to the site root).
 fs.copyFileSync(path.join(srcDir, 'index.html'), path.join(dist, 'index.html'));
 console.log('[assemble] src/index.html -> dist/index.html');
+
+// 1b. src/_headers -> dist/_headers (GitHub Pages cache policy: revalidate
+//     js/ and css/ by ETag — the module graph is fetched by bare URL, so
+//     per-file ?v= cache-busting doesn't apply to sub-resources).
+fs.copyFileSync(path.join(srcDir, '_headers'), path.join(dist, '_headers'));
+console.log('[assemble] src/_headers -> dist/_headers');
 
 // 2. src/css/ -> dist/css/
 copyDir(path.join(srcDir, 'css'), path.join(dist, 'css'));

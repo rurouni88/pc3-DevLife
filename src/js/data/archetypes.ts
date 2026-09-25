@@ -1,5 +1,8 @@
 // Archetypes — predefined starting builds
-const ARCHETYPES: Record<string, Archetype> = {
+import { CONFIG } from '../core/config.js';
+import type { Archetype, StatKey, Stats } from '../core/types.js';
+
+export const ARCHETYPES: Record<string, Archetype> = {
   architect: {
     name: "The Principal Architect",
     description: "High-level design & stakeholder alignment",
@@ -57,56 +60,11 @@ const ARCHETYPES: Record<string, Archetype> = {
   }
 };
 
-// Stat metadata
-const STAT_META: Record<StatKey, { name: string; short: string; desc: string; color: string }> = {
-  S: {
-    name: "Strength",
-    short: "Technical Depth & Raw Coding Power",
-    desc: "Measures your ability to handle heavy computational workloads and write complex, performant code. High Strength means you can brute-force a massive legacy codebase migration, master complex memory management, and write highly optimized algorithms.",
-    color: '#ff6b6b'
-  },
-  P: {
-    name: "Perception",
-    short: "Code Comprehension & Debugging",
-    desc: "Represents your environmental awareness within a system. High Perception allows you to instantly spot subtle bugs during code reviews, predict system failures before they happen, and easily navigate massive, unfamiliar microservice architectures.",
-    color: '#4fc3f7'
-  },
-  E: {
-    name: "Endurance",
-    short: "Resilience & Focus",
-    desc: "Tracks your stamina for long production outages, on-call rotations, and intense sprint cycles. High Endurance engineers don't burn out easily, can maintain focus during a 10-hour debugging session, and possess the mental fortitude to deal with frustrating, shifting project requirements.",
-    color: '#81c784'
-  },
-  C: {
-    name: "Charisma",
-    short: "Stakeholder Management & Mentorship",
-    desc: "Reflects your ability to influence, persuade, and collaborate. A high score means you excel at cross-team alignment, translating complex tech concepts for non-technical stakeholders, mentoring junior developers, and convincing leadership to fund your proposed architectural changes.",
-    color: '#ffab40'
-  },
-  I: {
-    name: "Intelligence",
-    short: "System Architecture & Fast Learning",
-    desc: "Gauges your capacity to abstract complex problems and learn new frameworks rapidly. High Intelligence engineers design elegant, scalable software architectures, pick up a brand-new programming language over a weekend, and write clean, perfectly decoupled code.",
-    color: '#b388ff'
-  },
-  A: {
-    name: "Agility",
-    short: "Adaptability & Delivery Velocity",
-    desc: "Tracks your speed and execution. High Agility engineers are masters of continuous deployment, rapid prototyping, and pivoting seamlessly when product requirements change. They excel in fast-paced startup environments where shipping code quickly is paramount.",
-    color: '#ffd740'
-  },
-  L: {
-    name: "Luck",
-    short: "Heuristics & Clean Production Runs",
-    desc: "Measures your relationship with the unknown. High Luck engineers write code that 'just works' on the first deploy, guess the exact root cause of a server issue on their first try, and naturally stumble into the easiest, most elegant Stack Overflow solution on page one.",
-    color: '#e040fb'
-  }
-};
 
 // CONFIG.stats.keys is validated at startup; the letters are the stat keys
-const STAT_KEYS: StatKey[] = CONFIG.stats.keys;
-const STARTING_POINTS = CONFIG.stats.startingPoints;
-const MAX_STAT = CONFIG.stats.max;
+export const STAT_KEYS: StatKey[] = CONFIG.stats.keys;
+export const STARTING_POINTS = CONFIG.stats.startingPoints;
+export const MAX_STAT = CONFIG.stats.max;
 
 // Classify a stat build by EXACT match against the archetype declarations.
 // Returns the archetype key whose stats match exactly, or 'custom' if none.
@@ -114,7 +72,7 @@ const MAX_STAT = CONFIG.stats.max;
 // recorded starting archetype always matches what the player saw. Selecting a
 // preset writes its exact stats, so detection naturally returns that preset.
 // (prototype_king sums to 42 > the 40-point budget, so it can never match.)
-function classifyArchetype(stats: Stats): string {
+export function classifyArchetype(stats: Stats): string {
   for (const [key, arch] of Object.entries(ARCHETYPES)) {
     if (STAT_KEYS.every(k => stats[k] === arch.stats[k])) return key;
   }

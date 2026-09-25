@@ -1,12 +1,13 @@
 {
   "name": "devlife",
-  "version": "0.45",
+  "version": "0.46",
+  "type": "module",
   "private": true,
-  "description": "d20().devLife — a software engineering roguelike",
+  "description": "d20().devLife \u2014 a software engineering roguelike",
   "scripts": {
     "typecheck": "tsc",
     "test": "npm run build && npm run assemble && node test/core.test.js && node test/smoke.test.js",
-    "build": "tsc -p tsconfig.build.json",
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
     "assemble": "node scripts/assemble-dist.js",
     "dev": "npm run build && npm run assemble && node scripts/dev-reminder.js && tsc -p tsconfig.build.json --watch"
   },

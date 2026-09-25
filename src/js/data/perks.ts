@@ -2,6 +2,15 @@
 // A perk activates when a BASE stat reaches MAX_STAT (10). Equipment and
 // temporary (consumable) bonuses do not count. Perks are per-run: if a stat
 // drops below 10, its perk is lost until the stat reaches 10 again.
+//
+// Note: refresh() reads SpecialSystem.stats (engine tier) — an accepted
+// data→engine reference: perks evaluate against the live game, and
+// special.ts imports nothing from perks, so there is no cycle.
+
+import { EVENTS_PER_BOSS } from './events.js';
+import { MAX_STAT, STAT_KEYS } from './archetypes.js';
+import { SpecialSystem } from '../engine/special.js';
+import type { PerkSnapshot, StatKey } from '../core/types.js';
 
 const PERKS: Record<StatKey, { id: string; name: string; emoji: string; desc: string }> = {
   S: { id: 'brute_force',   name: 'Brute Force',   emoji: '💪', desc: 'Once per run: +2 to a failed Strength check target' },
@@ -14,10 +23,10 @@ const PERKS: Record<StatKey, { id: string; name: string; emoji: string; desc: st
 };
 
 // Lookup by perk id
-const PERK_BY_ID: Record<string, { id: string; name: string; emoji: string; desc: string }> = {};
+export const PERK_BY_ID: Record<string, { id: string; name: string; emoji: string; desc: string }> = {};
 Object.values(PERKS).forEach(perk => { PERK_BY_ID[perk.id] = perk; });
 
-const PerkSystem = {
+export const PerkSystem = {
   active: [] as string[],         // perk ids currently active
   bruteForceUsed: false,   // Brute Force is once per run
   codeReviewUsed: false,   // Code Review is once per run

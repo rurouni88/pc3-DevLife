@@ -5,6 +5,13 @@
 // Loaded before ui.js; its methods are composed into UI there.
 
 // Render a single statistics entry as HTML.
+import { CONFIG, STAT_META } from '../core/config.js';
+import { STAT_KEYS } from '../data/archetypes.js';
+import { MetaStore } from '../engine/meta.js';
+import { UI } from './ui.js';
+import type {StatKey} from '../core/types.js';
+
+
 function renderStatisticRow(label: string, value: string): string {
   return `
     <div class="stat-row-entry">
@@ -13,7 +20,7 @@ function renderStatisticRow(label: string, value: string): string {
     </div>`;
 }
 
-const UIStatistics = {
+export const UIStatistics = {
   // Show the statistics screen (populated fresh each time).
   showStatistics(): void {
     UI.renderStatistics();

@@ -3,6 +3,46 @@
 // "continue" flow to the next event. Loaded before ui.js; its methods are
 // composed into UI there.
 
+// Perk intervention prompts — one per available perk, rendered by the
+// pending decision screen (renderPerkDecision).
+import { STAT_META } from '../core/config.js';
+import { formatSignedEffects } from '../core/utils.js';
+import { STAT_KEYS } from '../data/archetypes.js';
+import { CONSUMABLES } from '../data/items.js';
+import { PERK_BY_ID } from '../data/perks.js';
+import { ConsumableManager, Game } from '../engine/game.js';
+import { SpecialSystem } from '../engine/special.js';
+import { UIDice } from './ui-dice.js';
+import { UI } from './ui.js';
+import type {CheckResult, Consumable, GameEvent, PerkDecisions, PerkInterventions, ProcessResult, ResolvedChoice, StatKey} from '../core/types.js';
+
+
+const perkPromptBox = (perkId: string, yesId: string, noId: string, useLabel: string): string => {
+  const perk = PERK_BY_ID[perkId];
+  return `
+    <div class="perk-prompt-box">
+      <div class="perk-prompt-title">⚡ Intervene with Perk</div>
+      <div class="perk-prompt-desc">${perk.emoji} <strong>${perk.name}</strong> — ${perk.desc}</div>
+      <div class="perk-prompt-actions">
+        <button class="btn btn-primary" id="${yesId}">${useLabel}</button>
+        <button class="btn btn-ghost" id="${noId}">No, thanks</button>
+      </div>
+    </div>
+  `;
+};
+
+// A perk prompt after the player has already decided — dimmed, no buttons.
+const perkDecidedBox = (perkId: string, used: boolean): string => {
+  const perk = PERK_BY_ID[perkId];
+  return `<div class="perk-prompt-box decided">${perk.emoji} <strong>${perk.name}</strong> — ${used ? 'used' : 'declined'}</div>`;
+};
+
+// Intervention key → perk id (PERK_BY_ID) and prompt label
+const INTERVENTION_META = {
+  negotiate: { perkId: 'negotiate', label: '🤝 Use Negotiate' },
+  bruteForce: { perkId: 'brute_force', label: '💪 Use Brute Force' },
+  codeReview: { perkId: 'code_review', label: '🐛 Use Code Review' }
+};
 // The dice animation plays once per event — when the roll first happens. A
 // failed check with interventions shows it on the intervention screen; the
 // re-renders of that screen and the final outcome must not re-roll the die.
@@ -27,7 +67,7 @@ function formatCheckResult(cr: CheckResult): string {
   return `<span class="stat-change ${cr.success ? 'positive' : 'negative'}">${cr.stat}: 🎲 ${cr.rawRoll} − ${luck} = ${cr.roll} vs ${cr.target} ${mark}</span>`;
 }
 
-const UIEventCard = {
+export const UIEventCard = {
   // Render an event
   renderEvent(event: GameEvent): void {
     const container = document.getElementById('event-container');
@@ -328,6 +368,10 @@ const UIEventCard = {
   showOutcome(result: ProcessResult): void {
     const state = Game.state;
     if (!state) return;
+
+    // Announce perk changes from this choice's effects (the engine returns
+    // them; the UI owns the announcement).
+    if (result.perkChanges) UI.announcePerkChanges(result.perkChanges.gained, result.perkChanges.lost);
 
     // Update UI elements
     UI.renderSpecialStats();

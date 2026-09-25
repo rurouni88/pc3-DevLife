@@ -4,13 +4,26 @@
 // Display name for a starting archetype on the summary screens. 'custom' (or
 // an unknown key, e.g. an old save) shows as "Custom"; otherwise the archetype
 // name with the leading "The " stripped for a cleaner "Run Started As" row.
+import { CONFIG } from '../core/config.js';
+import { equipmentEffectText } from '../core/utils.js';
+import { ARCHETYPES, STAT_KEYS } from '../data/archetypes.js';
+import { CONSUMABLES } from '../data/items.js';
+import { ConsumableManager, Game } from '../engine/game.js';
+import { MetaStore } from '../engine/meta.js';
+import { SaveSystem } from '../engine/save.js';
+import { SpecialSystem } from '../engine/special.js';
+import { setDisplay, setText } from './ui-core.js';
+import { UI } from './ui.js';
+import type {Consumable, Equipment} from '../core/types.js';
+
+
 function archetypeDisplayName(key: string): string {
   const arch = key ? ARCHETYPES[key] : undefined;
   if (!arch) return 'Custom';
   return arch.name.replace(/^The /, '');
 }
 
-const UIEndOfRun = {
+export const UIEndOfRun = {
   // Show game over screen
   showGameOver(reason: string): void {
     Game.saveRunComplete();

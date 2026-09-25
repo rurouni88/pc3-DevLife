@@ -1,6 +1,17 @@
 // UI — level-up screens: stat allocation and the shared consumable pick-and-swap.
 // Loaded before ui.js; its methods are composed into UI there.
-const UILevelUp = {
+import { STAT_META } from '../core/config.js';
+import { STAT_KEYS } from '../data/archetypes.js';
+import { CONSUMABLES } from '../data/items.js';
+import { Game } from '../engine/game.js';
+import { SpecialSystem } from '../engine/special.js';
+import { setDisplay } from './ui-core.js';
+import { UI } from './ui.js';
+import { App } from '../app.js';
+import type {Consumable} from '../core/types.js';
+
+
+export const UILevelUp = {
   // Shared consumable pick-and-swap UI. Renders the new-consumable options
   // and, when the stash is at capacity, the current stash (click one to
   // replace it). Title and context are placeholders so each screen (level

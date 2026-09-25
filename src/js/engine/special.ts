@@ -1,5 +1,9 @@
 // SPECIAL stat system
-const SpecialSystem = {
+import { MAX_STAT } from '../data/archetypes.js';
+import { zeroStats } from '../core/utils.js';
+import type { SpecialSnapshot, StatKey, Stats } from '../core/types.js';
+
+export const SpecialSystem = {
   stats: { S: 1, P: 1, E: 1, C: 1, I: 1, A: 1, L: 1 },
   equipmentBonuses: zeroStats(),
   temporaryBonuses: zeroStats(),

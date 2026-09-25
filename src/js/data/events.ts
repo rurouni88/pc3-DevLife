@@ -1,8 +1,12 @@
 // Events — loaded from per-phase JSON files
 // Source files: data/events/phase_*.json
 
-const EVENTS_PER_BOSS = CONFIG.game.eventsPerBoss;
-const BOSS_PREFIX = CONFIG.game.bossPrefix;
+import { CONFIG } from '../core/config.js';
+import { RngEngine } from '../core/seeded-rng.js';
+import type { GameEvent } from '../core/types.js';
+
+export const EVENTS_PER_BOSS = CONFIG.game.eventsPerBoss;
+export const BOSS_PREFIX = CONFIG.game.bossPrefix;
 
 const PHASE_FILES: Record<number, string> = {
   1: 'data/events/phase_junior.json',
@@ -11,7 +15,7 @@ const PHASE_FILES: Record<number, string> = {
   4: 'data/events/phase_staff.json',
 };
 
-let EVENTS: GameEvent[] = [];
+export let EVENTS: GameEvent[] = [];
 let _eventsLoaded = false;
 let _resolveEvents: (() => void) | null = null;
 
@@ -28,20 +32,20 @@ async function initEvents(): Promise<void> {
 }
 
 // Wait for events to be loaded
-function waitForEvents(): Promise<void> {
+export function waitForEvents(): Promise<void> {
   if (_eventsLoaded) return Promise.resolve();
   return new Promise<void>(resolve => { _resolveEvents = resolve; });
 }
 
 // Get random NON-boss event for a given phase
-function getRandomNonBossEvent(phase: number, excludeIds: string[] = []): GameEvent | null {
+export function getRandomNonBossEvent(phase: number, excludeIds: string[] = []): GameEvent | null {
   const phaseEvents = EVENTS.filter(e => e.phase === phase && !excludeIds.includes(e.id) && !e.title.startsWith(BOSS_PREFIX));
   if (phaseEvents.length === 0) return null;
   return phaseEvents[Math.floor(RngEngine.random() * phaseEvents.length)];
 }
 
 // Get boss event for a phase
-function getBossEvent(phase: number): GameEvent | undefined {
+export function getBossEvent(phase: number): GameEvent | undefined {
   return EVENTS.find(e => e.phase === phase && e.title.startsWith(BOSS_PREFIX));
 }
 
@@ -77,9 +81,10 @@ function validateEvents(events: GameEvent[]): void {
   });
 }
 
-// Initialize event loading (skipped in the test VM, which has no fetch —
-// tests populate EVENTS directly)
-if (typeof fetch !== 'undefined') {
+// Initialize event loading (skipped outside the browser — tests populate
+// EVENTS directly). Guard on document, not fetch: Node has fetch but no DOM,
+// and the load-error fallback needs the DOM to display.
+if (typeof document !== 'undefined') {
   initEvents().catch(err => {
     console.error('[d20().devLife] Failed to load events:', err);
     showEventsLoadError();

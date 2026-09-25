@@ -4,6 +4,13 @@
 // Loaded before ui.js; its methods are composed into UI there.
 
 // Truncate a seed to 6 characters for display.
+import { dayToCareerYear } from '../core/utils.js';
+import { ARCHETYPES } from '../data/archetypes.js';
+import { MetaStore } from '../engine/meta.js';
+import { UI } from './ui.js';
+import type {Difficulty, RunRecord} from '../core/types.js';
+
+
 function shortSeed(seed: string): string {
   return seed.length > 6 ? seed.slice(0, 6) : seed;
 }
@@ -45,7 +52,7 @@ function renderDifficultySection(difficulty: Difficulty): string {
   return html;
 }
 
-const UILeaderboard = {
+export const UILeaderboard = {
   // Show the leaderboard screen.
   showLeaderboard(): void {
     UI.renderLeaderboard();

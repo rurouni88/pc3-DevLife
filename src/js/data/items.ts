@@ -4,7 +4,12 @@
 // 3. Tightly coupled logic — RARITY_WEIGHTS and getRandomEquipment() live next to the data.
 // 4. Static config — never changes at runtime, so no need for async fetch.
 // Contrast with events (src/data/events/) which are large (45-57KB each) and content-driven.
-const EQUIPMENT: Equipment[] = [
+import { CONFIG } from '../core/config.js';
+import { RngEngine } from '../core/seeded-rng.js';
+import { shuffle } from '../core/utils.js';
+import type { Consumable, Equipment, Rarity } from '../core/types.js';
+
+export const EQUIPMENT: Equipment[] = [
   // Common
   { id: 'keyboard', name: 'Mechanical Keyboard', emoji: '⌨️', rarity: 'common', effects: { S: 1 }, desc: '+1 Strength' },
   { id: 'headphones', name: 'Noise-Canceling Headphones', emoji: '🎧', rarity: 'common', effects: { E: 1 }, desc: '+1 Endurance' },
@@ -28,7 +33,7 @@ const EQUIPMENT: Equipment[] = [
   { id: 'homeoffice', name: 'Home Office Setup', emoji: '🏠', rarity: 'epic', effects: { P: 1, E: 1, A: 1 }, desc: '+1 Perception, +1 Endurance, +1 Agility' }
 ];
 
-const CONSUMABLES: Consumable[] = [
+export const CONSUMABLES: Consumable[] = [
   // Common — food & substances
   { id: 'coffee', name: 'Coffee', emoji: '☕', rarity: 'common', stat: 'E', bonus: 2, desc: '+2 Endurance on next check' },
   { id: 'energy_drink', name: 'Energy Drink', emoji: '🥤', rarity: 'common', stat: 'A', bonus: 2, desc: '+2 Agility on next check' },
@@ -84,7 +89,15 @@ const RARITY_WEIGHTS: Record<Rarity, number> = {
 };
 
 // Get random equipment item (rarity-weighted)
-function getRandomEquipment(): Equipment {
+// The consumable-slot cap for a given equipment loadout: the base cap plus
+// any slot bonuses the equipment grants (the Backpack). Pure — takes the
+// equipment explicitly, so data-tier callers (achievements) can use it
+// without the game engine.
+export function consumableCapFor(equipment: Equipment[]): number {
+  return CONFIG.game.consumableCap + equipment.reduce((sum, item) => sum + (item.consumableSlots || 0), 0);
+}
+
+export function getRandomEquipment(): Equipment {
   const totalWeight = Object.values(RARITY_WEIGHTS).reduce((a, b) => a + b, 0);
   let roll = RngEngine.random() * totalWeight;
   let selectedRarity = 'common';
@@ -102,6 +115,6 @@ function getRandomEquipment(): Equipment {
 }
 
 // Get 3 random consumables for end-of-run selection
-function get3RandomConsumables(): Consumable[] {
+export function get3RandomConsumables(): Consumable[] {
   return shuffle(CONSUMABLES).slice(0, CONFIG.game.randomConsumableChoices);
 }

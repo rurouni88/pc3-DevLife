@@ -1,5 +1,22 @@
-// Main application entry point
-const App = {
+// Main application entry point — the module graph's root. index.html loads
+// only this file (as <script type="module">); everything else arrives via
+// the static imports below.
+
+import { CONFIG } from './core/config.js';
+import { zeroStats } from './core/utils.js';
+import { STAT_KEYS } from './data/archetypes.js';
+import { CONSUMABLES, EQUIPMENT } from './data/items.js';
+import { EVENTS, waitForEvents } from './data/events.js';
+import { PerkSystem } from './data/perks.js';
+import { Game } from './engine/game.js';
+import { MetaStore } from './engine/meta.js';
+import { SaveSystem } from './engine/save.js';
+import { SpecialSystem } from './engine/special.js';
+import { UI } from './ui/ui.js';
+import { initSvgAssets } from './ui/ui-core.js';
+import type { Consumable, Equipment, StatKey } from './core/types.js';
+
+export const App = {
   init(): void {
     this.bindEvents();
     this.checkForSave();

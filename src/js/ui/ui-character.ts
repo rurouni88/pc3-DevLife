@@ -4,6 +4,13 @@
 // Render a single stat allocation row. The value span is seeded from
 // SpecialSystem.stats here; updateCharCreationUI() keeps it in sync after
 // every +/- click.
+import { STAT_META } from '../core/config.js';
+import { MAX_STAT, STARTING_POINTS, STAT_KEYS, classifyArchetype, ARCHETYPES } from '../data/archetypes.js';
+import { SpecialSystem } from '../engine/special.js';
+import { UI } from './ui.js';
+import type {StatKey, Stats} from '../core/types.js';
+
+
 const renderStatRow = (key: StatKey): string => {
   const meta = STAT_META[key];
   return `
@@ -18,7 +25,7 @@ const renderStatRow = (key: StatKey): string => {
   `;
 };
 
-const UICharacter = {
+export const UICharacter = {
   // Internal state (read/written via the composed UI object). Declared here
   // so the Object.assign composition in ui.js carries their types into UI.
   _presetToggleHandler: null as (() => void) | null,

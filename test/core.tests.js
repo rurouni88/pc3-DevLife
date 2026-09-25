@@ -1,6 +1,21 @@
-// Test body — runs in the SAME VM context as the game modules (see
-// core.test.js), so game globals (Game, PerkSystem, SpecialSystem, d20,
-// RngEngine, ...) are in scope. `assert` is node:assert, injected by the runner.
+// Test body — imported by core.test.js after it stubs localStorage. The
+// static imports below pull in the BUILT logic modules (dist/js/), so this
+// file tests exactly what the browser loads.
+
+import assert from 'node:assert';
+
+import { CONFIG, STAT_META } from '../dist/js/core/config.js';
+import { RngEngine } from '../dist/js/core/seeded-rng.js';
+import { clampStat, Dice, dayToCareerYear, equipmentEffectText, formatEffects, formatSignedEffects, shuffle, zeroStats } from '../dist/js/core/utils.js';
+import { EVENTS } from '../dist/js/data/events.js';
+import { ARCHETYPES, classifyArchetype } from '../dist/js/data/archetypes.js';
+import { CONSUMABLES, EQUIPMENT, get3RandomConsumables, getRandomEquipment } from '../dist/js/data/items.js';
+import { PerkSystem } from '../dist/js/data/perks.js';
+import { Achievements } from '../dist/js/data/achievements.js';
+import { ConsumableManager, Game } from '../dist/js/engine/game.js';
+import { MetaStore } from '../dist/js/engine/meta.js';
+import { SaveData, SaveSystem } from '../dist/js/engine/save.js';
+import { SpecialSystem } from '../dist/js/engine/special.js';
 
 // Fresh run: reset stats/perks and give Game the minimal state the
 // log/meta paths need.
@@ -26,7 +41,8 @@ function fullRun(stats) {
 // the edge where Brute Force's +2 target can save it; t_grace's failure
 // effect revokes Negotiate (C-2) but the intervention was earned at
 // resolve time.
-EVENTS = [
+// EVENTS is a live module binding — mutate in place, don't reassign.
+EVENTS.splice(0, EVENTS.length, ...[
   {
     id: 't_intervene', title: 'Intervene Test', phase: 1, phaseLabel: 'Test', narrative: 'n',
     choices: [{
@@ -51,7 +67,7 @@ EVENTS = [
       failure: { text: 'f', effects: { C: -2 }, log: 'argued' }
     }]
   }
-];
+]);
 const NO_USE = { negotiate: false, bruteForce: false, codeReview: false };
 
 // --- Phase names: single source in CONFIG ---
@@ -63,22 +79,8 @@ assert.strictEqual(Game.state.phase, 2, 'phase advanced');
 assert.ok(Game.state.careerLog[0].message.includes('Mid-Level Developer'), 'promotion log uses CONFIG phase name');
 console.log('✓ phase names: single CONFIG source, promotion log correct');
 
-// --- Version: the in-game badge and package.json must agree ---
-assert.strictEqual(
-  CONFIG.version, PACKAGE_VERSION,
-  `CONFIG.version (${CONFIG.version}) must match package.json (${PACKAGE_VERSION})`
-);
-// Cache-busting: every asset tag in index.html carries a ?v= string, and
-// they all match package.json — an unversioned or stale tag means the
-// browser can serve old JS alongside new.
-assert.strictEqual(
-  INDEX_VERSIONS.length, INDEX_ASSET_COUNT,
-  `every asset tag in index.html must carry a ?v= cache-buster (${INDEX_VERSIONS.length}/${INDEX_ASSET_COUNT})`
-);
-for (const v of INDEX_VERSIONS) {
-  assert.strictEqual(v, PACKAGE_VERSION, `index.html ?v=${v} must match package.json (${PACKAGE_VERSION})`);
-}
-console.log('✓ version: CONFIG, package.json, and index.html cache-busters agree');
+// (Version + cache-policy guards live in core.test.js — they read
+// package.json / index.html / _headers, which the test body doesn't need.)
 
 // --- Perk activation: stats at 10 unlock, dropping below revokes ---
 freshRun({ S: 10, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
@@ -94,7 +96,7 @@ console.log('✓ perk activation: unlock at 10, revoke below');
 const realRngRandom = RngEngine.random;
 fullRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
 RngEngine.random = () => 0.99; // no equipment drops, no redundancy/obsolescence
-d20 = () => 20; // roll 20-5 = 15 vs 5 → fail
+Dice.d20 = () => 20; // roll 20-5 = 15 vs 5 → fail
 let rc = Game.resolveChoice(EVENTS[0], 0);
 assert.strictEqual(rc.allSuccess, false, 'check failed');
 assert.strictEqual(SpecialSystem.stats.E, 5, 'resolveChoice applies no effects');
@@ -114,13 +116,13 @@ console.log('✓ resolveChoice: pure phase — nothing applied until applyChoice
 // --- Negotiate: converts a fatal failure to a success (no death, no
 //     failure effects, success effects apply) ---
 fullRun({ S: 5, P: 5, E: 5, C: 10, I: 5, A: 5, L: 1 });
-d20 = () => 20; // S check: 20-1 = 19 vs 5 → fail
+Dice.d20 = () => 20; // S check: 20-1 = 19 vs 5 → fail
 rc = Game.resolveChoice(EVENTS[0], 0);
 assert.strictEqual(rc.interventions.negotiate, true, 'negotiate offered (C=10)');
 // Declined: the failure is fatal (E 5→1, saving roll 20-1 = 19 vs
 // L+0.5C = 6 → fails the save)
 let seq = [20, 20];
-d20 = () => seq.shift();
+Dice.d20 = () => seq.shift();
 rc = Game.resolveChoice(EVENTS[0], 0);
 out = Game.applyChoice(rc, NO_USE);
 assert.ok(out.gameOver, 'without negotiate the fatal failure kills');
@@ -128,7 +130,7 @@ assert.strictEqual(SpecialSystem.stats.E, 1, 'failure effects applied');
 // Negotiated: the fatal failure never happens. (L=1 still trips the
 // "luck ran out" death check — saving roll 1 vs L+0.5C = 6 survives.)
 seq = [20, 1];
-d20 = () => seq.shift();
+Dice.d20 = () => seq.shift();
 fullRun({ S: 5, P: 5, E: 5, C: 10, I: 5, A: 5, L: 1 });
 rc = Game.resolveChoice(EVENTS[0], 0);
 out = Game.applyChoice(rc, { negotiate: true, bruteForce: false, codeReview: false });
@@ -142,7 +144,7 @@ console.log('✓ negotiate: fatal failure converted to success, no death');
 
 // --- Brute Force: +2 to the failed S check target, flips when it saves ---
 fullRun({ S: 10, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
-d20 = () => 15; // roll 15-5 = 10 vs 9 → fail; +2 target → 10 vs 11 → pass
+Dice.d20 = () => 15; // roll 15-5 = 10 vs 9 → fail; +2 target → 10 vs 11 → pass
 rc = Game.resolveChoice(EVENTS[1], 0);
 assert.strictEqual(rc.interventions.bruteForce, true, 'BF offered (S=10, failed S check)');
 out = Game.applyChoice(rc, { negotiate: false, bruteForce: true, codeReview: false });
@@ -152,7 +154,7 @@ assert.strictEqual(SpecialSystem.stats.S, 10, 'success effect clamped at max');
 assert.ok(PerkSystem.bruteForceUsed, 'consumed');
 // BF that cannot save: failure stands, perk still consumed
 fullRun({ S: 10, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
-d20 = () => 17; // roll 17-5 = 12 vs 9 → fail; +2 → 12 vs 11 → still fail
+Dice.d20 = () => 17; // roll 17-5 = 12 vs 9 → fail; +2 → 12 vs 11 → still fail
 rc = Game.resolveChoice(EVENTS[1], 0);
 out = Game.applyChoice(rc, { negotiate: false, bruteForce: true, codeReview: false });
 assert.strictEqual(out.success, false, 'BF could not save it');
@@ -162,7 +164,7 @@ console.log('✓ brute force: +2 target, flips when it saves, consumed either wa
 
 // --- Code Review: halves the negative effects AT APPLY TIME ---
 fullRun({ S: 5, P: 10, E: 5, C: 5, I: 5, A: 5, L: 5 });
-d20 = () => 20; // roll 20-5 = 15 vs 5 → fail
+Dice.d20 = () => 20; // roll 20-5 = 15 vs 5 → fail
 rc = Game.resolveChoice(EVENTS[0], 0);
 assert.strictEqual(rc.interventions.codeReview, true, 'CR offered (P=10, negative failure effects)');
 out = Game.applyChoice(rc, { negotiate: false, bruteForce: false, codeReview: true });
@@ -172,7 +174,7 @@ assert.deepStrictEqual(out.effects, { E: -2 }, 'result reports the halved effect
 assert.ok(PerkSystem.codeReviewUsed, 'consumed');
 // Not spent when Negotiate already won (nothing to halve)
 fullRun({ S: 5, P: 10, E: 5, C: 10, I: 5, A: 5, L: 5 });
-d20 = () => 20;
+Dice.d20 = () => 20;
 rc = Game.resolveChoice(EVENTS[0], 0);
 assert.strictEqual(rc.interventions.negotiate, true, 'both offered');
 assert.strictEqual(rc.interventions.codeReview, true, 'both offered (CR)');
@@ -185,7 +187,7 @@ console.log('✓ code review: halves at apply time, not wasted on a won event');
 // --- Grace: the failure's own effect revokes the perk, but the
 //     intervention was earned at resolve time (availability is frozen) ---
 fullRun({ S: 5, P: 5, E: 5, C: 10, I: 5, A: 5, L: 5 });
-d20 = () => 20; // roll 16 vs C 10 → fail
+Dice.d20 = () => 20; // roll 16 vs C 10 → fail
 rc = Game.resolveChoice(EVENTS[2], 0);
 assert.strictEqual(rc.interventions.negotiate, true, 'offered at resolve (C=10)');
 out = Game.applyChoice(rc, { negotiate: true, bruteForce: false, codeReview: false });
@@ -215,7 +217,7 @@ EVENTS.push(
 // The save fires: E 10 → would be 1 → lands exactly at 3
 fullRun({ S: 5, P: 5, E: 10, C: 5, I: 5, A: 5, L: 5 });
 RngEngine.random = () => 0.99;
-d20 = () => 20; // S check: 15 vs 5 → fail
+Dice.d20 = () => 20; // S check: 15 vs 5 → fail
 rc = Game.resolveChoice(EVENTS[3], 0);
 out = Game.applyChoice(rc, NO_USE);
 assert.strictEqual(out.success, false, 'failure stands');
@@ -226,14 +228,14 @@ assert.ok(out.ironNervesUsed, 'result flags the save for the toast');
 assert.ok(Game.state.careerLog.some(e => e.message.includes('Iron Nerves')), 'save logged');
 assert.strictEqual(EVENTS[3].choices[0].failure.effects.E, -9, 'shared event definition untouched');
 // Once per run: the next floor hit kills (perk consumed AND revoked at E=3)
-d20 = () => 20; // check fails; saving roll 20 vs 7.5 → fails → death
+Dice.d20 = () => 20; // check fails; saving roll 20 vs 7.5 → fails → death
 rc = Game.resolveChoice(EVENTS[3], 0);
 out = Game.applyChoice(rc, NO_USE);
 assert.ok(out.gameOver, 'second floor hit ends the run');
 assert.strictEqual(SpecialSystem.stats.E, 1, 'E on the floor');
 // No trigger when the hit lands above the floor: E 10 - 8 = 2
 fullRun({ S: 5, P: 5, E: 10, C: 5, I: 5, A: 5, L: 5 });
-d20 = () => 20;
+Dice.d20 = () => 20;
 rc = Game.resolveChoice(EVENTS[4], 0);
 out = Game.applyChoice(rc, NO_USE);
 assert.strictEqual(SpecialSystem.stats.E, 2, 'E lands at 2 — above the floor');
@@ -241,7 +243,7 @@ assert.ok(!PerkSystem.ironNervesUsed, 'save not spent');
 assert.ok(!out.gameOver, 'no death at E=2');
 // Code Review first: halving -9 to -5 lands E at 5 — save not needed, not spent
 fullRun({ S: 5, P: 10, E: 10, C: 5, I: 5, A: 5, L: 5 });
-d20 = () => 20;
+Dice.d20 = () => 20;
 rc = Game.resolveChoice(EVENTS[3], 0);
 out = Game.applyChoice(rc, { negotiate: false, bruteForce: false, codeReview: true });
 assert.strictEqual(SpecialSystem.stats.E, 5, 'halved -5 lands E at 5');
@@ -263,8 +265,8 @@ console.log('✓ iron nerves: once-per-run burnout save, lands at 3, not wasted'
 // NORMAL, d2 rolled to 2 → -4 becomes -8
 fullRun({ S: 5, P: 5, E: 10, C: 5, I: 5, A: 5, L: 5 });
 Game.state.difficulty = 'normal';
-d20 = () => 20;   // S check: 15 vs 5 → fail
-dRoll = () => 2;  // force the d2 multiplier to ×2
+Dice.d20 = () => 20;   // S check: 15 vs 5 → fail
+Dice.dRoll = () => 2;  // force the d2 multiplier to ×2
 rc = Game.resolveChoice(EVENTS[0], 0);
 out = Game.applyChoice(rc, NO_USE);
 assert.strictEqual(out.success, false, 'failure stands');
@@ -273,24 +275,24 @@ assert.strictEqual(SpecialSystem.stats.E, 2, 'E 10 → 2 after the doubled hit')
 // NORMAL, d2 rolled to 1 → no change
 fullRun({ S: 5, P: 5, E: 10, C: 5, I: 5, A: 5, L: 5 });
 Game.state.difficulty = 'normal';
-d20 = () => 20;
-dRoll = () => 1;  // ×1
+Dice.d20 = () => 20;
+Dice.dRoll = () => 1;  // ×1
 rc = Game.resolveChoice(EVENTS[0], 0);
 out = Game.applyChoice(rc, NO_USE);
 assert.deepStrictEqual(out.effects, { E: -4 }, 'normal d2=1 → -4 unchanged');
 // EASY: d1 (×1) — the multiplier is skipped entirely
 fullRun({ S: 5, P: 5, E: 10, C: 5, I: 5, A: 5, L: 5 });
 Game.state.difficulty = 'easy';
-d20 = () => 20;
-dRoll = () => 4;  // even a forced d4 is ignored on easy
+Dice.d20 = () => 20;
+Dice.dRoll = () => 4;  // even a forced d4 is ignored on easy
 rc = Game.resolveChoice(EVENTS[0], 0);
 out = Game.applyChoice(rc, NO_USE);
 assert.deepStrictEqual(out.effects, { E: -4 }, 'easy: no multiplier');
 // Success outcomes are never multiplied
 fullRun({ S: 5, P: 5, E: 10, C: 5, I: 5, A: 5, L: 5 });
 Game.state.difficulty = 'normal';
-d20 = () => 1;    // S check: 1-5 = -4 vs 5 → success
-dRoll = () => 4;
+Dice.d20 = () => 1;    // S check: 1-5 = -4 vs 5 → success
+Dice.dRoll = () => 4;
 rc = Game.resolveChoice(EVENTS[0], 0);
 out = Game.applyChoice(rc, NO_USE);
 assert.strictEqual(out.success, true, 'success');
@@ -298,14 +300,14 @@ assert.deepStrictEqual(out.effects, { S: 1 }, 'success effects untouched');
 // Multiplier applies BEFORE Code Review: CR halves the already-doubled value
 fullRun({ S: 5, P: 10, E: 10, C: 5, I: 5, A: 5, L: 5 });
 Game.state.difficulty = 'normal';
-d20 = () => 20;   // S check: 15 vs 5 → fail
-dRoll = () => 2;  // ×2 → -8, then CR halves → -4
+Dice.d20 = () => 20;   // S check: 15 vs 5 → fail
+Dice.dRoll = () => 2;  // ×2 → -8, then CR halves → -4
 rc = Game.resolveChoice(EVENTS[0], 0);
 out = Game.applyChoice(rc, { negotiate: false, bruteForce: false, codeReview: true });
 assert.deepStrictEqual(out.effects, { E: -4 }, 'CR halves the doubled -8 → -4');
 assert.strictEqual(SpecialSystem.stats.E, 6, 'E 10 → 6');
 // restore the real dRoll (RngEngine-driven) for later tests
-dRoll = (sides) => RngEngine.dRoll(sides);
+Dice.dRoll = (sides) => RngEngine.dRoll(sides);
 console.log('✓ difficulty: failed negatives ×d2 (normal), skipped on easy/success, before code review');
 
 // --- Consumable carry-over: pick = most recent, pool capped at 2 ---
@@ -506,14 +508,14 @@ console.log('✓ save schema: SaveData class validation, reasons logged, load ro
 freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 10 });
 assert.ok(PerkSystem.has('clean_deploy'), 'L=10 activates Clean Deploy');
 let rolls = [20, 1]; // first roll fails, reroll succeeds
-d20 = () => rolls.shift();
+Dice.d20 = () => rolls.shift();
 const cdWin = Game.resolveStatChecks({ checks: { S: 5 } });
 assert.strictEqual(cdWin.cleanDeployUsed, true, 'flag set when the reroll fires');
 assert.strictEqual(cdWin.allSuccess, true, 'reroll saved the check');
 
 freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 10 });
 rolls = [20, 20]; // both rolls fail
-d20 = () => rolls.shift();
+Dice.d20 = () => rolls.shift();
 const cdLose = Game.resolveStatChecks({ checks: { S: 5 } });
 assert.strictEqual(cdLose.cleanDeployUsed, true, 'flag set even when the reroll fails');
 assert.strictEqual(cdLose.allSuccess, false, 'failed reroll stays a failure');
@@ -524,12 +526,12 @@ console.log('✓ clean deploy: auto-reroll, flag reported for outcome toast');
 // ============================================================
 
 // Earlier sections stubbed d20 — restore real rolls for range tests
-d20 = () => dRoll(20);
+Dice.d20 = () => RngEngine.dRoll(20);
 
 // --- utils: dice ranges and career-year conversion ---
 for (let i = 0; i < 1000; i++) {
-  assert.ok(dRoll(6) >= 1 && dRoll(6) <= 6, 'dRoll(6) in [1,6]');
-  assert.ok(d20() >= 1 && d20() <= 20, 'd20 in [1,20]');
+  assert.ok(Dice.dRoll(6) >= 1 && Dice.dRoll(6) <= 6, 'Dice.dRoll(6) in [1,6]');
+  assert.ok(Dice.d20() >= 1 && Dice.d20() <= 20, 'Dice.d20() in [1,20]');
 }
 assert.strictEqual(dayToCareerYear(1), 1, 'day 1 = year 1');
 assert.strictEqual(dayToCareerYear(12), 1, 'day 12 = year 1');
@@ -558,21 +560,21 @@ console.log('✓ special: effective stat math, temp/multiplier lifecycle, max cl
 
 // --- resolveStatChecks: roll math, Luck, competence gate, multi-check ---
 freshRun({ S: 10, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
-d20 = () => 1; // 1 - 5 = -4
+Dice.d20 = () => 1; // 1 - 5 = -4
 let cr = Game.resolveStatChecks({ checks: { S: 5 } });
 assert.strictEqual(cr.allSuccess, true, 'low roll passes');
-d20 = () => 20; // 20 - 5 = 15
+Dice.d20 = () => 20; // 20 - 5 = 15
 cr = Game.resolveStatChecks({ checks: { S: 5 } });
 assert.strictEqual(cr.allSuccess, false, 'high roll fails');
 assert.strictEqual(cr.results[0].roll, 15, 'Luck subtracts from the roll');
 // Competence gate: the roll passes but the effective stat is too low
 freshRun({ S: 1, P: 5, E: 5, C: 5, I: 5, A: 5, L: 1 });
-d20 = () => 2; // roll 1 <= 5 — the roll itself passes
+Dice.d20 = () => 2; // roll 1 <= 5 — the roll itself passes
 cr = Game.resolveStatChecks({ checks: { S: 5 } });
 assert.strictEqual(cr.allSuccess, false, 'competence gate fails despite passing roll');
 // Multiple checks: one failure fails the whole choice
 freshRun({ S: 10, P: 1, E: 5, C: 5, I: 5, A: 5, L: 1 });
-d20 = () => 3; // roll 2: S (target 5) passes, P (target 1) fails
+Dice.d20 = () => 3; // roll 2: S (target 5) passes, P (target 1) fails
 cr = Game.resolveStatChecks({ checks: { S: 5, P: 1 } });
 assert.strictEqual(cr.allSuccess, false, 'one failed check fails the choice');
 assert.strictEqual(cr.results[0].success, true, 'S check passed');
@@ -702,7 +704,7 @@ assert.strictEqual(Game.state.consumables.length, 1, 'not consumed after victory
 // Integration: a killing blow sets alive=false, so the consumable is inert
 fullRun({ S: 5, P: 5, E: 5, C: 10, I: 5, A: 5, L: 1 });
 Game.state.consumables = [coffee];
-d20 = () => 20; // S check fails; saving roll 20 vs L+0.5C = 6 → fails → death
+Dice.d20 = () => 20; // S check fails; saving roll 20 vs L+0.5C = 6 → fails → death
 rc = Game.resolveChoice(EVENTS[0], 0);
 out = Game.applyChoice(rc, NO_USE);
 assert.ok(out.gameOver, 'fatal failure ends the run');
@@ -725,11 +727,11 @@ console.log('✓ item pools: rarity weighting, unique random consumables');
 // --- Game over: saving roll and probabilistic redundancy ---
 freshRun({ S: 1, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
 // Saving roll target = L + 0.5*C = 5 + 2.5 = 7.5
-d20 = () => 7;
+Dice.d20 = () => 7;
 assert.strictEqual(Game._checkDeterministicGameOver(), null, 'saving roll success survives');
 assert.strictEqual(SpecialSystem.stats.S, 2, 'floored stat clawed back to 2');
 freshRun({ S: 1, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
-d20 = () => 8;
+Dice.d20 = () => 8;
 const death = Game._checkDeterministicGameOver();
 assert.ok(death && death.reason.includes('Technical Collapse'), 'saving roll failure ends the run');
 // Probabilistic redundancy: phase >= 3, C <= 2, day > 400, risk = (3-C)*0.15
@@ -749,7 +751,7 @@ console.log('✓ game over: saving roll survive/death, redundancy risk');
 freshRun({ S: 5, P: 5, E: 10, C: 5, I: 5, A: 5, L: 5 });
 assert.ok(PerkSystem.has('iron_nerves'), 'E=10 grants Iron Nerves');
 SpecialSystem.stats.E = 1; // dropped after the perk was earned — no re-refresh
-d20 = () => 8; // 8 > 7.5 → any save would fail
+Dice.d20 = () => 8; // 8 > 7.5 → any save would fail
 assert.strictEqual(Game._checkDeterministicGameOver(), null, 'Iron Nerves exempts E-floor death');
 freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
 SpecialSystem.stats.E = 1;
@@ -815,7 +817,7 @@ assert.strictEqual(Game.checkVictory(), true, 'phase 4 boss → victory');
 console.log('✓ phase progression: completion vs victory');
 
 // --- resolveChoice + applyChoice: full event processing (synthetic EVENTS) ---
-EVENTS = [
+EVENTS.splice(0, EVENTS.length, ...[
   {
     id: 'test_event', title: 'Test Event', phase: 1, phaseLabel: 'Test', narrative: 'n',
     choices: [{
@@ -832,10 +834,10 @@ EVENTS = [
       failure: { text: 'f', effects: {}, log: 'boss wins' }
     }]
   }
-];
+]);
 fullRun({ S: 10, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
 RngEngine.random = () => 0.99; // no equipment drops during this section
-d20 = () => 1; // roll -4 vs target 5 → success
+Dice.d20 = () => 1; // roll -4 vs target 5 → success
 let pr = Game.applyChoice(Game.resolveChoice(EVENTS[0], 0));
 assert.strictEqual(pr.success, true, 'choice succeeded');
 assert.strictEqual(pr.equipmentDropped, false, 'no stale pending drop reported');
@@ -845,7 +847,7 @@ assert.strictEqual(Game.state.eventsCompleted, 1, 'event counted');
 assert.strictEqual(Game.state.currentEventId, 'test_event', 'current event tracked');
 assert.deepStrictEqual(Game.state.eventHistory, ['test_event'], 'history appended');
 assert.strictEqual(Game.state.careerLog[0].message, 'won', 'success log entry');
-d20 = () => 20; // roll 15 vs target 5 → failure
+Dice.d20 = () => 20; // roll 15 vs target 5 → failure
 pr = Game.applyChoice(Game.resolveChoice(EVENTS[0], 0));
 assert.strictEqual(pr.success, false, 'choice failed');
 assert.strictEqual(SpecialSystem.stats.S, 9, 'failure effect applied');
@@ -865,7 +867,7 @@ console.log('✓ resolve/apply: success/failure paths, boss detection, day/histo
 // leveledUp, if the event count lines up). handleChoice must toast
 // terminal states FIRST (gameOver → victory → ...) or the death toast is
 // clobbered by a celebration — regression guard for that ordering.
-EVENTS = [
+EVENTS.splice(0, EVENTS.length, ...[
   {
     id: 'test_boss_death', title: 'BOSS: The Meltdown', phase: 1, phaseLabel: 'Test', narrative: 'n',
     choices: [{
@@ -874,7 +876,7 @@ EVENTS = [
       failure: { text: 'f', effects: {}, log: 'boss wins' }
     }]
   }
-];
+]);
 // S on the floor; saving roll target = L + 0.5*C = 3.5, roll 20 → death
 freshRun({ S: 1, P: 5, E: 5, C: 5, I: 5, A: 5, L: 1 });
 Object.assign(Game.state, {
@@ -883,7 +885,7 @@ Object.assign(Game.state, {
   bossCompleted: false, currentEventId: null, pendingEquipmentDrop: null
 });
 RngEngine.random = () => 0.99; // no equipment drops
-d20 = () => 20; // check: 19 vs 1 → fail; saving roll: 20 vs 3.5 → fail
+Dice.d20 = () => 20; // check: 19 vs 1 → fail; saving roll: 20 vs 3.5 → fail
 pr = Game.applyChoice(Game.resolveChoice(EVENTS[0], 0));
 assert.strictEqual(pr.success, false, 'boss check failed');
 assert.strictEqual(pr.bossDefeated, true, 'bossDefeated set regardless of outcome');
@@ -895,7 +897,7 @@ RngEngine.random = realRngRandom;
 console.log('✓ boss + game over: terminal state co-occurs with leveledUp/bossDefeated (toast ordering guard)');
 
 // --- Game.nextEvent: event picking and phase advancement ---
-EVENTS = [
+EVENTS.splice(0, EVENTS.length, ...[
   { id: 'p1a', title: 'P1 A', phase: 1, phaseLabel: 'Jr', narrative: 'n',
     choices: [{ text: 'x', checks: {}, success: { text: 's', effects: {}, log: 's' }, failure: { text: 'f', effects: {}, log: 'f' } }] },
   { id: 'p1b', title: 'P1 B', phase: 1, phaseLabel: 'Jr', narrative: 'n',
@@ -906,7 +908,7 @@ EVENTS = [
     choices: [{ text: 'x', checks: {}, success: { text: 's', effects: {}, log: 's' }, failure: { text: 'f', effects: {}, log: 'f' } }] },
   { id: 'p2boss', title: 'BOSS: Two', phase: 2, phaseLabel: 'Mid', narrative: 'n',
     choices: [{ text: 'x', checks: {}, success: { text: 's', effects: {}, log: 's' }, failure: { text: 'f', effects: {}, log: 'f' } }] }
-];
+]);
 freshRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });
 Object.assign(Game.state, {
   level: 1, levelUpPoints: 0, phase: 1, eventsCompleted: 0,
@@ -1048,7 +1050,7 @@ console.log('✓ seeded-rng: determinism, format, parse, state snapshot');
 // --- Seeded run: same seed → same event sequence and outcomes ---
 // Synthetic phase-1 pool: 4 non-boss events + 1 boss, all with S checks
 // so the seeded dice decide success/failure.
-EVENTS = [1, 2, 3, 4].map(n => ({
+EVENTS.splice(0, EVENTS.length, ...[1, 2, 3, 4].map(n => ({
   id: 'p1e' + n, title: 'P1 E' + n, phase: 1, phaseLabel: 'Jr', narrative: 'n',
   choices: [{
     text: 'x', checks: { S: 7 },
@@ -1058,7 +1060,7 @@ EVENTS = [1, 2, 3, 4].map(n => ({
 })).concat({
   id: 'p1boss', title: 'BOSS: One', phase: 1, phaseLabel: 'Jr', narrative: 'n',
   choices: [{ text: 'x', checks: { S: 5 }, success: { text: 's', effects: {}, log: 's' }, failure: { text: 'f', effects: {}, log: 'f' } }]
-});
+}));
 function seededRun(seed) {
   RngEngine.seedWith(seed);
   fullRun({ S: 5, P: 5, E: 5, C: 5, I: 5, A: 5, L: 5 });

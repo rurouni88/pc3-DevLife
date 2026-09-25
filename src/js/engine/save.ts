@@ -1,10 +1,18 @@
 // Save/Load system
 
+import { RngEngine } from '../core/seeded-rng.js';
+import type { RngSnapshot } from '../core/seeded-rng.js';
+import { STAT_KEYS } from '../data/archetypes.js';
+import { PerkSystem } from '../data/perks.js';
+import { Game } from './game.js';
+import { SpecialSystem } from './special.js';
+import type { GameState, PerkSnapshot, SaveDataShape, SpecialSnapshot } from '../core/types.js';
+
 // Schema validation for run saves. A save from an older version (or a
 // hand-edited one) must not be restored into the live game. SaveData owns
 // the shape rules in one place; validate() reports ALL problems at once
 // so a bad save is diagnosable from the log, not just "rejected".
-class SaveData {
+export class SaveData {
   state: GameState;
   special: SpecialSnapshot;
   perks: PerkSnapshot;
@@ -119,7 +127,7 @@ class SaveData {
   }
 }
 
-const SaveSystem = {
+export const SaveSystem = {
   SAVE_KEY: 'devlife_save',
 
   save(state: GameState): void {
