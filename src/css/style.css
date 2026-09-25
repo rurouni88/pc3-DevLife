@@ -936,7 +936,8 @@ body {
 
 .leaderboard-header,
 .leaderboard-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 2ch 3ch 1fr 4ch 9ch;
   gap: 4px;
   padding: 4px 8px;
   font-size: 0.75rem;
@@ -958,31 +959,22 @@ body {
 }
 
 .lb-rank {
-  width: 2rem;
-  min-width: 0;
   text-align: center;
   color: var(--text-muted);
 }
 
 .lb-year {
-  width: 3rem;
-  min-width: 0;
   text-align: right;
   font-weight: 700;
 }
 
 .lb-seed {
-  flex: 1;
-  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--text-secondary);
 }
 
 .lb-result {
-  width: 1.5rem;
-  min-width: 0;
   text-align: center;
 }
 
@@ -991,12 +983,9 @@ body {
 }
 
 .lb-archetype {
-  flex: 2;
-  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--text-secondary);
 }
 
 /* Narrow screens: keep all columns, add horizontal scroll if needed. */
