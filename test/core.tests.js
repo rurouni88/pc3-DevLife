@@ -1007,10 +1007,11 @@ assert.ok(Achievements.satisfiedAchievementIds(achState({ won: true, difficulty:
 assert.ok(!Achievements.satisfiedAchievementIds(achState({ won: true, difficulty: 'normal', archetype: 'custom', consumablesUsed: 1 })).includes('architect_normal'), 'archetype: won+normal+custom → none');
 assert.ok(!Achievements.satisfiedAchievementIds(achState({ won: true, difficulty: 'easy', archetype: 'architect', consumablesUsed: 1 })).includes('architect_normal'), 'archetype: won+easy → none (Normal only)');
 
-// Hard-mode achievements are not implemented — never fire even on a Hard win
+// Hard-mode achievements fire on a Hard win
 const hard = Achievements.satisfiedAchievementIds(achState({ won: true, difficulty: 'hard', archetype: 'architect', consumablesUsed: 1 }));
-assert.ok(!hard.includes('architect_hard'), 'hard: architect_hard not implemented');
-assert.ok(!hard.includes('campaign_hard_universal'), 'hard: campaign_hard not implemented');
+assert.ok(hard.includes('architect_hard'), 'hard: architect_hard fires on Hard win');
+assert.ok(hard.includes('campaign_hard_universal'), 'hard: campaign_hard fires on Hard win');
+assert.ok(!hard.includes('stat_consumable_5'), 'hard: Load Bearing still not implemented');
 
 // combined: a Normal win as architect with 4 maxed stats and no consumables
 SpecialSystem.init({ S: 10, P: 10, E: 10, C: 10, I: 1, A: 1, L: 1 });

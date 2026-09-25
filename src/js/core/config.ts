@@ -2,7 +2,7 @@
 import type { Difficulty, StatKey } from './types.js';
 
 export const CONFIG = {
-  version: '0.48',
+  version: '0.49',
   versionLabel: 'Pretty Playable Prototype (PPP)',
 
   stats: {
@@ -48,7 +48,7 @@ export const CONFIG = {
     difficulty: {
       easy:   { label: 'Easy',   emoji: '🙂', negMultSides: 1, desc: 'The “Standard” career. Failures land exactly as written — no cosmic punishment. For your first run, or for when you\u2019re feeling generous with yourself.' },
       normal: { label: 'Normal', emoji: '😬', negMultSides: 2, desc: 'The “Realistic” career. Failures hit 1–2× harder, rolled on a d2. This is what the industry actually feels like.' },
-      hard:   { label: 'Hard',   emoji: '💀', negMultSides: 4, desc: 'The “Unrealistic” career. Failures hit 1–4× harder, rolled on a d4. For masochists — or anyone who\u2019s been on-call since 2019.', locked: true },
+      hard:   { label: 'Hard',   emoji: '💀', negMultSides: 4, desc: 'The “Unrealistic” career. Failures hit 1–4× harder, rolled on a d4. For masochists — or anyone who\u2019s been on-call since 2019.' },
     } as Record<Difficulty, { label: string; emoji: string; negMultSides: number; desc: string; locked?: boolean }>,
   },
 
