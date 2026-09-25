@@ -37,11 +37,17 @@ const INDEX_ASSET_COUNT = (indexHtml.match(/(?:src|href)="[^"]*\.(?:js|css)(?:\?
 const INDEX_VERSIONS = [...indexHtml.matchAll(/[?&]v=([\d.]+)/g)].map(m => m[1]);
 
 // Executable in Node (no DOM/fetch at load time), in dependency order.
-const RUN_FILES = ['config', 'seeded-rng', 'utils', 'events', 'archetypes', 'items', 'special', 'perks', 'achievements', 'meta', 'game', 'save'];
+const RUN_FILES = ['core/config', 'core/seeded-rng', 'core/utils', 'data/events', 'data/archetypes', 'data/items', 'engine/special', 'data/perks', 'data/achievements', 'engine/meta', 'engine/game', 'engine/save'];
 
 // 1. Syntax-check every JS file (including the DOM-bound ones)
-for (const file of fs.readdirSync(JS_DIR).filter(f => f.endsWith('.js'))) {
-  new vm.Script(fs.readFileSync(path.join(JS_DIR, file), 'utf8'), { filename: file });
+function listJs(dir) {
+  return fs.readdirSync(dir, { withFileTypes: true }).flatMap(e =>
+    e.isDirectory() ? listJs(path.join(dir, e.name))
+    : e.name.endsWith('.js') ? [path.join(dir, e.name)]
+    : []);
+}
+for (const file of listJs(JS_DIR)) {
+  new vm.Script(fs.readFileSync(file, 'utf8'), { filename: path.basename(file) });
 }
 console.log('✓ syntax: all js files parse');
 
