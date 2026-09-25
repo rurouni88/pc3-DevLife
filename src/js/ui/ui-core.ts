@@ -756,20 +756,20 @@ const SVG_SYMBOLS = `
   <!-- Difficulty icons: same face, different mouths -->
   <symbol id="icon-easy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <circle cx="12" cy="12" r="10"/>
-    <line x1="9" y1="10" x2="9.01" y2="10" stroke-width="3"/>
-    <line x1="15" y1="10" x2="15.01" y2="10" stroke-width="3"/>
+    <circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/>
+    <circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/>
     <path d="M8 15s1.5 2 4 2 4-2 4-2"/>
   </symbol>
   <symbol id="icon-normal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <circle cx="12" cy="12" r="10"/>
-    <line x1="9" y1="10" x2="9.01" y2="10" stroke-width="3"/>
-    <line x1="15" y1="10" x2="15.01" y2="10" stroke-width="3"/>
+    <circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/>
+    <circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/>
     <path d="M9 15h6"/>
   </symbol>
   <symbol id="icon-hard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <circle cx="12" cy="12" r="10"/>
-    <line x1="9" y1="10" x2="9.01" y2="10" stroke-width="3"/>
-    <line x1="15" y1="10" x2="15.01" y2="10" stroke-width="3"/>
+    <circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/>
+    <circle cx="15" cy="10" r="1" fill="currentColor" stroke="none"/>
     <path d="M8 15s1.5-2 4-2 4 2 4 2"/>
   </symbol>
 `;
