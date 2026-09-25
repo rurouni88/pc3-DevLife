@@ -5,6 +5,18 @@
 
 // Perk intervention prompts — one per available perk, rendered by the
 // pending decision screen (renderPerkDecision).
+import { STAT_META } from '../core/config.js';
+import { formatSignedEffects } from '../core/utils.js';
+import { STAT_KEYS } from '../data/archetypes.js';
+import { CONSUMABLES } from '../data/items.js';
+import { PERK_BY_ID } from '../data/perks.js';
+import { ConsumableManager, Game } from '../engine/game.js';
+import { SpecialSystem } from '../engine/special.js';
+import { UIDice } from './ui-dice.js';
+import { UI } from './ui.js';
+import type {CheckResult, Consumable, GameEvent, PerkDecisions, PerkInterventions, ProcessResult, ResolvedChoice, StatKey} from '../core/types.js';
+
+
 const perkPromptBox = (perkId: string, yesId: string, noId: string, useLabel: string): string => {
   const perk = PERK_BY_ID[perkId];
   return `
@@ -55,7 +67,7 @@ function formatCheckResult(cr: CheckResult): string {
   return `<span class="stat-change ${cr.success ? 'positive' : 'negative'}">${cr.stat}: 🎲 ${cr.rawRoll} − ${luck} = ${cr.roll} vs ${cr.target} ${mark}</span>`;
 }
 
-const UIEventCard = {
+export const UIEventCard = {
   // Render an event
   renderEvent(event: GameEvent): void {
     const container = document.getElementById('event-container');

@@ -24,8 +24,7 @@
             <span class="ascii-dot yellow"></span>
             <span class="ascii-dot green"></span>
             <span class="ascii-terminal-title">d20().devLife — ~/career</span>
-          </div>
-          <pre class="ascii-terminal-body" id="ascii-terminal-body"></pre>
+          </div>          <pre class="ascii-terminal-body" id="ascii-terminal-body"></pre>
         </div>
         <div class="menu-buttons">
           <div class="btn-row">
@@ -448,30 +447,11 @@
     </div>
   </div>
 
-  <script src="js/core/config.js?v=0.45"></script>
-  <script src="js/core/seeded-rng.js?v=0.45"></script>
-  <script src="js/core/utils.js?v=0.45"></script>
-  <script src="js/data/events.js?v=0.45"></script>
-  <script src="js/data/items.js?v=0.45"></script>
-  <script src="js/data/archetypes.js?v=0.45"></script>
-  <script src="js/engine/special.js?v=0.45"></script>
-  <script src="js/data/perks.js?v=0.45"></script>
-  <script src="js/data/achievements.js?v=0.45"></script>
-  <script src="js/engine/meta.js?v=0.45"></script>
-  <script src="js/engine/game.js?v=0.45"></script>
-  <!-- UI sections (composed into UI by ui.js, which must load last) -->
-  <script src="js/ui/ui-core.js?v=0.45"></script>
-  <script src="js/ui/ui-character.js?v=0.45"></script>
-  <script src="js/ui/ui-levelup.js?v=0.45"></script>
-  <script src="js/ui/ui-endofrun.js?v=0.45"></script>
-  <script src="js/ui/ui-event.js?v=0.45"></script>
-  <script src="js/ui/ui-tooltip.js?v=0.45"></script>
-  <script src="js/ui/ui-dice.js?v=0.45"></script>
-  <script src="js/ui/ui-leaderboard.js?v=0.45"></script>
-  <script src="js/ui/ui-achievements.js?v=0.45"></script>
-  <script src="js/ui/ui-statistics.js?v=0.45"></script>
-  <script src="js/ui/ui.js?v=0.45"></script>
-  <script src="js/engine/save.js?v=0.45"></script>
-  <script src="js/app.js?v=0.45"></script>
+  <!-- Single entry point: the rest of the module graph (26 files across
+       core/data/engine/ui) arrives via static imports from app.js. Sub-
+       resources are fetched by bare URL, so they rely on the _headers
+       no-cache policy instead of per-file ?v= cache-busting; the entry
+       itself is versioned. -->
+  <script type="module" src="js/app.js?v=0.45"></script>
 </body>
 </html>

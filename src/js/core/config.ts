@@ -1,5 +1,7 @@
 // Game configuration — all tunable constants in one place
-const CONFIG = {
+import type { Difficulty, StatKey } from './types.js';
+
+export const CONFIG = {
   version: '0.45',
   versionLabel: 'Pretty Playable Prototype (PPP)',
 
@@ -67,7 +69,7 @@ const CONFIG = {
 };
 
 // Stat metadata
-const STAT_META: Record<StatKey, { name: string; short: string; desc: string; color: string }> = {
+export const STAT_META: Record<StatKey, { name: string; short: string; desc: string; color: string }> = {
   S: {
     name: "Strength",
     short: "Technical Depth & Raw Coding Power",

@@ -1,23 +1,24 @@
 // Shared type definitions for the d20().devLife codebase.
 // This file contains type declarations only — no runtime code. It is picked up
 // by the TypeScript compiler (tsconfig "include") and intentionally NOT loaded
-// as a <script> in index.html. It is a global *script* (no import/export), so
-// every declaration below is available to all other files without imports.
+// as a <script> in index.html; it compiles to an empty module.
+
+import type { RngSnapshot } from './seeded-rng.js';
 
 /** A single SPECIAL stat letter. */
-type StatKey = 'S' | 'P' | 'E' | 'C' | 'I' | 'A' | 'L';
+export type StatKey = 'S' | 'P' | 'E' | 'C' | 'I' | 'A' | 'L';
 
 /** All seven base stats. */
-type Stats = Record<StatKey, number>;
+export type Stats = Record<StatKey, number>;
 
 /** Item rarity tiers (see RARITY_WEIGHTS in items.js). */
-type Rarity = 'common' | 'uncommon' | 'rare' | 'epic';
+export type Rarity = 'common' | 'uncommon' | 'rare' | 'epic';
 
 /** Career difficulty. Fixed at run start — no mid-run changes. */
-type Difficulty = 'easy' | 'normal' | 'hard';
+export type Difficulty = 'easy' | 'normal' | 'hard';
 
 /** Equipment — passive item with permanent stat bonuses and/or slot bonuses. */
-interface Equipment {
+export interface Equipment {
   id: string;
   name: string;
   emoji: string;
@@ -37,7 +38,7 @@ interface Equipment {
  *  - `effects`: multiple stat deltas at once, negatives allowed (alcohol —
  *    e.g. Beer is +2 Endurance, -1 Perception, -1 Agility)
  */
-interface Consumable {
+export interface Consumable {
   id: string;
   name: string;
   emoji: string;
@@ -50,7 +51,7 @@ interface Consumable {
 }
 
 /** Result of using a consumable (multiplier fields only for AI tools). */
-interface ConsumableUseResult {
+export interface ConsumableUseResult {
   id: string;
   name: string;
   emoji: string;
@@ -63,14 +64,14 @@ interface ConsumableUseResult {
 }
 
 /** The outcome of a choice branch (success or failure). */
-interface EventOutcome {
+export interface EventOutcome {
   text: string;
   effects: Partial<Stats>;
   log: string;
 }
 
 /** A player choice within an event. */
-interface EventChoice {
+export interface EventChoice {
   text: string;
   checks?: Partial<Record<StatKey, number>>;
   success: EventOutcome;
@@ -78,7 +79,7 @@ interface EventChoice {
 }
 
 /** A game event as defined in data/events/phase_*.json. */
-interface GameEvent {
+export interface GameEvent {
   id: string;
   title: string;
   phase: number;
@@ -88,7 +89,7 @@ interface GameEvent {
 }
 
 /** The result of a single stat check roll. */
-interface CheckResult {
+export interface CheckResult {
   stat: StatKey;
   roll: number;
   // The unmodified d20 face (1-20). `roll` is Luck-adjusted (d20 - L) and can
@@ -101,7 +102,7 @@ interface CheckResult {
 }
 
 /** Which perk interventions are available for a resolved choice. */
-interface PerkInterventions {
+export interface PerkInterventions {
   negotiate: boolean;
   bruteForce: boolean;
   codeReview: boolean;
@@ -111,7 +112,7 @@ interface PerkInterventions {
  * resolved and the available perk interventions determined, but NOTHING is
  * applied yet — effects, loot, days, and milestones all happen in
  * Game.applyChoice, after the player has decided. */
-interface ResolvedChoice {
+export interface ResolvedChoice {
   gameEvent: GameEvent;
   choice: EventChoice;
   isBoss: boolean;
@@ -122,12 +123,12 @@ interface ResolvedChoice {
 }
 
 /** The player's decisions on the available interventions (applyChoice input). */
-type PerkDecisions = PerkInterventions;
+export type PerkDecisions = PerkInterventions;
 
 /** The return value of Game.applyChoice (the final, applied outcome).
  * On failure (no active run) only `error` is set.
  * `gameOver` is the death reason object, or null when the run continues. */
-interface ProcessResult {
+export interface ProcessResult {
   error?: string;
   success?: boolean;
   checkResults?: CheckResult[];
@@ -149,14 +150,14 @@ interface ProcessResult {
 }
 
 /** A career log entry (most recent first). */
-interface CareerLogEntry {
+export interface CareerLogEntry {
   message: string;
   day: number;
   timestamp: number;
 }
 
 /** The full mutable game state (Game.state). */
-interface GameState {
+export interface GameState {
   stats: Stats;
   equipment: Equipment[];
   consumables: Consumable[];
@@ -186,14 +187,14 @@ interface GameState {
 }
 
 /** A predefined starting build (archetypes.js). */
-interface Archetype {
+export interface Archetype {
   name: string;
   description: string;
   stats: Stats;
 }
 
 /** PerkSystem snapshot for save/load. */
-interface PerkSnapshot {
+export interface PerkSnapshot {
   active: string[];
   bruteForceUsed: boolean;
   codeReviewUsed: boolean;
@@ -203,14 +204,14 @@ interface PerkSnapshot {
 }
 
 /** SpecialSystem snapshot for save/load. */
-interface SpecialSnapshot {
+export interface SpecialSnapshot {
   stats: Stats;
   equipmentBonuses: Stats;
 }
 
 /** The shape of a localStorage run save (SaveSystem). The SaveData class
  * in save.js validates this shape and wraps a valid instance. */
-interface SaveDataShape {
+export interface SaveDataShape {
   state: GameState;
   special: SpecialSnapshot;
   perks: PerkSnapshot;
@@ -221,7 +222,7 @@ interface SaveDataShape {
 }
 
 /** The shape of the devlife_meta localStorage entry (MetaStore). */
-interface MetaState {
+export interface MetaState {
   totalRuns?: number;
   lastRunDate?: string;
   startingEquipment?: string[];
@@ -236,7 +237,7 @@ interface MetaState {
 
 // Lifetime statistics, persisted across runs. All fields optional so old
 // saves (pre-statistics) load cleanly; readers apply the zero defaults.
-interface MetaStats {
+export interface MetaStats {
   wins?: number;
   losses?: number;
   bestDay?: number;
@@ -252,7 +253,7 @@ interface MetaStats {
 
 // The result of a finished run, folded into lifetime statistics.
 // Passed to MetaStore.recordRunComplete (issue #53).
-interface RunResult {
+export interface RunResult {
   won: boolean;
   day: number;
   difficulty: Difficulty;
@@ -261,8 +262,26 @@ interface RunResult {
   stats: Stats;
 }
 
-/** A single completed run, stored in MetaStore for the leaderboard. */
-interface RunRecord {
+// Achievement types (used by the data tier's definitions and the engine's
+// satisfaction checks; kept here — the canonical type home — so the core
+// tier never needs to import from data/).
+export type AchievementMode = 'Any' | 'Normal' | 'Hard';
+
+export interface AchievementDefinition {
+  id: string;
+  mode: AchievementMode;
+  title: string;
+  description: string;
+  emoji: string;
+  implemented?: boolean;
+  // Archetype achievements gate on this; universal ones leave it unset.
+  archetype?: string;
+  // The achievement-specific part of the satisfaction condition. The
+  // engine separately applies the shared gates (mode, archetype).
+  check: (state: GameState) => boolean;
+}
+
+export interface RunRecord {
   seed: string;
   difficulty: Difficulty;
   day: number;

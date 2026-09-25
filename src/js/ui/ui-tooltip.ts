@@ -2,7 +2,13 @@
 // showTooltip/hideTooltip, triggered by the difficulty & consumable "?"
 // buttons, the equipment list, and the perk chips. Loaded before ui.js; its
 // methods are composed into UI there.
-const UITooltip = {
+import { STAT_META } from '../core/config.js';
+import { equipmentEffectText } from '../core/utils.js';
+import { UI } from './ui.js';
+import type {StatKey, Stats} from '../core/types.js';
+
+
+export const UITooltip = {
   // Show the item tooltip (consumables, equipment, perks).
   showTooltip(item: {
     emoji?: string;

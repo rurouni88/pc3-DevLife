@@ -3,6 +3,9 @@
 // Triggered by game checks; shows cycling animation then settles on the roll.
 
 // Create the SVG d20 (icosahedron projection) with a number overlay.
+import { CONFIG } from '../core/config.js';
+
+
 function createDiceSVG(value: number): SVGSVGElement {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', '0 0 100 120');
@@ -151,7 +154,7 @@ function showDiceRoll(rolls: DiceRoll[], callback?: () => void): void {
   });
 }
 
-const UIDice = {
+export const UIDice = {
   showDiceRoll,
   animateDiceRoll,
   createDiceSVG,

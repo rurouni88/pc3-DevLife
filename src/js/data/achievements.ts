@@ -9,24 +9,17 @@
 // systems, advocate, balanced, sre, pentester, archeologist, em). A player who
 // custom-builds and doesn't match a preset has state.archetype === 'custom',
 // which satisfies no archetype achievement.
+//
+// The checks read SpecialSystem.stats (engine tier) — an accepted data→
+// engine reference: achievements evaluate against the live game at run end,
+// and special.ts imports nothing from achievements, so there is no cycle.
+
+import { MAX_STAT, STAT_KEYS } from './archetypes.js';
+import { consumableCapFor } from './items.js';
+import { SpecialSystem } from '../engine/special.js';
+import type { AchievementDefinition, AchievementMode, Difficulty, GameState } from '../core/types.js';
 
 // --- Types ---
-
-type AchievementMode = 'Any' | 'Normal' | 'Hard';
-
-interface AchievementDefinition {
-  id: string;
-  mode: AchievementMode;
-  title: string;
-  description: string;
-  emoji: string;
-  implemented?: boolean;
-  // Archetype achievements gate on this; universal ones leave it unset.
-  archetype?: string;
-  // The achievement-specific part of the satisfaction condition. The
-  // engine separately applies the shared gates (mode, archetype).
-  check: (state: GameState) => boolean;
-}
 
 interface ArchetypeAchievement extends AchievementDefinition {
   archetype: string;
@@ -34,7 +27,7 @@ interface ArchetypeAchievement extends AchievementDefinition {
 
 // --- Universal Achievements ---
 
-const UNIVERSAL_ACHIEVEMENTS: AchievementDefinition[] = [
+export const UNIVERSAL_ACHIEVEMENTS: AchievementDefinition[] = [
   {
     id: 'campaign_normal_universal',
     mode: 'Normal',
@@ -107,7 +100,7 @@ const UNIVERSAL_ACHIEVEMENTS: AchievementDefinition[] = [
 // Keys and the `archetype` field use the ARCHETYPES keys. Hard-mode entries are
 // not implemented until HARD difficulty ships (issue #6).
 
-const ARCHETYPE_ACHIEVEMENTS: Record<string, ArchetypeAchievement[]> = {
+export const ARCHETYPE_ACHIEVEMENTS: Record<string, ArchetypeAchievement[]> = {
   architect: [
     {
       archetype: 'architect',
@@ -305,7 +298,7 @@ const ARCHETYPE_ACHIEVEMENTS: Record<string, ArchetypeAchievement[]> = {
 const ACHIEVEMENTS_STORAGE_KEY = 'devlife_achievements';
 
 // Get the set of unlocked achievement IDs from localStorage.
-function getUnlocked(): Set<string> {
+export function getUnlocked(): Set<string> {
   try {
     const data = localStorage.getItem(ACHIEVEMENTS_STORAGE_KEY);
     if (data) {
@@ -327,7 +320,7 @@ function saveUnlocked(unlocked: Set<string>): void {
 }
 
 // Wipe all unlocked achievements (issue #53 — reset from the options menu).
-function clearUnlocked(): void {
+export function clearUnlocked(): void {
   try {
     localStorage.removeItem(ACHIEVEMENTS_STORAGE_KEY);
   } catch {
@@ -338,7 +331,7 @@ function clearUnlocked(): void {
 // --- Logic ---
 
 // Check if an achievement is not yet implemented (type guard).
-function isNotImplemented(ach: AchievementDefinition): ach is AchievementDefinition & { implemented: false } {
+export function isNotImplemented(ach: AchievementDefinition): ach is AchievementDefinition & { implemented: false } {
   return ach.implemented === false;
 }
 
@@ -391,7 +384,7 @@ function evaluate(state: GameState): AchievementDefinition[] {
 }
 
 // Export for use in other modules
-const Achievements = {
+export const Achievements = {
   UNIVERSAL_ACHIEVEMENTS,
   ARCHETYPE_ACHIEVEMENTS,
   isNotImplemented,

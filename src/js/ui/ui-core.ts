@@ -2,6 +2,23 @@
 // screens, popups, the title-screen ASCII loop, and the SVG icon defs.
 // UICore is merged into UI by ui.ts; the section files use the helpers
 // here directly.
+//
+// A few UICore methods call back through the composed UI (e.g.
+// UI.selectDifficulty) — hence the import of ui.js, which imports this
+// file. The cycle is safe: it is only touched inside event handlers, long
+// after the composition has run (see the note in ui.ts).
+
+import { CONFIG, STAT_META } from '../core/config.js';
+import { RngEngine } from '../core/seeded-rng.js';
+import { dayToCareerYear } from '../core/utils.js';
+import { STAT_KEYS } from '../data/archetypes.js';
+import { PERK_BY_ID, PerkSystem } from '../data/perks.js';
+import { Achievements, clearUnlocked } from '../data/achievements.js';
+import { Game } from '../engine/game.js';
+import { MetaStore } from '../engine/meta.js';
+import { SpecialSystem } from '../engine/special.js';
+import { UI } from './ui.js';
+import type {Consumable, Difficulty, StatKey} from '../core/types.js';
 
 // Shared DOM helpers — the UI is static HTML, but the type system
 // doesn't know that, so these narrow once and reuse.
@@ -27,17 +44,17 @@ const SOUND_DEFS: Record<string, {
   perk:     { oscType: 'sine', notes: [{ freq: 988, time: 0 }, { freq: 1319, time: 0.09 }], gain: 0.12, gainRampEnd: 0.01, gainRampDuration: 0.25 },
   victory:  { oscType: 'sine', notes: [{ freq: 523, time: 0 }, { freq: 659, time: 0.15 }, { freq: 784, time: 0.3 }, { freq: 1047, time: 0.45 }, { freq: 784, time: 0.6 }, { freq: 1047, time: 0.75 }], gain: 0.15, gainRampEnd: 0.01, gainRampDuration: 1 },
 };
-const setDisplay = (id: string, display: string): void => {
+export const setDisplay = (id: string, display: string): void => {
   const el = document.getElementById(id);
   if (el) el.style.display = display;
 };
-const setText = (id: string, text: string): void => {
+export const setText = (id: string, text: string): void => {
   const el = document.getElementById(id);
   if (el) el.textContent = text;
 };
 // UICore: screens, toasts/audio, event & result rendering, popups.
 // Merged with the section objects into UI by ui.ts.
-const UICore = {
+export const UICore = {
   currentScreen: 'title' as string,
 
   // Difficulty selector (issue #6): lozenge row on the title screen.
@@ -689,7 +706,7 @@ const SVG_SYMBOLS = `
 `;
 
 // Inject shared SVG symbols into the DOM so <use href="#icon-*"> works.
-function initSvgAssets(): void {
+export function initSvgAssets(): void {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.style.display = 'none';
   svg.innerHTML = SVG_SYMBOLS;

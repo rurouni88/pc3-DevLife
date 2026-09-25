@@ -2,7 +2,13 @@
 // Owns the 'devlife_meta' localStorage shape; other modules must not
 // read or write that key directly.
 
-const MetaStore = {
+import { zeroStats } from '../core/utils.js';
+import { STAT_KEYS } from '../data/archetypes.js';
+import { Game } from './game.js';
+import { SaveSystem } from './save.js';
+import type { Difficulty, MetaState, MetaStats, RunRecord, RunResult } from '../core/types.js';
+
+export const MetaStore = {
   KEY: 'devlife_meta',
 
   // Parse with a guard: a corrupted entry must not take the game down —

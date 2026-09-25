@@ -5,6 +5,11 @@
 // Loaded before ui.js; its methods are composed into UI there.
 
 // Render state for a single achievement.
+import type { AchievementDefinition } from '../core/types.js';
+import { ARCHETYPE_ACHIEVEMENTS, Achievements, UNIVERSAL_ACHIEVEMENTS, getUnlocked, isNotImplemented } from '../data/achievements.js';
+import { UI } from './ui.js';
+
+
 type AchievementState = 'unlocked' | 'notImplemented' | 'locked';
 
 // Render a single achievement card as HTML.
@@ -32,7 +37,7 @@ function getAchievementState(ach: AchievementDefinition, unlocked: Set<string>):
   return 'locked';
 }
 
-const UIAchievements = {
+export const UIAchievements = {
   // Show the achievements modal.
   showAchievements(): void {
     UI.renderAchievements();

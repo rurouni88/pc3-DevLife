@@ -1,5 +1,8 @@
 // Archetypes — predefined starting builds
-const ARCHETYPES: Record<string, Archetype> = {
+import { CONFIG } from '../core/config.js';
+import type { Archetype, StatKey, Stats } from '../core/types.js';
+
+export const ARCHETYPES: Record<string, Archetype> = {
   architect: {
     name: "The Principal Architect",
     description: "High-level design & stakeholder alignment",
@@ -59,9 +62,9 @@ const ARCHETYPES: Record<string, Archetype> = {
 
 
 // CONFIG.stats.keys is validated at startup; the letters are the stat keys
-const STAT_KEYS: StatKey[] = CONFIG.stats.keys;
-const STARTING_POINTS = CONFIG.stats.startingPoints;
-const MAX_STAT = CONFIG.stats.max;
+export const STAT_KEYS: StatKey[] = CONFIG.stats.keys;
+export const STARTING_POINTS = CONFIG.stats.startingPoints;
+export const MAX_STAT = CONFIG.stats.max;
 
 // Classify a stat build by EXACT match against the archetype declarations.
 // Returns the archetype key whose stats match exactly, or 'custom' if none.
@@ -69,7 +72,7 @@ const MAX_STAT = CONFIG.stats.max;
 // recorded starting archetype always matches what the player saw. Selecting a
 // preset writes its exact stats, so detection naturally returns that preset.
 // (prototype_king sums to 42 > the 40-point budget, so it can never match.)
-function classifyArchetype(stats: Stats): string {
+export function classifyArchetype(stats: Stats): string {
   for (const [key, arch] of Object.entries(ARCHETYPES)) {
     if (STAT_KEYS.every(k => stats[k] === arch.stats[k])) return key;
   }

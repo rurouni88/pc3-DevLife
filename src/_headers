@@ -1,0 +1,11 @@
+# GitHub Pages cache policy.
+#
+# The page loads one entry module (js/app.js?v=<version>); the rest of the
+# module graph is fetched by bare URL and cached by the browser. Per-file
+# ?v= cache-busting therefore can't reach sub-resources — instead we ask
+# Pages to revalidate them (no-cache = check the ETag before serving from
+# cache), so a deploy always wins.
+/js/*
+  Cache-Control: no-cache
+/css/*
+  Cache-Control: no-cache

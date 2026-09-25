@@ -1,5 +1,21 @@
 // Core game engine
 
+import { CONFIG } from '../core/config.js';
+import { RngEngine } from '../core/seeded-rng.js';
+import { clampStat, Dice, shuffle } from '../core/utils.js';
+import type {
+  CareerLogEntry, CheckResult, Consumable, Difficulty, Equipment, EventChoice,
+  ConsumableUseResult, GameEvent, GameState, PerkDecisions, ProcessResult, ResolvedChoice,
+  RunResult, Stats, StatKey,
+} from '../core/types.js';
+import { STAT_KEYS, classifyArchetype } from '../data/archetypes.js';
+import { BOSS_PREFIX, EVENTS, getBossEvent, getRandomNonBossEvent } from '../data/events.js';
+import { CONSUMABLES, consumableCapFor, get3RandomConsumables, getRandomEquipment } from '../data/items.js';
+import { PerkSystem } from '../data/perks.js';
+import { Achievements } from '../data/achievements.js';
+import { MetaStore } from './meta.js';
+import { SpecialSystem } from './special.js';
+
 // Deterministic death conditions — ordered array. The first match wins.
 // Each condition has a stat, a predicate, and the death messages.
 // Extending with new phases just means appending to this array.
@@ -17,7 +33,7 @@ const DEATH_CONDITIONS: {
   { check: (_state, stats) => stats.L <= 1, log: 'Your luck ran out — everything you touched broke.', reason: '💀 Bad Luck Runs Out — Every deploy broke and every guess was wrong. The universe finally stopped favoring you.' },
 ];
 
-const Game = {
+export const Game = {
   state: null as GameState | null,
 
   // Consumable slot cap: base cap + slot bonuses from carried equipment
@@ -189,7 +205,7 @@ const Game = {
     if (!success) {
       const diff = CONFIG.game.difficulty[state.difficulty];
       if (diff && diff.negMultSides > 1) {
-        const mult = dRoll(diff.negMultSides);
+        const mult = Dice.dRoll(diff.negMultSides);
         const scaled: Partial<Stats> = {};
         for (const [stat, value] of Object.entries(effects) as [StatKey, number][]) {
           scaled[stat] = value < 0 ? value * mult : value;
@@ -289,7 +305,7 @@ const Game = {
       for (const [stat, target] of Object.entries(choice.checks) as [StatKey, number][]) {
         let effective = SpecialSystem.effective(stat);
         const L = SpecialSystem.stats.L;
-        let rawRoll = d20();
+        let rawRoll = Dice.d20();
         let roll = rawRoll - L;
         let checkTarget = target;
         let success = roll <= checkTarget && effective >= (target - L) * CONFIG.game.competenceGateFactor;
@@ -298,7 +314,7 @@ const Game = {
         if (!success && PerkSystem.canCleanDeployReroll()) {
           PerkSystem.useCleanDeployReroll();
           cleanDeployUsed = true;
-          rawRoll = d20();
+          rawRoll = Dice.d20();
           roll = rawRoll - L;
           success = roll <= checkTarget && effective >= (target - L) * CONFIG.game.competenceGateFactor;
           if (success) {
@@ -411,7 +427,7 @@ const Game = {
 
     // Attempt the saving roll.
     const target = stats.L + CONFIG.game.savingRollCharismaFactor * stats.C;
-    const roll = d20();
+    const roll = Dice.d20();
     if (roll <= target) {
       // Survived: claw every floored stat back up by 1. This also acts as the
       // cooldown — no stat is on the floor again until one drops there.
@@ -526,7 +542,7 @@ const Game = {
 };
 
 // Consumable management
-const ConsumableManager = {
+export const ConsumableManager = {
   use(consumableId: string): ConsumableUseResult | null {
     const state = Game.state;
     if (!state) return null;

@@ -35,12 +35,12 @@ function formatSeed(num: number): string {
 
 // Snapshot of the PRNG position — persisted in run saves so a loaded
 // seeded run resumes from the exact same point in the sequence.
-interface RngSnapshot {
+export interface RngSnapshot {
   seed: string;
   state: number | null;
 }
 
-const RngEngine = {
+export const RngEngine = {
   // Current seed string (empty when unseeded).
   seed: '',
 
